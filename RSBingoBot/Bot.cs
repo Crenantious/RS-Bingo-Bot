@@ -1,12 +1,16 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Extensions;
+﻿// <copyright file="Bot.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace BingoBotEmbed
 {
+    using DSharpPlus;
+    using DSharpPlus.CommandsNext;
+    using DSharpPlus.EventArgs;
+    using DSharpPlus.SlashCommands;
+    using DSharpPlus.Interactivity;
+    using DSharpPlus.Interactivity.Extensions;
+
     public class Bot
     {
         const string token = "";
@@ -14,7 +18,9 @@ namespace BingoBotEmbed
         readonly string[] prefixes = new string[] { "." };
 
         public static DiscordClient Client { get; private set; } = null!;
+
         public static InteractivityExtension Interactivity { get; private set; } = null!;
+
         public static CommandsNextExtension Commands { get; private set; } = null!;
 
         public async Task RunAsync()
@@ -23,17 +29,17 @@ namespace BingoBotEmbed
             {
                 Token = token,
                 TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged
+                Intents = DiscordIntents.AllUnprivileged,
             });
 
             Client.UseInteractivity(new InteractivityConfiguration { });
 
             Commands = Client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = prefixes,
+                StringPrefixes = this.prefixes,
                 EnableDms = false,
                 EnableDefaultHelp = true,
-                DmHelp = false
+                DmHelp = false,
             });
 
             SlashCommandsExtension? slash = Client.UseSlashCommands();
