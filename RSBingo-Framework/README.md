@@ -1,7 +1,7 @@
 Rebuilding EFCore Models
 ========================
 
-Line to rebuild Models from the DB directly, use the Package Manager Console and set Collect-Framework as the startup/default project
+Line to rebuild Models from the DB directly, use the Package Manager Console and set RSBingo-Framework as the startup/default project
 
 scaffold-dbcontext "Server=xxxx;Database=xxx;Uid=xxx;Pwd=xxx" MySql.Data.EntityFrameworkCore -OutputDir Modelsx
 or
