@@ -1,0 +1,13 @@
+*.vbproj.CoreCompileInputs.cache
+*.sqlite
+bin/
+obj/
+.vs/
+*.vbproj.user
+*.csproj.user
+*.suo
+*.vbw
+*.vspscc
+Thumbs.db
+Stylecop.Cache
+Doc-*.xml
