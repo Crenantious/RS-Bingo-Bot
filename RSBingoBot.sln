@@ -5,7 +5,14 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingoBot", "RSBingoBot\RSBingoBot.csproj", "{0707A8E3-2D6B-4FAC-86D7-AB05595D3336}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSBingo-Framework", "RSBingo-Framework\RSBingo-Framework.csproj", "{D34EC254-EB6B-42E1-B449-BCCE82C88B37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingo-Framework", "RSBingo-Framework\RSBingo-Framework.csproj", "{D34EC254-EB6B-42E1-B449-BCCE82C88B37}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA49AD74-CEDE-45FC-B372-144D37BBDC80}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSBingo-Common", "RSBingo-Common\RSBingo-Common.csproj", "{4ACFB456-EB3E-4661-BE42-1EEA165407DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +28,10 @@ Global
 		{D34EC254-EB6B-42E1-B449-BCCE82C88B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D34EC254-EB6B-42E1-B449-BCCE82C88B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D34EC254-EB6B-42E1-B449-BCCE82C88B37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ACFB456-EB3E-4661-BE42-1EEA165407DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ACFB456-EB3E-4661-BE42-1EEA165407DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ACFB456-EB3E-4661-BE42-1EEA165407DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ACFB456-EB3E-4661-BE42-1EEA165407DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

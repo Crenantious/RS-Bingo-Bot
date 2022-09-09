@@ -1,13 +1,60 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using RSBingo_Framework.Models;
+﻿// <copyright file="RSBingoContext.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.DAL;
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using RSBingo_Framework.Models;
+
 public partial class RSBingoContext : DbContext
 {
+    /*
+     * TODO: JCH - Need to see if the DB auto handles create PK on save. If not need to update the DB to AUTO_INCREMENT.
+     */
+
     public RSBingoContext(DbContextOptions options)
         : base(options) { }
+
+    /// <summary>
+    /// Request to undo all changed to any entity that are marked with a change.
+    /// </summary>
+    public void RollBack()
+    {
+        List<EntityEntry> changedEntries = ChangeTracker.Entries().Where(x => x.State != EntityState.Unchanged).ToList();
+
+        foreach (EntityEntry entry in changedEntries)
+        {
+            switch (entry.State)
+            {
+                case EntityState.Modified:
+                    entry.CurrentValues.SetValues(entry.OriginalValues);
+                    entry.State = EntityState.Unchanged;
+                    break;
+                case EntityState.Added:
+                    entry.State = EntityState.Detached;
+                    break;
+                case EntityState.Deleted:
+                    entry.State = EntityState.Unchanged;
+                    break;
+            }
+        }
+    }
+
+    /// <inheritdoc/>
+    public override int SaveChanges()
+    {
+        // Check for custom validation
+        IEnumerable<EntityEntry> recordsToValidate = ChangeTracker.Entries();
+
+        foreach (EntityEntry recordToValidate in recordsToValidate)
+        {
+            // Perfrom valication based on EntityState and recordToValidate.Entity type.
+        }
+
+        return base.SaveChanges();
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -81,7 +128,7 @@ public partial class RSBingoContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(128);
         });
 
-        modelBuilder.Entity<Taskresriction>(entity =>
+        modelBuilder.Entity<TaskRestrciton>(entity =>
         {
             entity.HasNoKey();
 
@@ -160,5 +207,4 @@ public partial class RSBingoContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
 }

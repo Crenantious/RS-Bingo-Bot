@@ -14,8 +14,17 @@ namespace RSBingo_Framework.Repository
     public abstract class RepositoryBase<TEntity> : IRepository<TEntity>, IRepositoryBase
         where TEntity : BingoRecord
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RepositoryBase{TEntity}"/> class.
+        /// </summary>
+        /// <param name="dataWorker">DataWorker used to initialize the repository.</param>
+        public RepositoryBase(IDataWorker dataWorker)
+        {
+            DataWorker = dataWorker;
+        }
+
         /// <inheritdoc/>
-        public IDataWorker DataWorker => throw new NotImplementedException();
+        public IDataWorker DataWorker { get; }
 
         /// <summary>
         /// Gets the <see cref="Microsoft.EntityFrameworkCore.DbSet"/> for type <see cref="TEntity"/>.
@@ -25,80 +34,86 @@ namespace RSBingo_Framework.Repository
             get
             {
                 // Used to allow access via property in Locals during Dev as well as generic calls
-                return this.DataWorker!.Context.Set<TEntity>();
+                return DataWorker!.Context.Set<TEntity>();
             }
         }
 
         /// <inheritdoc/>
         public BingoRecord? FindByPK(object id)
         {
-            return this.DBSet.Find(id);
+            return DBSet.Find(id);
         }
 
         /// <inheritdoc/>
-        public TEntity Find(int id)
+        public TEntity? Find(int id)
         {
-            throw new NotImplementedException();
+            return DBSet.Find(id);
         }
 
         /// <inheritdoc/>
         public IEnumerable<TEntity> GetAll()
         {
-            throw new NotImplementedException();
+            return DBSet.ToList();
         }
 
         /// <inheritdoc/>
         public int CountAll()
         {
-            throw new NotImplementedException();
+            return DBSet.Count();
         }
 
         /// <inheritdoc/>
         public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate, int? limitRows = null)
         {
-            throw new NotImplementedException();
+            return limitRows.HasValue ? DBSet.Where(predicate).Take(limitRows.Value) : DBSet.Where(predicate);
         }
 
         /// <inheritdoc/>
-        public TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate, bool checkContext = false)
+        public TEntity? FirstOrDefault(Expression<Func<TEntity, bool>> predicate, bool checkContext = false)
         {
-            throw new NotImplementedException();
+            if (checkContext)
+            {
+                TEntity? result = DBSet.Local.FirstOrDefault(predicate.Compile());
+                if (result is not null) { return result; }
+            }
+
+            return DBSet.FirstOrDefault(predicate);
         }
 
         /// <inheritdoc/>
-        public TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predicate)
+        public TEntity? SingleOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return DBSet.SingleOrDefault(predicate);
         }
 
         /// <inheritdoc/>
         public int Count(Expression<Func<TEntity, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return DBSet.Count(predicate);
         }
 
         /// <inheritdoc/>
-        public TEntity Create()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract TEntity Create();
 
         /// <inheritdoc/>
         public TEntity Add(TEntity entity)
         {
-            throw new NotImplementedException();
+            DBSet.Add(entity);
+            return entity;
         }
 
         /// <inheritdoc/>
         public void Remove(TEntity entity)
         {
-            throw new NotImplementedException();
+            // TODO: JCH - We need to load cascade deletes here. With A project this size AutoInclude could be an option.
+            DBSet.Remove(entity);
         }
 
         /// <inheritdoc/>
         public void RemoveRange(IEnumerable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            // TODO: JCH - See abobe.
+            DBSet.RemoveRange(entities);
         }
     }
 }

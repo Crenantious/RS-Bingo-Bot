@@ -1,10 +1,17 @@
-﻿
-
-using Microsoft.EntityFrameworkCore;
-using static RSBingo_Framework.DAL.General;
+﻿// <copyright file="DataFactory.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.DAL;
 
+using Microsoft.EntityFrameworkCore;
+using RSBingo_Framework.Interfaces;
+using static RSBingo_Common.General;
+using static RSBingo_Framework.DAL.General;
+
+/// <summary>
+/// The data factory where all <see cref="DataWorker"/>s are created.
+/// </summary>
 public static class DataFactory
 {
     private const string DefaultSchema = "rsbingo";
@@ -15,13 +22,15 @@ public static class DataFactory
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
+    private static bool dataIsMock = false;
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
     /// </summary>
     /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
-    public static void SetupDataFactory()
+    public static void SetupDataFactory(bool asMockDB = false)
     {
+        dataIsMock = asMockDB;
         connectionString = Config_GetConnection(DBKey)!;
 
         schemaName = Config_GetConnection(SchemaKey)!;
@@ -31,14 +40,20 @@ public static class DataFactory
         }
     }
 
-    public static void CreateDataWorker()
+    /// <summary>
+    /// Creats a new instance of a DataWorker
+    /// </summary>
+    /// <returns>The data worker object defined as an interface.</returns>
+    public static IDataWorker CreateDataWorker()
     {
         DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
-        if (!builder.IsConfigured)
+
+        if (!dataIsMock && !builder.IsConfigured)
         {
             builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
         }
 
         RSBingoContext dbContext = new RSBingoContext(builder.Options);
+        return new DataWorker(dbContext, LoggingInstance<DataWorker>());
     }
 }

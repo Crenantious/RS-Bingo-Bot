@@ -1,7 +1,11 @@
-﻿using RSBingo_Framework.Models;
+﻿// <copyright file="IRepositoryBase.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Interfaces.IRepository
 {
+    using RSBingo_Framework.Models;
+
     /// <summary>
     /// Wrapper around the DbSet implementing the Repository Pattern and providing common access methods.
     /// </summary>

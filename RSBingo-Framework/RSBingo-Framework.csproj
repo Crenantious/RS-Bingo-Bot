@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RSBingoBot\RSBingoBot.csproj" />
+    <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
   </ItemGroup>
 
 </Project>

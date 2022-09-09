@@ -15,7 +15,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
         /// </summary>
         /// <param name="id">Finds the entity of the given primary key value.</param>
         /// <returns>The entity if found.</returns>
-        TEntity Find(int id);
+        TEntity? Find(int id);
 
         /// <summary>
         /// Diverted reference to the DBSet requesting all of the given Model types.
@@ -44,14 +44,14 @@ namespace RSBingo_Framework.Interfaces.IRepository
         /// <param name="predicate">Finds the entities of the given predicate.</param>
         /// <param name="checkContext">Checks the context first for unsaved records before testing the DB.</param>
         /// <returns>The entity if found or null.</returns>
-        TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate, bool checkContext = false);
+        TEntity? FirstOrDefault(Expression<Func<TEntity, bool>> predicate, bool checkContext = false);
 
         /// <summary>
         /// Diverted reference to the DBSet SingleOrDefault method of the given predicate.
         /// </summary>
         /// <param name="predicate">Finds the entities of the given predicate.</param>
         /// <returns>The entity if found or null.</returns>
-        TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predicate);
+        TEntity? SingleOrDefault(Expression<Func<TEntity, bool>> predicate);
 
         /// <summary>
         /// Diverted reference to the DBSet Count method of the given predicate.
