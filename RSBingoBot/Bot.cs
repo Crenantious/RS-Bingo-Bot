@@ -4,50 +4,57 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Entities;
+using RSBingoBot.Slash_commands;
 
-namespace BingoBotEmbed
+namespace RSBingoBot;
+
+public class Bot
 {
-    public class Bot
+    readonly string token = Environment.GetEnvironmentVariable("BOT_TOKEN")!;
+    readonly string[] prefixes = new string[] { "." };
+    readonly List<Team> teams = new();
+
+    public static DiscordClient Client { get; private set; } = null!;
+    public static InteractivityExtension Interactivity { get; private set; } = null!;
+    public static CommandsNextExtension CommandsNext { get; private set; } = null!;
+    public static SlashCommandsExtension SlashCommands { get; private set; } = null!;
+
+    public async Task RunAsync()
     {
-        const string token = "";
-
-        readonly string[] prefixes = new string[] { "." };
-
-        public static DiscordClient Client { get; private set; } = null!;
-        public static InteractivityExtension Interactivity { get; private set; } = null!;
-        public static CommandsNextExtension Commands { get; private set; } = null!;
-
-        public async Task RunAsync()
+        Console.WriteLine(token);
+        Client = new DiscordClient(new DiscordConfiguration()
         {
-            Client = new DiscordClient(new DiscordConfiguration()
-            {
-                Token = token,
-                TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged
-            });
+            Token = token,
+            TokenType = TokenType.Bot,
+            Intents = DiscordIntents.AllUnprivileged
+        });
 
-            Client.UseInteractivity(new InteractivityConfiguration { });
+        Interactivity = Client.UseInteractivity(new InteractivityConfiguration { });
 
-            Commands = Client.UseCommandsNext(new CommandsNextConfiguration
-            {
-                StringPrefixes = prefixes,
-                EnableDms = false,
-                EnableDefaultHelp = true,
-                DmHelp = false
-            });
-
-            SlashCommandsExtension? slash = Client.UseSlashCommands();
-
-            Client.Ready += OnClientReady;
-
-            await Client.ConnectAsync();
-            await Task.Delay(-1);
-        }
-
-        Task OnClientReady(DiscordClient client, ReadyEventArgs args)
+        CommandsNext = Client.UseCommandsNext(new CommandsNextConfiguration
         {
-            Console.WriteLine("Bot ready");
-            return Task.CompletedTask;
+            StringPrefixes = prefixes,
+            EnableDms = false,
+            EnableDefaultHelp = true,
+            DmHelp = false
+        });
+
+        SlashCommands = Client.UseSlashCommands(new SlashCommandsConfiguration { });
+        SlashCommands.RegisterCommands<TeamCommands>();
+
+        Client.Ready += OnClientReady;
+
+        await Client.ConnectAsync();
+        await Task.Delay(-1);
+    }
+
+    async Task OnClientReady(DiscordClient client, ReadyEventArgs args)
+    {
+        Console.WriteLine("Bot ready");
+        foreach(DiscordGuild? guild in client.Guilds.Values)
+        {
+            await Team.CreateTeam("test", guild, true);
         }
     }
 }
