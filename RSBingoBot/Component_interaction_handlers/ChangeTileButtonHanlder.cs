@@ -23,9 +23,9 @@ internal class ChangeTileButtonHanlder : ComponentInteractionHandler
     string fromTileSelectedOption = string.Empty;
     string toTileSelectedOption = string.Empty;
 
-    public async override Task Initialise(ComponentInteractionCreateEventArgs args, Team team)
+    public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, Team team)
     {
-        await base.Initialise(args, team);
+        await base.InitialiseAsync(args, team);
 
         fromTileSelectId = $"{team}_{args.Interaction.User.Id}_change_tile_from_select";
         toTileSelectId = $"{team}_{args.Interaction.User.Id}_change_tile_to_select";

@@ -12,6 +12,7 @@ namespace RSBingoBot;
 public class Bot
 {
     readonly string token = Environment.GetEnvironmentVariable("BOT_TOKEN")!;
+
     readonly string[] prefixes = new string[] { "." };
     readonly List<Team> teams = new();
 

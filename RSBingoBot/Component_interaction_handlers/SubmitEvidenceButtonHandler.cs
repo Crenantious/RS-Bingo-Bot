@@ -14,24 +14,26 @@ namespace RSBingoBot.Component_interaction_handlers;
 
 internal class SubmitEvidenceButtonHandler : ComponentInteractionHandler
 {
-    const string messagePrefix = "Select a tile, then post your evidence (image).";
-
     readonly List<DiscordAttachment> submittedEvidence = new();
 
+    int messagePrefixLength;
     string selectedTile = string.Empty;
     DiscordSelectComponent tileSelect = null!;
     DiscordSelectComponent removeEvidenceSelect = null!;
     DiscordButtonComponent submitButton = null!;
     DiscordMessage originalResponse = null!;
 
-    public async override Task Initialise(ComponentInteractionCreateEventArgs args, Team team)
+    public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, Team team)
     {
-        await base.Initialise(args, team);
+        await base.InitialiseAsync(args, team);
 
         string submitButtonId = $"{args.Interaction.Channel}_{args.Interaction.User.Id}_submit_evidence_submit_button";
         submitButton = new DiscordButtonComponent(ButtonStyle.Primary, submitButtonId, "Submit");
 
         CreateTileSelect(args.Channel, args.User);
+
+        string messagePrefix = $"Select a tile, then post your evidence (image). {args.User.Mention}";
+        messagePrefixLength = messagePrefix.Length;
 
         var builder = new DiscordInteractionResponseBuilder()
             .WithContent(messagePrefix)
@@ -71,7 +73,7 @@ internal class SubmitEvidenceButtonHandler : ComponentInteractionHandler
             {
                 var builder = new DiscordMessageBuilder()
                     .WithContent($"Submitted by {args.User.Mention} for {selectedTile}" +
-                                 $"{args.Message.Content[messagePrefix.Length..]}");
+                                 $"{args.Message.Content[messagePrefixLength..]}");
 
                 await team.SubmittedEvidenceChannel.SendMessageAsync(builder);
 

@@ -33,7 +33,7 @@ internal class ComponentInteractionHandler
             if (instance != null)
             {
                 instances.Add(instance);
-                await instance.Initialise(args, info.Item2);
+                await instance.InitialiseAsync(args, info.Item2);
             }
             else
             {
@@ -42,7 +42,7 @@ internal class ComponentInteractionHandler
         }
     }
 
-    public async virtual Task Initialise(ComponentInteractionCreateEventArgs args, Team team) 
+    public async virtual Task InitialiseAsync(ComponentInteractionCreateEventArgs args, Team team) 
     {
         interactionArgs = args;
         this.team = team;

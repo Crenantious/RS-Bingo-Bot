@@ -111,6 +111,6 @@ internal class Team
     {
         ComponentInteractionHandler.Register<ChangeTileButtonHanlder>(BoardChannel.Name + "_change_tile_button", this);
         ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(BoardChannel.Name + "_submit_evidence_button", this);
-        //ComponentInteractionHandler.Register(typeof(ChangeTileButtonHanlder), changeTileButton.CustomId);
+        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(BoardChannel.Name + "_view_evidence_button", this);
     }
 }
