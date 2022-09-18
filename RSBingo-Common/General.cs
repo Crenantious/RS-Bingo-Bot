@@ -84,6 +84,33 @@ namespace RSBingo_Common
         /// <summary>
         /// Create the logging system using default or loaded config settings.
         /// </summary>
+        /// <param name="ex">The exception to log.</param>
+        /// <param name="logData">The data to log.</param>
+        /// <param name="fatal">Flag if this log entry should be defined as a fatal exception.</param>
+        public static void LoggingLog(Exception ex, string logData, bool fatal = false)
+        {
+            if (fatal)
+            {
+                Log.Fatal(ex, LoggingEscape(logData));
+            }
+            else
+            {
+                Log.Error(ex, LoggingEscape(logData));
+            }
+        }
+
+        /// <summary>
+        /// Create the logging system using default or loaded config settings.
+        /// </summary>
+        public static void LoggingEnd()
+        {
+            LoggingLog("Logging Completed");
+            Log.CloseAndFlush();
+        }
+
+        /// <summary>
+        /// Create the logging system using default or loaded config settings.
+        /// </summary>
         /// <param name="logData">The data to log.</param>
         /// <param name="logLevel">Flag of the log entry type.</param>
         public static void LoggingLog(string logData, LogLevel logLevel = LogLevel.Information)
@@ -121,6 +148,46 @@ namespace RSBingo_Common
         public static ILogger<T> LoggingInstance<T>()
         {
             return DI.GetService<ILogger<T>>() !;
+        }
+
+        /// <summary>
+        /// Read a value from the configuration system from the connection key.
+        /// </summary>
+        /// <param name="key">The key of the value being read.</param>
+        /// <returns>The value found.</returns>
+        public static string? Config_GetConnection(string key)
+        {
+            if (key == null) { return null; }
+
+            IConfiguration config = DI.GetService<IConfiguration>() !;
+
+            // We don't check for the a missing service, its a design failure
+            return config.GetConnectionString(key);
+        }
+
+        /// <summary>
+        /// Read a value from the configuration system.
+        /// </summary>
+        /// <param name="key">The key of the value being read.</param>
+        /// <param name="defaultValue">The default value to return if not found within the config.</param>
+        /// <returns>The value found.</returns>
+        public static string Config_Get(string key, string defaultValue = null)
+        {
+            if (key == null)
+            {
+                return defaultValue;
+            }
+
+            IConfiguration config = DI.GetService<IConfiguration>() !;
+
+            // We don't check for the a missing service, its a design failure
+            string value = config.GetValue<string>(key);
+            if (value == null)
+            {
+                return defaultValue;
+            }
+
+            return value;
         }
     }
 }

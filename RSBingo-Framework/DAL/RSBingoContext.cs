@@ -10,9 +10,7 @@ using RSBingo_Framework.Models;
 
 public partial class RSBingoContext : DbContext
 {
-    /*
-     * TODO: JCH - Need to see if the DB auto handles create PK on save. If not need to update the DB to AUTO_INCREMENT.
-     */
+     // TODO: JCH - Need to see if the DB auto handles create PK on save. If not need to update the DB to AUTO_INCREMENT.
 
     public RSBingoContext(DbContextOptions options)
         : base(options) { }
@@ -124,6 +122,9 @@ public partial class RSBingoContext : DbContext
             entity.Property(e => e.RowId)
                 .ValueGeneratedNever()
                 .HasColumnName("RowID");
+
+            entity.Property(e => e.Image)
+                .HasColumnName("Image");
 
             entity.Property(e => e.Name).HasMaxLength(128);
         });

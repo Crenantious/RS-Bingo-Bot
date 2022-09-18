@@ -7,7 +7,6 @@ namespace RSBingo_Framework.DAL;
 using Microsoft.EntityFrameworkCore;
 using RSBingo_Framework.Interfaces;
 using static RSBingo_Common.General;
-using static RSBingo_Framework.DAL.General;
 
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
@@ -17,12 +16,19 @@ public static class DataFactory
     private const string DefaultSchema = "rsbingo";
     private const string SchemaKey = "Schema";
     private const string DBKey = "DB";
+    private const string DiscordTokenKey = "DiscToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
+    private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
+
+    /// <summary>
+    /// Gets the discord token.
+    /// </summary>
+    public static string DiscordToken => discordToken;
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -34,10 +40,14 @@ public static class DataFactory
         connectionString = Config_GetConnection(DBKey)!;
 
         schemaName = Config_GetConnection(SchemaKey)!;
+
         if (string.IsNullOrEmpty(schemaName))
         {
             schemaName = DefaultSchema;
         }
+
+        discordToken = Config_Get(DiscordTokenKey)!;
+
     }
 
     /// <summary>
@@ -53,7 +63,7 @@ public static class DataFactory
             builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
         }
 
-        RSBingoContext dbContext = new RSBingoContext(builder.Options);
+        RSBingoContext dbContext = new (builder.Options);
         return new DataWorker(dbContext, LoggingInstance<DataWorker>());
     }
 }

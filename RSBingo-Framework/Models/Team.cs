@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace RSBingo_Framework.Models
+﻿namespace RSBingo_Framework.Models
 {
     public partial class Team : BingoRecord
     {
@@ -11,7 +8,10 @@ namespace RSBingo_Framework.Models
         }
 
         public int RowId { get; set; }
+
         public string TeamName { get; set; } = null!;
+
+        public string ChannelID { get; set; } = null!;
 
         public virtual ICollection<User> Users { get; set; }
     }
