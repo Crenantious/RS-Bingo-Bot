@@ -16,7 +16,7 @@ public static class DataFactory
     private const string DefaultSchema = "rsbingo";
     private const string SchemaKey = "Schema";
     private const string DBKey = "DB";
-    private const string DiscordTokenKey = "DiscToken";
+    private const string DiscordTokenKey = "BotToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
 
     // Static vars for holding connection info
