@@ -1,61 +1,58 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Entities;
-using RSBingoBot.Slash_commands;
+﻿// <copyright file="Bot.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
-namespace RSBingoBot;
-
-public class Bot
+namespace BingoBotEmbed
 {
-    readonly string token = Environment.GetEnvironmentVariable("BOT_TOKEN")!;
+    using System.Threading;
+    using DSharpPlus;
+    using DSharpPlus.CommandsNext;
+    using DSharpPlus.EventArgs;
+    using DSharpPlus.Interactivity;
+    using DSharpPlus.Interactivity.Extensions;
+    using DSharpPlus.SlashCommands;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
 
-    readonly string[] prefixes = new string[] { "." };
-    readonly List<Team> teams = new();
-
-    public static DiscordClient Client { get; private set; } = null!;
-    public static InteractivityExtension Interactivity { get; private set; } = null!;
-    public static CommandsNextExtension CommandsNext { get; private set; } = null!;
-    public static SlashCommandsExtension SlashCommands { get; private set; } = null!;
-
-    public async Task RunAsync()
+    /// <summary>
+    /// Class for storing code related to the long running discord bot service.
+    /// </summary>
+    public class Bot : BackgroundService
     {
-        Console.WriteLine(token);
-        Client = new DiscordClient(new DiscordConfiguration()
+        private ILogger logger;
+        private DiscordClient discordClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Bot"/> class.
+        /// </summary>
+        /// <param name="logger">The logger the instance will log to.</param>
+        /// <param name="client">The client the bot will connect to.</param>
+        public Bot(ILogger<Bot> logger, DiscordClient client)
         {
-            Token = token,
-            TokenType = TokenType.Bot,
-            Intents = DiscordIntents.AllUnprivileged
-        });
+            this.logger = logger;
+            this.discordClient = client;
+        }
 
-        Interactivity = Client.UseInteractivity(new InteractivityConfiguration { });
-
-        CommandsNext = Client.UseCommandsNext(new CommandsNextConfiguration
+        /// <inheritdoc/>
+        public override async Task StartAsync(CancellationToken stoppingToken)
         {
-            StringPrefixes = prefixes,
-            EnableDms = false,
-            EnableDefaultHelp = true,
-            DmHelp = false
-        });
+            discordClient.MessageCreated += DiscordClient_MessageCreated;
+            await discordClient.ConnectAsync();
+        }
 
-        SlashCommands = Client.UseSlashCommands(new SlashCommandsConfiguration { });
-        SlashCommands.RegisterCommands<TeamCommands>();
-
-        Client.Ready += OnClientReady;
-
-        await Client.ConnectAsync();
-        await Task.Delay(-1);
-    }
-
-    async Task OnClientReady(DiscordClient client, ReadyEventArgs args)
-    {
-        Console.WriteLine("Bot ready");
-        foreach(DiscordGuild? guild in client.Guilds.Values)
+        /// <inheritdoc/>
+        public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            await Team.CreateTeam("test", guild, true);
+            await discordClient.DisconnectAsync();
+        }
+
+        /// <inheritdoc/>
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+            => Task.CompletedTask;
+
+        private Task DiscordClient_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
