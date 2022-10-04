@@ -1,116 +1,172 @@
-﻿using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Extensions;
-using RSBingoBot.Component_interaction_handlers;
+﻿// <copyright file="Team.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
-namespace RSBingoBot;
-
-internal class Team
+namespace RSBingoBot
 {
-    Team(string name, DiscordGuild guild)
-    {
-        Name = name;
-        Guild = guild;
-    }
+    using DSharpPlus;
+    using DSharpPlus.Entities;
+    using RSBingo_Framework.DAL;
+    using RSBingoBot.Component_interaction_handlers;
 
-    public string Name { get; private set; } = null!;
-    public DiscordGuild Guild { get; private set; }
-    public DiscordChannel BoardChannel { get; private set; } = null!;
-    public DiscordChannel GeneralChannel { get; private set; } = null!;
-    public DiscordChannel SubmittedEvidenceChannel { get; private set; } = null!;
-    public DiscordChannel VoiceChannel { get; private set; } = null!;
-
-    public static async Task<Team> CreateTeam(string name, DiscordGuild guild, bool preExisting)
+    /// <summary>
+    /// Creates and sets up channels, roles and messages for the team.
+    /// </summary>
+    public class Team
     {
-        Team team = new(name, guild);
-        await team.Initialise(preExisting);
-        return team;
-    }
+        private readonly DiscordClient discordClient;
 
-    async Task Initialise(bool preExisting)
-    {
-        if (preExisting)
+        private string changeTileButtonId = string.Empty!;
+        private string submitEvidenceButtonId = string.Empty!;
+        private string viewEvidenceButtonId = string.Empty!;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Team"/> class.
+        /// </summary>
+        /// <param name="discordClient">The <see cref="DiscordClient"/> the bot is using.</param>
+        /// <param name="name">The team's name.</param>
+        /// <param name="componentInteractionHandler">The handler to register component interactions with.</param>
+        public Team(DiscordClient discordClient, string name)
         {
-            foreach (DiscordChannel? channel in await Guild.GetChannelsAsync())
+            Name = name;
+            this.discordClient = discordClient;
+        }
+
+        /// <summary>
+        /// The <see cref="Team"/>'s factory.
+        /// </summary>
+        /// <param name="name">The team's name.</param>
+        /// <returns>The newly created <see cref="Team"/>.</returns>
+        public delegate Team Factory(string name);
+
+        /// <summary>
+        /// Gets the name of the team.
+        /// </summary>
+        public string Name { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the guild the team belongs to.
+        /// </summary>
+        public DiscordGuild Guild { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the team's board channel.
+        /// </summary>
+        public DiscordChannel BoardChannel { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the team's general channel.
+        /// </summary>
+        public DiscordChannel GeneralChannel { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the team's submitted-evidence channel.
+        /// </summary>
+        public DiscordChannel SubmittedEvidenceChannel { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the team's voice channel.
+        /// </summary>
+        public DiscordChannel VoiceChannel { get; private set; } = null!;
+
+        /// <summary>
+        /// Creates and initializes the team's channels if they do not exist.
+        /// </summary>
+        /// <param name="preExisting">Weather or not the team has previously been created. (Remove with DB hookup.)</param>
+        /// <param name="guild">The <see cref="DiscordClient"/> under which the team was created.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task InitialiseAsync(bool preExisting, DiscordGuild? guild = null)
+        {
+            changeTileButtonId = Name + "_change_tile_button";
+            submitEvidenceButtonId = Name + "_submit_evidence_button";
+            viewEvidenceButtonId = Name + "_view_evidence_button";
+
+            if (preExisting)
             {
-                if (channel.Name == $"{Name}-board")
+                BoardChannel = await discordClient.GetChannelAsync(ulong.Parse(DataFactory.TestBoardChannelId));
+                SubmittedEvidenceChannel = await discordClient.GetChannelAsync(ulong.Parse(DataFactory.TestSubmittedEvidenceChannelId));
+
+                // All channels are in the same guild so it doesn't matter which we get this from.
+                Guild = BoardChannel.Guild;
+            }
+            else
+            {
+                if (guild == null)
                 {
-                    BoardChannel = channel;
+                    // Log error
+                    return;
                 }
-                else if (channel.Name == $"{Name}-submitted-evidence")
-                {
-                    SubmittedEvidenceChannel = channel;
-                }
+
+                Guild = guild;
+                await CreateChannels();
+                await InitialiseChannels();
+            }
+
+            RegisterChannelComponentInteractions();
+        }
+
+        private async Task CreateChannels()
+        {
+            DiscordChannel? category = await Guild.CreateChannelAsync($"{Name}", ChannelType.Category);
+            BoardChannel = await Guild.CreateChannelAsync($"{Name}-board", ChannelType.Text, category);
+            GeneralChannel = await Guild.CreateChannelAsync($"{Name}-general", ChannelType.Text, category);
+            SubmittedEvidenceChannel = await Guild.CreateChannelAsync($"{Name}-submitted-evidence", ChannelType.Text, category);
+            VoiceChannel = await Guild.CreateChannelAsync($"{Name}-voice", ChannelType.Voice, category);
+        }
+
+        private async Task InitialiseChannels()
+        {
+            await InitialiseBoardChannel();
+        }
+
+        private void RegisterChannelComponentInteractions()
+        {
+            RegisterBoardChannelComponentInteractions();
+        }
+
+        private async Task InitialiseBoardChannel()
+        {
+            try
+            {
+                var changeTileButton = new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    changeTileButtonId,
+                    "Change tile");
+
+                var submitEvidenceButton = new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    submitEvidenceButtonId,
+                    "Submit evidence");
+
+                var viewEvidenceButton = new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    viewEvidenceButtonId,
+                    "View evidence");
+
+                string imagePath = "E:/C#/Discord bots/RS-Bingo-Bot/RSBingoBot/";
+                using var fs = new FileStream(imagePath + "Test board.png", FileMode.Open, FileAccess.Read);
+
+                var builder = await new DiscordMessageBuilder()
+                    .AddComponents(changeTileButton, submitEvidenceButton, viewEvidenceButton)
+                    .WithFiles(new Dictionary<string, Stream>() { { "Test_board.png", fs } })
+                    .SendAsync(BoardChannel);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine(e);
             }
         }
-        else
+
+        private void RegisterBoardChannelComponentInteractions()
         {
-            await CreateChannels();
-            await InitialiseChannels();
+            ComponentInteractionHandler.InitialisationInfo info = new ()
+            {
+                Team = this,
+            };
+
+            ComponentInteractionHandler.Register<ChangeTileButtonHanlder>(changeTileButtonId, info);
+            ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info);
+            //ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
         }
-
-        await SetupChannels();
-    }
-
-    async Task CreateChannels()
-    {
-        DiscordChannel? parent = await Guild.CreateChannelAsync($"{Name}", ChannelType.Category);
-        BoardChannel = await Guild.CreateChannelAsync($"{Name}-board", ChannelType.Text, parent);
-        GeneralChannel = await Guild.CreateChannelAsync($"{Name}-general", ChannelType.Text, parent);
-        SubmittedEvidenceChannel = await Guild.CreateChannelAsync($"{Name}-submitted-evidence", ChannelType.Text, parent);
-        VoiceChannel = await Guild.CreateChannelAsync($"{Name}-voice", ChannelType.Voice, parent);
-    }
-
-    async Task InitialiseChannels()
-    {
-        await InitialiseBoardChannel();
-    }
-
-    async Task SetupChannels()
-    {
-        await SetupBoardChannel();
-    }
-
-    async Task InitialiseBoardChannel()
-    {
-        try
-        {
-            var changeTileButton = new DiscordButtonComponent(
-                ButtonStyle.Primary,
-                BoardChannel.Name + "_change_tile_button",
-                "Change tile");
-
-            var submitEvidenceButton = new DiscordButtonComponent(
-                ButtonStyle.Primary,
-                BoardChannel.Name + "_submit_evidence_button",
-                "Submit evidence");
-
-            var viewEvidenceButton = new DiscordButtonComponent(
-                ButtonStyle.Primary,
-                BoardChannel.Name + "_view_evidence_button",
-                "View evidence");
-
-            string imagePath = "E:/C#/Discord bots/RS-Bingo-Bot/RSBingoBot/";
-            using var fs = new FileStream(imagePath + "Test board.png", FileMode.Open, FileAccess.Read);
-
-            var builder = await new DiscordMessageBuilder()
-                //.WithContent("Your board")
-                .AddComponents(changeTileButton, submitEvidenceButton, viewEvidenceButton)
-                .WithFiles(new Dictionary<string, Stream>() { { "Test_board.png", fs } })
-                .SendAsync(BoardChannel);
-
-            //var interactivity = Bot.Client.GetInteractivity();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
-
-    async Task SetupBoardChannel()
-    {
-        ComponentInteractionHandler.Register<ChangeTileButtonHanlder>(BoardChannel.Name + "_change_tile_button", this);
-        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(BoardChannel.Name + "_submit_evidence_button", this);
-        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(BoardChannel.Name + "_view_evidence_button", this);
     }
 }

@@ -21,12 +21,11 @@ namespace RSBingo_Common
             try
             {
                 AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly() !.Location) !;
-                AppName = System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+                AppName = Assembly.GetEntryAssembly().GetName().Name;
             }
             catch (Exception)
             {
                 AppName = "Unspecified";
-
             }
         }
 
