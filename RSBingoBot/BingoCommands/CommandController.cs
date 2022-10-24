@@ -7,8 +7,10 @@ namespace RSBingoBot.BingoCommands
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.SlashCommands;
+    using DSharpPlus.SlashCommands.Attributes;
     using Microsoft.Extensions.Logging;
     using RSBingoBot;
+    using RSBingoBot.Component_interaction_handlers;
 
     /// <summary>
     /// Controller class for discoed bot commands.
@@ -49,7 +51,7 @@ namespace RSBingoBot.BingoCommands
         /// <param name="ctx">The context under which the command was executed.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [SlashCommand("CreateTestTeamChannels", $"Creates a new team named {TestTeamName}.")]
-        public async Task CreateTeam(InteractionContext ctx)
+        public async Task CreateTestTeamChannels(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
@@ -68,7 +70,7 @@ namespace RSBingoBot.BingoCommands
         /// <param name="ctx">The context under which the command was executed.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [SlashCommand("DeleteTestTeamChannels", $"Deletes the team channels for the team named {TestTeamName}.")]
-        public async Task DeleteTeamChannels(InteractionContext ctx)
+        public async Task DeleteTestTeamChannels(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
@@ -84,6 +86,27 @@ namespace RSBingoBot.BingoCommands
             }
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Channels have been deleted for team {TestTeamName}."));
+        }
+
+        /// <summary>
+        /// Posts a message in the channel the command was run in with buttons to create and join a team.
+        /// </summary>
+        /// <param name="ctx">The context under which the command was executed.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        [SlashCommand("InitializeCreateTeamChannel", $"Posts a message in the current channel with buttons to create and join a team.")]
+        public async Task InitializeCreateTeamChannel(InteractionContext ctx)
+        {
+            var createTeamButton = new DiscordButtonComponent(ButtonStyle.Primary, CreateTeamButtonHandler.CreateTeamButtonId, "Create team");
+            var joinTeamButton = new DiscordButtonComponent(ButtonStyle.Primary, JoinTeamButtonHandler.JoinTeamButtonId, "Join team");
+
+            var builder = new DiscordMessageBuilder()
+                .WithContent("Create a new team or join an existing one.")
+                .AddComponents(createTeamButton, joinTeamButton);
+
+            await ctx.Channel.SendMessageAsync(builder);
+
+            ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
+            ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
         }
     }
 }

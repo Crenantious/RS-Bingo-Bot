@@ -10,8 +10,6 @@ namespace RSBingoBot.Component_interaction_handlers
     using RSBingoBot;
     using RSBingoBot.Discord_event_handlers;
 
-    // Listen for MessageDeleted event a delete the instance if necessary
-
     /// <summary>
     /// Handles the callback when a component is interacted with.
     /// </summary>
@@ -28,6 +26,10 @@ namespace RSBingoBot.Component_interaction_handlers
         private readonly List<(MessageCreatedDEH.Constraints,
                                Func<DiscordClient,
                                MessageCreateEventArgs, Task>)> subscribedMessagesInfo = new ();
+
+        private readonly List<(ModalSubmittedDEH.Constraints,
+                       Func<DiscordClient,
+                       ModalSubmitEventArgs, Task>)> subscribedModalInfo = new ();
 
         /// <summary>
         /// Gets the messages to delete when the original interaction has concluded.
@@ -62,7 +64,7 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <typeparam name="T">The type of handler to created.</typeparam>
         /// <param name="customId">The custom id of the component.</param>
         /// <param name="info">Info to pass to the handler when the component is interacted with.</param>
-        public static void Register<T>(string customId, InitialisationInfo info) where T : ComponentInteractionHandler
+        public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
         {
             RegisteredComponentIds.Add(customId, (typeof(T), info));
             ComponentInteractionDEH.Subscribe(new (CustomId: customId), RegisteredComponentInteracted);
@@ -129,6 +131,19 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             MessageCreatedDEH.Subscribe(constraints, callback);
             subscribedMessagesInfo.Add((constraints, callback));
+        }
+
+        /// <summary>
+        /// Subscribes the <paramref name="callback"/> to <see cref="MessageCreatedDEH"/> and keeps
+        /// track of which messages have been subscribed so they can be unsubscribed when the interaction has concluded.
+        /// </summary>
+        /// <param name="constraints"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
+        /// <param name="callback"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
+        protected void SubscribeModal(ModalSubmittedDEH.Constraints constraints,
+            Func<DiscordClient, ModalSubmitEventArgs, Task> callback)
+        {
+            ModalSubmittedDEH.Subscribe(constraints, callback);
+            subscribedModalInfo.Add((constraints, callback));
         }
 
         /// <summary>

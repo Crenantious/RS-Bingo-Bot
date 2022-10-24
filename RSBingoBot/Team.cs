@@ -33,6 +33,12 @@ namespace RSBingoBot
         }
 
         /// <summary>
+        /// Gets all registered team names.
+        /// This will information will be retrieved from the DB when it is setup.
+        /// </summary>
+        public static List<string> TeamNames { get; private set; } = new ();
+
+        /// <summary>
         /// The <see cref="Team"/>'s factory.
         /// </summary>
         /// <param name="name">The team's name.</param>

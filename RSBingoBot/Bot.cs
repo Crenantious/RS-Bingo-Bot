@@ -14,6 +14,7 @@ namespace RSBingoBot
     using RSBingo_Common;
     using RSBingo_Framework.DAL;
     using RSBingoBot.BingoCommands;
+    using RSBingoBot.Component_interaction_handlers;
     using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
@@ -51,6 +52,10 @@ namespace RSBingoBot
 
             discordClient.ComponentInteractionCreated += ComponentInteractionDEH.OnEvent;
             discordClient.MessageCreated += MessageCreatedDEH.OnEvent;
+            discordClient.ModalSubmitted += ModalSubmittedDEH.OnEvent;
+
+            ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
+            ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
 
             await discordClient.ConnectAsync();
             await CreateExistingTeams();

@@ -17,7 +17,7 @@ namespace RSBingoBot.Discord_event_handlers
     /// </summary>
     public class MessageCreatedDEH
     {
-        public record Constraints(DiscordChannel? Channel = null, DiscordUser? Author = null, int NumberOfAttachments = -1);
+        public record Constraints(DiscordChannel? Channel = null, DiscordUser? Author = null, int? NumberOfAttachments = null);
 
         /// <summary>
         /// The channel constrains.
@@ -32,7 +32,7 @@ namespace RSBingoBot.Discord_event_handlers
         /// <summary>
         /// The number of attachments constraints.
         /// </summary>
-        protected static readonly ConstraintActions<int, MessageCreateEventArgs> NumberOfAttachmentsConstraints = new ();
+        protected static readonly ConstraintActions<int?, MessageCreateEventArgs> NumberOfAttachmentsConstraints = new ();
 
         /// <summary>
         /// Subscribe to the event. When it is fired and the <paramref name="constraints"/> are satisfied,

@@ -13,7 +13,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus.EventArgs;
 
     /// <summary>
-    /// Handles the interaction with the submit evidence button in a team's board channel.
+    /// Handles the interaction with the "Submit evidence" button in a team's board channel.
     /// </summary>
     public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
     {
