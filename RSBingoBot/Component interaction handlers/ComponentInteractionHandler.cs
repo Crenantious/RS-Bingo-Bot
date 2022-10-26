@@ -174,6 +174,11 @@ namespace RSBingoBot.Component_interaction_handlers
             {
                 MessageCreatedDEH.UnSubscribe(messageSubscriptionInfo.Item1, messageSubscriptionInfo.Item2);
             }
+
+            foreach (var modalSubscriptionInfo in subscribedModalInfo)
+            {
+                ModalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
+            }
         }
 
         /// <summary>
