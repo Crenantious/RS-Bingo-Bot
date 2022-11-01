@@ -27,6 +27,6 @@ namespace RSBingo_Framework.Repository
         }
 
         public User? GetByDiscordId(ulong discordId) =>
-            FirstOrDefault(u => u.DiscordId == discordId);
+            FirstOrDefault(u => u.DiscordUserId == discordId);
     }
 }

@@ -28,9 +28,9 @@ namespace RSBingo_Framework.Repository
         public Evidence Create(User user, Tile tile, string url, EvidenceType type)
         {
             Evidence evidence = Create();
-            evidence.User = user;
+            evidence.DiscordUser = user;
             evidence.Tile = tile;
-            evidence.LocationUrl = url;
+            evidence.Url = url;
             evidence.Type = (sbyte)type;
 
             user.Evidence.Add(evidence);

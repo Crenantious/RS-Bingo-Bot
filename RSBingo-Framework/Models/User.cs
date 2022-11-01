@@ -10,9 +10,9 @@ namespace RSBingo_Framework.Models
             Evidence = new HashSet<Evidence>();
         }
 
-        public int RowId { get; set; }
+        public ulong DiscordUserId { get; set; }
         public int TeamId { get; set; }
-        public ulong DiscordId { get; set; }
+        public long BoardChannelId { get; set; }
 
         public virtual Team Team { get; set; } = null!;
         public virtual ICollection<Evidence> Evidence { get; set; }

@@ -28,7 +28,7 @@ namespace RSBingo_Framework.Repository
             Add(new Team()
             {
                 Name = name,
-                ChannelID = boardChannelId,
+                BoardChannelId = boardChannelId,
             });
     }
 }
