@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// <copyright file="Restriction.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Models
 {

@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// <copyright file="Evidence.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Models
 {
@@ -7,7 +8,7 @@ namespace RSBingo_Framework.Models
     {
         public int RowId { get; set; }
         public int TileId { get; set; }
-        public long DiscordUserId { get; set; }
+        public ulong DiscordUserId { get; set; }
         public string Url { get; set; } = null!;
         public sbyte Status { get; set; }
         public sbyte Type { get; set; }

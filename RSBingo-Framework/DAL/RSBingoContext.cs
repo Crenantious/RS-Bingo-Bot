@@ -73,13 +73,15 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("evidence");
 
-            entity.HasIndex(e => e.DiscordUserId, "DiscordUserId");
+            entity.HasIndex(e => e.DiscordUserId, "DiscordUserID");
 
             entity.HasIndex(e => e.TileId, "TileID");
 
             entity.Property(e => e.RowId).HasColumnName("RowID");
 
-            entity.Property(e => e.TileId).HasColumnName("TID");
+            entity.Property(e => e.DiscordUserId).HasColumnName("DiscordUserID");
+
+            entity.Property(e => e.TileId).HasColumnName("TileID");
 
             entity.Property(e => e.Url)
                 .HasMaxLength(255)
@@ -91,9 +93,9 @@ public partial class RSBingoContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("evidence_ibfk_2");
 
-            entity.HasOne(d => d.DiscordUser)
-                .WithMany(p => p.Evidence)
-                .HasForeignKey(d => d.DiscordUserId)
+            entity.HasOne(d => d.Tile)
+                .WithMany(p => p.Evidences)
+                .HasForeignKey(d => d.TileId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("evidence_ibfk_1");
         });
@@ -151,6 +153,10 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("team");
 
+            entity.Property(e => e.RowId).HasColumnName("RowID");
+
+            entity.Property(e => e.BoardChannelId).HasColumnName("BoardChannelID");
+
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
@@ -192,7 +198,9 @@ public partial class RSBingoContext : DbContext
 
             entity.HasIndex(e => e.TeamId, "TeamID");
 
-            entity.Property(e => e.DiscordUserId).ValueGeneratedNever();
+            entity.Property(e => e.DiscordUserId)
+                .ValueGeneratedNever()
+                .HasColumnName("DiscordUserID");
 
             entity.Property(e => e.TeamId).HasColumnName("TeamID");
 

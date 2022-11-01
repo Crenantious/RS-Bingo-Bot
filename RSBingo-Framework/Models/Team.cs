@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// <copyright file="Team.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Models
 {
@@ -7,7 +8,6 @@ namespace RSBingo_Framework.Models
     {
         public Team()
         {
-            Evidences = new HashSet<Evidence>();
             Tiles = new HashSet<Tile>();
             Users = new HashSet<User>();
         }
@@ -16,7 +16,6 @@ namespace RSBingo_Framework.Models
         public string Name { get; set; } = null!;
         public ulong BoardChannelId { get; set; }
 
-        public virtual ICollection<Evidence> Evidences { get; set; }
         public virtual ICollection<Tile> Tiles { get; set; }
         public virtual ICollection<User> Users { get; set; }
     }
