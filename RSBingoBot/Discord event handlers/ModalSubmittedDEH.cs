@@ -7,6 +7,7 @@ namespace RSBingoBot.Discord_event_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Interfaces;
 
     /// <summary>
     /// Handles which subscribers to call when the <see cref="DiscordClient.ModalSubmitted"/> event is fired, based off given constraints.

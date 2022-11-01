@@ -11,5 +11,6 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface ITileRepository
     {
+        public List<Tile> GetByIds(IEnumerable<int> ids);
     }
 }

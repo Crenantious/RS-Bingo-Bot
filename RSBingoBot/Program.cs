@@ -106,7 +106,7 @@ namespace RSBingoBot
                 .ConfigureContainer<ContainerBuilder>(builder =>
                 {
                     // Register types that contain factories here
-                    builder.RegisterType<Team>();
+                    builder.RegisterType<InitialiseTeam>();
                 });
         }
     }

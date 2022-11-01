@@ -25,5 +25,8 @@ namespace RSBingo_Framework.Repository
         {
             return Add(new Tile());
         }
+
+        public List<Tile> GetByIds(IEnumerable<int> ids) =>
+            Where(t => ids.Contains(t.RowId)).ToList();
     }
 }

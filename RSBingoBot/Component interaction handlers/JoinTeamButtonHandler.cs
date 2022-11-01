@@ -39,7 +39,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
             var builder = new DiscordInteractionResponseBuilder();
 
-            if (Team.TeamNames.Count == 0)
+            if (InitialiseTeam.TeamNames.Count == 0)
             {
                 builder
                    .WithContent("No teams created.")
@@ -48,7 +48,7 @@ namespace RSBingoBot.Component_interaction_handlers
             else
             {
                 var options = new List<DiscordSelectComponentOption>();
-                foreach (string team in Team.TeamNames)
+                foreach (string team in InitialiseTeam.TeamNames)
                 {
                     options.Add(new (team, team));
                 }

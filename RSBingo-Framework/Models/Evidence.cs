@@ -12,7 +12,7 @@ namespace RSBingo_Framework.Models
         public int TileId { get; set; }
         public int UserId { get; set; }
 
-        public virtual Tile Row { get; set; } = null!;
-        public virtual User RowNavigation { get; set; } = null!;
+        public virtual Tile Tile { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
     }
 }

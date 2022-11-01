@@ -14,5 +14,6 @@
         public string ChannelID { get; set; } = null!;
 
         public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<Tile> Tiles { get; set; }
     }
 }

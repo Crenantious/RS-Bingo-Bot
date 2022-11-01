@@ -11,6 +11,7 @@ namespace RSBingoBot.Discord_event_handlers
     using DSharpPlus;
     using DSharpPlus.EventArgs;
     using Microsoft.Extensions.Logging;
+    using RSBingo_Framework.Exceptions;
     using static RSBingo_Common.General;
 
     /// <summary>
@@ -80,7 +81,7 @@ namespace RSBingoBot.Discord_event_handlers
             var values = GetConstraintValues(constraints);
 
             for (int i = 0; i < values.Count; i++)
-            {
+    {
                 constraintActions[i].Remove(values[i], callback);
             }
         }
@@ -109,12 +110,22 @@ namespace RSBingoBot.Discord_event_handlers
                 {
                     await action(client, args);
                 }
+                catch (InformAdminException e)
+                {
+                    // TODO: Inform admin
+                    LogException(e);
+                }
                 catch (Exception e)
                 {
-                    ILogger<ComponentInteractionDEH> logger = LoggingInstance<ComponentInteractionDEH>();
-                    LoggingLog(e, e.Message);
+                    LogException(e);
                 }
             }
+        }
+
+        private static void LogException(Exception e)
+        {
+            ILogger<ComponentInteractionDEH> logger = LoggingInstance<ComponentInteractionDEH>();
+            LoggingLog(e, e.Message);
         }
     }
 }
