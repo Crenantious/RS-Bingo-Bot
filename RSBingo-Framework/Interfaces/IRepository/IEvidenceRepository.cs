@@ -5,13 +5,14 @@
 namespace RSBingo_Framework.Interfaces.IRepository
 {
     using RSBingo_Framework.Models;
+    using static RSBingo_Framework.Records.EvidenceRecord;
 
     /// <summary>
     /// Interface detailing use of <see cref="Evidence"/>as a repository.
     /// </summary>
     public interface IEvidenceRepository
     {
-        public Evidence Create(User user, Tile tile, string url);
+        public Evidence Create(User user, Tile tile, string url, EvidenceType type);
 
     }
 }

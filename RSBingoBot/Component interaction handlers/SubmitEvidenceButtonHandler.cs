@@ -11,12 +11,12 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
-    using RSBingoBot.Discord_event_handlers;
     using RSBingo_Framework.DAL;
     using RSBingo_Framework.Exceptions;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Records;
+    using RSBingoBot.Discord_event_handlers;
     using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
@@ -24,8 +24,9 @@ namespace RSBingoBot.Component_interaction_handlers
     /// </summary>
     public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
     {
-        private readonly List<string> tileItems = new () { "Bandos Chestplate", "Bandos Tassets", "Dragon Rider Lance" };
+        private readonly List<string> tileItems = new() { "Bandos Chestplate", "Bandos Tassets", "Dragon Rider Lance" };
         private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
+        private readonly IDataWorker dataWorker = CreateDataWorker();
 
         private string initialResponseMessagePrefix =
             $"Add evidence by posting a message with a single image, posting another will override the previous." +
@@ -35,7 +36,6 @@ namespace RSBingoBot.Component_interaction_handlers
         private DiscordButtonComponent cancelButton = null!;
         private DiscordButtonComponent submitButton = null!;
         private ICollection<Tile> selectedTiles = null!;
-        private IDataWorker dataWorker = CreateDataWorker();
         private User user = null!;
 
         /// <inheritdoc/>
@@ -43,7 +43,7 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             await base.InitialiseAsync(args, info);
 
-            user = dataWorker.Users.GetByDiscordId(args.User.Id) !;
+            user = dataWorker.Users.GetByDiscordId(args.User.Id)!;
 
             submitButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Submit");
             cancelButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Cancel");
@@ -79,7 +79,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private async Task<object> TileSelectInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
         {
-            HashSet<int> tileIds = new ();
+            HashSet<int> tileIds = new();
 
             foreach (string tileIdStr in args.Values)
             {
@@ -128,7 +128,7 @@ namespace RSBingoBot.Component_interaction_handlers
             }
             else
             {
-                //SubmitEvidence(args.User, selectedTiles, submittedEvidenceURL);
+                SubmitEvidence(args.User, selectedTiles, submittedEvidenceURL);
                 content = "Evidence has been submitted successfully for the following tiles:\n" +
                               string.Join("\n", selectedTiles);
                 await InteractionConcluded();
@@ -157,20 +157,24 @@ namespace RSBingoBot.Component_interaction_handlers
             await OriginalInteractionArgs.Interaction.EditOriginalResponseAsync(builder);
         }
 
-        private void SubmitEvidence(DiscordUser discordUser, string[] tiles, string url)
+        private void SubmitEvidence(DiscordUser discordUser, ICollection<Tile> tiles, string url)
         {
             if (user == null) { return; }
 
-            bool isBoardVerified = user.Team.IsBoardVerfied();
+            EvidenceRecord.EvidenceType evidenceType = user.Team.IsBoardVerfied() ?
+                EvidenceRecord.EvidenceType.Drop :
+                EvidenceRecord.EvidenceType.TileVerification;
 
-            foreach (string tile in tiles)
+            foreach (Tile tile in tiles)
             {
-
-
-                var builder = new DiscordMessageBuilder()
-                    .WithContent($"{discordUser.Mention} has submitted evidence for the {tile} tile.{url}");
-                Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
+                dataWorker.Evidence.Create(user, tile, url, evidenceType);
             }
+
+            dataWorker.SaveChanges();
+
+            var builder = new DiscordMessageBuilder()
+                .WithContent($"{discordUser.Mention} has submitted evidence for the following tiles: ....{url}");
+            Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
         }
     }
 }

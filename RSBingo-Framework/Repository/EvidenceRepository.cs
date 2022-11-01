@@ -7,6 +7,7 @@ namespace RSBingo_Framework.Repository
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
+    using static RSBingo_Framework.Records.EvidenceRecord;
 
     /// <summary>
     /// Class detailing use of <see cref="Evidence"/> as a repository.
@@ -21,17 +22,16 @@ namespace RSBingo_Framework.Repository
             : base(dataWorker) { }
 
         /// <inheritdoc/>
-        public override Evidence Create()
-        {
-            return Add(new Evidence());
-        }
+        public override Evidence Create() =>
+            Add(new Evidence());
 
-        public Evidence Create(User user, Tile tile, string url)
+        public Evidence Create(User user, Tile tile, string url, EvidenceType type)
         {
             Evidence evidence = Create();
             evidence.User = user;
             evidence.Tile = tile;
             evidence.LocationUrl = url;
+            evidence.Type = (sbyte)type;
 
             user.Evidence.Add(evidence);
 

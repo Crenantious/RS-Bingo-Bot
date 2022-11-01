@@ -86,10 +86,10 @@ public partial class RSBingoContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Tile)
-                .WithOne(p => p.Evidence)
-                .HasForeignKey<Evidence>(d => d.Rowid)
+                .WithMany(p => p.Evidence)
+                .HasForeignKey(d => d.TileId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("TileID");
+                .HasConstraintName("Evidence_TileID");
         });
 
         modelBuilder.Entity<Restrciton>(entity =>
@@ -161,7 +161,7 @@ public partial class RSBingoContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("RowID");
 
-            entity.Property(e => e.TeamName).HasMaxLength(45);
+            entity.Property(e => e.Name).HasMaxLength(45);
         });
 
         modelBuilder.Entity<Tile>(entity =>

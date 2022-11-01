@@ -16,14 +16,19 @@ namespace RSBingo_Framework.Repository
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamRepository"/> class.
         /// </summary>
-        /// <param name="dataWorker">Refernce to the dataworker.</param>
+        /// <param name="dataWorker">Reference to the dataworker.</param>
         public TeamRepository(IDataWorker dataWorker)
             : base(dataWorker) { }
 
         /// <inheritdoc/>
-        public override Team Create()
-        {
-            return Add(new Team());
-        }
+        public override Team Create() =>
+            Add(new Team());
+
+        public Team Create(string name, ulong boardChannelId) =>
+            Add(new Team()
+            {
+                Name = name,
+                ChannelID = boardChannelId,
+            });
     }
 }

@@ -36,6 +36,9 @@ namespace RSBingoBot
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="client">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
+        /// <param name="componentInteractionDEH">The DEH for component interactions.</param>
+        /// <param name="messageCreatedDEH">The DEH for message creation.</param>
+        /// <param name="modalSubmittedDEH">The DEH for modal submissions.</param>
         public Bot(ILogger<Bot> logger, DiscordClient client, InitialiseTeam.Factory teamFactory,
             ComponentInteractionDEH componentInteractionDEH, MessageCreatedDEH messageCreatedDEH,
             ModalSubmittedDEH modalSubmittedDEH)
