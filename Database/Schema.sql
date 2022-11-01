@@ -1,15 +1,13 @@
  CREATE TABLE Team (
-    RowId int AUTO_INCREMENT,
+    RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL,
-    BoardChannelId bigint NOT NULL,
-    PRIMARY KEY (RowId)
+    BoardChannelID bigint UNSIGNED NOT NULL
 );
 
- CREATE TABLE User (
-    DiscordUserId bigint PRIMARY KEY,
+ CREATE TABLE `User` (
+    DiscordUserID bigint UNSIGNED PRIMARY KEY,
     TeamID int NOT NULL,
-    BoardChannelId bigint NOT NULL,
-	FOREIGN KEY (TeamID) REFERENCES Team(RowId)
+	FOREIGN KEY (TeamID) REFERENCES Team(RowID)
 );
 
  CREATE TABLE Task (
@@ -38,6 +36,7 @@ CREATE TABLE TaskRestriction (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TeamID int NOT NULL,
 	TaskID int NOT NULL,
+    Verified tinyint NOT NULL,
     FOREIGN KEY (TeamID) REFERENCES Team(RowID),
     FOREIGN KEY (TaskID) REFERENCES Task(RowID),
 	CONSTRAINT team_task_relationship UNIQUE KEY (TeamID, TaskID),
@@ -46,11 +45,11 @@ CREATE TABLE TaskRestriction (
   
  CREATE TABLE Evidence (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-	TeamID int NOT NULL,
-	DiscordUserId bigint NOT NULL,
+	TileID int NOT NULL,
+	DiscordUserID bigint UNSIGNED NOT NULL,
     URL varchar(255) NOT NULL,
 	`Status` tinyint NOT NULL,
     `Type` tinyint NOT NULL,
-    FOREIGN KEY (TeamID) REFERENCES Team(RowID),
-    FOREIGN KEY (DiscordUserId) REFERENCES `User`(DiscordUserId)
+    FOREIGN KEY (TileID) REFERENCES Tile(RowID),
+    FOREIGN KEY (DiscordUserID) REFERENCES `User`(DiscordUserID)
 );

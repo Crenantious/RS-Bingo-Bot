@@ -50,14 +50,9 @@ namespace RSBingo_Framework.Interfaces
         IEvidenceRepository Evidence { get; set; }
 
         /// <summary>
-        /// Gets or sets link to the repository for <see cref="Restrciton"/> entities.
+        /// Gets or sets link to the repository for <see cref="Restriction"/> entities.
         /// </summary>
         IRestrictionRepository Restrictions { get; set; }
-
-        /// <summary>
-        /// Gets or sets link to the repository for <see cref="TaskRestrciton"/> entities.
-        /// </summary>
-        ITaskRestrcitonRepository TaskRestrcitons { get; set; }
 
         /// <summary>
         /// Gets or sets link to the repository for <see cref="Team"/> entities.

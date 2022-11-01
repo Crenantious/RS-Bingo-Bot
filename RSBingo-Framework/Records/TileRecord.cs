@@ -16,9 +16,9 @@ namespace RSBingo_Framework.Records
     public static class TileRecord
     {
         public static bool IsVerified(this Tile tile) =>
-            tile.Verfied == 1;
+            tile.Verified == 1;
 
         public static bool IsNotVerified(this Tile tile) =>
-            tile.Verfied != 1;
+            tile.Verified != 1;
     }
 }

@@ -11,7 +11,7 @@ namespace RSBingo_Framework.Repository
     /// <summary>
     /// Class detailing use of <see cref="Restrciton"/> as a repository.
     /// </summary>
-    public class RestrictionRepository : RepositoryBase<Restrciton>, IRestrictionRepository
+    public class RestrictionRepository : RepositoryBase<Restriction>, IRestrictionRepository
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RestrictionRepository"/> class.
@@ -21,9 +21,9 @@ namespace RSBingo_Framework.Repository
             : base(dataWorker) { }
 
         /// <inheritdoc/>
-        public override Restrciton Create()
+        public override Restriction Create()
         {
-            return Add(new Restrciton());
+            return Add(new Restriction());
         }
     }
 }

@@ -70,7 +70,7 @@ namespace RSBingoBot.Component_interaction_handlers
             var tileSelectOptions = new List<DiscordSelectComponentOption>();
             foreach (Tile tile in tiles)
             {
-                tileSelectOptions.Add(new DiscordSelectComponentOption(tile.Name, tile.RowId.ToString(), isDefault: selectedTiles.Contains(tile)));
+                tileSelectOptions.Add(new DiscordSelectComponentOption(tile.Task.Name, tile.RowId.ToString(), isDefault: selectedTiles.Contains(tile)));
             }
 
             // For maxOptions, the number cannot exceed the amount of options or there'll be an error

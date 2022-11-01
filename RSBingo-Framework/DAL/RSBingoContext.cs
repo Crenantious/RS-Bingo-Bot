@@ -68,42 +68,51 @@ public partial class RSBingoContext : DbContext
 
         modelBuilder.Entity<Evidence>(entity =>
         {
-            entity.HasKey(e => e.Rowid)
+            entity.HasKey(e => e.RowId)
                 .HasName("PRIMARY");
 
             entity.ToTable("evidence");
 
-            entity.HasIndex(e => e.Rowid, "taskID_idx");
+            entity.HasIndex(e => e.DiscordUserId, "DiscordUserID");
 
-            entity.Property(e => e.Rowid).ValueGeneratedNever();
+            entity.HasIndex(e => e.TileId, "TileID");
 
-            entity.Property(e => e.LocationUrl)
-                .HasMaxLength(512)
-                .HasColumnName("LocationURL");
+            entity.Property(e => e.RowId).HasColumnName("RowID");
+
+            entity.Property(e => e.DiscordUserId).HasColumnName("DiscordUserID");
 
             entity.Property(e => e.TileId).HasColumnName("TileID");
 
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.Url)
+                .HasMaxLength(255)
+                .HasColumnName("URL");
+
+            entity.HasOne(d => d.DiscordUser)
+                .WithMany(p => p.Evidence)
+                .HasForeignKey(d => d.DiscordUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("evidence_ibfk_2");
 
             entity.HasOne(d => d.Tile)
-                .WithMany(p => p.Evidence)
+                .WithMany(p => p.Evidences)
                 .HasForeignKey(d => d.TileId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Evidence_TileID");
+                .HasConstraintName("evidence_ibfk_1");
         });
 
-        modelBuilder.Entity<Restrciton>(entity =>
+        modelBuilder.Entity<Restriction>(entity =>
         {
             entity.HasKey(e => e.RowId)
                 .HasName("PRIMARY");
 
-            entity.ToTable("restrictions");
+            entity.ToTable("restriction");
 
-            entity.Property(e => e.RowId)
-                .ValueGeneratedNever()
-                .HasColumnName("RowID");
+            entity.HasIndex(e => e.Name, "Name")
+                .IsUnique();
 
-            entity.Property(e => e.Description).HasMaxLength(512);
+            entity.Property(e => e.RowId).HasColumnName("RowID");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<BingoTask>(entity =>
@@ -111,43 +120,30 @@ public partial class RSBingoContext : DbContext
             entity.HasKey(e => e.RowId)
                 .HasName("PRIMARY");
 
-            entity.ToTable("tasks");
+            entity.ToTable("task");
 
-            entity.Property(e => e.RowId)
-                .ValueGeneratedNever()
-                .HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("RowID");
 
-            entity.Property(e => e.Image)
-                .HasColumnName("Image");
+            entity.Property(e => e.Name).HasMaxLength(50);
 
-            entity.Property(e => e.Name).HasMaxLength(128);
-        });
+            entity.HasMany(d => d.Restrictions)
+                .WithMany(p => p.Tasks)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Taskrestriction",
+                    l => l.HasOne<Restriction>().WithMany().HasForeignKey("RestrictionId").HasConstraintName("Constr_TaskRestriction_Restriction_fk"),
+                    r => r.HasOne<BingoTask>().WithMany().HasForeignKey("TaskId").HasConstraintName("Constr_TaskRestriction_Task_fk"),
+                    j =>
+                    {
+                        j.HasKey("TaskId", "RestrictionId").HasName("PRIMARY").HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
 
-        modelBuilder.Entity<TaskRestrciton>(entity =>
-        {
-            entity.HasNoKey();
+                        j.ToTable("taskrestriction");
 
-            entity.ToTable("taskresrictions");
+                        j.HasIndex(new[] { "RestrictionId" }, "Constr_TaskRestriction_Restriction_fk");
 
-            entity.HasIndex(e => e.RestrictionId, "restrictionID_idx");
+                        j.IndexerProperty<int>("TaskId").HasColumnName("TaskID");
 
-            entity.HasIndex(e => e.TaskId, "taskID_idx");
-
-            entity.Property(e => e.RestrictionId).HasColumnName("RestrictionID");
-
-            entity.Property(e => e.TaskId).HasColumnName("TaskID");
-
-            entity.HasOne(d => d.Restriction)
-                .WithMany()
-                .HasForeignKey(d => d.RestrictionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("RestrictionID");
-
-            entity.HasOne(d => d.Task)
-                .WithMany()
-                .HasForeignKey(d => d.TaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("TaskID");
+                        j.IndexerProperty<int>("RestrictionId").HasColumnName("RestrictionID");
+                    });
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -155,13 +151,13 @@ public partial class RSBingoContext : DbContext
             entity.HasKey(e => e.RowId)
                 .HasName("PRIMARY");
 
-            entity.ToTable("teams");
+            entity.ToTable("team");
 
-            entity.Property(e => e.RowId)
-                .ValueGeneratedNever()
-                .HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("RowID");
 
-            entity.Property(e => e.Name).HasMaxLength(45);
+            entity.Property(e => e.BoardChannelId).HasColumnName("BoardChannelID");
+
+            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Tile>(entity =>
@@ -171,23 +167,40 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("tile");
 
-            entity.Property(e => e.RowId)
-                .ValueGeneratedNever()
-                .HasColumnName("RowID");
+            entity.HasIndex(e => new { e.TaskId, e.TeamId }, "task_team_relationship")
+                .IsUnique();
+
+            entity.Property(e => e.RowId).HasColumnName("RowID");
+
+            entity.Property(e => e.TaskId).HasColumnName("TaskID");
+
+            entity.Property(e => e.TeamId).HasColumnName("TeamID");
+
+            entity.HasOne(d => d.Task)
+                .WithMany(p => p.Tiles)
+                .HasForeignKey(d => d.TaskId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("tile_ibfk_2");
+
+            entity.HasOne(d => d.Team)
+                .WithMany(p => p.Tiles)
+                .HasForeignKey(d => d.TeamId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("tile_ibfk_1");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.RowId)
+            entity.HasKey(e => e.DiscordUserId)
                 .HasName("PRIMARY");
 
             entity.ToTable("user");
 
-            entity.HasIndex(e => e.TeamId, "rowid_idx");
+            entity.HasIndex(e => e.TeamId, "TeamID");
 
-            entity.Property(e => e.RowId)
+            entity.Property(e => e.DiscordUserId)
                 .ValueGeneratedNever()
-                .HasColumnName("RowID");
+                .HasColumnName("DiscordUserID");
 
             entity.Property(e => e.TeamId).HasColumnName("TeamID");
 
@@ -195,11 +208,7 @@ public partial class RSBingoContext : DbContext
                 .WithMany(p => p.Users)
                 .HasForeignKey(d => d.TeamId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("rowid");
-
-            entity.HasMany(d => d.Evidence)
-                .WithOne(p => p.User)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasConstraintName("user_ibfk_1");
         });
 
         OnModelCreatingPartial(modelBuilder);
