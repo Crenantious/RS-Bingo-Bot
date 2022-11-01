@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:Single-line comments should not be followed by blank line", Justification = "<Pending>", Scope = "member", Target = "~M:BingoBotEmbed.Program.Main(System.String[])")]
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1512:Single-line comments should not be followed by blank line", Justification = "<Pending>", Scope = "member", Target = "~M:RSBingoBot.Program.Main(System.String[])")]
