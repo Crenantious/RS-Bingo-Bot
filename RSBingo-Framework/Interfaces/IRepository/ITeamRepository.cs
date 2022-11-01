@@ -11,5 +11,6 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface ITeamRepository
     {
+        public Team Create(string name, ulong boardChannelId);
     }
 }

@@ -49,13 +49,13 @@ namespace RSBingoBot.Component_interaction_handlers
             var builder = new DiscordInteractionResponseBuilder()
                 .AsEphemeral();
 
-            if (Team.TeamNames.Contains(teamName))
+            if (InitialiseTeam.TeamNames.Contains(teamName))
             {
                 builder.WithContent("A team with this name already exists.");
             }
             else
             {
-                Team.TeamNames.Add(teamName);
+                InitialiseTeam.TeamNames.Add(teamName);
                 DiscordRole? role = await args.Interaction.Guild.CreateRoleAsync(teamName);
                 await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(role);
                 builder.WithContent($"The team '{teamName}' has been created successfully.");

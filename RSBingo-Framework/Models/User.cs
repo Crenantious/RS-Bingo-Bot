@@ -3,12 +3,18 @@ using System.Collections.Generic;
 
 namespace RSBingo_Framework.Models
 {
-    public partial class User : BingoRecord 
+    public partial class User : BingoRecord
     {
+        public User()
+        {
+            Evidence = new HashSet<Evidence>();
+        }
+
         public int RowId { get; set; }
         public int TeamId { get; set; }
+        public ulong DiscordId { get; set; }
 
         public virtual Team Team { get; set; } = null!;
-        public virtual Evidence Evidence { get; set; } = null!;
+        public virtual ICollection<Evidence> Evidence { get; set; }
     }
 }

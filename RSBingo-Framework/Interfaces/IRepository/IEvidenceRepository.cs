@@ -11,5 +11,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface IEvidenceRepository
     {
+        public Evidence Create(User user, Tile tile, string url);
+
     }
 }

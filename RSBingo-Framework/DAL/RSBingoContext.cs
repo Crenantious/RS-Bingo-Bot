@@ -48,7 +48,7 @@ public partial class RSBingoContext : DbContext
 
         foreach (EntityEntry recordToValidate in recordsToValidate)
         {
-            // Perfrom valication based on EntityState and recordToValidate.Entity type.
+            // Perform validation based on EntityState and recordToValidate.Entity type.
         }
 
         return base.SaveChanges();
@@ -85,17 +85,11 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Row)
+            entity.HasOne(d => d.Tile)
                 .WithOne(p => p.Evidence)
                 .HasForeignKey<Evidence>(d => d.Rowid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("TileID");
-
-            entity.HasOne(d => d.RowNavigation)
-                .WithOne(p => p.Evidence)
-                .HasForeignKey<Evidence>(d => d.Rowid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("UserID");
         });
 
         modelBuilder.Entity<Restrciton>(entity =>
@@ -103,7 +97,7 @@ public partial class RSBingoContext : DbContext
             entity.HasKey(e => e.RowId)
                 .HasName("PRIMARY");
 
-            entity.ToTable("restrcitons");
+            entity.ToTable("restrictions");
 
             entity.Property(e => e.RowId)
                 .ValueGeneratedNever()
@@ -202,6 +196,10 @@ public partial class RSBingoContext : DbContext
                 .HasForeignKey(d => d.TeamId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("rowid");
+
+            entity.HasMany(d => d.Evidence)
+                .WithOne(p => p.User)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         OnModelCreatingPartial(modelBuilder);

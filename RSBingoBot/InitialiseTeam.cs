@@ -7,13 +7,16 @@ namespace RSBingoBot
     using DSharpPlus;
     using DSharpPlus.Entities;
     using RSBingo_Framework.DAL;
+    using RSBingo_Framework.Interfaces;
     using RSBingoBot.Component_interaction_handlers;
 
     /// <summary>
     /// Creates and sets up channels, roles and messages for the team.
     /// </summary>
-    public class Team
+    public class InitialiseTeam
     {
+        private static Dictionary<ulong, Dictionary<string, string>> submittedEvidence = new ();
+
         private readonly DiscordClient discordClient;
 
         private string changeTileButtonId = string.Empty!;
@@ -21,12 +24,12 @@ namespace RSBingoBot
         private string viewEvidenceButtonId = string.Empty!;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Team"/> class.
+        /// Initializes a new instance of the <see cref="InitialiseTeam"/> class.
         /// </summary>
         /// <param name="discordClient">The <see cref="DiscordClient"/> the bot is using.</param>
         /// <param name="name">The team's name.</param>
         /// <param name="componentInteractionHandler">The handler to register component interactions with.</param>
-        public Team(DiscordClient discordClient, string name)
+        public InitialiseTeam(DiscordClient discordClient, string name)
         {
             Name = name;
             this.discordClient = discordClient;
@@ -39,11 +42,11 @@ namespace RSBingoBot
         public static List<string> TeamNames { get; private set; } = new ();
 
         /// <summary>
-        /// The <see cref="Team"/>'s factory.
+        /// The <see cref="InitialiseTeam"/>'s factory.
         /// </summary>
         /// <param name="name">The team's name.</param>
-        /// <returns>The newly created <see cref="Team"/>.</returns>
-        public delegate Team Factory(string name);
+        /// <returns>The newly created <see cref="InitialiseTeam"/>.</returns>
+        public delegate InitialiseTeam Factory(string name);
 
         /// <summary>
         /// Gets the name of the team.
@@ -74,6 +77,37 @@ namespace RSBingoBot
         /// Gets the team's voice channel.
         /// </summary>
         public DiscordChannel VoiceChannel { get; private set; } = null!;
+
+        /// <summary>
+        /// Appropriately store the evidence in <see cref="submittedEvidence"/>.
+        /// </summary>
+        /// <param name="userId">The id of the user that submitted the evidence.</param>
+        /// <param name="tile">The name of the tile the evidence is being submitted for.</param>
+        /// <param name="url">The attachment url for the evidence image.</param>
+        public static void SubmitEvidence(IDataWorker dataWorker, ulong userId, string tile, string url)
+        {
+
+        }
+
+        /// <summary>
+        /// Tries to get the evidence submitted by the <paramref name="user"/> for the <paramref name="tile"/>.
+        /// </summary>
+        /// <param name="userId">The id of the user to retrieve the evidence for.</param>
+        /// <param name="tile">The name of the tile to retrieve the evidence for.</param>
+        /// <returns>The evidence previously submitted with the given parameters, or null if none was found.</returns>
+        public static string? GetEvidenceUrl(ulong userId, string tile) =>
+            submittedEvidence.ContainsKey(userId) && submittedEvidence[userId].ContainsKey(tile) ?
+            submittedEvidence[userId][tile] :
+            null;
+
+        /// <summary>
+        /// Tries to get all the evidence submitted by the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="userId">The id of the user to retrieve the evidence for.</param>
+        /// <returns>The evidence previously submitted with the given parameters, or null if none was found.</returns>
+        public static Dictionary<string, string>? GetEvidenceUrl(ulong userId) =>
+            submittedEvidence.ContainsKey(userId) ?
+            submittedEvidence[userId] : null;
 
         /// <summary>
         /// Creates and initializes the team's channels if they do not exist.

@@ -25,5 +25,17 @@ namespace RSBingo_Framework.Repository
         {
             return Add(new Evidence());
         }
+
+        public Evidence Create(User user, Tile tile, string url)
+        {
+            Evidence evidence = Create();
+            evidence.User = user;
+            evidence.Tile = tile;
+            evidence.LocationUrl = url;
+
+            user.Evidence.Add(evidence);
+
+            return evidence;
+        }
     }
 }

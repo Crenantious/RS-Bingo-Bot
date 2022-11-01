@@ -18,9 +18,9 @@ namespace RSBingoBot.Component_interaction_handlers
     {
         private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new ();
         private static readonly List<ComponentInteractionHandler> Instances = new ();
-        private static readonly ComponentInteractionDEH componentInteractionDEH;
-        private static readonly MessageCreatedDEH messageCreatedDEH;
-        private static readonly ModalSubmittedDEH modalSubmittedDEH;
+        private static readonly ComponentInteractionDEH componentInteractionDEH = null!;
+        private static readonly MessageCreatedDEH messageCreatedDEH = null!;
+        private static readonly ModalSubmittedDEH modalSubmittedDEH = null!;
 
         // TODO: JR - re-factor to not have to wrap every DEH subscription.
         private readonly List<(ComponentInteractionDEH.Constraints,
@@ -200,7 +200,7 @@ namespace RSBingoBot.Component_interaction_handlers
             /// <summary>
             /// The team the handler represents.
             /// </summary>
-            public Team Team;
+            public InitialiseTeam Team;
         }
     }
 }

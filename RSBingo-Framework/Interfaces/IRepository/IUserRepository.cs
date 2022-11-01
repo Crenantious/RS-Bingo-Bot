@@ -11,5 +11,6 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface IUserRepository
     {
+        public User? GetByDiscordId(ulong discordId);
     }
 }

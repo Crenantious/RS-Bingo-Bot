@@ -21,15 +21,15 @@ namespace RSBingoBot.BingoCommands
 
         private readonly ILogger<CommandController> logger;
         private readonly DiscordClient discordClient;
-        private readonly Team.Factory teamFactory;
+        private readonly InitialiseTeam.Factory teamFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandController"/> class.
         /// </summary>
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="discordClient">The client the bot will connect to.</param>
-        /// <param name="teamFactory">The factory used to create a new <see cref="Team"/> object.</param>
-        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient, Team.Factory teamFactory)
+        /// <param name="teamFactory">The factory used to create a new <see cref="InitialiseTeam"/> object.</param>
+        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient, InitialiseTeam.Factory teamFactory)
         {
             this.logger = logger;
             this.discordClient = discordClient;
@@ -58,7 +58,7 @@ namespace RSBingoBot.BingoCommands
                 .WithContent($"Creating a new team named {TestTeamName}.")
                 .AsEphemeral());
 
-            Team team = teamFactory("Test");
+            InitialiseTeam team = teamFactory("Test");
             await team.InitialiseAsync(false, ctx.Guild);
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"New team named {TestTeamName} has been created."));

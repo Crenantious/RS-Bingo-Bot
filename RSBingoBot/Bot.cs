@@ -16,6 +16,7 @@ namespace RSBingoBot
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Component_interaction_handlers;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Interfaces;
 
     /// <summary>
     /// Class for storing code related to the long running discord bot service.
@@ -24,7 +25,7 @@ namespace RSBingoBot
     {
         private readonly ILogger logger;
         private readonly DiscordClient discordClient;
-        private readonly Team.Factory teamFactory;
+        private readonly InitialiseTeam.Factory teamFactory;
         private readonly ComponentInteractionDEH componentInteractionDEH;
         private readonly MessageCreatedDEH messageCreatedDEH;
         private readonly ModalSubmittedDEH modalSubmittedDEH;
@@ -35,7 +36,7 @@ namespace RSBingoBot
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="client">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-        public Bot(ILogger<Bot> logger, DiscordClient client, Team.Factory teamFactory,
+        public Bot(ILogger<Bot> logger, DiscordClient client, InitialiseTeam.Factory teamFactory,
             ComponentInteractionDEH componentInteractionDEH, MessageCreatedDEH messageCreatedDEH,
             ModalSubmittedDEH modalSubmittedDEH)
         {
@@ -82,7 +83,7 @@ namespace RSBingoBot
         private async Task CreateExistingTeams()
         {
             // Placeholder. Will create all teams existing in DB
-            Team team = teamFactory("Test");
+            InitialiseTeam team = teamFactory("Test");
             await team.InitialiseAsync(true);
         }
     }
