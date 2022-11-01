@@ -5,13 +5,14 @@
         public Team()
         {
             Users = new HashSet<User>();
+            Tiles = new HashSet<Tile>();
         }
 
         public int RowId { get; set; }
 
-        public string TeamName { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
-        public string ChannelID { get; set; } = null!;
+        public ulong ChannelID { get; set; }
 
         public virtual ICollection<User> Users { get; set; }
         public virtual ICollection<Tile> Tiles { get; set; }
