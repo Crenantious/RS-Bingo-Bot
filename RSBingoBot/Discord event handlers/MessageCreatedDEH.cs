@@ -4,78 +4,55 @@
 
 namespace RSBingoBot.Discord_event_handlers
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
 
     /// <summary>
-    /// Handles which subscribers to call when the ComponentInteractionCreated event is fired based off given constraints.
+    /// Handles which subscribers to call when the <see cref="DiscordClient.MessageCreatedDEH"/> event is fired, based off given constraints.
     /// </summary>
-    public class MessageCreatedDEH
+    public class MessageCreatedDEH : DiscordEventHandlerBase<MessageCreateEventArgs, MessageCreatedDEH.Constraints>
     {
-        public record Constraints(DiscordChannel? Channel = null, DiscordUser? Author = null, int? NumberOfAttachments = null);
-
-        /// <summary>
-        /// The channel constrains.
-        /// </summary>
-        protected static readonly ConstraintActions<DiscordChannel, MessageCreateEventArgs> ChannelConstraints = new ();
-
-        /// <summary>
-        /// The author constraints.
-        /// </summary>
-        protected static readonly ConstraintActions<DiscordUser, MessageCreateEventArgs> AuthorConstraints = new ();
-
-        /// <summary>
-        /// The number of attachments constraints.
-        /// </summary>
-        protected static readonly ConstraintActions<int?, MessageCreateEventArgs> NumberOfAttachmentsConstraints = new ();
-
-        /// <summary>
-        /// Subscribe to the event. When it is fired and the <paramref name="constraints"/> are satisfied,
-        /// <paramref name="callback"/> is called.
-        /// </summary>
-        /// <param name="constraints">The constraints to be satisfied.</param>
-        /// <param name="callback">The action to call.</param>
-        public static void Subscribe(Constraints constraints, Func<DiscordClient, MessageCreateEventArgs, Task> callback)
+        public record Constraints : ConstraintsBase
         {
-            ChannelConstraints.Add(constraints.Channel, callback);
-            AuthorConstraints.Add(constraints.Author, callback);
-            NumberOfAttachmentsConstraints.Add(constraints.NumberOfAttachments, callback);
-        }
+            /// <summary>
+            /// Gets or sets the <see cref="DiscordChannel"/> that the message must be sent in.
+            /// </summary>
+            public DiscordChannel? Channel { get; set; } = null;
 
-        /// <summary>
-        /// Unsubscribe from the event so the <paramref name="callback"/> is no longer called when the event is fired.
-        /// </summary>
-        /// <param name="constraints">The constraints the <paramref name="callback"/> was registered with.</param>
-        /// <param name="callback">The action to stop being called.</param>
-        public static void UnSubscribe(Constraints constraints, Func<DiscordClient, MessageCreateEventArgs, Task> callback)
-        {
-            ChannelConstraints.Remove(constraints.Channel, callback);
-            AuthorConstraints.Remove(constraints.Author, callback);
-            NumberOfAttachmentsConstraints.Remove(constraints.NumberOfAttachments, callback);
-        }
+            /// <summary>
+            /// Gets or sets the <see cref="DiscordUser"/> that the message must be sent by.
+            /// </summary>
+            public DiscordUser? Author { get; set; } = null;
 
-        /// <summary>
-        /// Called when the <see cref="DiscordClient.MessageCreated"/> event is fired.
-        /// </summary>
-        /// <param name="client">The <see cref="DiscordClient"/> the event was fired on.</param>
-        /// <param name="args">The args for the event.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public static async Task OnEvent(DiscordClient client, MessageCreateEventArgs args)
-        {
-            IEnumerable<Func<DiscordClient, MessageCreateEventArgs, Task>>? actionsToCall =
-                ChannelConstraints.GetActions(args.Channel).Intersect(
-                AuthorConstraints.GetActions(args.Author).Intersect(
-                NumberOfAttachmentsConstraints.GetActions(args.Message.Attachments.Count)));
+            /// <summary>
+            /// Gets or sets the number of attachments that the message must contain.
+            /// </summary>
+            public int? NumberOfAttachments { get; set; } = null;
 
-            foreach (Func<DiscordClient, MessageCreateEventArgs, Task> action in actionsToCall)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Constraints"/> class.
+            /// </summary>
+            /// <param name="channel">Gets or sets the <see cref="DiscordChannel"/> that the message must be sent in.</param>
+            /// <param name="author">Gets or sets the <see cref="DiscordUser"/> that the message must be sent by.</param>
+            /// <param name="numberOfAttachments">Gets or sets the number of attachments that the message must contain.</param>
+            public Constraints(DiscordChannel? channel = null, DiscordUser? author = null, int? numberOfAttachments = null)
             {
-                await action(client, args);
+                Channel = channel;
+                Author = author;
+                NumberOfAttachments = numberOfAttachments;
             }
         }
+
+        /// <inheritdoc/>
+        public override List<object> GetConstraintValues(Constraints constriants) =>
+            new () { constriants.Channel, constriants.Author, constriants.NumberOfAttachments };
+
+        /// <inheritdoc/>
+        public override List<object> GetArgValues(MessageCreateEventArgs args) =>
+            new () { args.Channel, args.Author, args.Message.Attachments.Count };
     }
+
 }
+

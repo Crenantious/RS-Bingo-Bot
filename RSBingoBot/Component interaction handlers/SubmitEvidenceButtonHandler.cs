@@ -11,6 +11,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
     /// Handles the interaction with the "Submit evidence" button in a team's board channel.
@@ -46,10 +47,10 @@ namespace RSBingoBot.Component_interaction_handlers
             MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
             await UpdateOriginalResponse();
 
-            SubscribeComponent(new (User: args.User, CustomId: tileSelect.CustomId), TileSelectInteraction);
-            SubscribeComponent(new (User: args.User, CustomId: submitButton.CustomId), SubmitButtonInteraction);
-            SubscribeComponent(new (User: args.User, CustomId: cancelButton.CustomId), CancelButtonInteraction);
-            SubscribeMessage(new (Channel: args.Channel, Author: args.User, NumberOfAttachments: 1), EvidencePosted);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId), TileSelectInteraction);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: submitButton.CustomId), SubmitButtonInteraction);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: cancelButton.CustomId), CancelButtonInteraction);
+            SubscribeMessage(new MessageCreatedDEH.Constraints(channel: args.Channel, author: args.User, numberOfAttachments: 1), EvidencePosted);
         }
 
         private void CreateTileSelect()

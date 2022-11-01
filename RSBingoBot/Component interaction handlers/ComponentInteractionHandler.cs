@@ -7,6 +7,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingo_Common;
     using RSBingoBot;
     using RSBingoBot.Discord_event_handlers;
 
@@ -17,6 +18,9 @@ namespace RSBingoBot.Component_interaction_handlers
     {
         private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new ();
         private static readonly List<ComponentInteractionHandler> Instances = new ();
+        private static readonly ComponentInteractionDEH componentInteractionDEH;
+        private static readonly MessageCreatedDEH messageCreatedDEH;
+        private static readonly ModalSubmittedDEH modalSubmittedDEH;
 
         // TODO: JR - re-factor to not have to wrap every DEH subscription.
         private readonly List<(ComponentInteractionDEH.Constraints,
@@ -30,6 +34,13 @@ namespace RSBingoBot.Component_interaction_handlers
         private readonly List<(ModalSubmittedDEH.Constraints,
                        Func<DiscordClient,
                        ModalSubmitEventArgs, Task>)> subscribedModalInfo = new ();
+
+        static ComponentInteractionHandler()
+        {
+            componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH));
+            messageCreatedDEH = (MessageCreatedDEH)General.DI.GetService(typeof(MessageCreatedDEH));
+            modalSubmittedDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH));
+        }
 
         /// <summary>
         /// Gets the messages to delete when the original interaction has concluded.
@@ -67,7 +78,7 @@ namespace RSBingoBot.Component_interaction_handlers
         public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
         {
             RegisteredComponentIds.Add(customId, (typeof(T), info));
-            ComponentInteractionDEH.Subscribe(new (CustomId: customId), RegisteredComponentInteracted);
+            componentInteractionDEH.Subscribe(new ComponentInteractionDEH.Constraints(customId: customId), RegisteredComponentInteracted);
         }
 
         /// <summary>
@@ -111,12 +122,12 @@ namespace RSBingoBot.Component_interaction_handlers
         /// Subscribes the component to <see cref="ComponentInteractionDEH"/> for interaction callbacks and keeps
         /// track of which components have been subscribed so they can be unsubscribed when the interaction has concluded.
         /// </summary>
-        /// <param name="constraints"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.Constraints, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
-        /// <param name="callback"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.Constraints, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
+        /// <param name="constraints"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.ConstraintsBase, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
+        /// <param name="callback"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.ConstraintsBase, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
         protected void SubscribeComponent(ComponentInteractionDEH.Constraints constraints,
             Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback)
         {
-            ComponentInteractionDEH.Subscribe(constraints, callback);
+            componentInteractionDEH.Subscribe(constraints, callback);
             subscribedComponentsInfo.Add((constraints, callback));
         }
 
@@ -124,12 +135,12 @@ namespace RSBingoBot.Component_interaction_handlers
         /// Subscribes the <paramref name="callback"/> to <see cref="MessageCreatedDEH"/> and keeps
         /// track of which messages have been subscribed so they can be unsubscribed when the interaction has concluded.
         /// </summary>
-        /// <param name="constraints"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
-        /// <param name="callback"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
+        /// <param name="constraints"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.ConstraintsBase, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
+        /// <param name="callback"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.ConstraintsBase, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
         protected void SubscribeMessage(MessageCreatedDEH.Constraints constraints,
             Func<DiscordClient, MessageCreateEventArgs, Task> callback)
         {
-            MessageCreatedDEH.Subscribe(constraints, callback);
+            messageCreatedDEH.Subscribe(constraints, callback);
             subscribedMessagesInfo.Add((constraints, callback));
         }
 
@@ -137,12 +148,12 @@ namespace RSBingoBot.Component_interaction_handlers
         /// Subscribes the <paramref name="callback"/> to <see cref="MessageCreatedDEH"/> and keeps
         /// track of which messages have been subscribed so they can be unsubscribed when the interaction has concluded.
         /// </summary>
-        /// <param name="constraints"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
-        /// <param name="callback"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.Constraints, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
+        /// <param name="constraints"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.ConstraintsBase, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
+        /// <param name="callback"><inheritdoc cref="MessageCreatedDEH.Subscribe(MessageCreatedDEH.ConstraintsBase, Func{DiscordClient, MessageCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
         protected void SubscribeModal(ModalSubmittedDEH.Constraints constraints,
             Func<DiscordClient, ModalSubmitEventArgs, Task> callback)
         {
-            ModalSubmittedDEH.Subscribe(constraints, callback);
+            modalSubmittedDEH.Subscribe(constraints, callback);
             subscribedModalInfo.Add((constraints, callback));
         }
 
@@ -167,17 +178,17 @@ namespace RSBingoBot.Component_interaction_handlers
 
             foreach (var componentSubscriptionInfo in subscribedComponentsInfo)
             {
-                ComponentInteractionDEH.UnSubscribe(componentSubscriptionInfo.Item1, componentSubscriptionInfo.Item2);
+                componentInteractionDEH.UnSubscribe(componentSubscriptionInfo.Item1, componentSubscriptionInfo.Item2);
             }
 
             foreach (var messageSubscriptionInfo in subscribedMessagesInfo)
             {
-                MessageCreatedDEH.UnSubscribe(messageSubscriptionInfo.Item1, messageSubscriptionInfo.Item2);
+                messageCreatedDEH.UnSubscribe(messageSubscriptionInfo.Item1, messageSubscriptionInfo.Item2);
             }
 
             foreach (var modalSubscriptionInfo in subscribedModalInfo)
             {
-                ModalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
+                modalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
             }
         }
 

@@ -25,6 +25,9 @@ namespace RSBingoBot
         private readonly ILogger logger;
         private readonly DiscordClient discordClient;
         private readonly Team.Factory teamFactory;
+        private readonly ComponentInteractionDEH componentInteractionDEH;
+        private readonly MessageCreatedDEH messageCreatedDEH;
+        private readonly ModalSubmittedDEH modalSubmittedDEH;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Bot"/> class.
@@ -32,11 +35,16 @@ namespace RSBingoBot
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="client">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-        public Bot(ILogger<Bot> logger, DiscordClient client, Team.Factory teamFactory)
+        public Bot(ILogger<Bot> logger, DiscordClient client, Team.Factory teamFactory,
+            ComponentInteractionDEH componentInteractionDEH, MessageCreatedDEH messageCreatedDEH,
+            ModalSubmittedDEH modalSubmittedDEH)
         {
             this.logger = logger;
             this.discordClient = client;
             this.teamFactory = teamFactory;
+            this.componentInteractionDEH = componentInteractionDEH;
+            this.messageCreatedDEH = messageCreatedDEH;
+            this.modalSubmittedDEH = modalSubmittedDEH;
         }
 
         /// <inheritdoc/>
@@ -50,9 +58,9 @@ namespace RSBingoBot
             });
             slash.RegisterCommands<CommandController>(ulong.Parse(DataFactory.TestGuildId));
 
-            discordClient.ComponentInteractionCreated += ComponentInteractionDEH.OnEvent;
-            discordClient.MessageCreated += MessageCreatedDEH.OnEvent;
-            discordClient.ModalSubmitted += ModalSubmittedDEH.OnEvent;
+            discordClient.ComponentInteractionCreated += componentInteractionDEH.OnEvent;
+            discordClient.MessageCreated += messageCreatedDEH.OnEvent;
+            discordClient.ModalSubmitted += modalSubmittedDEH.OnEvent;
 
             ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
             ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);

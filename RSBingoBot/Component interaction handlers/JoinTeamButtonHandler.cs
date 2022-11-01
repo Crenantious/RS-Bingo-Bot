@@ -10,6 +10,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
     /// Handles the interaction with the "Team sign-up" select menu in create-team channel.
@@ -34,7 +35,7 @@ namespace RSBingoBot.Component_interaction_handlers
             // They must be removed from the team by an admin before being able to join another.
 
             var confirmButton = new DiscordButtonComponent(ButtonStyle.Primary, confirmButtonId, "Confirm");
-            SubscribeComponent(new (User: args.User, Channel: args.Channel, CustomId: confirmButtonId), TeamJoinConfirmed);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId), TeamJoinConfirmed);
 
             var builder = new DiscordInteractionResponseBuilder();
 
@@ -53,7 +54,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 }
 
                 var teamSelect = new DiscordSelectComponent(teamSelectId, "Select team", options);
-                SubscribeComponent(new (User: args.User, Channel: args.Channel, CustomId: teamSelectId), TeamSelected);
+                SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: teamSelectId), TeamSelected);
 
                 builder
                     .WithContent($"{args.User.Mention} Select a team to join.")

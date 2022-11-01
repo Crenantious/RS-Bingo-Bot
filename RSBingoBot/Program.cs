@@ -12,6 +12,7 @@ namespace RSBingoBot
     using Microsoft.Extensions.Hosting;
     using RSBingo_Framework.DAL;
     using RSBingoBot.BingoCommands;
+    using RSBingoBot.Discord_event_handlers;
     using Serilog;
     using static RSBingo_Common.General;
 
@@ -94,6 +95,10 @@ namespace RSBingoBot
                     });
 
                     services.AddScoped<CommandController>();
+
+                    services.AddSingleton<ComponentInteractionDEH>();
+                    services.AddSingleton<MessageCreatedDEH>();
+                    services.AddSingleton<ModalSubmittedDEH>();
                 })
 
                 // Swap out the DI factory for Autofac as it has more features

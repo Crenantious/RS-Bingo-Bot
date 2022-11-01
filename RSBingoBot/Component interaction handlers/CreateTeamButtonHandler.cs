@@ -12,6 +12,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
     /// Handles the interaction with the "Team sign-up" select menu in create-team channel.
@@ -39,7 +40,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 .AddComponents(teamNameInput);
 
             await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
-            SubscribeModal(new (CustomId: modalId), TeamNameSubmitted);
+            SubscribeModal(new ModalSubmittedDEH.Constraints(customId: modalId), TeamNameSubmitted);
         }
 
         private async Task TeamNameSubmitted(DiscordClient discordClient, ModalSubmitEventArgs args)

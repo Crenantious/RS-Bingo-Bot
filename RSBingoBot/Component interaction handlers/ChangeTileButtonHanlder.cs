@@ -10,6 +10,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
     /// Handles the interaction with the "Change tile" button in a team's board channel.
@@ -62,9 +63,9 @@ namespace RSBingoBot.Component_interaction_handlers
             await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
             MessagesForCleanup.Add(args.Interaction.GetOriginalResponseAsync().Result);
 
-            SubscribeComponent(new (User: args.User, CustomId: fromTileSelectId), FromTileSelectInteracted);
-            SubscribeComponent(new (User: args.User, CustomId: toTileSelectId), ToTileSelectInteracted);
-            SubscribeComponent(new (User: args.User, CustomId: submitButtonId), SubmitButtonInteracted);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: fromTileSelectId), FromTileSelectInteracted);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: toTileSelectId), ToTileSelectInteracted);
+            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: submitButtonId), SubmitButtonInteracted);
         }
 
         private async Task FromTileSelectInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
