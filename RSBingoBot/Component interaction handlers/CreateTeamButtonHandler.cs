@@ -12,6 +12,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingo_Framework.Models;
     using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
@@ -26,6 +27,9 @@ namespace RSBingoBot.Component_interaction_handlers
         /// Gets the custom Id for the "Create team" button.
         /// </summary>
         public static string CreateTeamButtonId { get; } = "create-team-button";
+
+        /// <inheritdoc/>
+        protected override bool ContinueWithNullUser { get { return true; } }
 
         /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
@@ -45,23 +49,53 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private async Task TeamNameSubmitted(DiscordClient discordClient, ModalSubmitEventArgs args)
         {
+            User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
+
+            if (await UserInDBCheck(args.Interaction.User.Id, false, args) == -1) { return; }
+
             string teamName = args.Values[teamNameInputId];
-            var builder = new DiscordInteractionResponseBuilder()
+            var builder = new DiscordFollowupMessageBuilder()
                 .AsEphemeral();
 
-            if (InitialiseTeam.TeamNames.Contains(teamName))
+            if (DataWorker.Teams.DoesTeamExist(teamName))
             {
                 builder.WithContent("A team with this name already exists.");
+                await args.Interaction.CreateFollowupMessageAsync(builder);
             }
             else
             {
-                InitialiseTeam.TeamNames.Add(teamName);
+                builder.WithContent("Creating team...");
+                DiscordMessage? followupMessage = await args.Interaction.CreateFollowupMessageAsync(builder);
+
+                InitialiseTeam team = new(discordClient, teamName);
+                await team.InitialiseAsync(false, args.Interaction.Guild);
+
+                DataWorker.Teams.Create(teamName, team.BoardChannel.Id);
+                DataWorker.SaveChanges();
+                User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
+                DataWorker.SaveChanges();
+
                 DiscordRole? role = await args.Interaction.Guild.CreateRoleAsync(teamName);
                 await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(role);
-                builder.WithContent($"The team '{teamName}' has been created successfully.");
-            }
 
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                string content = $"The team '{teamName}' has been created successfully.";
+
+                if (args.Interaction.GetFollowupMessageAsync(followupMessage.Id).Result != null)
+                {
+                    var editBuilder = new DiscordWebhookBuilder()
+                        .WithContent(content);
+                    await args.Interaction.EditFollowupMessageAsync(followupMessage.Id, editBuilder);
+                }
+                else
+                {
+                    // TODO: Figure out why this doesn't do anything.
+                    var newBuilder = new DiscordFollowupMessageBuilder()
+                        .WithContent(content)
+                        .AsEphemeral();
+                    await args.Interaction.CreateFollowupMessageAsync(newBuilder);
+                }
+            }
+            await InteractionConcluded();
         }
     }
 }

@@ -7,6 +7,7 @@ namespace RSBingo_Framework.Repository
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Class detailing use of <see cref="BingoTask"/> as a repository.
@@ -25,5 +26,11 @@ namespace RSBingo_Framework.Repository
         {
             return Add(new BingoTask());
         }
+
+        public BingoTask Create(string name, Restriction? restriction = null) =>
+            Add(new BingoTask()
+            {
+                Name = name
+            });
     }
 }

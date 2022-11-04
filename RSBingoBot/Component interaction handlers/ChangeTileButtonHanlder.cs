@@ -28,6 +28,9 @@ namespace RSBingoBot.Component_interaction_handlers
         private string toTileSelectedOption = string.Empty;
 
         /// <inheritdoc/>
+        protected override bool ContinueWithNullUser { get { return false; } }
+
+        /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
         {
             await base.InitialiseAsync(args, info);

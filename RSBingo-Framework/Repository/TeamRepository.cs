@@ -30,5 +30,29 @@ namespace RSBingo_Framework.Repository
                 Name = name,
                 BoardChannelId = boardChannelId,
             });
+
+        public int Delete(string name)
+        {
+            Team? team = GetByName(name);
+            if (team != null)
+            {
+                foreach (User user in team.Users)
+                {
+                    DataWorker.Users.Delete(user);
+                }
+                Remove(team);
+                return 0;
+            }
+            return -1;
+        }
+
+        public bool DoesTeamExist(string name) =>
+            GetByName(name) != null;
+
+        public Team? GetByName(string name) =>
+            FirstOrDefault(t => t.Name == name);
+
+        public IEnumerable<Team> GetTeams() =>
+            GetAll();
     }
 }

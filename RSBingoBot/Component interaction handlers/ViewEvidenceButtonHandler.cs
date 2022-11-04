@@ -30,6 +30,9 @@ namespace RSBingoBot.Component_interaction_handlers
         private string[] selectedTiles = Array.Empty<string>();
 
         /// <inheritdoc/>
+        protected override bool ContinueWithNullUser { get { return false; } }
+
+        /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
         {
             //await base.InitialiseAsync(args, info);
