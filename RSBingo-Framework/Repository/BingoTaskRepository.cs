@@ -7,7 +7,7 @@ namespace RSBingo_Framework.Repository
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
-    using System.Threading.Tasks;
+    using static RSBingo_Framework.Records.BingoTaskRecord;
 
     /// <summary>
     /// Class detailing use of <see cref="BingoTask"/> as a repository.
@@ -17,7 +17,7 @@ namespace RSBingo_Framework.Repository
         /// <summary>
         /// Initializes a new instance of the <see cref="BingoTaskRepository"/> class.
         /// </summary>
-        /// <param name="dataWorker">Refernce to the dataworker.</param>
+        /// <param name="dataWorker">Reference to the dataworker.</param>
         public BingoTaskRepository(IDataWorker dataWorker)
             : base(dataWorker) { }
 
@@ -27,10 +27,14 @@ namespace RSBingo_Framework.Repository
             return Add(new BingoTask());
         }
 
-        public BingoTask Create(string name, Restriction? restriction = null) =>
+        public BingoTask Create(string name, Difficulty difficulty) =>
             Add(new BingoTask()
             {
-                Name = name
+                Name = name,
+                Difficulty = difficulty
             });
+
+        public void DeleteAll() =>
+            RemoveRange(GetAll());
     }
 }

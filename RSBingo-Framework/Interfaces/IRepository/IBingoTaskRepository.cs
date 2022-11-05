@@ -5,11 +5,14 @@
 namespace RSBingo_Framework.Interfaces.IRepository
 {
     using RSBingo_Framework.Models;
+    using static RSBingo_Framework.Records.BingoTaskRecord;
 
     /// <summary>
     /// Interface detailing use of <see cref="BingoTask"/>as a repository.
     /// </summary>
     public interface IBingoTaskRepository
     {
+        public BingoTask Create(string name, Difficulty difficulty);
+        public void DeleteAll();
     }
 }
