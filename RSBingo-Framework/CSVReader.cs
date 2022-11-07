@@ -6,15 +6,11 @@ namespace RSBingo_Framework
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
     using RSBingo_Framework.Exceptions;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using static RSBingo_Framework.DAL.DataFactory;
-    using RSBingo_Common;
-    using System.Reflection;
     using static RSBingo_Framework.Records.BingoTaskRecord;
 
     /// <summary>
@@ -56,6 +52,8 @@ namespace RSBingo_Framework
         {
             // TODO: delete all restrictions
             DataWorker.BingoTasks.DeleteAll();
+            DataWorker.SaveChanges();
+            DataWorker.Context.Database.ExecuteSqlRaw("ALTER TABLE task AUTO_INCREMENT = 1");
         }
 
         public static string GetFilePath(string fileName) =>

@@ -70,8 +70,6 @@ namespace RSBingoBot.Component_interaction_handlers
                 InitialiseTeam team = new(discordClient, teamName);
                 await team.InitialiseAsync(false, args.Interaction.Guild);
 
-                DataWorker.Teams.Create(teamName, team.BoardChannel.Id);
-                DataWorker.SaveChanges();
                 User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
                 DataWorker.SaveChanges();
 

@@ -9,15 +9,16 @@ namespace RSBingoBot
     using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingoBot.Component_interaction_handlers;
+    using static RSBingo_Common.General;
+    using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
     /// Creates and sets up channels, roles and messages for the team.
     /// </summary>
     public class InitialiseTeam
     {
-        private static Dictionary<ulong, Dictionary<string, string>> submittedEvidence = new ();
-
         private readonly DiscordClient discordClient;
+        private readonly IDataWorker dataWorker = CreateDataWorker();
 
         private string changeTileButtonId = string.Empty!;
         private string submitEvidenceButtonId = string.Empty!;
@@ -73,37 +74,6 @@ namespace RSBingoBot
         public DiscordChannel VoiceChannel { get; private set; } = null!;
 
         /// <summary>
-        /// Appropriately store the evidence in <see cref="submittedEvidence"/>.
-        /// </summary>
-        /// <param name="userId">The id of the user that submitted the evidence.</param>
-        /// <param name="tile">The name of the tile the evidence is being submitted for.</param>
-        /// <param name="url">The attachment url for the evidence image.</param>
-        public static void SubmitEvidence(IDataWorker dataWorker, ulong userId, string tile, string url)
-        {
-
-        }
-
-        /// <summary>
-        /// Tries to get the evidence submitted by the <paramref name="user"/> for the <paramref name="tile"/>.
-        /// </summary>
-        /// <param name="userId">The id of the user to retrieve the evidence for.</param>
-        /// <param name="tile">The name of the tile to retrieve the evidence for.</param>
-        /// <returns>The evidence previously submitted with the given parameters, or null if none was found.</returns>
-        public static string? GetEvidenceUrl(ulong userId, string tile) =>
-            submittedEvidence.ContainsKey(userId) && submittedEvidence[userId].ContainsKey(tile) ?
-            submittedEvidence[userId][tile] :
-            null;
-
-        /// <summary>
-        /// Tries to get all the evidence submitted by the <paramref name="user"/>.
-        /// </summary>
-        /// <param name="userId">The id of the user to retrieve the evidence for.</param>
-        /// <returns>The evidence previously submitted with the given parameters, or null if none was found.</returns>
-        public static Dictionary<string, string>? GetEvidenceUrl(ulong userId) =>
-            submittedEvidence.ContainsKey(userId) ?
-            submittedEvidence[userId] : null;
-
-        /// <summary>
         /// Creates and initializes the team's channels if they do not exist.
         /// </summary>
         /// <param name="preExisting">Weather or not the team has previously been created. (Remove with DB hookup.)</param>
@@ -133,9 +103,16 @@ namespace RSBingoBot
                 Guild = guild;
                 await CreateChannels();
                 await InitialiseChannels();
+                CreateTeamEntry();
             }
 
             RegisterChannelComponentInteractions();
+        }
+
+        private void CreateTeamEntry()
+        {
+            dataWorker.Teams.Create(Name, BoardChannel.Id);
+            dataWorker.SaveChanges();
         }
 
         private async Task CreateChannels()

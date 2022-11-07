@@ -13,10 +13,13 @@ namespace RSBingoBot
     using Microsoft.Extensions.Logging;
     using RSBingo_Common;
     using RSBingo_Framework.DAL;
+    using RSBingo_Framework.Interfaces;
+    using RSBingo_Framework.Models;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Component_interaction_handlers;
     using RSBingoBot.Discord_event_handlers;
     using RSBingoBot.Interfaces;
+    using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
     /// Class for storing code related to the long running discord bot service.
@@ -29,6 +32,7 @@ namespace RSBingoBot
         private readonly ComponentInteractionDEH componentInteractionDEH;
         private readonly MessageCreatedDEH messageCreatedDEH;
         private readonly ModalSubmittedDEH modalSubmittedDEH;
+        private readonly IDataWorker dataWorker = CreateDataWorker();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Bot"/> class.
@@ -85,9 +89,11 @@ namespace RSBingoBot
 
         private async Task CreateExistingTeams()
         {
-            // Placeholder. Will create all teams existing in DB
-            InitialiseTeam team = teamFactory("Test");
-            await team.InitialiseAsync(true);
+            foreach (Team team in dataWorker.Teams.GetTeams())
+            {
+                InitialiseTeam initialiseTeam = new (discordClient, team.Name);
+                await initialiseTeam.InitialiseAsync(true);
+            }
         }
     }
 }

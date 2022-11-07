@@ -1,6 +1,6 @@
  CREATE TABLE Team (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-    Name varchar(50) NOT NULL,
+    Name varchar(50) NOT NULL UNIQUE,
     BoardChannelID bigint UNSIGNED NOT NULL
 );
 

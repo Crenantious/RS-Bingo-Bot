@@ -90,7 +90,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
             if (tileIds.Count != args.Values.Length) { return Task.FromException(new InvalidTileIdException()); }
 
-            selectedTiles = DataWorker.Tiles.GetByIds(tileIds);
+            selectedTiles = DataWorker.Tiles.GetByIds(tileIds).ToList();
             if (selectedTiles.Count != tileIds.Count) { return Task.FromException(new CouldNotFindTileIdException()); }
 
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);

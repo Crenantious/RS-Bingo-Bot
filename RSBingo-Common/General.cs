@@ -4,6 +4,7 @@
 
 namespace RSBingo_Common
 {
+    using System.Collections;
     using System.Reflection;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +44,21 @@ namespace RSBingo_Common
         /// Gets the name of application pulled from the entry assembly and held to avoid reflection calls.
         /// </summary>
         public static string AppName { get; } = null!;
+
+        /// <summary>
+        /// Gets the amount of tiles each row of the bingo board has.
+        /// </summary>
+        public static int TilesPerRow { get; } = 5;
+
+        /// <summary>
+        /// Gets the amount of tiles each column of the bingo board has.
+        /// </summary>
+        public static int TilesPerColumn { get; } = 5;
+
+        /// <summary>
+        /// Gets the maximum number of options a <see cref="DiscordSelectComponent"/> can have.
+        /// </summary>
+        public static int MaxOptionsPerSelectMenu { get; } = 25;
 
         /// <summary>
         /// Startup logging.

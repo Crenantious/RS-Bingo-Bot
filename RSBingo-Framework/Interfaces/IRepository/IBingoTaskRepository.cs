@@ -13,6 +13,9 @@ namespace RSBingo_Framework.Interfaces.IRepository
     public interface IBingoTaskRepository
     {
         public BingoTask Create(string name, Difficulty difficulty);
+        public BingoTask? GetByName(string name);
+        public IEnumerable<BingoTask> GetAllTasks();
+        public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty);
         public void DeleteAll();
     }
 }

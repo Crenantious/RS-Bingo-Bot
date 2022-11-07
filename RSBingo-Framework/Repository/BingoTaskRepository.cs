@@ -34,7 +34,18 @@ namespace RSBingo_Framework.Repository
                 Difficulty = difficulty
             });
 
+        public BingoTask? GetByName(string name) =>
+           FirstOrDefault(t => t.Name == name);
+
+        public IEnumerable<BingoTask> GetAllTasks() =>
+            GetAll();
+
+        public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty) =>
+            Where(t => t.Difficulty == difficulty).ToList();
+
         public void DeleteAll() =>
             RemoveRange(GetAll());
+
+
     }
 }

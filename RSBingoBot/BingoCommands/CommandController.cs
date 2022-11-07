@@ -133,13 +133,25 @@ namespace RSBingoBot.BingoCommands
             DiscordRole? role = GetTeamRole(ctx, teamName);
             if (role != null)
             {
-                await role.DeleteAsync();
+                // If the command is ran multiple times in quick succession,
+                // it's possible for one to delete the role while another is trying
+                try
+                {
+                    await role.DeleteAsync();
+                }
+                catch { }
             }
 
             // Delete channels
             foreach (var channelPair in ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
             {
-                await channelPair.Value.DeleteAsync();
+                // If the command is ran multiple times in quick succession,
+                // it's possible for one to delete some channels while another is trying
+                try
+                {
+                    await channelPair.Value.DeleteAsync();
+                }
+                catch { }
             }
 
             // Delete from database
@@ -149,7 +161,11 @@ namespace RSBingoBot.BingoCommands
             var editBuilder = new DiscordWebhookBuilder()
                 .WithContent("Team deleted.");
 
-            await ctx.EditResponseAsync(editBuilder);
+            try
+            {
+                await ctx.EditResponseAsync(editBuilder);
+            }
+            catch { }
         }
 
 

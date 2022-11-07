@@ -20,8 +20,8 @@ namespace RSBingo_Framework.DAL
         /// <summary>
         /// Initializes a new instance of the <see cref="DataWorker"/> class.
         /// </summary>
-        /// <param name="context">The database conext.</param>
-        /// <param name="logger">Reference to the logger</param>
+        /// <param name="context">The database context.</param>
+        /// <param name="logger">Reference to the logger.</param>
         public DataWorker(RSBingoContext context, ILogger<DataWorker> logger)
         {
             Context = context;
@@ -29,6 +29,7 @@ namespace RSBingo_Framework.DAL
             BingoTasks = new BingoTaskRepository(this);
             Evidence = new EvidenceRepository(this);
             Restrictions = new RestrictionRepository(this);
+            BingoTaskRestriction = new BingoTaskRestrictionRepository(this);
             Teams = new TeamRepository(this);
             Tiles = new TileRepository(this);
             Users = new UserRepository(this);
@@ -37,7 +38,7 @@ namespace RSBingo_Framework.DAL
         /// <summary>
         /// Gets the current time.
         /// </summary>
-        public static DateTime DateTimeNow => DateTime.Now; // TODO: We may need toi truncate this to the second, return dateTime.Truncate(TimeSpan.FromSeconds(1));. This would be in a Extension class which would have to live in a "Common" project.
+        public static DateTime DateTimeNow => DateTime.Now; // TODO: We may need to truncate this to the second, return dateTime.Truncate(TimeSpan.FromSeconds(1));. This would be in a Extension class which would have to live in a "Common" project.
 
         /// <inheritdoc/>
         public RSBingoContext Context { get; }
@@ -85,6 +86,8 @@ namespace RSBingo_Framework.DAL
         /// <inheritdoc/>
         public IRestrictionRepository Restrictions { get; set; }
 
+        /// <inheritdoc/>
+        public IBingoTaskRestrictionRepository BingoTaskRestriction { get; set; }
 
         /// <inheritdoc/>
         public ITeamRepository Teams { get; set; }

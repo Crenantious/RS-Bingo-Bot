@@ -45,7 +45,14 @@ namespace RSBingoBot.Component_interaction_handlers
             modalSubmittedDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH));
         }
 
+        /// <summary>
+        /// Gets the <see cref="IDataWorker"/> instance.
+        /// </summary>
         protected IDataWorker DataWorker { get; private set; } = CreateDataWorker();
+
+        /// <summary>
+        /// Gets or sets the user that interacted with the component.
+        /// </summary>
         protected User? User { get; set; } = null!;
 
         /// <summary>
@@ -60,6 +67,18 @@ namespace RSBingoBot.Component_interaction_handlers
         /// This is ignored if the team is null.
         /// </summary>
         protected virtual bool UserMustBeInTeam { get { return true; } }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the team with the name <see cref="Info.Team.Name"/> must
+        /// exist in the database to continue. This is ignore if the <see cref="Info.Team"/> is null.
+        /// </summary>
+        protected virtual bool TeamMustExist { get { return true; } }
+
+        /// <summary>
+        /// Gets the <see cref="Team"/> this handler is registered to. Null if it is either not registered to one
+        ///  or the team does not exist in the database.
+        /// </summary>
+        protected Team? Team { get; private set; }
 
         /// <summary>
         /// Gets the messages to delete when the original interaction has concluded.
@@ -96,7 +115,7 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <param name="info">Info to pass to the handler when the component is interacted with.</param>
         public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
         {
-            RegisteredComponentIds.Add(customId, (typeof(T), info));
+            RegisteredComponentIds[customId] = (typeof(T), info);
             componentInteractionDEH.Subscribe(new ComponentInteractionDEH.Constraints(customId: customId), RegisteredComponentInteracted);
         }
 
@@ -115,23 +134,36 @@ namespace RSBingoBot.Component_interaction_handlers
             if (instance != null)
             {
                 User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
+                Team? team = info.Item2.Team != null ?
+                    instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
+                    null;
 
                 if (user == null)
                 {
                     if (!instance.ContinueWithNullUser)
                     {
+                        // TODO: notify admins of this and tell the user they have been notified
                         throw new NullReferenceException("User is not in the database.");
                     }
                 }
-                else if (info.Item2.Team != null && instance.UserMustBeInTeam)
+                else if (info.Item2.Team != null)
                 {
-                    Team? team = instance.DataWorker.Teams.GetByName(info.Item2.Team.Name);
-                    if (team == null || user.Team != team)
+                    if (instance.TeamMustExist && team == null)
                     {
-                        var builder = new DiscordInteractionResponseBuilder()
-                            .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
-                            .AsEphemeral();
-                        await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                        // TODO: notify admins of this and tell the user they have been notified
+                        throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
+                    }
+
+                    if (instance.UserMustBeInTeam)
+                    {
+                        if (team == null || user.Team != team)
+                        {
+                            var builder = new DiscordInteractionResponseBuilder()
+                                .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
+                                .AsEphemeral();
+                            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                            return;
+                        }
                     }
                 }
 
@@ -139,6 +171,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 instance.Client = discordClient;
                 instance.CustomId = args.Interaction.Data.CustomId;
                 instance.User = user;
+                instance.Team = team;
                 await instance.InitialiseAsync(args, info.Item2);
             }
             else
