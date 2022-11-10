@@ -12,9 +12,11 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface ITileRepository
     {
+        public Tile Create(string teamName, string taskName, VerifiedStatus verifiedStatus);
+        public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus);
+        public Tile? GetById(int id);
         public IEnumerable<Tile> GetByIds(IEnumerable<int> ids);
         public IEnumerable<Tile> GetAllTiles();
-        public Tile CreateTile(string teamName, string taskName, VerifiedStatus verifiedStatus);
-        public Tile CreateTile(string teamName, BingoTask task, VerifiedStatus verifiedStatus);
+        public void Delete(Tile tile);
     }
 }

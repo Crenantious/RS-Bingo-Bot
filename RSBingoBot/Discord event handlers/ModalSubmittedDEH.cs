@@ -14,33 +14,11 @@ namespace RSBingoBot.Discord_event_handlers
     /// </summary>
     public class ModalSubmittedDEH : DiscordEventHandlerBase<ModalSubmitEventArgs, ModalSubmittedDEH.Constraints>
     {
-        public record Constraints : ConstraintsBase
-        {
-            /// <summary>
-            /// Gets or sets the <see cref="DiscordUser"/> that must submit the modal.
-            /// </summary>
-            public DiscordUser? User { get; set; } = null;
-
-            /// <summary>
-            /// Gets or sets the custom id the submitted modal must have.
-            /// </summary>
-            public string? CustomId { get; set; } = null;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Constraints"/> class.
-            /// </summary>
-            /// <param name="user">The <see cref="DiscordUser"/> that must submit the modal.</param>
-            /// <param name="customId">The custom id the submitted modal must have.</param>
-            public Constraints(DiscordUser? user = null, string? customId = null)
-            {
-                User = user;
-                CustomId = customId;
-            }
-        }
+        public record Constraints(DiscordUser? user = null, string? customId = null);
 
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
-            new () { constriants.User, constriants.CustomId };
+            new () { constriants.user, constriants.customId };
 
         /// <inheritdoc/>
         public override List<object> GetArgValues(ModalSubmitEventArgs args) =>

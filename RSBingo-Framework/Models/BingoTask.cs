@@ -18,7 +18,7 @@ namespace RSBingo_Framework.Models
 
         public int RowId { get; set; }
         public string Name { get; set; } = null!;
-        public Difficulty Difficulty { get; set; }
+        public sbyte Difficulty { get; set; }
 
         public virtual ICollection<Tile> Tiles { get; set; }
 

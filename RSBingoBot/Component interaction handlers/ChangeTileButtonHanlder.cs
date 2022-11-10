@@ -14,6 +14,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using RSBingoBot.Discord_event_handlers;
     using static RSBingo_Common.General;
     using static RSBingo_Framework.Records.BingoTaskRecord;
+    using static RSBingo_Framework.Records.TileRecord;
 
     // TODO: JR - make it so when someone is interacting with the button, no-one else can. This prevents conflicts.
 
@@ -23,17 +24,19 @@ namespace RSBingoBot.Component_interaction_handlers
     public class ChangeTileButtonHanlder : ComponentInteractionHandler
     {
         private const string PageOptionPrefix = "Page ";
+        private const string NoTaskPrefix = "No task ";
 
         private string fromTileSelectId = string.Empty;
         private string toTileSelectId = string.Empty;
         private string submitButtonId = string.Empty;
-        private string? fromTileSelectedOption = null;
+        private string? fromTileSelectedTile = null;
+        private string fromTileSelectPlaceholder = "Change from";
+        private int toTileSelectedTileRowId = -1;
         private SelectStage selectStage = SelectStage.Difficulty;
-        private IEnumerable<BingoTask>? tasks = null;
-        private Difficulty? difficultySelected = null;
+        private List<IEnumerable<BingoTask>>? tasksWithSelectedDifficulty = null;
+        private Difficulty difficultySelected;
         private int pageSelected = -1;
-        private string taskSelected = string.Empty;
-        private List<DiscordSelectComponentOption> fromTileSelectOptions = new ();
+        private List<DiscordSelectComponentOption> fromTileSelectOptions = new();
         private DiscordMessage originalResponse = null!;
         private DiscordButtonComponent submitButton = null!;
 
@@ -71,77 +74,120 @@ namespace RSBingoBot.Component_interaction_handlers
             if (fromTileSelectOptions.Count == 0)
             {
                 // Team will not be null if TeamMustExist == true, which it should be for this instance.
-                string taskName = string.Empty;
+                string name = string.Empty;
+                string value = string.Empty;
                 fromTileSelectOptions = new();
+
                 for (int i = 0; i < TilesPerRow * TilesPerColumn; i++)
                 {
-                    taskName = i < Team.Tiles.Count ?
-                        Team.Tiles.ElementAt(i).Task.Name :
-                        "No task " + i.ToString();
+                    if (i < Team.Tiles.Count)
+                    {
+                        name = Team.Tiles.ElementAt(i).Task.Name;
+                        value = Team.Tiles.ElementAt(i).RowId.ToString();
+                    }
+                    else
+                    {
+                        name = NoTaskPrefix;
+                        value = NoTaskPrefix + i.ToString();
+                    }
 
-                    fromTileSelectOptions.Add(new DiscordSelectComponentOption(taskName, taskName));
+                    fromTileSelectOptions.Add(new DiscordSelectComponentOption(name, value, isDefault: value == fromTileSelectedTile));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < fromTileSelectOptions.Count; i++)
+                {
+                    if (fromTileSelectedTile == fromTileSelectOptions[i].Value)
+                    {
+                        fromTileSelectOptions[i] = new(
+                            fromTileSelectOptions[i].Label,
+                            fromTileSelectOptions[i].Value,
+                            isDefault: true);
+                    }
                 }
             }
 
-            string placeholder = fromTileSelectedOption ?? "Change from";
-            return new DiscordSelectComponent(fromTileSelectId, placeholder, fromTileSelectOptions, false, 1, 1);
+            return new DiscordSelectComponent(fromTileSelectId, fromTileSelectPlaceholder, fromTileSelectOptions, false, 1, 1);
         }
 
         private DiscordSelectComponent GetToTileSelectMenu(ComponentInteractionCreateEventArgs args)
         {
-            var stringOptions = GetToTileSelectOptions();
+            (IEnumerable<string> optionNames, IEnumerable<int>? optionValues) = GetToTileSelectOptions();
             var options = new List<DiscordSelectComponentOption>();
-            stringOptions = stringOptions.Except(Team.Tiles.Select(t => t.Task.Name));
 
-            foreach (string option in stringOptions)
+            for (int i = 0; i < optionNames.Count(); i++)
             {
-                options.Add(new(option, option));
+                string value = optionValues == null ?
+                    optionNames.ElementAt(i) :
+                    optionValues.ElementAt(i).ToString();
+
+                options.Add(new(optionNames.ElementAt(i), value));
             }
 
             string placeholder = string.Empty;
-            if (difficultySelected != null) { placeholder += difficultySelected.ToString(); }
+            if (selectStage != SelectStage.Difficulty) { placeholder += difficultySelected.ToString(); }
             if (pageSelected >= 0) { placeholder += ", page " + pageSelected.ToString(); }
 
             return new DiscordSelectComponent(toTileSelectId, placeholder, options, false, 1, 1);
         }
 
-        private IEnumerable<string> GetToTileSelectOptions()
+        /// <summary>
+        /// Gets the option names and values for the toTile select component.
+        /// </summary>
+        /// <returns>(option names, option values). If option values is null then use the option name as the value.</returns>
+        private (IEnumerable<string>, IEnumerable<int>?) GetToTileSelectOptions()
         {
-            if (difficultySelected == null)
+            if (selectStage == SelectStage.Difficulty)
             {
-                selectStage = SelectStage.Difficulty;
-                return Enum.GetNames(typeof(Difficulty)).ToList();
+                return (Enum.GetNames(typeof(Difficulty)), null);
             }
-
-            if (tasks == null)
+            else if (selectStage == SelectStage.Page)
             {
-                tasks = DataWorker.BingoTasks.GetAllWithDifficulty((Difficulty)difficultySelected);
-            }
+                // tasksWithSelectedDifficulty will be set when the difficulty is selected, so this will not be null here.
+                List<string> names = new();
 
-            if (pageSelected >= 0)
-            {
-                selectStage = SelectStage.Task;
-                return tasks.Skip(MaxOptionsPerSelectMenu * pageSelected).Take(MaxOptionsPerSelectMenu)
-                    .Select(t => t.Name);
-            }
-
-            if (tasks.Count() > MaxOptionsPerSelectMenu)
-            {
-                selectStage = SelectStage.Page;
-
-                List<string> options = new();
-                int pages = (int)MathF.Ceiling(tasks.Count() / (float)MaxOptionsPerSelectMenu);
-
-                for (int i = 0; i < pages; i++)
+                for (int i = 0; i < tasksWithSelectedDifficulty.Count; i++)
                 {
-                    options.Add(PageOptionPrefix + i.ToString());
+                    names.Add(PageOptionPrefix + i.ToString());
                 }
-                return options;
+
+                return (names, null);
             }
-            else
+            else if (selectStage == SelectStage.Task)
             {
-                selectStage = SelectStage.Task;
-                return tasks.Select(t => t.Name).ToList();
+                // tasksWithSelectedDifficulty will be set when the difficulty is selected, so this will not be null here.
+                int index = pageSelected >= 0 ? pageSelected : 0;
+                List<string> names = new();
+                List<int> rowIds = new();
+
+                foreach (BingoTask bingoTask in tasksWithSelectedDifficulty[index])
+                {
+                    names.Add(bingoTask.Name);
+                    rowIds.Add(bingoTask.RowId);
+                }
+
+                return (names, rowIds);
+            }
+            return (new List<string>(), null);
+        }
+
+        private void SetTasks()
+        {
+            if (tasksWithSelectedDifficulty != null) { return; }
+
+            IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetAllWithDifficulty(difficultySelected).ToList();
+
+            if (tasks.Count() == 0) { throw new NotImplementedException("No tasks with the given difficulty could be found"); }
+
+            tasksWithSelectedDifficulty = new List<IEnumerable<BingoTask>>();
+            int pages = (int)MathF.Ceiling(tasks.Count() / (float)MaxOptionsPerSelectMenu);
+
+            for (int i = 0; i < pages; i++)
+            {
+                tasksWithSelectedDifficulty.Add(tasks
+                    .Skip(MaxOptionsPerSelectMenu * i)
+                    .Take(MaxOptionsPerSelectMenu));
             }
         }
 
@@ -158,7 +204,12 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private async Task FromTileSelectInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
         {
-            fromTileSelectedOption = args.Values[0];
+            fromTileSelectedTile = args.Values[0];
+
+            fromTileSelectPlaceholder = fromTileSelectedTile.StartsWith(NoTaskPrefix) ?
+                NoTaskPrefix :
+                DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTile)).Task.Name;
+
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
         }
 
@@ -166,28 +217,44 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-            switch (selectStage)
+            if (selectStage == SelectStage.Difficulty)
             {
-                case SelectStage.Difficulty:
-                    foreach (Difficulty difficulty in Enum.GetValues(typeof(Difficulty)))
+                foreach (Difficulty difficulty in Enum.GetValues(typeof(Difficulty)))
+                {
+                    if (difficulty.ToString() == args.Values[0])
                     {
-                        if (difficulty.ToString() == args.Values[0])
-                        {
-                            difficultySelected = difficulty;
-                            break;
-                        }
+                        difficultySelected = difficulty;
+                        break;
                     }
-                    await UpdateMessage(args);
-                    break;
+                }
 
-                case SelectStage.Page:
-                    pageSelected = int.Parse(args.Values[0][PageOptionPrefix.Length..]);
-                    await UpdateMessage(args);
-                    break;
+                SetTasks();
+                SetSelectStage();
+                await UpdateMessage(args);
+            }
+            else if (selectStage == SelectStage.Page)
+            {
+                pageSelected = int.Parse(args.Values[0][PageOptionPrefix.Length..]);
+                SetSelectStage();
+                await UpdateMessage(args);
+            }
+            else if (selectStage == SelectStage.Task)
+            {
+                toTileSelectedTileRowId = int.Parse(args.Values[0]);
+            }
+        }
 
-                case SelectStage.Task:
-                    taskSelected = args.Values[0];
-                    break;
+        private void SetSelectStage()
+        {
+            if (selectStage == SelectStage.Difficulty)
+            {
+                selectStage = tasksWithSelectedDifficulty.Count > 1 ?
+                   SelectStage.Page :
+                   SelectStage.Task;
+            }
+            else if (selectStage == SelectStage.Page)
+            {
+                selectStage = SelectStage.Task;
             }
         }
 
@@ -195,13 +262,24 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             string content;
 
-            if (fromTileSelectedOption == null || taskSelected == string.Empty)
+            if (fromTileSelectedTile == null || toTileSelectedTileRowId == -1)
             {
-                 content = "Must select both a tile to change from, and to change to.";
+                 content = "Must select a tile to change both from, and to.";
             }
             else
             {
-                content = $"{fromTileSelectedOption} has been changed to {taskSelected}.";
+                BingoTask? toTask = DataWorker.BingoTasks.GetById(toTileSelectedTileRowId);
+                if (fromTileSelectedTile.StartsWith(NoTaskPrefix))
+                {
+                    DataWorker.Tiles.Create(Team.Name, toTask, VerifiedStatus.No);
+                }
+                else
+                {
+                    DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTile)).Task = toTask;
+                }
+
+                DataWorker.SaveChanges();
+                content = $"{fromTileSelectPlaceholder} has been changed to {toTask.Name}.";
                 await InteractionConcluded();
             }
 

@@ -39,8 +39,9 @@ namespace RSBingoBot
 
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
+#if DEBUG
                 TaskTemplatePopulator.Run();
-                CSVReader.Run();
+#endif
                 host.Run();
             }
             catch (Exception ex)

@@ -13,7 +13,8 @@
  CREATE TABLE Task (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL,
-    Difficulty tinyint NOT NULL 
+    Difficulty tinyint NOT NULL,
+    Number int NOT NULL
 );
 
  CREATE TABLE Restriction (

@@ -31,21 +31,63 @@ namespace RSBingo_Framework.Repository
             Add(new BingoTask()
             {
                 Name = name,
-                Difficulty = difficulty
+                Difficulty = (sbyte)difficulty
             });
+
+        public IEnumerable<BingoTask> CreateMany(string name, Difficulty difficulty, int amount)
+        {
+            if (amount < 1) { throw new ArgumentOutOfRangeException(nameof(amount)); }
+
+            List<BingoTask> tasks = new();
+
+            for (int i = 0; i < amount; i++)
+            {
+                Add(Create(name, difficulty));
+            }
+
+            return tasks;
+        }
 
         public BingoTask? GetByName(string name) =>
            FirstOrDefault(t => t.Name == name);
+
+        //Where(t => t.Name == name);
+
+        public BingoTask? GetById(int id) =>
+           FirstOrDefault(t => t.RowId == id);
 
         public IEnumerable<BingoTask> GetAllTasks() =>
             GetAll();
 
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty) =>
-            Where(t => t.Difficulty == difficulty).ToList();
+            Where(t => t.Difficulty == (sbyte)difficulty).ToList();
+
+        public void Delete(string name, Difficulty difficulty)  
+        {
+            BingoTask? task = FirstOrDefault(t => t.Name == name && t.Difficulty == (sbyte)difficulty);
+            if (task != null) { Delete(task); }
+        }
+
+        public void Delete(BingoTask bingoTask) =>
+            Remove(bingoTask);
+
+        /// <summary>
+        /// Deletes as many <see cref="BingoTask"/>s that can be found with matching <paramref name="name"/>
+        /// and <paramref name="difficulty"/> up to the <paramref name="amount"/>.<br/>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="difficulty"></param>
+        /// <param name="amount"></param>
+        public void DeleteMany(string name, Difficulty difficulty, int amount)
+        {
+            IEnumerable<BingoTask> tasks = Where(t => t.Name == name && t.Difficulty == (sbyte)difficulty).AsEnumerable();
+            for (int i = 0; i < MathF.Min(tasks.Count(), amount); i++)
+            {
+                Delete(tasks.ElementAt(i));
+            }
+        }
 
         public void DeleteAll() =>
             RemoveRange(GetAll());
-
-
     }
 }

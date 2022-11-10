@@ -78,7 +78,7 @@ namespace RSBingoBot.Discord_event_handlers
         /// <returns>The list of actions.</returns>
         public List<Func<DiscordClient, TArgs, Task>> GetActions(TConstraint constraint)
         {
-            if (constraintToActions.ContainsKey(constraint))
+            if (constraint != null && constraintToActions.ContainsKey(constraint))
             {
                 return constraintToActions[constraint].Concat(nullConstraintActions).ToList();
             }

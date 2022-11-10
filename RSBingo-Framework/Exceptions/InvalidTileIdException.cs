@@ -1,4 +1,4 @@
-﻿// <copyright file="CouldNotFindTileIdException.cs" company="PlaceholderCompany">
+﻿// <copyright file="InvalidTileIdException.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 

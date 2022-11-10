@@ -40,6 +40,12 @@ namespace RSBingo_Framework.Repository
                 {
                     DataWorker.Users.Delete(user);
                 }
+
+                foreach (Tile tile in team.Tiles)
+                {
+                    DataWorker.Tiles.Delete(tile);
+                }
+
                 Remove(team);
                 return 0;
             }

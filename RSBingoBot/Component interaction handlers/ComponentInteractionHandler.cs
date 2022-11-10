@@ -17,7 +17,7 @@ namespace RSBingoBot.Component_interaction_handlers
     /// <summary>
     /// Handles the callback when a component is interacted with.
     /// </summary>
-    public abstract class ComponentInteractionHandler
+    public abstract class ComponentInteractionHandler : IDisposable
     {
         private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new ();
         private static readonly List<ComponentInteractionHandler> Instances = new ();
@@ -116,7 +116,9 @@ namespace RSBingoBot.Component_interaction_handlers
         public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
         {
             RegisteredComponentIds[customId] = (typeof(T), info);
-            componentInteractionDEH.Subscribe(new ComponentInteractionDEH.Constraints(customId: customId), RegisteredComponentInteracted);
+            componentInteractionDEH.Subscribe(
+                new ComponentInteractionDEH.Constraints(customId: customId),
+                RegisteredComponentInteracted);
         }
 
         /// <summary>
@@ -192,6 +194,8 @@ namespace RSBingoBot.Component_interaction_handlers
             Info = info;
         }
 
+        #region DEH subscription wrappers
+
         /// <summary>
         /// Subscribes the component to <see cref="ComponentInteractionDEH"/> for interaction callbacks and keeps
         /// track of which components have been subscribed so they can be unsubscribed when the interaction has concluded.
@@ -230,6 +234,8 @@ namespace RSBingoBot.Component_interaction_handlers
             modalSubmittedDEH.Subscribe(constraints, callback);
             subscribedModalInfo.Add((constraints, callback));
         }
+
+        #endregion
 
         /// <summary>
         /// Checks if the a user with the given id is in the database. Then possibly post a response, notify an admin,
@@ -293,6 +299,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 {
                     if (isAnError)
                     {
+                        // TODO: notify admins of this
                         content += "\nThis appears to be an error so an admin has been notified.";
                     }
 
@@ -319,6 +326,12 @@ namespace RSBingoBot.Component_interaction_handlers
             }
 
             return returnValue;
+        }
+
+        protected async Task NotifyAdmins(string message)
+        {
+            // TODO: notify admins
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -355,6 +368,11 @@ namespace RSBingoBot.Component_interaction_handlers
             {
                 modalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
             }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

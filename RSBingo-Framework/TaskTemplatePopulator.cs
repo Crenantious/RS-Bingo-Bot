@@ -7,8 +7,6 @@ namespace RSBingo_Framework
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     public class TaskTemplatePopulator
     {
@@ -29,13 +27,16 @@ namespace RSBingo_Framework
                 foreach (string? fileName in files)
                 {
                     if (fileName == null) { continue; }
-                    text += $"{fileName}, {difficulty.ToLower()}{Environment.NewLine}";
+                    text += $"{fileName}, {difficulty.ToLower()}, 1{Environment.NewLine}";
                 }
             }
-            File.WriteAllText(CSVReader.GetFilePath("Tasks template.csv"), text);
+            File.WriteAllText(GetFilePath("Tasks template.csv"), text);
         }
 
+        private static string GetFilePath(string fileName) =>
+            Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName, fileName);
+
         private static string GetImagePath(string name) =>
-            CSVReader.GetFilePath("Tile images\\" + name);
+            GetFilePath("Tile images\\" + name);
     }
 }

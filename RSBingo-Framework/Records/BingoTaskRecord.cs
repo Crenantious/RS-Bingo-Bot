@@ -13,6 +13,10 @@ namespace RSBingo_Framework.Records
     {
         #region enums & lookups
 
+        private static readonly EnumDict<Difficulty> DifficultyLookup = new EnumDict<Difficulty>(Difficulty.Easy)
+            .Add(Difficulty.Medium, 1)
+            .Add(Difficulty.Hard, 2);
+
         public enum Difficulty
         {
             Easy,
@@ -20,13 +24,9 @@ namespace RSBingo_Framework.Records
             Hard
         }
 
-        private static readonly EnumDict<Difficulty> EvidenceTypeLookup = new EnumDict<Difficulty>(Difficulty.Easy)
-         .Add(Difficulty.Medium, 1)
-         .Add(Difficulty.Hard, 2);
-
         #endregion
 
-        public static BingoTask CreateEvidence(IDataWorker dataWorker, string name, Difficulty type) =>
+        public static BingoTask CreateBingoTask(IDataWorker dataWorker, string name, Difficulty type) =>
             dataWorker.BingoTasks.Create(name, type);
     }
 }

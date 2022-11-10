@@ -6,14 +6,17 @@ namespace RSBingoBot.BingoCommands
 {
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using DSharpPlus.EventArgs;
     using DSharpPlus.SlashCommands;
     using DSharpPlus.SlashCommands.Attributes;
     using Microsoft.Extensions.Logging;
+    using RSBingo_Framework;
     using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingoBot;
     using RSBingoBot.Component_interaction_handlers;
+    using RSBingoBot.Discord_event_handlers;
     using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
@@ -27,6 +30,7 @@ namespace RSBingoBot.BingoCommands
         private readonly IDataWorker dataWorker = CreateDataWorker();
         private readonly DiscordClient discordClient;
         private readonly InitialiseTeam.Factory teamFactory;
+        private readonly MessageCreatedDEH messageCreatedDEH;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandController"/> class.
@@ -34,11 +38,13 @@ namespace RSBingoBot.BingoCommands
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="discordClient">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create a new <see cref="InitialiseTeam"/> object.</param>
-        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient, InitialiseTeam.Factory teamFactory)
+        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient,
+            InitialiseTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH)
         {
             this.logger = logger;
             this.discordClient = discordClient;
             this.teamFactory = teamFactory;
+            this.messageCreatedDEH = messageCreatedDEH;
         }
 
         public async Task Start(InteractionContext context)
@@ -197,6 +203,59 @@ namespace RSBingoBot.BingoCommands
             }
 
             await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        }
+
+        // TODO: JR - allow only in given channels
+        [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
+                                  //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
+        public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
+        {
+            await AddDeleteTasks(ctx, attachment, true);
+        }
+
+        [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
+        public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
+        {
+            await AddDeleteTasks(ctx, attachment, false);
+        }
+
+        private async Task AddDeleteTasks(InteractionContext ctx, DiscordAttachment attachment, bool addTasks)
+        {
+            if (!HasAdminPermission(ctx))
+            {
+                await InsufficientPermissionsResponse(ctx);
+                return;
+            }
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent("Processing");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+
+            var editBuilder = new DiscordWebhookBuilder();
+
+            if (attachment.FileName.EndsWith(".csv"))
+            {
+                string action = addTasks ? "add" : "delete";
+                string actionVerb = addTasks ? "added" : "deleted";
+                string errorMessage = addTasks ?
+                    CSVReader.CreateTasks(attachment.Url) :
+                    CSVReader.DeleteTasks(attachment.Url);
+
+                if (errorMessage == string.Empty)
+                {
+                    editBuilder.WithContent($"Tasks successfully {actionVerb}.");
+                }
+                else
+                {
+                    editBuilder.WithContent($"The following error occurred while attempting to {action} tasks: {errorMessage}");
+                }
+            }
+            else
+            {
+                editBuilder.WithContent("Incorrect file type; must be csv.");
+            }
+
+            await ctx.EditResponseAsync(editBuilder);
         }
 
         private async Task InsufficientPermissionsResponse(InteractionContext ctx)

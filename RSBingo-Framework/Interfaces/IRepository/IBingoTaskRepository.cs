@@ -13,9 +13,14 @@ namespace RSBingo_Framework.Interfaces.IRepository
     public interface IBingoTaskRepository
     {
         public BingoTask Create(string name, Difficulty difficulty);
+        public IEnumerable<BingoTask> CreateMany(string name, Difficulty difficulty, int amount);
         public BingoTask? GetByName(string name);
+        public BingoTask? GetById(int id);
         public IEnumerable<BingoTask> GetAllTasks();
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty);
+        public void Delete(string name, Difficulty difficulty);
+        public void Delete(BingoTask bingoTask);
+        public void DeleteMany(string name, Difficulty difficulty, int amount);
         public void DeleteAll();
     }
 }

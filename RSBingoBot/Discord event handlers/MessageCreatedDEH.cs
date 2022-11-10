@@ -15,45 +15,30 @@ namespace RSBingoBot.Discord_event_handlers
     /// </summary>
     public class MessageCreatedDEH : DiscordEventHandlerBase<MessageCreateEventArgs, MessageCreatedDEH.Constraints>
     {
-        public record Constraints : ConstraintsBase
-        {
-            /// <summary>
-            /// Gets or sets the <see cref="DiscordChannel"/> that the message must be sent in.
-            /// </summary>
-            public DiscordChannel? Channel { get; set; } = null;
-
-            /// <summary>
-            /// Gets or sets the <see cref="DiscordUser"/> that the message must be sent by.
-            /// </summary>
-            public DiscordUser? Author { get; set; } = null;
-
-            /// <summary>
-            /// Gets or sets the number of attachments that the message must contain.
-            /// </summary>
-            public int? NumberOfAttachments { get; set; } = null;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Constraints"/> class.
-            /// </summary>
-            /// <param name="channel">Gets or sets the <see cref="DiscordChannel"/> that the message must be sent in.</param>
-            /// <param name="author">Gets or sets the <see cref="DiscordUser"/> that the message must be sent by.</param>
-            /// <param name="numberOfAttachments">Gets or sets the number of attachments that the message must contain.</param>
-            public Constraints(DiscordChannel? channel = null, DiscordUser? author = null, int? numberOfAttachments = null)
-            {
-                Channel = channel;
-                Author = author;
-                NumberOfAttachments = numberOfAttachments;
-            }
-        }
+        public record Constraints(DiscordChannel? channel = null, DiscordUser? author = null,
+            int? numberOfAttachments = null, string? attatchmentFileExtension = null);
 
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
-            new () { constriants.Channel, constriants.Author, constriants.NumberOfAttachments };
+            new () { constriants.channel, constriants.author,
+                constriants.numberOfAttachments, constriants.attatchmentFileExtension};
 
         /// <inheritdoc/>
-        public override List<object> GetArgValues(MessageCreateEventArgs args) =>
-            new () { args.Channel, args.Author, args.Message.Attachments.Count };
-    }
+        public override List<object> GetArgValues(MessageCreateEventArgs args)
+        {
+            string? fileExtension = null;
 
+            if (args.Message.Attachments.Count > 0)
+            {
+                fileExtension = args.Message.Attachments[0].MediaType;
+                //string[] split = args.Message.Attachments[0].FileName.Split(".");
+                //if (split.Length > 1)
+                //{
+                //    fileExtension = split[1];
+                //}
+            }
+            return new List<object>() { args.Channel, args.Author, args.Message.Attachments.Count, fileExtension };
+        }
+    }
 }
 

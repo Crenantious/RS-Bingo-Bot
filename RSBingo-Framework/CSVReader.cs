@@ -6,7 +6,9 @@ namespace RSBingo_Framework
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
     using Microsoft.EntityFrameworkCore;
+    using RSBingo_Common;
     using RSBingo_Framework.Exceptions;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
@@ -14,50 +16,69 @@ namespace RSBingo_Framework
     using static RSBingo_Framework.Records.BingoTaskRecord;
 
     /// <summary>
-    /// Reads the "Task restrictions.csv" and "Tasks.csv" files, parses them then saves the info to the database.<br/>
+    /// Reads and parses a csv file, then updates the database accordingly.<br/>
     /// </summary>
-    public class CSVReader
+    public abstract class CSVReader
     {
         private static readonly string[] ValidImageExtensions = new string[] { ".jpg", ".bmp", ".png" };
         private static readonly string TaskRestictionsFileName = "Task restrictions.csv";
         private static readonly string TasksFileName = "Tasks.csv";
         private static readonly IDataWorker DataWorker = CreateDataWorker();
         private static readonly Dictionary<string, int> RestrictionNameToId = new ();
+        private static readonly HashSet<int> TaskIds = new ();
 
-        private static string currentFileName = string.Empty;
         private static int currentFileLine = 1;
 
-        public static void Run()
+        static CSVReader()
         {
-            Console.WriteLine($"Reading {TaskRestictionsFileName} and {TasksFileName} files...");
-            CheckFilesExist();
-            ClearDBEntries();
-            Console.WriteLine($"Parsing {TaskRestictionsFileName} and {TasksFileName} files...");
-            //ParseFile(TaskRestictionsFileName, 2, CreateTaskRestriction);
-            //dataWorker.SaveChanges();
-            ParseFile(TasksFileName, 2, CreateTask);
-            DataWorker.SaveChanges();
-        }
-
-        private static void CheckFilesExist()
-        {
-            if (!File.Exists(GetFilePath(TasksFileName))) { FileNotFoundException(TasksFileName); }
-            if (!File.Exists(GetFilePath(TaskRestictionsFileName))) { FileNotFoundException(TaskRestictionsFileName); }
-        }
-
-        private static void FileNotFoundException(string fileName) =>
-            throw new FileNotFoundException($"Cannot find the {fileName} file. Make sure it exists in the project root folder.");
-
-        private static void ClearDBEntries()
-        {
-            // TODO: delete all restrictions
-            DataWorker.BingoTasks.DeleteAll();
-            DataWorker.SaveChanges();
+            // Reset auto increment just in case it overflows
             DataWorker.Context.Database.ExecuteSqlRaw("ALTER TABLE task AUTO_INCREMENT = 1");
         }
 
-        public static string GetFilePath(string fileName) =>
-            Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName, fileName);
+        /// <summary>
+        /// Attempts to add tasks to the database based on a csv file.
+        /// </summary>
+        /// <param name="csvUrl">The URL of the csv file to parse.</param>
+        /// <returns>An error message to display to the user attempting to add tasks,
+        /// or <see cref="string.Empty"/> if no errors occurred.</returns>
+        public static string CreateTasks(string csvUrl) =>
+            AddDeleteTasks(csvUrl, true);
+
+        /// <summary>
+        /// Attempts to delete tasks to the database based on a csv file.
+        /// </summary>
+        /// <param name="csvUrl">The URL of the csv file to parse.</param>
+        /// <returns>An error message to display to the user attempting to delete tasks,
+        /// or <see cref="string.Empty"/> if no errors occurred.</returns>
+        public static string DeleteTasks(string csvUrl) =>
+            AddDeleteTasks(csvUrl, false);
+
+        private static string AddDeleteTasks(string csvUrl, bool addTasks)
+        {
+            using (var client = new WebClient())
+            {
+                try
+                {
+                    client.DownloadFile(csvUrl, TasksFileName);
+
+                    ParseFile(TasksFileName, 3, addTasks ? CreateTask : DeleteTask);
+                    DataWorker.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    if (e.GetType() == typeof(CSVReaderException))
+                    {
+                        return e.Message;
+                    }
+                    else
+                    {
+                        General.LoggingLog(e, e.Message);
+                        return "Internal error";
+                    }
+                }
+            }
+            return string.Empty;
+        }
 
         /// <summary>
         /// Parses the CSV file and calls <paramref name="action"/> on each line.
@@ -67,10 +88,10 @@ namespace RSBingo_Framework
         /// <param name="action">Called on each line of the file with each value of the line an element in the array parameter (in order).</param>
         private static void ParseFile(string fileName, int valueAmount, Action<string[]> action)
         {
-            currentFileName = fileName;
-            string filePath = GetFilePath(fileName);
+            // TODO: JR - add ability for unlimited parameters, or an array of options for a parameter
+            // (task restrictions in this case).
 
-            using (StreamReader reader = new (filePath))
+            using (StreamReader reader = new (fileName))
             {
                 currentFileLine = 1;
                 while (!reader.EndOfStream)
@@ -80,7 +101,7 @@ namespace RSBingo_Framework
 
                     if (values.Length != valueAmount)
                     {
-                        ThrowIncorrectNumberOfValuesException(valueAmount, values.Length);
+                        throw new CSVReaderException(GetFileExceptionMessage($"Expected {valueAmount} values but found {values.Length}"));
                     }
 
                     for (int i = 0; i < values.Length; i++)
@@ -94,12 +115,6 @@ namespace RSBingo_Framework
             }
         }
 
-        private static void ThrowIncorrectNumberOfValuesException(int expectedValueCount,
-            int actualValueCount)
-        {
-            throw new FormatException(GetFileExceptionMessage($"Expected {expectedValueCount} values but found {actualValueCount}."));
-        }
-
         /// <summary>
         /// "Task restrictions.csv" must have the format: name, description.
         /// </summary>
@@ -111,18 +126,26 @@ namespace RSBingo_Framework
         {
             if (RestrictionNameToId.ContainsKey(values[0]))
             {
-                throw new DuplicateRestrictionNameException(GetFileExceptionMessage("Duplicate restriction name found"));
+                throw new CSVReaderException(GetFileExceptionMessage("Duplicate restriction name found"));
             }
 
             Restriction restriction = DataWorker.Restrictions.Create(values[1]);
             RestrictionNameToId.Add(values[0], restriction.RowId);
         }
 
-        /// <summary>
-        /// "Tasks.csv" must have the format: name, difficulty, restriction name.
-        /// </summary>
-        /// <param name="values">A line of values in the "Tasks.csv" file.</param>
         private static void CreateTask(string[] values)
+        {
+            (string name, Difficulty difficulty, int numberOfTiles) = GetTaskValue(values);
+            DataWorker.BingoTasks.CreateMany(name, difficulty, numberOfTiles);
+        }
+
+        private static void DeleteTask(string[] values)
+        {
+            (string name, Difficulty difficulty, int numberOfTiles) = GetTaskValue(values);
+            DataWorker.BingoTasks.DeleteMany(name, difficulty, numberOfTiles);
+        }
+
+        private static (string, Difficulty, int) GetTaskValue(string[] values)
         {
             //if (!RestrictionNameToId.ContainsKey(values[2]))
             //{
@@ -130,7 +153,23 @@ namespace RSBingo_Framework
             //}
 
             Difficulty difficulty = StringToDifficulty(values[1]);
-            DataWorker.BingoTasks.Create(values[0], difficulty);
+            int numberOfTiles = 0;
+
+            try
+            {
+                numberOfTiles = int.Parse(values[2]);
+            }
+            catch
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("The 'number of tiles' argument must be an integer"));
+            }
+
+            if (numberOfTiles <= 0)
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("The 'number of tiles' argument must be greater than 0"));
+            }
+
+            return (values[0], difficulty, numberOfTiles);
         }
 
         private static Difficulty StringToDifficulty(string name)
@@ -144,10 +183,11 @@ namespace RSBingo_Framework
                     return difficulty;
                 }
             }
-            throw new InvalidDifficultyException(GetFileExceptionMessage("Invalid difficulty found"));
+
+            throw new CSVReaderException(GetFileExceptionMessage("Invalid difficulty found"));
         }
 
         private static string GetFileExceptionMessage(string prefix) =>
-            $"{prefix} in {currentFileName} on line {currentFileLine}.";
+            $"{prefix} on line {currentFileLine}.";
     }
 }

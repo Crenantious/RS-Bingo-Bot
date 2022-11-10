@@ -27,15 +27,15 @@ namespace RSBingo_Framework.Repository
             return Add(new Tile());
         }
 
-        public Tile CreateTile(string teamName, string taskName, VerifiedStatus verifiedStatus)
+        public Tile Create(string teamName, string taskName, VerifiedStatus verifiedStatus)
         {
             BingoTask? task = DataWorker.BingoTasks.GetByName(teamName);
             if (task == null) { throw new NullReferenceException($"Could not find task with name {taskName}."); }
 
-            return CreateTile(teamName, task, verifiedStatus);
+            return Create(teamName, task, verifiedStatus);
         }
 
-        public Tile CreateTile(string teamName, BingoTask task, VerifiedStatus verifiedStatus)
+        public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus)
         {
             Team? team = DataWorker.Teams.GetByName(teamName);
             if (team == null) { throw new NullReferenceException($"Could not find team with name {teamName}."); }
@@ -48,10 +48,17 @@ namespace RSBingo_Framework.Repository
             });
         }
 
+        public Tile? GetById(int id) =>
+            FirstOrDefault(t => t.RowId == id);
+
         public IEnumerable<Tile> GetByIds(IEnumerable<int> ids) =>
             Where(t => ids.Contains(t.RowId)).ToList();
 
         public IEnumerable<Tile> GetAllTiles() =>
             GetAll();
+
+        public void Delete(Tile tile) =>
+            Remove(tile);
+
     }
 }
