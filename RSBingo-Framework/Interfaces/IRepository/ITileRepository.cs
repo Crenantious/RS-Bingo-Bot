@@ -10,7 +10,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="Tile"/>as a repository.
     /// </summary>
-    public interface ITileRepository
+    public interface ITileRepository : IRepository<Tile>
     {
         public Tile Create(string teamName, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No);
         public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No);

@@ -7,9 +7,12 @@ namespace RSBingo_Framework.DAL;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
+
 
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
@@ -29,6 +32,8 @@ public static class DataFactory
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
     private static DiscordGuild guild = null!;
+
+    private static InMemoryDatabaseRoot imdRoot;
 
     /// <summary>
     /// Gets the discord token.
@@ -63,21 +68,32 @@ public static class DataFactory
             schemaName = DefaultSchema;
         }
 
-        discordToken = Config_Get(DiscordTokenKey) !;
-        guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+            discordToken = Config_Get(DiscordTokenKey) !;
+        if (!asMockDB)
+        {
+            // TODO: JCH - No idea if we need this in tests, but as the service is missing for me I am doing this to ingore the problem.
+            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+        }
     }
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
     /// </summary>
+    /// <param name="mockName">The name of the mockDB.</param>
     /// <returns>The data worker object defined as an interface.</returns>
-    public static IDataWorker CreateDataWorker()
+    public static IDataWorker CreateDataWorker(string mockName = null)
     {
         DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
             builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
+        }
+
+        if (dataIsMock)
+        {
+            imdRoot ??= new InMemoryDatabaseRoot();
+            builder.UseInMemoryDatabase(mockName, imdRoot);
         }
 
         RSBingoContext dbContext = new (builder.Options);
