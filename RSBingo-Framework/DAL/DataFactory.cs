@@ -68,10 +68,10 @@ public static class DataFactory
             schemaName = DefaultSchema;
         }
 
-            discordToken = Config_Get(DiscordTokenKey) !;
         if (!asMockDB)
         {
-            // TODO: JCH - No idea if we need this in tests, but as the service is missing for me I am doing this to ingore the problem.
+            // Not needed in tests.
+            discordToken = Config_Get(DiscordTokenKey) !;
             guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
         }
     }
@@ -81,7 +81,7 @@ public static class DataFactory
     /// </summary>
     /// <param name="mockName">The name of the mockDB.</param>
     /// <returns>The data worker object defined as an interface.</returns>
-    public static IDataWorker CreateDataWorker(string mockName = null)
+    public static IDataWorker CreateDataWorker(string? mockName = null)
     {
         DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 

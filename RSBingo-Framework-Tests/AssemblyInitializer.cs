@@ -1,4 +1,7 @@
-﻿
+﻿// <copyright file="AssemblyInitializer.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
+
 namespace RSBingo_Framework_Tests;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -15,13 +18,13 @@ public static class AssemblyInitializer
     public static void AssemblyinItialize(TestContext context)
     {
         context.WriteLine("Building DI/DB");
-        ServiceCollection services = new();
+        ServiceCollection services = new ();
         services.AddLogging(b => b.AddConsole());
 
-        ContainerBuilder builder = new();
+        ContainerBuilder builder = new ();
         builder.Populate(services);
 
-        ConfigurationBuilder configuration = new();
+        ConfigurationBuilder configuration = new ();
         configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), false);
 
         builder.RegisterInstance(configuration.Build()).As<IConfiguration>();

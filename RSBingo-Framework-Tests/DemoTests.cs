@@ -1,19 +1,21 @@
-﻿using DSharpPlus;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static RSBingo_Framework.Records.BingoTaskRecord;
+﻿// <copyright file="DemoTests.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework_Tests
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using RSBingo_Framework.Interfaces;
+    using RSBingo_Framework.Models;
+    using static RSBingo_Framework.Records.BingoTaskRecord;
+
     [TestClass]
     public class DemoTests : MockDBBaseTestClass
     {
+        // TODO: JCH - Once we have real tests delete this class as it is only here as an example.
+
         [TestInitialize]
         public override void TestInitialize()
         {
