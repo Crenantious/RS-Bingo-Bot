@@ -4,8 +4,11 @@
 
 namespace RSBingo_Framework.DAL;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
 
 /// <summary>
@@ -17,19 +20,15 @@ public static class DataFactory
     private const string SchemaKey = "Schema";
     private const string DBKey = "DB";
     private const string DiscordTokenKey = "BotToken";
-    private const string TestGuildKey = "TestGuildId";
-    private const string TestBoardChannelIdKey = "TestBoardChannelId";
-    private const string TestSubmittedEvidenceChannelIdKey = "TestSubmittedEvidenceChannelId";
     private const string DefaultDBVersion = "8.0.30-mysql";
+    private const string GuildIdKey = "GuildId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
     private static string discordToken = string.Empty;
-    private static string testGuildId = string.Empty;
-    private static string testBoardChannelId = string.Empty;
-    private static string testSubmittedEvidenceChannelId = string.Empty;
     private static bool dataIsMock = false;
+    private static DiscordGuild guild = null!;
 
     /// <summary>
     /// Gets the discord token.
@@ -37,19 +36,16 @@ public static class DataFactory
     public static string DiscordToken => discordToken;
 
     /// <summary>
-    /// Gets the test guild's id.
+    /// Gets the guild the bot is being used for.
     /// </summary>
-    public static string TestGuildId => testGuildId;
+    public static DiscordGuild Guild => guild;
 
     /// <summary>
-    /// Gets the test team's board channel id.
+    /// Gets a list of all "No task" <see cref="BingoTask"/>s that are not being used
+    /// in a given team's tiles.<br/>
+    /// This should be kept up to date as tiles' tasks change.
     /// </summary>
-    public static string TestBoardChannelId => testBoardChannelId;
-
-    /// <summary>
-    /// Gets the test team's submitted evidence channel id.
-    /// </summary>
-    public static string TestSubmittedEvidenceChannelId => testSubmittedEvidenceChannelId;
+    public static Dictionary<int, List<BingoTask>> AvailableNoTasks { get; } = new();
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -68,9 +64,7 @@ public static class DataFactory
         }
 
         discordToken = Config_Get(DiscordTokenKey) !;
-        testGuildId = Config_Get(TestGuildKey) !;
-        testBoardChannelId = Config_Get(TestBoardChannelIdKey) !;
-        testSubmittedEvidenceChannelId = Config_Get(TestSubmittedEvidenceChannelIdKey) !;
+        guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
     }
 
     /// <summary>

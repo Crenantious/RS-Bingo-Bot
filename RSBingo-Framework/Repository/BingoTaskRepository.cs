@@ -14,6 +14,8 @@ namespace RSBingo_Framework.Repository
     /// </summary>
     public class BingoTaskRepository : RepositoryBase<BingoTask>, IBingoTaskRepository
     {
+        public const string NoTaskName = "No task";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BingoTaskRepository"/> class.
         /// </summary>
@@ -48,21 +50,25 @@ namespace RSBingo_Framework.Repository
             return tasks;
         }
 
-        public BingoTask? GetByName(string name) =>
-           FirstOrDefault(t => t.Name == name);
+        public IEnumerable<BingoTask> GetByName(string name) =>
+           Where(t => t.Name == name);
 
-        //Where(t => t.Name == name);
+        public IEnumerable<BingoTask> GetByNameAndDifficulty(string name, Difficulty difficulty) =>
+           Where(t => t.Name == name && t.Difficulty == (sbyte)difficulty);
 
         public BingoTask? GetById(int id) =>
            FirstOrDefault(t => t.RowId == id);
 
-        public IEnumerable<BingoTask> GetAllTasks() =>
-            GetAll();
+        public IEnumerable<BingoTask> GetAllNoTasks() =>
+            Where(t => t.Name == NoTaskName);
+
+        public IEnumerable<BingoTask> GetAllTasks(bool excludingNoTasks = true) =>
+            Where(t => !excludingNoTasks || t.Name != NoTaskName);
 
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty) =>
             Where(t => t.Difficulty == (sbyte)difficulty).ToList();
 
-        public void Delete(string name, Difficulty difficulty)  
+        public void Delete(string name, Difficulty difficulty)
         {
             BingoTask? task = FirstOrDefault(t => t.Name == name && t.Difficulty == (sbyte)difficulty);
             if (task != null) { Delete(task); }
@@ -86,6 +92,9 @@ namespace RSBingo_Framework.Repository
                 Delete(tasks.ElementAt(i));
             }
         }
+
+        public void DeleteMany(IEnumerable<BingoTask> bingoTasks) =>
+            RemoveRange(bingoTasks);
 
         public void DeleteAll() =>
             RemoveRange(GetAll());

@@ -13,12 +13,14 @@ namespace RSBingo_Framework.Records
     {
         #region enums & lookups
 
-        private static readonly EnumDict<Difficulty> DifficultyLookup = new EnumDict<Difficulty>(Difficulty.Easy)
-            .Add(Difficulty.Medium, 1)
-            .Add(Difficulty.Hard, 2);
+        private static readonly EnumDict<Difficulty> DifficultyLookup = new EnumDict<Difficulty>(Difficulty.None)
+            .Add(Difficulty.Easy, 1)
+            .Add(Difficulty.Medium, 2)
+            .Add(Difficulty.Hard, 3);
 
         public enum Difficulty
         {
+            None,
             Easy,
             Medium,
             Hard

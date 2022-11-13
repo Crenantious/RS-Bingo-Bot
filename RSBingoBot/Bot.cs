@@ -64,7 +64,7 @@ namespace RSBingoBot
             {
                 Services = General.DI,
             });
-            slash.RegisterCommands<CommandController>(ulong.Parse(DataFactory.TestGuildId));
+            slash.RegisterCommands<CommandController>(Guild.Id);
 
             discordClient.ComponentInteractionCreated += componentInteractionDEH.OnEvent;
             discordClient.MessageCreated += messageCreatedDEH.OnEvent;

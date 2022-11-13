@@ -4,15 +4,10 @@
 
 namespace RSBingo_Framework.Records
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using RSBingo_Common;
-    using RSBingo_Framework.Interfaces;
+    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Models;
-    using static RSBingo_Framework.Repository.EvidenceRepository;
+    using RSBingo_Framework.Repository;
 
     public static class TileRecord
     {
@@ -34,5 +29,25 @@ namespace RSBingo_Framework.Records
 
         public static bool IsNotVerified(this Tile tile) =>
             tile.Verified != 1;
+
+        public static void ChangeTask(this Tile tile, BingoTask task)
+        {
+            if (tile.Task.Name == BingoTaskRepository.NoTaskName)
+            {
+                DataFactory.AvailableNoTasks[tile.Team.RowId].Add(tile.Task);
+            }
+
+            if (task.Name == BingoTaskRepository.NoTaskName)
+            {
+                DataFactory.AvailableNoTasks[tile.Team.RowId].Remove(task);
+            }
+
+            tile.TaskId = task.RowId;
+        }
+
+        public static void SetToNoTask(this Tile tile)
+        {
+            ChangeTask(tile, DataFactory.AvailableNoTasks[tile.Team.RowId][0]);
+        }
     }
 }

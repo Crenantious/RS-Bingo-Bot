@@ -148,7 +148,8 @@ namespace RSBingoBot.Component_interaction_handlers
                         throw new NullReferenceException("User is not in the database.");
                     }
                 }
-                else if (info.Item2.Team != null)
+
+                if (info.Item2.Team != null)
                 {
                     if (instance.TeamMustExist && team == null)
                     {

@@ -142,7 +142,9 @@ namespace RSBingo_Framework
         private static void DeleteTask(string[] values)
         {
             (string name, Difficulty difficulty, int numberOfTiles) = GetTaskValue(values);
-            DataWorker.BingoTasks.DeleteMany(name, difficulty, numberOfTiles);
+            DataWorker.BingoTasks.DeleteMany(
+                DataWorker.BingoTasks.GetByNameAndDifficulty(name, difficulty)
+                .Take(numberOfTiles));
         }
 
         private static (string, Difficulty, int) GetTaskValue(string[] values)

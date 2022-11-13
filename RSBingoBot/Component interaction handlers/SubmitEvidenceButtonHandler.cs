@@ -173,7 +173,8 @@ namespace RSBingoBot.Component_interaction_handlers
 
             var builder = new DiscordMessageBuilder()
                 .WithContent($"{discordUser.Mention} has submitted evidence for the following tiles: ....{url}");
-            Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
+            // Post to a centralised evidence channel.
+            //Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
         }
     }
 }

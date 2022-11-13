@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework.Repository
 {
+    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
@@ -24,12 +25,34 @@ namespace RSBingo_Framework.Repository
         public override Team Create() =>
             Add(new Team());
 
-        public Team Create(string name, ulong boardChannelId) =>
-            Add(new Team()
+        public Team Create(string name, ulong boardChannelId)
+        {
+            Team team = Add(new Team()
             {
                 Name = name,
                 BoardChannelId = boardChannelId,
             });
+            DataWorker.SaveChanges();
+
+            DataFactory.AvailableNoTasks[team.RowId] = new();
+            IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetAllNoTasks();
+            foreach (BingoTask task in tasks)
+            {
+                DataFactory.AvailableNoTasks[team.RowId].Add(task);
+                DataWorker.Tiles.Create(team, task);
+            }
+
+            return team;
+        }
+
+        public bool DoesTeamExist(string name) =>
+            GetByName(name) != null;
+
+        public Team? GetByName(string name) =>
+            FirstOrDefault(t => t.Name == name);
+
+        public IEnumerable<Team> GetTeams() =>
+            GetAll();
 
         public int Delete(string name)
         {
@@ -51,14 +74,5 @@ namespace RSBingo_Framework.Repository
             }
             return -1;
         }
-
-        public bool DoesTeamExist(string name) =>
-            GetByName(name) != null;
-
-        public Team? GetByName(string name) =>
-            FirstOrDefault(t => t.Name == name);
-
-        public IEnumerable<Team> GetTeams() =>
-            GetAll();
     }
 }

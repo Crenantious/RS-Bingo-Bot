@@ -12,9 +12,9 @@ namespace RSBingo_Framework.Interfaces.IRepository
     public interface ITeamRepository
     {
         public Team Create(string name, ulong boardChannelId);
-        public int Delete(string name);
         public bool DoesTeamExist(string name);
         public Team? GetByName(string name);
         public IEnumerable<Team> GetTeams();
+        public int Delete(string name);
     }
 }
