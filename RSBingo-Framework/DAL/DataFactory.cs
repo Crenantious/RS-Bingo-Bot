@@ -22,6 +22,7 @@ public static class DataFactory
     private const string DiscordTokenKey = "BotToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
     private const string GuildIdKey = "GuildId";
+    private const string SubmittedEvidenceChannelIdKey = "SubmittedEvidenceChannelId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -29,6 +30,7 @@ public static class DataFactory
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
     private static DiscordGuild guild = null!;
+    private static DiscordChannel submittedEvidenceChannel = null!;
 
     /// <summary>
     /// Gets the discord token.
@@ -39,6 +41,11 @@ public static class DataFactory
     /// Gets the guild the bot is being used for.
     /// </summary>
     public static DiscordGuild Guild => guild;
+
+    /// <summary>
+    /// Gets the "submitted-evidence" channel.
+    /// </summary>
+    public static DiscordChannel SubmittedEvidenceChannel => submittedEvidenceChannel;
 
     /// <summary>
     /// Gets a list of all "No task" <see cref="BingoTask"/>s that are not being used
@@ -65,6 +72,7 @@ public static class DataFactory
 
         discordToken = Config_Get(DiscordTokenKey) !;
         guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+        submittedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(SubmittedEvidenceChannelIdKey)));
     }
 
     /// <summary>

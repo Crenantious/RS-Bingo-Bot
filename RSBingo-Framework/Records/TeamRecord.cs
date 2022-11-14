@@ -20,5 +20,8 @@ namespace RSBingo_Framework.Records
 
         public static IEnumerable<Tile> GetNoTaskTiles(this Team team) =>
             team.Tiles.Where(t => t.Task.Name == BingoTaskRepository.NoTaskName);
+
+        public static IEnumerable<Tile> GetNonNoTaskTiles(this Team team) =>
+            team.Tiles.Where(t => t.Task.Name != BingoTaskRepository.NoTaskName);
     }
 }
