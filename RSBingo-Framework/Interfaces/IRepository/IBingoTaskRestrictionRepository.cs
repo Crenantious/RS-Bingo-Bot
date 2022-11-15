@@ -9,7 +9,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="BingoTask"/>as a repository.
     /// </summary>
-    public interface IBingoTaskRestrictionRepository
+    public interface IBingoTaskRestrictionRepository : IRepository<BingoTaskRestriction>
     {
         public BingoTaskRestriction Create(int taskId, int restrictionId);
     }

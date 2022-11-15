@@ -10,7 +10,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="BingoTask"/>as a repository.
     /// </summary>
-    public interface IBingoTaskRepository
+    public interface IBingoTaskRepository : IRepository<BingoTask>
     {
         public BingoTask Create(string name, Difficulty difficulty);
         public IEnumerable<BingoTask> CreateMany(string name, Difficulty difficulty, int amount);

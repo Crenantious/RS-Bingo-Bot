@@ -9,7 +9,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="User"/>as a repository.
     /// </summary>
-    public interface IUserRepository
+    public interface IUserRepository : IRepository<User>
     {
         public User Create(ulong discordId, string teamName);
         public User? GetByDiscordId(ulong discordId);
