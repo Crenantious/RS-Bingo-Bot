@@ -4,9 +4,15 @@
 
 namespace RSBingo_Framework.DAL;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
+
 
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
@@ -17,19 +23,17 @@ public static class DataFactory
     private const string SchemaKey = "Schema";
     private const string DBKey = "DB";
     private const string DiscordTokenKey = "BotToken";
-    private const string TestGuildKey = "TestGuildId";
-    private const string TestBoardChannelIdKey = "TestBoardChannelId";
-    private const string TestSubmittedEvidenceChannelIdKey = "TestSubmittedEvidenceChannelId";
     private const string DefaultDBVersion = "8.0.30-mysql";
+    private const string GuildIdKey = "GuildId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
     private static string discordToken = string.Empty;
-    private static string testGuildId = string.Empty;
-    private static string testBoardChannelId = string.Empty;
-    private static string testSubmittedEvidenceChannelId = string.Empty;
     private static bool dataIsMock = false;
+    private static DiscordGuild guild = null!;
+
+    private static InMemoryDatabaseRoot imdRoot;
 
     /// <summary>
     /// Gets the discord token.
@@ -37,19 +41,16 @@ public static class DataFactory
     public static string DiscordToken => discordToken;
 
     /// <summary>
-    /// Gets the test guild's id.
+    /// Gets the guild the bot is being used for.
     /// </summary>
-    public static string TestGuildId => testGuildId;
+    public static DiscordGuild Guild => guild;
 
     /// <summary>
-    /// Gets the test team's board channel id.
+    /// Gets a list of all "No task" <see cref="BingoTask"/>s that are not being used
+    /// in a given team's tiles.<br/>
+    /// This should be kept up to date as tiles' tasks change.
     /// </summary>
-    public static string TestBoardChannelId => testBoardChannelId;
-
-    /// <summary>
-    /// Gets the test team's submitted evidence channel id.
-    /// </summary>
-    public static string TestSubmittedEvidenceChannelId => testSubmittedEvidenceChannelId;
+    public static Dictionary<int, List<BingoTask>> AvailableNoTasks { get; } = new();
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -67,23 +68,32 @@ public static class DataFactory
             schemaName = DefaultSchema;
         }
 
-        discordToken = Config_Get(DiscordTokenKey) !;
-        testGuildId = Config_Get(TestGuildKey) !;
-        testBoardChannelId = Config_Get(TestBoardChannelIdKey) !;
-        testSubmittedEvidenceChannelId = Config_Get(TestSubmittedEvidenceChannelIdKey) !;
+        if (!asMockDB)
+        {
+            // Not needed in tests.
+            discordToken = Config_Get(DiscordTokenKey) !;
+            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+        }
     }
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
     /// </summary>
+    /// <param name="mockName">The name of the mockDB.</param>
     /// <returns>The data worker object defined as an interface.</returns>
-    public static IDataWorker CreateDataWorker()
+    public static IDataWorker CreateDataWorker(string? mockName = null)
     {
         DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
             builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
+        }
+
+        if (dataIsMock)
+        {
+            imdRoot ??= new InMemoryDatabaseRoot();
+            builder.UseInMemoryDatabase(mockName, imdRoot);
         }
 
         RSBingoContext dbContext = new (builder.Options);

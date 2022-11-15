@@ -8,13 +8,16 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
     using RSBingo_Common;
+    using RSBingo_Framework.Interfaces;
+    using RSBingo_Framework.Models;
     using RSBingoBot;
     using RSBingoBot.Discord_event_handlers;
+    using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
     /// Handles the callback when a component is interacted with.
     /// </summary>
-    public class ComponentInteractionHandler
+    public abstract class ComponentInteractionHandler : IDisposable
     {
         private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new ();
         private static readonly List<ComponentInteractionHandler> Instances = new ();
@@ -41,6 +44,41 @@ namespace RSBingoBot.Component_interaction_handlers
             messageCreatedDEH = (MessageCreatedDEH)General.DI.GetService(typeof(MessageCreatedDEH));
             modalSubmittedDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH));
         }
+
+        /// <summary>
+        /// Gets the <see cref="IDataWorker"/> instance.
+        /// </summary>
+        protected IDataWorker DataWorker { get; private set; } = CreateDataWorker();
+
+        /// <summary>
+        /// Gets or sets the user that interacted with the component.
+        /// </summary>
+        protected User? User { get; set; } = null!;
+
+        /// <summary>
+        /// Gets a value indicating whether or not the interaction should continue
+        /// if the user that interacted with the component is not found in the database.
+        /// </summary>
+        protected abstract bool ContinueWithNullUser { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the interaction should continue
+        /// if the user that interacted with the component is not found to be on the <see cref="Info.Team"/> team.<br/>
+        /// This is ignored if the team is null.
+        /// </summary>
+        protected virtual bool UserMustBeInTeam { get { return true; } }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the team with the name <see cref="Info.Team.Name"/> must
+        /// exist in the database to continue. This is ignore if the <see cref="Info.Team"/> is null.
+        /// </summary>
+        protected virtual bool TeamMustExist { get { return true; } }
+
+        /// <summary>
+        /// Gets the <see cref="Team"/> this handler is registered to. Null if it is either not registered to one
+        ///  or the team does not exist in the database.
+        /// </summary>
+        protected Team? Team { get; private set; }
 
         /// <summary>
         /// Gets the messages to delete when the original interaction has concluded.
@@ -77,12 +115,14 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <param name="info">Info to pass to the handler when the component is interacted with.</param>
         public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
         {
-            RegisteredComponentIds.Add(customId, (typeof(T), info));
-            componentInteractionDEH.Subscribe(new ComponentInteractionDEH.Constraints(customId: customId), RegisteredComponentInteracted);
+            RegisteredComponentIds[customId] = (typeof(T), info);
+            componentInteractionDEH.Subscribe(
+                new ComponentInteractionDEH.Constraints(customId: customId),
+                RegisteredComponentInteracted);
         }
 
         /// <summary>
-        /// The method to be called when a component is interacted with. This will create an instance of
+        /// The method to be called when a component is interacted with. This will attempt to create an instance of
         /// <see cref="ComponentInteractionHandler"/> for the component if it is registered.
         /// </summary>
         /// <param name="discordClient">The client the interaction occurred on.</param>
@@ -95,9 +135,46 @@ namespace RSBingoBot.Component_interaction_handlers
 
             if (instance != null)
             {
+                User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
+                Team? team = info.Item2.Team != null ?
+                    instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
+                    null;
+
+                if (user == null)
+                {
+                    if (!instance.ContinueWithNullUser)
+                    {
+                        // TODO: notify admins of this and tell the user they have been notified
+                        throw new NullReferenceException("User is not in the database.");
+                    }
+                }
+
+                if (info.Item2.Team != null)
+                {
+                    if (instance.TeamMustExist && team == null)
+                    {
+                        // TODO: notify admins of this and tell the user they have been notified
+                        throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
+                    }
+
+                    if (instance.UserMustBeInTeam)
+                    {
+                        if (team == null || user.Team != team)
+                        {
+                            var builder = new DiscordInteractionResponseBuilder()
+                                .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
+                                .AsEphemeral();
+                            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                            return;
+                        }
+                    }
+                }
+
                 Instances.Add(instance);
                 instance.Client = discordClient;
                 instance.CustomId = args.Interaction.Data.CustomId;
+                instance.User = user;
+                instance.Team = team;
                 await instance.InitialiseAsync(args, info.Item2);
             }
             else
@@ -117,6 +194,8 @@ namespace RSBingoBot.Component_interaction_handlers
             OriginalInteractionArgs = args;
             Info = info;
         }
+
+        #region DEH subscription wrappers
 
         /// <summary>
         /// Subscribes the component to <see cref="ComponentInteractionDEH"/> for interaction callbacks and keeps
@@ -157,6 +236,105 @@ namespace RSBingoBot.Component_interaction_handlers
             subscribedModalInfo.Add((constraints, callback));
         }
 
+        #endregion
+
+        /// <summary>
+        /// Checks if the a user with the given id is in the database. Then possibly post a response, notify an admin,
+        /// and/or conclude the interaction.
+        /// </summary>
+        /// <param name="discordId">The id of the <see cref="DiscordUser"/> in question.</param>
+        /// <param name="shouldBeInBD">Weather or not the user is supposed to be in the database.</param>
+        /// <param name="args">The args for the interaction.
+        /// If this is not null, a response will be posted telling the user they are (not) on a team,
+        /// if they are (not) supposed to be.<br/>
+        /// Being in the database means they are on a team (and vice versa).
+        /// <param name="isAnError">If the user is in the database when they are not suppose to be (or vice versa),
+        /// an admin will be notified of this error if this parameter is true. The user will also be notified that an admin
+        /// has been notified if <paramref name="postStandardResponse"/> is true.</param>
+        /// <param name="concludeInteraction">If the user is in the database when they are not suppose to be (or vice versa)
+        /// and this parameter is true, the <see cref="InteractionConcluded"/> method will be called.</param>
+        /// <returns>
+        /// 0: if the user is in the database when they are suppose to be. <br/>
+        /// 1: if the user is in the database when they are not suppose to be.
+        /// </returns>
+        protected async Task<int> UserInDBCheck(ulong discordId, bool shouldBeInBD,
+            InteractionCreateEventArgs? args = null, bool isAnError = false,
+            bool concludeInteraction = true)
+        {
+            bool interacctionAlreadyRespondedTo = true;
+
+            if (args != null)
+            {
+                try
+                {
+                    //var builder = new DiscordInteractionResponseBuilder()
+                    //    .WithContent("Thinking...")
+                    //    .AsEphemeral();
+                    //await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                }
+                catch
+                {
+                    interacctionAlreadyRespondedTo = true;
+                }
+            }
+
+            int returnValue = 0;
+            User? user = DataWorker.Users.GetByDiscordId(discordId);
+            string content = string.Empty;
+
+            if (user == null && shouldBeInBD)
+            {
+                content = "You are not on a team.";
+            }
+            else if (user != null && !shouldBeInBD)
+            {
+                content = "You are already on a team. Contact an admin if you would like to be removed from it.";
+            }
+
+            if (content != string.Empty)
+            {
+                returnValue = -1;
+
+                if (args != null)
+                {
+                    if (isAnError)
+                    {
+                        // TODO: notify admins of this
+                        content += "\nThis appears to be an error so an admin has been notified.";
+                    }
+
+                    if (interacctionAlreadyRespondedTo)
+                    {
+                        var builder = new DiscordFollowupMessageBuilder()
+                            .WithContent(content)
+                            .AsEphemeral();
+                        await args.Interaction.CreateFollowupMessageAsync(builder);
+                    }
+                    else
+                    {
+                        var builder = new DiscordWebhookBuilder()
+                            .WithContent(content);
+                        await args.Interaction.EditOriginalResponseAsync(builder);
+                    }
+                }
+                else if (args != null)
+                {
+                    await args.Interaction.DeleteOriginalResponseAsync();
+                }
+
+                if (concludeInteraction) { await InteractionConcluded(); }
+            }
+
+            return returnValue;
+        }
+
+        protected async Task NotifyAdmins(string message)
+        {
+            // TODO: notify admins
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Cleans up messages and unsubscribes all subscribed callbacks from
         /// <see cref="ComponentInteractionDEH"/> and <see cref="MessageCreatedDEH"/>.
@@ -164,10 +342,11 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected async virtual Task InteractionConcluded()
         {
-            foreach (var message in MessagesForCleanup)
+            foreach (DiscordMessage? message in MessagesForCleanup)
             {
                 if (message != null)
                 {
+                    // The message may have already been deleted, which will throw an error.
                     try
                     {
                         await message.DeleteAsync();
@@ -190,6 +369,11 @@ namespace RSBingoBot.Component_interaction_handlers
             {
                 modalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
             }
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

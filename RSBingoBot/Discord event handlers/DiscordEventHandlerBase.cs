@@ -21,14 +21,8 @@ namespace RSBingoBot.Discord_event_handlers
     /// <typeparam name="TConstraints">The derived class's constraints, inherited from <see cref="ConstraintsBase"/>.</typeparam>
     public abstract class DiscordEventHandlerBase<TEventArgs, TConstraints>
         where TEventArgs : DiscordEventArgs
-        where TConstraints : DiscordEventHandlerBase<TEventArgs, TConstraints>.ConstraintsBase
     {
         private readonly List<ConstraintActions<object, TEventArgs>> constraintActions = new ();
-
-        /// <summary>
-        /// The base record for all Constraint records in derived classes.
-        /// </summary>
-        public record ConstraintsBase();
 
         /// <summary>
         /// Gets each property of the <paramref name="constraints"/> in order.
@@ -81,7 +75,7 @@ namespace RSBingoBot.Discord_event_handlers
             var values = GetConstraintValues(constraints);
 
             for (int i = 0; i < values.Count; i++)
-    {
+            {
                 constraintActions[i].Remove(values[i], callback);
             }
         }

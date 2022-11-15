@@ -1,6 +1,6 @@
  CREATE TABLE Team (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-    Name varchar(50) NOT NULL,
+    Name varchar(50) NOT NULL UNIQUE,
     BoardChannelID bigint UNSIGNED NOT NULL
 );
 
@@ -12,12 +12,14 @@
 
  CREATE TABLE Task (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-    Name varchar(50) NOT NULL
+    Name varchar(50) NOT NULL,
+    Difficulty tinyint NOT NULL,
+    Number int NOT NULL
 );
 
  CREATE TABLE Restriction (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-    Name varchar(50) NOT NULL UNIQUE
+    Description varchar(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE TaskRestriction (

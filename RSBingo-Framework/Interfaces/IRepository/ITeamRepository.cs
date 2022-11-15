@@ -9,8 +9,12 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="Team"/>as a repository.
     /// </summary>
-    public interface ITeamRepository
+    public interface ITeamRepository : IRepository<Team>
     {
         public Team Create(string name, ulong boardChannelId);
+        public bool DoesTeamExist(string name);
+        public Team? GetByName(string name);
+        public IEnumerable<Team> GetTeams();
+        public int Delete(string name);
     }
 }

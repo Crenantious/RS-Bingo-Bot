@@ -10,6 +10,7 @@ namespace RSBingoBot
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using RSBingo_Framework;
     using RSBingo_Framework.DAL;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Discord_event_handlers;
@@ -38,6 +39,9 @@ namespace RSBingoBot
 
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
+#if DEBUG
+                TaskTemplatePopulator.Run();
+#endif
                 host.Run();
             }
             catch (Exception ex)

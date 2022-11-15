@@ -10,6 +10,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingo_Framework.Models;
     using RSBingoBot.Discord_event_handlers;
 
     /// <summary>
@@ -20,6 +21,9 @@ namespace RSBingoBot.Component_interaction_handlers
         private readonly string confirmButtonId = Guid.NewGuid().ToString();
         private readonly string teamSelectId = Guid.NewGuid().ToString();
         private string teamSelected = string.Empty;
+
+        /// <inheritdoc/>
+        protected override bool ContinueWithNullUser { get { return true; } }
 
         /// <summary>
         /// Gets the custom Id for the "Join team" button.
@@ -37,9 +41,12 @@ namespace RSBingoBot.Component_interaction_handlers
             var confirmButton = new DiscordButtonComponent(ButtonStyle.Primary, confirmButtonId, "Confirm");
             SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId), TeamJoinConfirmed);
 
-            var builder = new DiscordInteractionResponseBuilder();
+            var builder = new DiscordFollowupMessageBuilder();
+            IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-            if (InitialiseTeam.TeamNames.Count == 0)
+            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+
+            if (!teams.Any())
             {
                 builder
                    .WithContent("No teams created.")
@@ -48,9 +55,9 @@ namespace RSBingoBot.Component_interaction_handlers
             else
             {
                 var options = new List<DiscordSelectComponentOption>();
-                foreach (string team in InitialiseTeam.TeamNames)
+                foreach (Team team in teams)
                 {
-                    options.Add(new (team, team));
+                    options.Add(new (team.Name, team.Name));
                 }
 
                 var teamSelect = new DiscordSelectComponent(teamSelectId, "Select team", options);
@@ -61,8 +68,8 @@ namespace RSBingoBot.Component_interaction_handlers
                     .AddComponents(teamSelect)
                     .AddComponents(confirmButton);
             }
-
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            DiscordMessage? followupMessage = await args.Interaction.CreateFollowupMessageAsync(builder);
+            MessagesForCleanup.Add(followupMessage);
         }
 
         private async Task TeamSelected(DiscordClient discordClient, ComponentInteractionCreateEventArgs args)
@@ -75,12 +82,17 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             string content = string.Empty;
 
+            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+
             if (teamSelected == string.Empty)
             {
                 content = "You must select a team to join.";
             }
             else
             {
+                DataWorker.Users.Create(args.User.Id, teamSelected);
+                DataWorker.SaveChanges();
+
                 var roles = args.Guild.Roles.Select(x => x.Value).ToList();
                 int index = roles.Select(x => x.Name).ToList().IndexOf(teamSelected);
 
@@ -89,21 +101,21 @@ namespace RSBingoBot.Component_interaction_handlers
                 if (index == -1)
                 {
                     // Error, team role should exist
-                    content += "\nThe team's role does not exist, please tell an admin.";
+                    content += "\nThe team's role does not exist; please tell an admin.";
                 }
                 else
                 {
                     await args.Guild.GetMemberAsync(args.User.Id).Result.GrantRoleAsync(roles[index]);
                 }
 
-                await OriginalInteractionArgs.Interaction.GetOriginalResponseAsync().Result.DeleteAsync();
+                await InteractionConcluded();
             }
 
-            var builder = new DiscordInteractionResponseBuilder()
+            var builder = new DiscordFollowupMessageBuilder()
                 .WithContent(content)
                 .AsEphemeral();
 
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            await args.Interaction.CreateFollowupMessageAsync(builder);
         }
     }
 }

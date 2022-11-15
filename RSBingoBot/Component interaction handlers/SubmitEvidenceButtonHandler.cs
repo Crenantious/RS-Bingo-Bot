@@ -26,7 +26,6 @@ namespace RSBingoBot.Component_interaction_handlers
     {
         private readonly List<string> tileItems = new() { "Bandos Chestplate", "Bandos Tassets", "Dragon Rider Lance" };
         private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
-        private readonly IDataWorker dataWorker = CreateDataWorker();
 
         private string initialResponseMessagePrefix =
             $"Add evidence by posting a message with a single image, posting another will override the previous." +
@@ -36,14 +35,14 @@ namespace RSBingoBot.Component_interaction_handlers
         private DiscordButtonComponent cancelButton = null!;
         private DiscordButtonComponent submitButton = null!;
         private ICollection<Tile> selectedTiles = null!;
-        private User user = null!;
+
+        /// <inheritdoc/>
+        protected override bool ContinueWithNullUser { get { return false; } }
 
         /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
         {
             await base.InitialiseAsync(args, info);
-
-            user = dataWorker.Users.GetByDiscordId(args.User.Id)!;
 
             submitButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Submit");
             cancelButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Cancel");
@@ -65,7 +64,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private void CreateTileSelect(ulong discordUserId)
         {
-            ICollection<Tile> tiles = user.Team.Tiles;
+            ICollection<Tile> tiles = User.Team.Tiles;
 
             var tileSelectOptions = new List<DiscordSelectComponentOption>();
             foreach (Tile tile in tiles)
@@ -91,7 +90,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
             if (tileIds.Count != args.Values.Length) { return Task.FromException(new InvalidTileIdException()); }
 
-            selectedTiles = dataWorker.Tiles.GetByIds(tileIds);
+            selectedTiles = DataWorker.Tiles.GetByIds(tileIds).ToList();
             if (selectedTiles.Count != tileIds.Count) { return Task.FromException(new CouldNotFindTileIdException()); }
 
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
@@ -159,22 +158,23 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private void SubmitEvidence(DiscordUser discordUser, ICollection<Tile> tiles, string url)
         {
-            if (user == null) { return; }
+            if (User == null) { return; }
 
-            EvidenceRecord.EvidenceType evidenceType = user.Team.IsBoardVerfied() ?
+            EvidenceRecord.EvidenceType evidenceType = User.Team.IsBoardVerfied() ?
                 EvidenceRecord.EvidenceType.Drop :
                 EvidenceRecord.EvidenceType.TileVerification;
 
             foreach (Tile tile in tiles)
             {
-                dataWorker.Evidence.Create(user, tile, url, evidenceType);
+                DataWorker.Evidence.Create(User, tile, url, evidenceType);
             }
 
-            dataWorker.SaveChanges();
+            DataWorker.SaveChanges();
 
             var builder = new DiscordMessageBuilder()
                 .WithContent($"{discordUser.Mention} has submitted evidence for the following tiles: ....{url}");
-            Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
+            // Post to a centralised evidence channel.
+            //Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
         }
     }
 }

@@ -15,6 +15,6 @@ namespace RSBingo_Framework.Models
         public int TeamId { get; set; }
 
         public virtual Team Team { get; set; } = null!;
-        public virtual ICollection<Evidence> Evidence { get; set; }
+        public virtual ICollection<Evidence> Evidence { get; set; } = null!;
     }
 }

@@ -16,7 +16,7 @@ namespace RSBingo_Framework.Repository
         /// <summary>
         /// Initializes a new instance of the <see cref="RestrictionRepository"/> class.
         /// </summary>
-        /// <param name="dataWorker">Refernce to the dataworker.</param>
+        /// <param name="dataWorker">Reference to the dataWorker.</param>
         public RestrictionRepository(IDataWorker dataWorker)
             : base(dataWorker) { }
 
@@ -25,5 +25,11 @@ namespace RSBingo_Framework.Repository
         {
             return Add(new Restriction());
         }
+
+        public Restriction Create(string description) =>
+            Add(new Restriction()
+            {
+                Description = description
+            });
     }
 }

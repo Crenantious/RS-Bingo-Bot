@@ -1,15 +1,14 @@
-﻿
+﻿// <copyright file="TeamRecord.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Records
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
-    using static RSBingo_Framework.Repository.EvidenceRepository;
+    using RSBingo_Framework.Repository;
 
     public static class TeamRecord
     {
@@ -18,5 +17,8 @@ namespace RSBingo_Framework.Records
 
         public static bool IsBoardVerfied(this Team team) =>
             team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
+
+        public static IEnumerable<Tile> GetNoTaskTiles(this Team team) =>
+            team.Tiles.Where(t => t.Task.Name == BingoTaskRepository.NoTaskName);
     }
 }

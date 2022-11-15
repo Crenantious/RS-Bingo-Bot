@@ -58,7 +58,8 @@ public partial class RSBingoContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.UseLazyLoadingProxies();
+        optionsBuilder.UseLazyLoadingProxies(); 
+        optionsBuilder.EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -107,12 +108,12 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.HasIndex(e => e.Name, "Name")
+            entity.HasIndex(e => e.Description, "Name")
                 .IsUnique();
 
             entity.Property(e => e.RowId).HasColumnName("RowID");
 
-            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Description).HasMaxLength(50);
         });
 
         modelBuilder.Entity<BingoTask>(entity =>

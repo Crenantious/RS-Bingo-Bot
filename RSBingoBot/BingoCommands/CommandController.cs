@@ -6,11 +6,18 @@ namespace RSBingoBot.BingoCommands
 {
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using DSharpPlus.EventArgs;
     using DSharpPlus.SlashCommands;
     using DSharpPlus.SlashCommands.Attributes;
     using Microsoft.Extensions.Logging;
+    using RSBingo_Framework;
+    using RSBingo_Framework.DAL;
+    using RSBingo_Framework.Interfaces;
+    using RSBingo_Framework.Models;
     using RSBingoBot;
     using RSBingoBot.Component_interaction_handlers;
+    using RSBingoBot.Discord_event_handlers;
+    using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
     /// Controller class for discoed bot commands.
@@ -20,8 +27,10 @@ namespace RSBingoBot.BingoCommands
         private const string TestTeamName = "Test";
 
         private readonly ILogger<CommandController> logger;
+        private readonly IDataWorker dataWorker = CreateDataWorker();
         private readonly DiscordClient discordClient;
         private readonly InitialiseTeam.Factory teamFactory;
+        private readonly MessageCreatedDEH messageCreatedDEH;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandController"/> class.
@@ -29,11 +38,13 @@ namespace RSBingoBot.BingoCommands
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="discordClient">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create a new <see cref="InitialiseTeam"/> object.</param>
-        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient, InitialiseTeam.Factory teamFactory)
+        public CommandController(ILogger<CommandController> logger, DiscordClient discordClient,
+            InitialiseTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH)
         {
             this.logger = logger;
             this.discordClient = discordClient;
             this.teamFactory = teamFactory;
+            this.messageCreatedDEH = messageCreatedDEH;
         }
 
         public async Task Start(InteractionContext context)
@@ -107,6 +118,163 @@ namespace RSBingoBot.BingoCommands
 
             ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
             ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
+        }
+
+        [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
+        public async Task DeleteTeam(InteractionContext ctx, [Option("Name",  "Team name")] string teamName)
+        {
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent("Deleting team...")
+                .AsEphemeral();
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+
+            if (!HasAdminPermission(ctx))
+            {
+                await InsufficientPermissionsResponse(ctx);
+                return;
+            }
+
+            // Delete role
+            DiscordRole? role = GetTeamRole(ctx, teamName);
+            if (role != null)
+            {
+                // If the command is ran multiple times in quick succession,
+                // it's possible for one to delete the role while another is trying
+                try
+                {
+                    await role.DeleteAsync();
+                }
+                catch { }
+            }
+
+            // Delete channels
+            foreach (var channelPair in ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
+            {
+                // If the command is ran multiple times in quick succession,
+                // it's possible for one to delete some channels while another is trying
+                try
+                {
+                    await channelPair.Value.DeleteAsync();
+                }
+                catch { }
+            }
+
+            // Delete from database
+            dataWorker.Teams.Delete(teamName);
+            dataWorker.SaveChanges();
+
+            var editBuilder = new DiscordWebhookBuilder()
+                .WithContent("Team deleted.");
+
+            try
+            {
+                await ctx.EditResponseAsync(editBuilder);
+            }
+            catch { }
+        }
+
+
+        [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
+        public async Task RemoveFromTeam(InteractionContext ctx,
+            [Option("User", "User")] DiscordUser discordUser)
+        {
+            User? userRecord = dataWorker.Users.GetByDiscordId(discordUser.Id);
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .AsEphemeral();
+
+            if (userRecord != null)
+            {
+                DiscordRole? role = GetTeamRole(ctx, userRecord.Team.Name);
+                if (role != null)
+                {
+                    await ctx.Guild.GetMemberAsync(ctx.User.Id).Result.RevokeRoleAsync(role);
+                }
+
+                dataWorker.Users.Delete(userRecord);
+                dataWorker.SaveChanges();
+
+                builder.WithContent("User has been successfully removed from the team.");
+            }
+            else
+            {
+                builder.WithContent("This user is not on a team.");
+            }
+
+            await ctx.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        }
+
+        // TODO: JR - allow only in given channels
+        [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
+                                  //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
+        public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
+        {
+            await AddDeleteTasks(ctx, attachment, true);
+        }
+
+        [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
+        public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
+        {
+            await AddDeleteTasks(ctx, attachment, false);
+        }
+
+        private async Task AddDeleteTasks(InteractionContext ctx, DiscordAttachment attachment, bool addTasks)
+        {
+            if (!HasAdminPermission(ctx))
+            {
+                await InsufficientPermissionsResponse(ctx);
+                return;
+            }
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent("Processing");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+
+            var editBuilder = new DiscordWebhookBuilder();
+
+            if (attachment.FileName.EndsWith(".csv"))
+            {
+                string action = addTasks ? "add" : "delete";
+                string actionVerb = addTasks ? "added" : "deleted";
+                string errorMessage = addTasks ?
+                    CSVReader.CreateTasks(attachment.Url) :
+                    CSVReader.DeleteTasks(attachment.Url);
+
+                if (errorMessage == string.Empty)
+                {
+                    editBuilder.WithContent($"Tasks successfully {actionVerb}.");
+                }
+                else
+                {
+                    editBuilder.WithContent($"The following error occurred while attempting to {action} tasks: {errorMessage}");
+                }
+            }
+            else
+            {
+                editBuilder.WithContent("Incorrect file type; must be csv.");
+            }
+
+            await ctx.EditResponseAsync(editBuilder);
+        }
+
+        private async Task InsufficientPermissionsResponse(InteractionContext ctx)
+        {
+            // TODO: JR - Change this to a pre-execution check
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent("You do not have the required permissions to run this command.")
+                .AsEphemeral();
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        }
+
+        private bool HasAdminPermission(InteractionContext ctx) =>
+            ctx.Guild.GetMemberAsync(ctx.User.Id).Result.Permissions.HasPermission(Permissions.Administrator);
+
+        private DiscordRole? GetTeamRole(InteractionContext ctx, string teamName)
+        {
+            KeyValuePair<ulong, DiscordRole> pair = ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
+            if (pair.Equals(default)) { return null; }
+            return pair.Value;
         }
     }
 }

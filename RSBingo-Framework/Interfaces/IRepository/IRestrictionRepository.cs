@@ -9,7 +9,8 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="Restriction"/>as a repository.
     /// </summary>
-    public interface IRestrictionRepository
+    public interface IRestrictionRepository : IRepository<Restriction>
     {
+        public Restriction Create(string description);
     }
 }

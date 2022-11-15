@@ -10,7 +10,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// <summary>
     /// Interface detailing use of <see cref="Evidence"/>as a repository.
     /// </summary>
-    public interface IEvidenceRepository
+    public interface IEvidenceRepository : IRepository<Evidence>
     {
         public Evidence Create(User user, Tile tile, string url, EvidenceType type);
 
