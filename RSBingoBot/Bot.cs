@@ -18,6 +18,7 @@ namespace RSBingoBot
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Component_interaction_handlers;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Imaging;
     using RSBingoBot.Interfaces;
     using static RSBingo_Framework.DAL.DataFactory;
 
@@ -92,7 +93,7 @@ namespace RSBingoBot
             foreach (Team team in dataWorker.Teams.GetTeams())
             {
                 InitialiseTeam initialiseTeam = new (discordClient, team.Name);
-                await initialiseTeam.InitialiseAsync(true);
+                await initialiseTeam.InitialiseAsync(team);
             }
         }
     }

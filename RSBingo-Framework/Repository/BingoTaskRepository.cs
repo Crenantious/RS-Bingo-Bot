@@ -8,6 +8,7 @@ namespace RSBingo_Framework.Repository
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
     using static RSBingo_Framework.Records.BingoTaskRecord;
+    using static RSBingo_Common.General;
 
     /// <summary>
     /// Class detailing use of <see cref="BingoTask"/> as a repository.
@@ -33,7 +34,7 @@ namespace RSBingo_Framework.Repository
             Add(new BingoTask()
             {
                 Name = name,
-                Difficulty = (sbyte)difficulty
+                Difficulty = (sbyte)difficulty,
             });
 
         public IEnumerable<BingoTask> CreateMany(string name, Difficulty difficulty, int amount)
@@ -48,6 +49,15 @@ namespace RSBingo_Framework.Repository
             }
 
             return tasks;
+        }
+
+        public void CreateMissingNoTasks()
+        {
+            int numberToCreate = TilesPerRow * TilesPerColumn - GetAllNoTasks().Count();
+            for (int i = 0; i < numberToCreate; i++)
+            {
+                Create(NoTaskName, Difficulty.None);
+            }
         }
 
         public IEnumerable<BingoTask> GetByName(string name) =>

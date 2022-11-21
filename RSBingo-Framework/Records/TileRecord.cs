@@ -32,12 +32,13 @@ namespace RSBingo_Framework.Records
 
         public static void ChangeTask(this Tile tile, BingoTask task)
         {
-            if (tile.Task.Name == BingoTaskRepository.NoTaskName)
+            
+            if (tile.Task.IsNoTask())
             {
                 DataFactory.AvailableNoTasks[tile.Team.RowId].Add(tile.Task);
             }
 
-            if (task.Name == BingoTaskRepository.NoTaskName)
+            if (task.IsNoTask())
             {
                 DataFactory.AvailableNoTasks[tile.Team.RowId].Remove(task);
             }

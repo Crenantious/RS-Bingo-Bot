@@ -10,13 +10,19 @@ namespace RSBingoBot
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Records;
     using RSBingoBot.Component_interaction_handlers;
+    using SixLabors.ImageSharp.Processing;
+    using SixLabors.ImageSharp;
+
     using static RSBingo_Framework.DAL.DataFactory;
+    using RSBingoBot.Imaging;
 
     /// <summary>
     /// Creates and sets up channels, roles and messages for the team.
     /// </summary>
     public class InitialiseTeam
     {
+        private static Dictionary<int, InitialiseTeam> instances = new();
+
         private readonly DiscordClient discordClient;
         private readonly IDataWorker dataWorker = CreateDataWorker();
 
@@ -24,6 +30,8 @@ namespace RSBingoBot
         private string changeTileButtonId = string.Empty!;
         private string submitEvidenceButtonId = string.Empty!;
         private string viewEvidenceButtonId = string.Empty!;
+        private DiscordMessage boardMessage;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InitialiseTeam"/> class.
@@ -54,32 +62,49 @@ namespace RSBingoBot
         /// </summary>
         public DiscordChannel BoardChannel { get; private set; } = null!;
 
+        public static async Task UpdateBoard(Team team, Image boardImage)
+        {
+            await instances[team.RowId].UpdateBoardMessage(boardImage);
+        }
+
+        public static void TeamDeleted(Team team)
+        {
+            if (instances.ContainsKey(team.RowId))
+            {
+                // TODO: JR - dispose of the instance
+                instances.Remove(team.RowId);
+            }
+        }
+
         /// <summary>
         /// Creates and initializes the team's channels if they do not exist.
         /// </summary>
         /// <param name="preExisting">Weather or not the team has previously been created. (Remove with DB hookup.)</param>
         /// <param name="guild">The <see cref="DiscordClient"/> under which the team was created.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task InitialiseAsync(bool preExisting, DiscordGuild? guild = null)
+        public async Task InitialiseAsync(Team? existingTeam)
         {
             changeTileButtonId = Name + "_change_tile_button";
             submitEvidenceButtonId = Name + "_submit_evidence_button";
             viewEvidenceButtonId = Name + "_view_evidence_button";
 
-            if (preExisting)
+            if (existingTeam != null)
             {
-                team = dataWorker.Teams.GetByName(Name);
+                team = existingTeam;
                 BoardChannel = await discordClient.GetChannelAsync(team.BoardChannelId);
+                boardMessage = await BoardChannel.GetMessageAsync(team.BoardMessageId);
                 SetTeamsNoTasks();
             }
             else
             {
                 await CreateChannels();
-                await InitialiseChannels();
+                await InitialiseBoardChannel();
                 CreateTeamEntry();
+                await UpdateBoardMessage(BoardImage.CreateBoard(team));
             }
 
-            RegisterChannelComponentInteractions();
+            instances[team.RowId] = this;
+            RegisterBoardChannelComponentInteractions();
         }
 
         private void SetTeamsNoTasks()
@@ -98,7 +123,7 @@ namespace RSBingoBot
 
         private void CreateTeamEntry()
         {
-            dataWorker.Teams.Create(Name, BoardChannel.Id);
+            team = dataWorker.Teams.Create(Name, BoardChannel.Id, boardMessage.Id);
             dataWorker.SaveChanges();
         }
 
@@ -111,47 +136,58 @@ namespace RSBingoBot
             await Guild.CreateChannelAsync($"{Name}-voice", ChannelType.Voice, category);
         }
 
-        private async Task InitialiseChannels()
+        private async Task UpdateBoardMessage(Image boardImage)
         {
-            await InitialiseBoardChannel();
-        }
+            var changeTileButton = new DiscordButtonComponent(
+                ButtonStyle.Primary,
+                changeTileButtonId,
+                "Change tile");
 
-        private void RegisterChannelComponentInteractions()
-        {
-            RegisterBoardChannelComponentInteractions();
+            var submitEvidenceButton = new DiscordButtonComponent(
+                ButtonStyle.Primary,
+                submitEvidenceButtonId,
+                "Submit evidence");
+
+            var viewEvidenceButton = new DiscordButtonComponent(
+                ButtonStyle.Primary,
+                viewEvidenceButtonId,
+                "View evidence");
+
+            string imageName = "Team board.png";
+            boardImage.SaveAsPng(imageName);
+            //await boardMessage.ModifyAsync("Updating...",
+            //new DiscordAttachment());
+
+
+
+            DiscordMessage imageMessage;
+            using (var fs = new FileStream(imageName, FileMode.Open, FileAccess.Read))
+            {
+                imageMessage = await BoardChannel.SendMessageAsync(new DiscordMessageBuilder()
+                    .WithFile("Team board.png", fs));
+            }
+
+            var a = new DiscordEmbedBuilder()
+            {
+                Title = "Ahhhhhhh",
+                ImageUrl = imageMessage.Attachments[0].Url
+            }
+            .Build();
+
+            var builder = new DiscordMessageBuilder()
+                .WithEmbed(a)
+                .AddComponents(changeTileButton, submitEvidenceButton, viewEvidenceButton);
+            //.WithFile("Team board.png", fs, true);
+            await boardMessage.ModifyAsync(builder);
+            await imageMessage.DeleteAsync();
+
         }
 
         private async Task InitialiseBoardChannel()
         {
-            try
-            {
-                var changeTileButton = new DiscordButtonComponent(
-                    ButtonStyle.Primary,
-                    changeTileButtonId,
-                    "Change tile");
-
-                var submitEvidenceButton = new DiscordButtonComponent(
-                    ButtonStyle.Primary,
-                    submitEvidenceButtonId,
-                    "Submit evidence");
-
-                var viewEvidenceButton = new DiscordButtonComponent(
-                    ButtonStyle.Primary,
-                    viewEvidenceButtonId,
-                    "View evidence");
-
-                string imagePath = "E:/C#/Discord bots/RS-Bingo-Bot/RSBingoBot/";
-                using var fs = new FileStream(imagePath + "Test board.png", FileMode.Open, FileAccess.Read);
-
-                var builder = await new DiscordMessageBuilder()
-                    .AddComponents(changeTileButton, submitEvidenceButton, viewEvidenceButton)
-                    .WithFiles(new Dictionary<string, Stream>() { { "Test_board.png", fs } })
-                    .SendAsync(BoardChannel);
-            }
-            catch (FileNotFoundException e)
-            {
-                Console.WriteLine(e);
-            }
+            var builder = new DiscordMessageBuilder()
+                .WithContent("Loading...");
+            boardMessage = await BoardChannel.SendMessageAsync(builder);
         }
 
         private void RegisterBoardChannelComponentInteractions()

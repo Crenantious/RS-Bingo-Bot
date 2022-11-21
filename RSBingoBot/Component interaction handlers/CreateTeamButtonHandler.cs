@@ -68,7 +68,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 DiscordMessage? followupMessage = await args.Interaction.CreateFollowupMessageAsync(builder);
 
                 InitialiseTeam team = new(discordClient, teamName);
-                await team.InitialiseAsync(false, args.Interaction.Guild);
+                await team.InitialiseAsync(null);
 
                 User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
                 DataWorker.SaveChanges();

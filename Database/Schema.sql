@@ -1,23 +1,23 @@
- CREATE TABLE Team (
+CREATE TABLE Team (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL UNIQUE,
-    BoardChannelID bigint UNSIGNED NOT NULL
+    BoardChannelID bigint UNSIGNED NOT NULL,
+    BoardMessageID bigint UNSIGNED NOT NULL
 );
 
- CREATE TABLE `User` (
+CREATE TABLE `User` (
     DiscordUserID bigint UNSIGNED PRIMARY KEY,
     TeamID int NOT NULL,
 	FOREIGN KEY (TeamID) REFERENCES Team(RowID)
 );
 
- CREATE TABLE Task (
+CREATE TABLE Task (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL,
-    Difficulty tinyint NOT NULL,
-    Number int NOT NULL
+    Difficulty tinyint NOT NULL
 );
 
- CREATE TABLE Restriction (
+CREATE TABLE Restriction (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Description varchar(50) NOT NULL UNIQUE
 );
@@ -34,7 +34,7 @@ CREATE TABLE TaskRestriction (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
- CREATE TABLE Tile (
+CREATE TABLE Tile (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TeamID int NOT NULL,
 	TaskID int NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE TaskRestriction (
 	CONSTRAINT team_task_relationship UNIQUE KEY (TeamID, TaskID),
 	CONSTRAINT task_team_relationship UNIQUE KEY (TaskID, TeamID)
 );
-  
- CREATE TABLE Evidence (
+
+CREATE TABLE Evidence (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TileID int NOT NULL,
 	DiscordUserID bigint UNSIGNED NOT NULL,

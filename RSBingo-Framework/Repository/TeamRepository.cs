@@ -25,12 +25,13 @@ namespace RSBingo_Framework.Repository
         public override Team Create() =>
             Add(new Team());
 
-        public Team Create(string name, ulong boardChannelId)
+        public Team Create(string name, ulong boardChannelId, ulong boardMessageId)
         {
             Team team = Add(new Team()
             {
                 Name = name,
                 BoardChannelId = boardChannelId,
+                BoardMessageId = boardMessageId
             });
             DataWorker.SaveChanges();
 
@@ -59,20 +60,25 @@ namespace RSBingo_Framework.Repository
             Team? team = GetByName(name);
             if (team != null)
             {
-                foreach (User user in team.Users)
-                {
-                    DataWorker.Users.Delete(user);
-                }
-
-                foreach (Tile tile in team.Tiles)
-                {
-                    DataWorker.Tiles.Delete(tile);
-                }
-
-                Remove(team);
+                Delete(team);
                 return 0;
             }
             return -1;
+        }
+
+        public void Delete(Team team)
+        {
+            foreach (User user in team.Users)
+            {
+                DataWorker.Users.Delete(user);
+            }
+
+            foreach (Tile tile in team.Tiles)
+            {
+                DataWorker.Tiles.Delete(tile);
+            }
+
+            Remove(team);
         }
     }
 }

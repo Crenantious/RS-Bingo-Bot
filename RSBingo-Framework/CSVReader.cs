@@ -12,17 +12,21 @@ namespace RSBingo_Framework
     using RSBingo_Framework.Exceptions;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
+    using SixLabors.ImageSharp;
+    using SixLabors.ImageSharp.Processing;
+    using SixLabors.ImageSharp.PixelFormats;
+    using SixLabors.ImageSharp.Formats;
     using static RSBingo_Framework.DAL.DataFactory;
     using static RSBingo_Framework.Records.BingoTaskRecord;
+    using static RSBingo_Common.General;
 
     /// <summary>
     /// Reads and parses a csv file, then updates the database accordingly.<br/>
     /// </summary>
     public abstract class CSVReader
     {
-        private static readonly string[] ValidImageExtensions = new string[] { ".jpg", ".bmp", ".png" };
-        private static readonly string TaskRestictionsFileName = "Task restrictions.csv";
-        private static readonly string TasksFileName = "Tasks.csv";
+        private const string taskImageExtension = ".png";
+
         private static readonly IDataWorker DataWorker = CreateDataWorker();
         private static readonly Dictionary<string, int> RestrictionNameToId = new ();
         private static readonly HashSet<int> TaskIds = new ();
@@ -57,11 +61,15 @@ namespace RSBingo_Framework
         {
             using (var client = new WebClient())
             {
+                string TasksFileName = "Tasks.csv";
+
                 try
                 {
                     client.DownloadFile(csvUrl, TasksFileName);
 
-                    ParseFile(TasksFileName, 3, addTasks ? CreateTask : DeleteTask);
+                    ParseFile(TasksFileName,
+                        addTasks ? 4 : 3,
+                        addTasks ? CreateTask : DeleteTask);
                     DataWorker.SaveChanges();
                 }
                 catch (Exception e)
@@ -73,7 +81,7 @@ namespace RSBingo_Framework
                     else
                     {
                         General.LoggingLog(e, e.Message);
-                        return "Internal error";
+                        return "Internal error.";
                     }
                 }
             }
@@ -99,9 +107,9 @@ namespace RSBingo_Framework
                     string? line = reader.ReadLine() !;
                     string[]? values = line.Split(',');
 
-                    if (values.Length != valueAmount)
+                    if (values.Length < valueAmount)
                     {
-                        throw new CSVReaderException(GetFileExceptionMessage($"Expected {valueAmount} values but found {values.Length}"));
+                        throw new CSVReaderException(GetFileExceptionMessage($"Expected at least {valueAmount} values but found {values.Length}"));
                     }
 
                     for (int i = 0; i < values.Length; i++)
@@ -135,27 +143,72 @@ namespace RSBingo_Framework
 
         private static void CreateTask(string[] values)
         {
-            (string name, Difficulty difficulty, int numberOfTiles) = GetTaskValue(values);
-            DataWorker.BingoTasks.CreateMany(name, difficulty, numberOfTiles);
+            string url = GetTaskImageUrl(values);
+            if (url is "")
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("Image url cannot be empty"));
+            }
+
+            string taskName = GetTaskName(values);
+            string imagePath = GetTaskImagePath(taskName);
+
+            try
+            {
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile(url, imagePath);
+                }
+            }
+            catch (NotSupportedException e)
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("Image format is unsupported"));
+            }
+            catch (WebException e)
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("Unable to download the image"));
+            }
+            catch (UnknownImageFormatException e)
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("Unknown image format"));
+            }
+            catch (InvalidImageContentException e)
+            {
+                throw new CSVReaderException(GetFileExceptionMessage("Invalid image content"));
+            }
+
+            DataWorker.BingoTasks.CreateMany(taskName,
+                GetTaskDifficulty(values),
+                GetTaskAmount(values));
         }
 
         private static void DeleteTask(string[] values)
         {
-            (string name, Difficulty difficulty, int numberOfTiles) = GetTaskValue(values);
             DataWorker.BingoTasks.DeleteMany(
-                DataWorker.BingoTasks.GetByNameAndDifficulty(name, difficulty)
-                .Take(numberOfTiles));
+                DataWorker.BingoTasks.GetByNameAndDifficulty(GetTaskName(values), GetTaskDifficulty(values))
+                .Take(GetTaskAmount(values)));
         }
 
-        private static (string, Difficulty, int) GetTaskValue(string[] values)
-        {
-            //if (!RestrictionNameToId.ContainsKey(values[2]))
-            //{
-            //    throw new RestrictionNameNotFoundException(GetFileExceptionMessage("Restriction name was not found"));
-            //}
+        private static string GetTaskName(string[] values) =>
+            values[0];
 
-            Difficulty difficulty = StringToDifficulty(values[1]);
-            int numberOfTiles = 0;
+        private static Difficulty GetTaskDifficulty(string[] values)
+        {
+            string name = values[1].ToLower();
+
+            foreach (Difficulty difficulty in Enum.GetValues(typeof(Difficulty)))
+            {
+                if (name == difficulty.ToString().ToLower())
+                {
+                    return difficulty;
+                }
+            }
+
+            throw new CSVReaderException(GetFileExceptionMessage("Invalid difficulty found"));
+        }
+
+        private static int GetTaskAmount(string[] values)
+        {
+            int numberOfTiles;
 
             try
             {
@@ -171,22 +224,17 @@ namespace RSBingo_Framework
                 throw new CSVReaderException(GetFileExceptionMessage("The 'number of tiles' argument must be greater than 0"));
             }
 
-            return (values[0], difficulty, numberOfTiles);
+            return numberOfTiles;
         }
 
-        private static Difficulty StringToDifficulty(string name)
+        private static string GetTaskImageUrl(string[] values)
         {
-            name = name.ToLower();
+            //if (!RestrictionNameToId.ContainsKey(values[2]))
+            //{
+            //    throw new RestrictionNameNotFoundException(GetFileExceptionMessage("Restriction name was not found"));
+            //}
 
-            foreach (Difficulty difficulty in Enum.GetValues(typeof(Difficulty)))
-            {
-                if (name == difficulty.ToString().ToLower())
-                {
-                    return difficulty;
-                }
-            }
-
-            throw new CSVReaderException(GetFileExceptionMessage("Invalid difficulty found"));
+            return values[3];
         }
 
         private static string GetFileExceptionMessage(string prefix) =>

@@ -13,6 +13,8 @@ namespace RSBingoBot.Component_interaction_handlers
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Imaging;
+    using SixLabors.ImageSharp;
     using static RSBingo_Common.General;
     using static RSBingo_Framework.Records.BingoTaskRecord;
     using static RSBingo_Framework.Records.TileRecord;
@@ -208,8 +210,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
             if (selectStage == SelectStage.NoTasksAvailable)
             {
-                await InteractionConcluded();
-                return;
+                editBuilderContent = "No tasks available.";
             }
             else if (fromTileSelectedTileId == null || toTileSelectedTileId == -1)
             {
@@ -231,23 +232,37 @@ namespace RSBingoBot.Component_interaction_handlers
                     else
                     {
                         DataWorker.Tiles.SwapTasks(fromTile, toTile);
+                        DataWorker.SaveChanges();
+                        await UpdateBoard(fromTile, toTile);
                         editBuilderContent = $"Tiles have been successfully swapped.";
                     }
                 }
                 else
                 {
-                    editBuilderContent = $"{fromTileSelectPlaceholder} has been changed to {toTask.Name}.";
                     fromTile.ChangeTask(toTask);
+                    DataWorker.SaveChanges();
+                    await UpdateBoard(fromTile);
+                    editBuilderContent = $"{fromTileSelectPlaceholder} has been changed to {toTask.Name}.";
                 }
 
-                DataWorker.SaveChanges();
                 await InteractionConcluded();
             }
 
             var editBuilder = new DiscordWebhookBuilder() { }
                 .WithContent(editBuilderContent);
-
             await args.Interaction.EditOriginalResponseAsync(editBuilder);
+
+            await InteractionConcluded();
+        }
+
+        private async Task UpdateBoard(params Tile[] tilesChanged)
+        {
+            foreach (Tile tile in tilesChanged)
+            {
+                BoardImage.UpdateTileTask(tile);
+            }
+
+            await InitialiseTeam.UpdateBoard(Team, BoardImage.GetTeamBoard(Team.RowId));
         }
 
         enum SelectStage

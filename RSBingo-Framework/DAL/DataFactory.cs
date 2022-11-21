@@ -81,6 +81,12 @@ public static class DataFactory
             discordToken = Config_Get(DiscordTokenKey) !;
             guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
         }
+
+        // I don't know where to put this
+        IDataWorker dataWorker = CreateDataWorker();
+        dataWorker.BingoTasks.CreateMissingNoTasks();
+        dataWorker.SaveChanges();
+        dataWorker.Dispose();
     }
 
     /// <summary>

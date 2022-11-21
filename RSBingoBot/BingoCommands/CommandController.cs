@@ -31,6 +31,7 @@ namespace RSBingoBot.BingoCommands
         private readonly DiscordClient discordClient;
         private readonly InitialiseTeam.Factory teamFactory;
         private readonly MessageCreatedDEH messageCreatedDEH;
+        private readonly ModalSubmittedDEH modalSubmittedDEH;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandController"/> class.
@@ -39,12 +40,14 @@ namespace RSBingoBot.BingoCommands
         /// <param name="discordClient">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create a new <see cref="InitialiseTeam"/> object.</param>
         public CommandController(ILogger<CommandController> logger, DiscordClient discordClient,
-            InitialiseTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH)
+            InitialiseTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH,
+            ModalSubmittedDEH modalSubmittedDEH)
         {
             this.logger = logger;
             this.discordClient = discordClient;
             this.teamFactory = teamFactory;
             this.messageCreatedDEH = messageCreatedDEH;
+            this.modalSubmittedDEH = modalSubmittedDEH;
         }
 
         public async Task Start(InteractionContext context)
@@ -70,7 +73,7 @@ namespace RSBingoBot.BingoCommands
                 .AsEphemeral());
 
             InitialiseTeam team = teamFactory("Test");
-            await team.InitialiseAsync(false, ctx.Guild);
+            await team.InitialiseAsync(null);
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"New team named {TestTeamName} has been created."));
         }
@@ -129,6 +132,15 @@ namespace RSBingoBot.BingoCommands
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
 
+            Team? team = dataWorker.Teams.GetByName(teamName);
+
+            if (team == null)
+            {
+                EditOriginalResponse(ctx, new DiscordWebhookBuilder()
+                    .WithContent("No team with that name exists."));
+                return;
+            }
+
             if (!HasAdminPermission(ctx))
             {
                 await InsufficientPermissionsResponse(ctx);
@@ -161,19 +173,13 @@ namespace RSBingoBot.BingoCommands
             }
 
             // Delete from database
-            dataWorker.Teams.Delete(teamName);
+            InitialiseTeam.TeamDeleted(team);
+            dataWorker.Teams.Delete(team);
             dataWorker.SaveChanges();
 
-            var editBuilder = new DiscordWebhookBuilder()
-                .WithContent("Team deleted.");
-
-            try
-            {
-                await ctx.EditResponseAsync(editBuilder);
-            }
-            catch { }
+            EditOriginalResponse(ctx, new DiscordWebhookBuilder()
+                .WithContent("Team deleted."));
         }
-
 
         [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
         public async Task RemoveFromTeam(InteractionContext ctx,
@@ -228,7 +234,7 @@ namespace RSBingoBot.BingoCommands
             }
 
             var builder = new DiscordInteractionResponseBuilder()
-                .WithContent("Processing");
+                .WithContent("Processing... this may take a while.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
 
             var editBuilder = new DiscordWebhookBuilder();
@@ -275,6 +281,15 @@ namespace RSBingoBot.BingoCommands
             KeyValuePair<ulong, DiscordRole> pair = ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
             if (pair.Equals(default)) { return null; }
             return pair.Value;
+        }
+
+        private async void EditOriginalResponse(InteractionContext ctx, DiscordWebhookBuilder builder)
+        {
+            try
+            {
+                await ctx.EditResponseAsync(builder);
+            }
+            catch { }
         }
     }
 }
