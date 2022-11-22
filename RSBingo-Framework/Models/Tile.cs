@@ -8,7 +8,7 @@ namespace RSBingo_Framework.Models
     {
         public Tile()
         {
-            Evidences = new HashSet<Evidence>();
+            Evidence = new HashSet<Evidence>();
         }
 
         public int RowId { get; set; }
@@ -18,6 +18,6 @@ namespace RSBingo_Framework.Models
 
         public virtual BingoTask Task { get; set; } = null!;
         public virtual Team Team { get; set; } = null!;
-        public virtual ICollection<Evidence> Evidences { get; set; }
+        public virtual ICollection<Evidence> Evidence { get; set; }
     }
 }

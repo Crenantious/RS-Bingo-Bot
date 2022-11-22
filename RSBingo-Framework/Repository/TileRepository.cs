@@ -29,34 +29,14 @@ namespace RSBingo_Framework.Repository
             return Add(new Tile());
         }
 
-        public Tile Create(string teamName, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No)
+        public Tile Create(Team team, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No)
         {
-            BingoTask? task = DataWorker.BingoTasks.GetById(taskId);
-            if (task == null) { throw new NullReferenceException($"Could not find task with id {taskId}."); }
+            Tile tile = Create();
+            tile.Verified = (sbyte)verifiedStatus;
 
-            return Create(teamName, task, verifiedStatus);
-        }
+            tile.Task = task;
 
-        public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No)
-        {
-            Team? team = DataWorker.Teams.GetByName(teamName);
-            if (team == null) { throw new NullReferenceException($"Could not find team with name {teamName}."); }
-
-            return Create(team, task, verifiedStatus);
-        }
-
-        public Tile Create(Team team, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No) =>
-            Create(team.RowId, task.RowId, verifiedStatus);
-
-        public Tile Create(int teamId, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No, int? rowId = null)
-        {
-            return Add(new Tile()
-            {
-                RowId = rowId ?? new int(),
-                TeamId = teamId,
-                TaskId = taskId,
-                Verified = (sbyte)verifiedStatus
-            });
+            return tile;
         }
 
         public Tile? GetById(int id) =>

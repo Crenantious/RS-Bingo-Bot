@@ -12,6 +12,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     public interface IUserRepository : IRepository<User>
     {
         public User Create(ulong discordId, string teamName);
+        public User Create(ulong discordId, Team team);
         public User? GetByDiscordId(ulong discordId);
         public IEnumerable<User> GetAllUsers();
         public int Delete(ulong discordUserId);

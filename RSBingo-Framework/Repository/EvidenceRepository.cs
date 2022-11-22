@@ -37,5 +37,7 @@ namespace RSBingo_Framework.Repository
 
             return evidence;
         }
+
+        public Evidence? GetById(int rowId) => FirstOrDefault(e => e.RowId == rowId);
     }
 }

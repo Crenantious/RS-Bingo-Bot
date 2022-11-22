@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework.Repository
 {
+    using Microsoft.EntityFrameworkCore;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
@@ -98,5 +99,12 @@ namespace RSBingo_Framework.Repository
 
         public void DeleteAll() =>
             RemoveRange(GetAll());
+
+        /// <inheritdoc/>
+        public override void LoadCascadeNavigations(BingoTask bingoTask)
+        {
+            DataWorker.BingoTasks.Where(bt => bt.RowId == bt.RowId)
+                .Include(bt => bt.Restrictions);
+        }
     }
 }

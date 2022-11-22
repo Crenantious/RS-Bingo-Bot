@@ -91,13 +91,13 @@ public partial class RSBingoContext : DbContext
             entity.HasOne(d => d.DiscordUser)
                 .WithMany(p => p.Evidence)
                 .HasForeignKey(d => d.DiscordUserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("evidence_ibfk_2");
 
             entity.HasOne(d => d.Tile)
-                .WithMany(p => p.Evidences)
+                .WithMany(p => p.Evidence)
                 .HasForeignKey(d => d.TileId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("evidence_ibfk_1");
         });
 
@@ -180,13 +180,13 @@ public partial class RSBingoContext : DbContext
             entity.HasOne(d => d.Task)
                 .WithMany(p => p.Tiles)
                 .HasForeignKey(d => d.TaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("tile_ibfk_2");
 
             entity.HasOne(d => d.Team)
                 .WithMany(p => p.Tiles)
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("tile_ibfk_1");
         });
 
@@ -208,7 +208,7 @@ public partial class RSBingoContext : DbContext
             entity.HasOne(d => d.Team)
                 .WithMany(p => p.Users)
                 .HasForeignKey(d => d.TeamId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("user_ibfk_1");
         });
 

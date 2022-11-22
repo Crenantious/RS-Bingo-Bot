@@ -6,6 +6,8 @@ namespace RSBingo_Framework.Records
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Repository;
@@ -20,5 +22,17 @@ namespace RSBingo_Framework.Records
 
         public static IEnumerable<Tile> GetNoTaskTiles(this Team team) =>
             team.Tiles.Where(t => t.Task.Name == BingoTaskRepository.NoTaskName);
+
+        public static Team CreateNewTeam(IDataWorker dataWorker, string teamName, ulong boardChannelId)
+        {
+            Team team = dataWorker.Teams.Create(teamName, boardChannelId);
+
+            foreach (BingoTask task in dataWorker.BingoTasks.GetAllNoTasks())
+            {
+                team.Tiles.Add(dataWorker.Tiles.Create(team, task));
+            }
+
+            return team;
+        }
     }
 }
