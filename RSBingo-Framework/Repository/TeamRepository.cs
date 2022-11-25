@@ -32,16 +32,6 @@ namespace RSBingo_Framework.Repository
                 Name = name,
                 BoardChannelId = boardChannelId,
             });
-            DataWorker.SaveChanges();
-
-            DataFactory.AvailableNoTasks[team.RowId] = new();
-            IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetAllNoTasks();
-            foreach (BingoTask task in tasks)
-            {
-                DataFactory.AvailableNoTasks[team.RowId].Add(task);
-                DataWorker.Tiles.Create(team, task);
-            }
-
             return team;
         }
 

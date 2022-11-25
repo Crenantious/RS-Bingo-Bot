@@ -70,7 +70,6 @@ namespace RSBingoBot
             {
                 team = dataWorker.Teams.GetByName(Name);
                 BoardChannel = await discordClient.GetChannelAsync(team.BoardChannelId);
-                SetTeamsNoTasks();
             }
             else
             {
@@ -80,20 +79,6 @@ namespace RSBingoBot
             }
 
             RegisterChannelComponentInteractions();
-        }
-
-        private void SetTeamsNoTasks()
-        {
-            AvailableNoTasks[team.RowId] = new();
-            HashSet<int> usedNoTaskIds = team.GetNoTaskTiles().Select(t => t.TaskId).ToHashSet();
-
-            foreach (BingoTask task in dataWorker.BingoTasks.GetAllNoTasks())
-            {
-                if (!usedNoTaskIds.Contains(task.RowId))
-                {
-                    AvailableNoTasks[team.RowId].Add(task);
-                }
-            }
         }
 
         private void CreateTeamEntry()

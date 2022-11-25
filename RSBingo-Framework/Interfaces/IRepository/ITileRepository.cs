@@ -12,10 +12,10 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface ITileRepository : IRepository<Tile>
     {
-        public Tile Create(string teamName, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No);
-        public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No);
-        public Tile Create(Team team, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No);
-        public Tile Create(int teamId, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No, int? rowId = null);
+        public Tile Create(string teamName, int taskId, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No);
+        public Tile Create(string teamName, BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No);
+        public Tile Create(Team team, BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No);
+        public Tile Create(int teamId, int taskId, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No);
         public Tile? GetById(int id);
         public IEnumerable<Tile> GetByIds(IEnumerable<int> ids);
         public IEnumerable<Tile> GetByTaskId(int id);
@@ -29,12 +29,8 @@ namespace RSBingo_Framework.Interfaces.IRepository
         public IEnumerable<Tile> GetByTasks(IEnumerable<BingoTask> tasks);
         public Tile? GetByTeamAndTaskId(Team team, int taskId);
         public IEnumerable<Tile> GetAllTiles();
-        public void SetToNoTask(Tile tile);
-
-        public void SetToNoTask(IEnumerable<Tile> tiles);
         public void ChangeTask(Tile tile, BingoTask task);
         public void SwapTasks(Tile tile1, Tile tile2);
-
         public void Delete(Tile tile);
         public void DeleteMany(IEnumerable<Tile> tiles);
     }
