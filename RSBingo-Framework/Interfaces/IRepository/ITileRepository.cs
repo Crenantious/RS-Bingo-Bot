@@ -26,12 +26,8 @@ namespace RSBingo_Framework.Interfaces.IRepository
         public IEnumerable<Tile> GetByTasks(IEnumerable<BingoTask> tasks);
         public Tile? GetByTeamAndTaskId(Team team, int taskId);
         public IEnumerable<Tile> GetAllTiles();
-        public void SetToNoTask(Tile tile);
-
-        public void SetToNoTask(IEnumerable<Tile> tiles);
         public void ChangeTask(Tile tile, BingoTask task);
         public void SwapTasks(Tile tile1, Tile tile2);
-
         public void Delete(Tile tile);
         public void DeleteMany(IEnumerable<Tile> tiles);
     }

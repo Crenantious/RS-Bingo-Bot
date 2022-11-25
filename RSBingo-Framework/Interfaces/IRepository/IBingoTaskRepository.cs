@@ -17,8 +17,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
         public IEnumerable<BingoTask> GetByName(string name);
         public IEnumerable<BingoTask> GetByNameAndDifficulty(string name, Difficulty difficulty);
         public BingoTask? GetById(int id);
-        public IEnumerable<BingoTask> GetAllNoTasks();
-        public IEnumerable<BingoTask> GetAllTasks(bool excludingNoTasks = true);
+        public IEnumerable<BingoTask> GetAllTasks();
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty);
         public void Delete(string name, Difficulty difficulty);
         public void Delete(BingoTask bingoTask);

@@ -60,31 +60,21 @@ namespace RSBingo_Framework.Repository
         public IEnumerable<Tile> GetAllTiles() =>
             GetAll();
 
-        public void SetToNoTask(Tile tile)
-        {
-            tile.SetToNoTask();
-        }
-
-        public void SetToNoTask(IEnumerable<Tile> tiles)
-        {
-            foreach (Tile tile in tiles)
-            {
-                SetToNoTask(tile);
-            }
-        }
-
         public void ChangeTask(Tile tile, BingoTask task) =>
             tile.ChangeTask(task);
 
         public void SwapTasks(Tile tile1, Tile tile2)
         {
+            // TODO: JR - fix this
             BingoTask tile1Task = tile1.Task;
-            BingoTask tile2Task = tile2.Task;
-            tile1.SetToNoTask();
-            tile2.SetToNoTask();
-            DataWorker.SaveChanges();
-            tile1.ChangeTask(tile2Task);
-            tile2.ChangeTask(tile1Task);
+            tile1.Task = tile2.Task;
+            tile2.Task = tile1Task;
+            //BingoTask tile2Task = tile2.Task;
+            ////tile1.SetToNoTask();
+            ////tile2.SetToNoTask();
+            ////DataWorker.SaveChanges();
+            //tile1.ChangeTask(tile2Task);
+            //tile2.ChangeTask(tile1Task);
         }
 
         public void Delete(Tile tile) =>

@@ -46,13 +46,6 @@ public static class DataFactory
     public static DiscordGuild Guild => guild;
 
     /// <summary>
-    /// Gets a list of all "No task" <see cref="BingoTask"/>s that are not being used
-    /// in a given team's tiles.<br/>
-    /// This should be kept up to date as tiles' tasks change.
-    /// </summary>
-    public static Dictionary<int, List<BingoTask>> AvailableNoTasks { get; } = new();
-
-    /// <summary>
     /// Setup the data factory ready to process requests for data connections.
     /// </summary>
     /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
@@ -87,7 +80,8 @@ public static class DataFactory
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
+            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 
         if (dataIsMock)

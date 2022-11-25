@@ -171,11 +171,16 @@ public partial class RSBingoContext : DbContext
             entity.HasIndex(e => new { e.TaskId, e.TeamId }, "task_team_relationship")
                 .IsUnique();
 
+            entity.HasIndex(e => new { e.BoardIndex, e.TeamId }, "BoardIndex_team_relationship")
+                .IsUnique();
+
             entity.Property(e => e.RowId).HasColumnName("RowID");
 
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
 
             entity.Property(e => e.TeamId).HasColumnName("TeamID");
+
+            entity.Property(e => e.BoardIndex).HasColumnName("BoardIndex");
 
             entity.HasOne(d => d.Task)
                 .WithMany(p => p.Tiles)

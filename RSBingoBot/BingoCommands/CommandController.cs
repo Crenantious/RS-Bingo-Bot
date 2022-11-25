@@ -123,55 +123,8 @@ namespace RSBingoBot.BingoCommands
         [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
         public async Task DeleteTeam(InteractionContext ctx, [Option("Name",  "Team name")] string teamName)
         {
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent("Deleting team...")
-                .AsEphemeral();
-
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-
-            if (!HasAdminPermission(ctx))
-            {
-                await InsufficientPermissionsResponse(ctx);
-                return;
-            }
-
-            // Delete role
-            DiscordRole? role = GetTeamRole(ctx, teamName);
-            if (role != null)
-            {
-                // If the command is ran multiple times in quick succession,
-                // it's possible for one to delete the role while another is trying
-                try
-                {
-                    await role.DeleteAsync();
-                }
-                catch { }
-            }
-
-            // Delete channels
-            foreach (var channelPair in ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
-            {
-                // If the command is ran multiple times in quick succession,
-                // it's possible for one to delete some channels while another is trying
-                try
-                {
-                    await channelPair.Value.DeleteAsync();
-                }
-                catch { }
-            }
-
-            // Delete from database
-            dataWorker.Teams.Delete(teamName);
-            dataWorker.SaveChanges();
-
-            var editBuilder = new DiscordWebhookBuilder()
-                .WithContent("Team deleted.");
-
-            try
-            {
-                await ctx.EditResponseAsync(editBuilder);
-            }
-            catch { }
+            IDataWorker dataWorker = CreateDataWorker();
+            await RunRequest(dataWorker, ctx, new RequestDeleteTeam(ctx, dataWorker, teamName));
         }
 
 
@@ -258,23 +211,36 @@ namespace RSBingoBot.BingoCommands
             await ctx.EditResponseAsync(editBuilder);
         }
 
-        private async Task InsufficientPermissionsResponse(InteractionContext ctx)
+        private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
         {
-            // TODO: JR - Change this to a pre-execution check
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent("You do not have the required permissions to run this command.")
-                .AsEphemeral();
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-        }
+            if (!await request.ValidateRequest()) { return; }
 
-        private bool HasAdminPermission(InteractionContext ctx) =>
-            ctx.Guild.GetMemberAsync(ctx.User.Id).Result.Permissions.HasPermission(Permissions.Administrator);
+            // TODO: JCH - Not sure how this will work.
+            RequestResponse response = request.ProcessRequest().Result;
 
-        private DiscordRole? GetTeamRole(InteractionContext ctx, string teamName)
-        {
-            KeyValuePair<ulong, DiscordRole> pair = ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
-            if (pair.Equals(default)) { return null; }
-            return pair.Value;
+            if (!response.Failed)
+            {
+                // TODO: Decide what to do.
+                return;
+            }
+
+            try
+            {
+                dataWorker.SaveChanges();
+
+                if (response.Response is string respString)
+                {
+                    DiscordWebhookBuilder editBuilder = new DiscordWebhookBuilder()
+                        .WithContent(respString);
+                }
+
+                return;
+            }
+            catch
+            {
+                // TODO: JCH - Decide what to do here.
+                return;
+            }
         }
     }
 }

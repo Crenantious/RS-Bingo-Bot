@@ -33,6 +33,9 @@ namespace RSBingo_Framework_Tests
             Team teamBefore = MockDBSetup.Add_Team(dataWorkerBefore);
             User userOneBefore = MockDBSetup.Add_User(dataWorkerBefore, 1, teamBefore);
             User userTwoBefore = MockDBSetup.Add_User(dataWorkerBefore, 2, teamBefore);
+            Team teamToKeepBefore = MockDBSetup.Add_Team(dataWorkerBefore);
+            User userToKeepOneBefore = MockDBSetup.Add_User(dataWorkerBefore, 3, teamToKeepBefore);
+            User userToKeepTwoBefore = MockDBSetup.Add_User(dataWorkerBefore, 4, teamToKeepBefore);
 
             dataWorkerBefore.Teams.Remove(teamBefore);
             dataWorkerBefore.SaveChanges();
@@ -40,10 +43,16 @@ namespace RSBingo_Framework_Tests
             Team? teamAfter = dataWorkerAfter.Teams.GetTeamByID(teamBefore.RowId);
             User? userOneAfter = dataWorkerAfter.Users.GetByDiscordId(userOneBefore.DiscordUserId);
             User? userTwoAfter = dataWorkerAfter.Users.GetByDiscordId(userTwoBefore.DiscordUserId);
+            Team? teamToKeepAfter = dataWorkerAfter.Teams.GetTeamByID(teamToKeepBefore.RowId);
+            User? userToKeepOneAfter = dataWorkerAfter.Users.GetByDiscordId(userToKeepOneBefore.DiscordUserId);
+            User? userToKeepTwoAfter = dataWorkerAfter.Users.GetByDiscordId(userToKeepTwoBefore.DiscordUserId);
 
             Assert.IsNull(teamAfter);
             Assert.IsNull(userOneAfter);
             Assert.IsNull(userTwoAfter);
+            Assert.IsNotNull(teamToKeepAfter);
+            Assert.IsNotNull(userToKeepOneAfter);
+            Assert.IsNotNull(userToKeepTwoAfter);
         }
 
         [TestMethod]

@@ -19,20 +19,5 @@ namespace RSBingo_Framework.Records
 
         public static bool IsBoardVerfied(this Team team) =>
             team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
-
-        public static IEnumerable<Tile> GetNoTaskTiles(this Team team) =>
-            team.Tiles.Where(t => t.Task.Name == BingoTaskRepository.NoTaskName);
-
-        public static Team CreateNewTeam(IDataWorker dataWorker, string teamName, ulong boardChannelId)
-        {
-            Team team = dataWorker.Teams.Create(teamName, boardChannelId);
-
-            foreach (BingoTask task in dataWorker.BingoTasks.GetAllNoTasks())
-            {
-                team.Tiles.Add(dataWorker.Tiles.Create(team, task));
-            }
-
-            return team;
-        }
     }
 }

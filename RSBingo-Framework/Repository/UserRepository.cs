@@ -90,7 +90,7 @@ namespace RSBingo_Framework.Repository
         /// <inheritdoc/>
         public override void LoadCascadeNavigations(User user)
         {
-            DataWorker.Users.Where(u => u.DiscordUserId == u.DiscordUserId)
+            DataWorker.Users.Where(u => u.DiscordUserId == user.DiscordUserId)
                 .Include(t => t.Evidence);
         }
     }
