@@ -25,6 +25,7 @@ namespace RSBingoBot.Component_interaction_handlers
     public class ChangeTileButtonHanlder : ComponentInteractionHandler
     {
         private const string PageOptionPrefix = "Page ";
+        private const string NoTaskName = "No task";
 
         private string fromTileSelectId = string.Empty;
         private string? fromTileSelectedTileId = null;
@@ -32,7 +33,7 @@ namespace RSBingoBot.Component_interaction_handlers
         private List<DiscordSelectComponentOption> fromTileSelectOptions = new();
 
         private string toTileSelectId = string.Empty;
-        private int toTileSelectedTileId = -1;
+        private int toTaskSelectedTileId = -1;
 
         private int? pageSelected = null;
         private Difficulty difficultySelected;
@@ -80,11 +81,24 @@ namespace RSBingoBot.Component_interaction_handlers
             {
                 // Team will not be null if TeamMustExist == true, which it should be for this instance.
                 fromTileSelectOptions = new();
+                IEnumerable<Tile> tiles = Team!.Tiles.OrderBy(t => t.BoardIndex);
+                int tileIndex = 0;
+                string name;
+                string value;
 
                 for (int i = 0; i < TilesPerRow * TilesPerColumn; i++)
                 {
-                    fromTileSelectOptions.Add(new (Team.Tiles.ElementAt(i).Task.Name,
-                        Team.Tiles.ElementAt(i).RowId.ToString()));
+                    name = NoTaskName;
+                    value = NoTaskName + i.ToString();
+
+                    if (tileIndex < tiles.Count() && tiles.ElementAt(tileIndex).BoardIndex == i)
+                    {
+                        name = tiles.ElementAt(tileIndex).Task.Name;
+                        value = tiles.ElementAt(tileIndex).RowId.ToString();
+                        tileIndex++;
+                    }
+
+                    fromTileSelectOptions.Add(new (name, value));
                 }
             }
             else
@@ -139,7 +153,9 @@ namespace RSBingoBot.Component_interaction_handlers
         private async Task FromTileSelectInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
         {
             fromTileSelectedTileId = args.Values[0];
-            fromTileSelectPlaceholder = DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTileId)).Task.Name;
+            fromTileSelectPlaceholder = fromTileSelectedTileId.StartsWith(NoTaskName) ?
+                NoTaskName :
+                DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTileId)).Task.Name;
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
         }
 
@@ -170,7 +186,7 @@ namespace RSBingoBot.Component_interaction_handlers
             }
             else if (selectStage == SelectStage.Task)
             {
-                toTileSelectedTileId = int.Parse(args.Values[0]);
+                toTaskSelectedTileId = int.Parse(args.Values[0]);
             }
         }
 
@@ -211,33 +227,42 @@ namespace RSBingoBot.Component_interaction_handlers
                 await InteractionConcluded();
                 return;
             }
-            else if (fromTileSelectedTileId == null || toTileSelectedTileId == -1)
+            else if (fromTileSelectedTileId == null || toTaskSelectedTileId == -1)
             {
                  editBuilderContent = "Must select a tile to change both from, and to.";
             }
             else
             {
-                BingoTask toTask = DataWorker.BingoTasks.GetById(toTileSelectedTileId);
-                Tile fromTile = DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTileId));
+                // TODO: hook up tile changes with the update handler
+                BingoTask toTask = DataWorker.BingoTasks.GetById(toTaskSelectedTileId);
 
-                if (toSelectOptions.IsTaskOnBoard(toTask.RowId))
+                if (fromTileSelectedTileId.StartsWith(NoTaskName))
                 {
-                    Tile toTile = DataWorker.Tiles.GetByTeamAndTaskId(Team, toTask.RowId);
-
-                    if (toTile == fromTile)
-                    {
-                        editBuilderContent = $"You selected the same tile twice, so nothing happened.";
-                    }
-                    else
-                    {
-                        DataWorker.Tiles.SwapTasks(fromTile, toTile);
-                        editBuilderContent = $"Tiles have been successfully swapped.";
-                    }
+                    DataWorker.Tiles.Create(Team, toTask, int.Parse(fromTileSelectedTileId[NoTaskName.Length..]));
+                    editBuilderContent = $"{NoTaskName} has been changed to {toTask.Name}.";
                 }
                 else
                 {
-                    editBuilderContent = $"{fromTileSelectPlaceholder} has been changed to {toTask.Name}.";
-                    fromTile.ChangeTask(toTask);
+                    Tile fromTile = DataWorker.Tiles.GetById(int.Parse(fromTileSelectedTileId));
+                    Tile? toTile = DataWorker.Tiles.GetByTeamAndTaskId(Team, toTask.RowId);
+
+                    if (toTile != null)
+                    {
+                        if (toTile == fromTile)
+                        {
+                            editBuilderContent = $"You selected the same tile twice, so nothing happened.";
+                        }
+                        else
+                        {
+                            //DataWorker.Tiles.SwapTasks(fromTile, toTile);
+                            editBuilderContent = $"{fromTile.Task.Name} and {toTask.Name} have been successfully swapped.";
+                        }
+                    }
+                    else
+                    {
+                        //DataWorker.Tiles.ChangeTask(fromTile, toTask);
+                        editBuilderContent = $"{fromTile.Task.Name} has been changed to {toTask.Name}.";
+                    }
                 }
 
                 DataWorker.SaveChanges();

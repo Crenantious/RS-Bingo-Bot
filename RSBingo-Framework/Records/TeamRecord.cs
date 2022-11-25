@@ -17,8 +17,5 @@ namespace RSBingo_Framework.Records
 
         public static bool IsBoardVerfied(this Team team) =>
             team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
-
-        public static IEnumerable<Tile> GetNoTaskTiles(this Team team) =>
-            team.Tiles.Where(t => t.Task.Name == BingoTaskRepository.NoTaskName);
     }
 }

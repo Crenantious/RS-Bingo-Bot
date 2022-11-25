@@ -29,33 +29,33 @@ namespace RSBingo_Framework.Repository
             return Add(new Tile());
         }
 
-        public Tile Create(string teamName, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No)
+        public Tile Create(string teamName, int taskId, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No)
         {
             BingoTask? task = DataWorker.BingoTasks.GetById(taskId);
             if (task == null) { throw new NullReferenceException($"Could not find task with id {taskId}."); }
 
-            return Create(teamName, task, verifiedStatus);
+            return Create(teamName, task, boardIndex, verifiedStatus);
         }
 
-        public Tile Create(string teamName, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No)
+        public Tile Create(string teamName, BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No)
         {
             Team? team = DataWorker.Teams.GetByName(teamName);
             if (team == null) { throw new NullReferenceException($"Could not find team with name {teamName}."); }
 
-            return Create(team, task, verifiedStatus);
+            return Create(team, task, boardIndex, verifiedStatus);
         }
 
-        public Tile Create(Team team, BingoTask task, VerifiedStatus verifiedStatus = VerifiedStatus.No) =>
-            Create(team.RowId, task.RowId, verifiedStatus);
+        public Tile Create(Team team, BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No) =>
+            Create(team.RowId, task.RowId, boardIndex, verifiedStatus);
 
-        public Tile Create(int teamId, int taskId, VerifiedStatus verifiedStatus = VerifiedStatus.No, int? rowId = null)
+        public Tile Create(int teamId, int taskId, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No)
         {
             return Add(new Tile()
             {
-                RowId = rowId ?? new int(),
                 TeamId = teamId,
                 TaskId = taskId,
-                Verified = (sbyte)verifiedStatus
+                Verified = (sbyte)verifiedStatus,
+                BoardIndex = boardIndex
             });
         }
 
@@ -80,31 +80,21 @@ namespace RSBingo_Framework.Repository
         public IEnumerable<Tile> GetAllTiles() =>
             GetAll();
 
-        public void SetToNoTask(Tile tile)
-        {
-            tile.SetToNoTask();
-        }
-
-        public void SetToNoTask(IEnumerable<Tile> tiles)
-        {
-            foreach (Tile tile in tiles)
-            {
-                SetToNoTask(tile);
-            }
-        }
-
         public void ChangeTask(Tile tile, BingoTask task) =>
             tile.ChangeTask(task);
 
         public void SwapTasks(Tile tile1, Tile tile2)
         {
+            // TODO: JR - fix this
             BingoTask tile1Task = tile1.Task;
-            BingoTask tile2Task = tile2.Task;
-            tile1.SetToNoTask();
-            tile2.SetToNoTask();
-            DataWorker.SaveChanges();
-            tile1.ChangeTask(tile2Task);
-            tile2.ChangeTask(tile1Task);
+            tile1.Task = tile2.Task;
+            tile2.Task = tile1Task;
+            //BingoTask tile2Task = tile2.Task;
+            ////tile1.SetToNoTask();
+            ////tile2.SetToNoTask();
+            ////DataWorker.SaveChanges();
+            //tile1.ChangeTask(tile2Task);
+            //tile2.ChangeTask(tile1Task);
         }
 
         public void Delete(Tile tile) =>
