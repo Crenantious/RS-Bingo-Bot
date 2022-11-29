@@ -49,15 +49,6 @@ namespace RSBingo_Framework.Repository
             return tasks;
         }
 
-        public void CreateMissingNoTasks()
-        {
-            int numberToCreate = TilesPerRow * TilesPerColumn - GetAllNoTasks().Count();
-            for (int i = 0; i < numberToCreate; i++)
-            {
-                Create(NoTaskName, Difficulty.None);
-            }
-        }
-
         public IEnumerable<BingoTask> GetByName(string name) =>
            Where(t => t.Name == name);
 

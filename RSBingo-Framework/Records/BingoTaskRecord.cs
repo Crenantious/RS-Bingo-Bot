@@ -30,8 +30,5 @@ namespace RSBingo_Framework.Records
 
         public static BingoTask CreateBingoTask(IDataWorker dataWorker, string name, Difficulty type) =>
             dataWorker.BingoTasks.Create(name, type);
-
-        public static bool IsNoTask(this BingoTask bingoTask) =>
-            bingoTask.Name is NoTaskName;
     }
 }

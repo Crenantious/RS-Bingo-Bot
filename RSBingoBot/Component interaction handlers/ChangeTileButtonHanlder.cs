@@ -256,12 +256,14 @@ namespace RSBingoBot.Component_interaction_handlers
                         else
                         {
                             //DataWorker.Tiles.SwapTasks(fromTile, toTile);
+                            UpdateBoard(fromTile, toTile);
                             editBuilderContent = $"{fromTile.Task.Name} and {toTask.Name} have been successfully swapped.";
                         }
                     }
                     else
                     {
                         //DataWorker.Tiles.ChangeTask(fromTile, toTask);
+                        UpdateBoard(fromTile);
                         editBuilderContent = $"{fromTile.Task.Name} has been changed to {toTask.Name}.";
                     }
                 }

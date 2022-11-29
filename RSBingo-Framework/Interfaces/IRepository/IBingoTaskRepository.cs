@@ -14,7 +14,6 @@ namespace RSBingo_Framework.Interfaces.IRepository
     {
         public BingoTask Create(string name, Difficulty difficulty);
         public IEnumerable<BingoTask> CreateMany(string name, Difficulty difficulty, int amount);
-        public void CreateMissingNoTasks();
         public IEnumerable<BingoTask> GetByName(string name);
         public IEnumerable<BingoTask> GetByNameAndDifficulty(string name, Difficulty difficulty);
         public BingoTask? GetById(int id);
