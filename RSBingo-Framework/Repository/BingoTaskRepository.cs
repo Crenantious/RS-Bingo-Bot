@@ -15,8 +15,6 @@ namespace RSBingo_Framework.Repository
     /// </summary>
     public class BingoTaskRepository : RepositoryBase<BingoTask>, IBingoTaskRepository
     {
-        public const string NoTaskName = "No task";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="BingoTaskRepository"/> class.
         /// </summary>
@@ -69,11 +67,8 @@ namespace RSBingo_Framework.Repository
         public BingoTask? GetById(int id) =>
            FirstOrDefault(t => t.RowId == id);
 
-        public IEnumerable<BingoTask> GetAllNoTasks() =>
-            Where(t => t.Name == NoTaskName);
-
-        public IEnumerable<BingoTask> GetAllTasks(bool excludingNoTasks = true) =>
-            Where(t => !excludingNoTasks || t.Name != NoTaskName);
+        public IEnumerable<BingoTask> GetAllTasks() =>
+            GetAll();
 
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty) =>
             Where(t => t.Difficulty == (sbyte)difficulty).ToList();

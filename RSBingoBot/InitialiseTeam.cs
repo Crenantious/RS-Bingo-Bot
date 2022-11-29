@@ -107,20 +107,6 @@ namespace RSBingoBot
             RegisterBoardChannelComponentInteractions();
         }
 
-        private void SetTeamsNoTasks()
-        {
-            AvailableNoTasks[team.RowId] = new();
-            HashSet<int> usedNoTaskIds = team.GetNoTaskTiles().Select(t => t.TaskId).ToHashSet();
-
-            foreach (BingoTask task in dataWorker.BingoTasks.GetAllNoTasks())
-            {
-                if (!usedNoTaskIds.Contains(task.RowId))
-                {
-                    AvailableNoTasks[team.RowId].Add(task);
-                }
-            }
-        }
-
         private void CreateTeamEntry()
         {
             team = dataWorker.Teams.Create(Name, BoardChannel.Id, boardMessage.Id);

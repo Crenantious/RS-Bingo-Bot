@@ -39,10 +39,13 @@ CREATE TABLE Tile (
 	TeamID int NOT NULL,
 	TaskID int NOT NULL,
     Verified tinyint NOT NULL,
+    BoardIndex int NOT NULL,
     FOREIGN KEY (TeamID) REFERENCES Team(RowID),
     FOREIGN KEY (TaskID) REFERENCES Task(RowID),
 	CONSTRAINT team_task_relationship UNIQUE KEY (TeamID, TaskID),
-	CONSTRAINT task_team_relationship UNIQUE KEY (TaskID, TeamID)
+	CONSTRAINT task_team_relationship UNIQUE KEY (TaskID, TeamID),
+	CONSTRAINT team_boardIndex_relationship UNIQUE KEY (TeamID, BoardIndex),
+	CONSTRAINT boardIndex_team_relationship UNIQUE KEY (BoardIndex, TeamID)
 );
 
 CREATE TABLE Evidence (

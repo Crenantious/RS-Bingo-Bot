@@ -30,25 +30,7 @@ namespace RSBingo_Framework.Records
         public static bool IsNotVerified(this Tile tile) =>
             tile.Verified != 1;
 
-        public static void ChangeTask(this Tile tile, BingoTask task)
-        {
-            
-            if (tile.Task.IsNoTask())
-            {
-                DataFactory.AvailableNoTasks[tile.Team.RowId].Add(tile.Task);
-            }
-
-            if (task.IsNoTask())
-            {
-                DataFactory.AvailableNoTasks[tile.Team.RowId].Remove(task);
-            }
-
-            tile.TaskId = task.RowId;
-        }
-
-        public static void SetToNoTask(this Tile tile)
-        {
-            ChangeTask(tile, DataFactory.AvailableNoTasks[tile.Team.RowId][0]);
-        }
+        public static void ChangeTask(this Tile tile, BingoTask task) =>
+            tile.Task = task;
     }
 }
