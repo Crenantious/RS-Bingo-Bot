@@ -31,6 +31,14 @@ public class MockDBSetup
         return bingoTask;
     }
 
+    public static Team Add_Team(IDataWorker dataWorker, string name)
+    {
+        Team team = dataWorker.Teams.Create(name, 0, 0);
+
+        dataWorker.SaveChanges();
+        return team;
+    }
+
     private static void TestInitializeDB(string name)
     {
         IDataWorker dataWorker = CreateDataWorker(name);

@@ -15,6 +15,7 @@ namespace RSBingoBot
     using RSBingo_Framework.DAL;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Imaging;
     using Serilog;
     using SixLabors.ImageSharp.Web.DependencyInjection;
     using static RSBingo_Common.General;
@@ -114,7 +115,7 @@ namespace RSBingoBot
                 .ConfigureContainer<ContainerBuilder>(builder =>
                 {
                     // Register types that contain factories here
-                    builder.RegisterType<InitialiseTeam>();
+                    builder.RegisterType<DiscordTeam>();
                 });
         }
     }

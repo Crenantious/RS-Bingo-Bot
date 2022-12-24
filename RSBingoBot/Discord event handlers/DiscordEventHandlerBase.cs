@@ -12,6 +12,7 @@ namespace RSBingoBot.Discord_event_handlers
     using DSharpPlus.EventArgs;
     using Microsoft.Extensions.Logging;
     using RSBingo_Framework.Exceptions;
+    using RSBingoBot.Exceptions;
     using static RSBingo_Common.General;
 
     /// <summary>

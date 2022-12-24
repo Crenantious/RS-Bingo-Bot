@@ -29,7 +29,7 @@ namespace RSBingoBot.BingoCommands
         private readonly ILogger<CommandController> logger;
         private readonly IDataWorker dataWorker = CreateDataWorker();
         private readonly DiscordClient discordClient;
-        private readonly InitialiseTeam.Factory teamFactory;
+        private readonly RSBingoBot.DiscordTeam.Factory teamFactory;
         private readonly MessageCreatedDEH messageCreatedDEH;
         private readonly ModalSubmittedDEH modalSubmittedDEH;
 
@@ -38,9 +38,9 @@ namespace RSBingoBot.BingoCommands
         /// </summary>
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="discordClient">The client the bot will connect to.</param>
-        /// <param name="teamFactory">The factory used to create a new <see cref="InitialiseTeam"/> object.</param>
+        /// <param name="teamFactory">The factory used to create a new <see cref="DiscordTeam"/> object.</param>
         public CommandController(ILogger<CommandController> logger, DiscordClient discordClient,
-            InitialiseTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH,
+            RSBingoBot.DiscordTeam.Factory teamFactory, MessageCreatedDEH messageCreatedDEH,
             ModalSubmittedDEH modalSubmittedDEH)
         {
             this.logger = logger;
@@ -72,7 +72,7 @@ namespace RSBingoBot.BingoCommands
                 .WithContent($"Creating a new team named {TestTeamName}.")
                 .AsEphemeral());
 
-            InitialiseTeam team = teamFactory("Test");
+            RSBingoBot.DiscordTeam team = teamFactory("Test");
             await team.InitialiseAsync(null);
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"New team named {TestTeamName} has been created."));
@@ -124,28 +124,19 @@ namespace RSBingoBot.BingoCommands
         }
 
         [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
-        public async Task DeleteTeam(InteractionContext ctx, [Option("Name",  "Team name")] string teamName)
+        public async Task DeleteTeam(InteractionContext ctx, [Option("Name", "Team name")] string teamName)
         {
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent("Deleting team...")
-                .AsEphemeral();
-
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-
-            Team? team = dataWorker.Teams.GetByName(teamName);
-
-            if (team == null)
-            {
-                EditOriginalResponse(ctx, new DiscordWebhookBuilder()
-                    .WithContent("No team with that name exists."));
-                return;
-            }
-
             if (!HasAdminPermission(ctx))
             {
                 await InsufficientPermissionsResponse(ctx);
                 return;
             }
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent("Deleting team...")
+                .AsEphemeral();
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
 
             // Delete role
             DiscordRole? role = GetTeamRole(ctx, teamName);
@@ -173,32 +164,43 @@ namespace RSBingoBot.BingoCommands
             }
 
             // Delete from database
-            InitialiseTeam.TeamDeleted(team);
-            dataWorker.Teams.Delete(team);
-            dataWorker.SaveChanges();
+            Team? team = dataWorker.Teams.GetByName(teamName);
+            string response;
+
+            if (team == null)
+            {
+                response = "No team with that name exists.";
+            }
+            else
+            {
+                RSBingoBot.DiscordTeam.TeamDeleted(team);
+                dataWorker.Teams.Delete(team);
+                dataWorker.SaveChanges();
+                response = "Team deleted.";
+            }
 
             EditOriginalResponse(ctx, new DiscordWebhookBuilder()
-                .WithContent("Team deleted."));
+                .WithContent(response));
         }
 
         [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
         public async Task RemoveFromTeam(InteractionContext ctx,
             [Option("User", "User")] DiscordUser discordUser)
         {
-            User? userRecord = dataWorker.Users.GetByDiscordId(discordUser.Id);
+            User? user = dataWorker.Users.GetByDiscordId(discordUser.Id);
 
             var builder = new DiscordInteractionResponseBuilder()
                 .AsEphemeral();
 
-            if (userRecord != null)
+            if (user != null)
             {
-                DiscordRole? role = GetTeamRole(ctx, userRecord.Team.Name);
+                DiscordRole? role = GetTeamRole(ctx, user.Team.Name);
                 if (role != null)
                 {
                     await ctx.Guild.GetMemberAsync(ctx.User.Id).Result.RevokeRoleAsync(role);
                 }
 
-                dataWorker.Users.Delete(userRecord);
+                dataWorker.Users.Delete(user);
                 dataWorker.SaveChanges();
 
                 builder.WithContent("User has been successfully removed from the team.");

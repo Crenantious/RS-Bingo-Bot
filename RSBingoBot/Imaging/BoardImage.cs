@@ -24,13 +24,17 @@ namespace RSBingoBot.Imaging
     public class BoardImage
     {
         private const string boardBaseFileName = "Board base.png";
+        private const string noTaskName = "No task";
+
         private static readonly IDataWorker DataWorker;
-        private static Image<Rgba32> boardBase;
         private static readonly Dictionary<int, TaskInfo> tasksInfo = new();
         private static readonly List<Image> baseTiles = new();
-        private static readonly Dictionary<int, Image<Rgba32>> teamBoards = new();
-        private static readonly Dictionary<int, TileInfo> tilesInfo = new();
+        private static readonly Dictionary<int, Board> boards = new();
         private static readonly Font font;
+        private static readonly TextOptions textOptions;
+        private static readonly Image<Rgba32> emptyTaskImage = new(TilePixelWidth, TileBorderPixelHeight);
+
+        private static Image<Rgba32> boardBase = null!;
 
         static BoardImage()
         {
@@ -40,6 +44,15 @@ namespace RSBingoBot.Imaging
 
             DataWorker = CreateDataWorker();
             DisectBoardBase();
+
+            textOptions = new(font)
+            {
+                Origin = new PointF(baseTiles[0].Width / 2, TextTopOffsetPixels),
+                WrappingLength = TilePixelWidth - TextXPaddingPixels,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                TextAlignment = TextAlignment.Center
+            };
         }
 
         /// <summary>
@@ -48,65 +61,75 @@ namespace RSBingoBot.Imaging
         /// <returns></returns>
         public static async Task CreateAndUpdateAllTeamBoards()
         {
-            foreach(Team team in DataWorker.Teams.GetAll())
+            foreach (Team team in DataWorker.Teams.GetAll())
             {
-                
-                await InitialiseTeam.UpdateBoard(team, CreateBoard(team));
+                await DiscordTeam.UpdateBoard(team, CreateBoard(team));
             }
         }
 
         public static Image CreateBoard(Team team)
         {
-            teamBoards.Add(team.RowId, boardBase.Clone());
+            boards.Add(team.RowId, new(team));
 
-            for (int i = 0; i < team.Tiles.Count(); i++)
+            foreach (Tile tile in team.Tiles)
             {
-                Tile tile = team.Tiles.ElementAt(i);
-                tilesInfo[tile.RowId] = new TileInfo(i,
-                    GetTileXPosition(i % TilesPerRow),
-                    GetTileYPosition(i / TilesPerColumn));
-                UpdateTileTask(tile);
+                UpdateTile(team, tile.BoardIndex, tile.Task);
             }
 
-            return teamBoards[team.RowId];
+            return boards[team.RowId].Image;
         }
 
-        public static Image<Rgba32> UpdateTileTask(Tile tile)
+        public static Image GetTeamBoard(Team team) =>
+            boards.ContainsKey(team.RowId) ?
+                boards[team.RowId].Image :
+                CreateBoard(team);
+
+        public static Image<Rgba32> UpdateTile(Team team, int tileIndex, BingoTask? task)
         {
-            if (!tilesInfo.ContainsKey(tile.RowId))
+            if (!boards.ContainsKey(team.RowId))
             {
-                CreateBoard(tile.Team);
+                CreateBoard(team);
             }
 
-            LoadImage(tile.Task);
+            UpdateTaskInfo(team, tileIndex, task);
+            UpdateBoardImage(boards[team.RowId], team, tileIndex);
 
-            TileInfo tileInfo = tilesInfo[tile.RowId];
-            TaskInfo taskInfo = tasksInfo[tile.TaskId];
-
-            Image baseTileWithTask = baseTiles[tileInfo.baseTileIndex]
-                .Clone(i => i.DrawImage(taskInfo.image, new Point(taskInfo.xPadding, taskInfo.yPadding), 1));
-
-            TextOptions options = new(font)
-            {
-                Origin = new PointF(baseTileWithTask.Width / 2, TextTopOffsetPixels),
-                WrappingLength = TilePixelWidth - TextXPaddingPixels,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Top,
-                TextAlignment = TextAlignment.Center
-            };
-
-            baseTileWithTask.Mutate(
-                i => i.DrawText(options, tile.Task.Name, Color.Black));
-
-            teamBoards[tile.TeamId].Mutate(i => i.DrawImage(baseTileWithTask, new Point(tileInfo.x, tileInfo.y), 1));
-            return teamBoards[tile.TeamId];
+            return boards[team.RowId].Image;
         }
 
-        public static Image<Rgba32> GetBaseBoard() =>
-            boardBase;
+        private static TaskInfo UpdateTaskInfo(Team team, int tileIndex, BingoTask? task)
+        {
+            TaskInfo taskInfo;
 
-        public static Image<Rgba32> GetTeamBoard(int teamId) =>
-            teamBoards[teamId];
+            if (task == null)
+            {
+                taskInfo = new();
+            }
+            else
+            {
+                GetTaskInfo(task);
+                taskInfo = tasksInfo[task.RowId];
+            }
+
+            boards[team.RowId].Tiles[tileIndex].taskInfo = taskInfo;
+            return taskInfo;
+        }
+
+        private static Image<Rgba32> UpdateBoardImage(Board board, Team team, int tileIndex)
+        {
+            TileInfo tileInfo = board.Tiles[tileIndex];
+            TaskInfo taskInfo = tileInfo.taskInfo;
+
+            Image tileImage = baseTiles[tileIndex]
+                .Clone(i => i.DrawImage(taskInfo.Image, new Point(taskInfo.XPadding, taskInfo.YPadding), 1));
+
+            DrawTaskNameOnImage(tileImage, taskInfo.Name);
+            board.Image.Mutate(i => i.DrawImage(tileImage, new Point(tileInfo.x, tileInfo.y), 1));
+            return board.Image;
+        }
+
+        private static void DrawTaskNameOnImage(Image image, string name) =>
+            image.Mutate(i => i.DrawText(textOptions, name, Color.Black));
 
         private static void DisectBoardBase()
         {
@@ -159,13 +182,17 @@ namespace RSBingoBot.Imaging
             }
         }
 
-        private static void LoadImage(BingoTask task)
+        private static TaskInfo GetTaskInfo(BingoTask? task)
         {
+            if (task == null) { return new(); }
+
             // Check if it's already loaded.
-            if (tasksInfo.ContainsKey(task.RowId)) { return; }
+            if (tasksInfo.ContainsKey(task.RowId)) { return tasksInfo[task.RowId]; }
 
             Image image;
             string imagePath = GetTaskImagePath(task.Name);
+            string taskName = task != null ? task.Name : noTaskName;
+            int taskId = task != null ? task.RowId : -1;
 
             try
             {
@@ -173,14 +200,9 @@ namespace RSBingoBot.Imaging
             }
             catch
             {
-                if (task.IsNoTask())
-                {
-                    image = new Image<Rgba32>(TilePixelWidth, TilePixelHeight);
-                }
-                else
-                {
-                    throw new BoardImageException($"Could not load the {task.Name} task image, it may have been corrupted or deleted.");
-                }
+                LoggingLog($"Could not load the {task!.Name} task image, it may have been corrupted; moved or deleted.");
+                image = emptyTaskImage;
+                taskName = "Unable to find image";
             }
 
             var resizeOptions = new ResizeOptions()
@@ -196,8 +218,9 @@ namespace RSBingoBot.Imaging
             int x = (TilePixelWidth - image.Width + TaskXOffsetPixels) / 2;
             int y = (TilePixelHeight - image.Height + TaskYOffsetPixels) / 2;
 
-            TaskInfo taskInfo = new(image, x, y);
-            tasksInfo.Add(task.RowId, taskInfo);
+            TaskInfo taskInfo = new(image, taskName, x, y);
+            tasksInfo.Add(taskId, taskInfo);
+            return taskInfo;
         }
 
         private static int GetTileXPosition(int tileRowIndex) =>
@@ -208,29 +231,56 @@ namespace RSBingoBot.Imaging
 
         private struct TaskInfo
         {
-            public Image image { get; }
-            public int xPadding { get; }
-            public int yPadding { get; }
+            public Image Image { get; }
+            public string Name { get; }
+            public int XPadding { get; }
+            public int YPadding { get; }
 
-            public TaskInfo(Image image, int xPadding, int yPadding)
+            public TaskInfo()
             {
-                this.image = image;
-                this.xPadding = xPadding;
-                this.yPadding = yPadding;
+                Image = emptyTaskImage;
+                Name = noTaskName;
+                XPadding = 0;
+                YPadding = 0;
+            }
+
+            public TaskInfo(Image image, string name, int xPadding, int yPadding)
+            {
+                Image = image;
+                Name = name;
+                XPadding = xPadding;
+                YPadding = yPadding;
             }
         }
 
-        private struct TileInfo
+        private class TileInfo
         {
+            public TaskInfo taskInfo { get; set; }
             public int baseTileIndex { get; }
             public int x { get; }
             public int y { get; }
 
-            public TileInfo(int baseTileIndex, int xPadding, int yPadding)
+            public TileInfo(TaskInfo taskInfo, int baseTileIndex, int x, int y)
             {
+                this.taskInfo = taskInfo;
                 this.baseTileIndex = baseTileIndex;
-                this.x = xPadding;
-                this.y = yPadding;
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        private struct Board
+        {
+            public Image<Rgba32> Image = boardBase.Clone();
+            public TileInfo[] Tiles = new TileInfo[MaxTilesOnABoard];
+
+            public Board(Team team)
+            {
+                for (int i = 0; i < MaxTilesOnABoard; i++)
+                {
+                    Tiles[i] = new(new TaskInfo(), i, GetTileXPosition(i % TilesPerRow), GetTileYPosition(i / TilesPerColumn));
+                    UpdateBoardImage(this, team, i);
+                }
             }
         }
     }

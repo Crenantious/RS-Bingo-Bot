@@ -35,11 +35,10 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             await base.InitialiseAsync(args, info);
 
-            // If the user is already in a team, give them an error.
-            // They must be removed from the team by an admin before being able to join another.
-
             var confirmButton = new DiscordButtonComponent(ButtonStyle.Primary, confirmButtonId, "Confirm");
-            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId), TeamJoinConfirmed);
+            SubscribeComponent(
+                new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId),
+                TeamJoinConfirmed, true);
 
             var builder = new DiscordFollowupMessageBuilder();
             IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
@@ -61,7 +60,9 @@ namespace RSBingoBot.Component_interaction_handlers
                 }
 
                 var teamSelect = new DiscordSelectComponent(teamSelectId, "Select team", options);
-                SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: teamSelectId), TeamSelected);
+                SubscribeComponent(
+                    new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: teamSelectId),
+                    TeamSelected, true);
 
                 builder
                     .WithContent($"{args.User.Mention} Select a team to join.")

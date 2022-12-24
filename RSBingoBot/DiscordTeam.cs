@@ -1,4 +1,4 @@
-﻿// <copyright file="InitialiseTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="DiscordTeam.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -19,9 +19,9 @@ namespace RSBingoBot
     /// <summary>
     /// Creates and sets up channels, roles and messages for the team.
     /// </summary>
-    public class InitialiseTeam
+    public class DiscordTeam
     {
-        private static Dictionary<int, InitialiseTeam> instances = new();
+        private static Dictionary<int, DiscordTeam> instances = new();
 
         private readonly DiscordClient discordClient;
         private readonly IDataWorker dataWorker = CreateDataWorker();
@@ -32,25 +32,24 @@ namespace RSBingoBot
         private string viewEvidenceButtonId = string.Empty!;
         private DiscordMessage boardMessage;
 
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="InitialiseTeam"/> class.
+        /// Initializes a new instance of the <see cref="DiscordTeam"/> class.
         /// </summary>
         /// <param name="discordClient">The <see cref="DiscordClient"/> the bot is using.</param>
         /// <param name="name">The team's name.</param>
         /// <param name="componentInteractionHandler">The handler to register component interactions with.</param>
-        public InitialiseTeam(DiscordClient discordClient, string name)
+        public DiscordTeam(DiscordClient discordClient, string name)
         {
             Name = name;
             this.discordClient = discordClient;
         }
 
         /// <summary>
-        /// The <see cref="InitialiseTeam"/>'s factory.
+        /// The <see cref="DiscordTeam"/>'s factory.
         /// </summary>
         /// <param name="name">The team's name.</param>
-        /// <returns>The newly created <see cref="InitialiseTeam"/>.</returns>
-        public delegate InitialiseTeam Factory(string name);
+        /// <returns>The newly created <see cref="DiscordTeam"/>.</returns>
+        public delegate DiscordTeam Factory(string name);
 
         /// <summary>
         /// Gets the name of the team.
@@ -93,7 +92,7 @@ namespace RSBingoBot
                 team = existingTeam;
                 BoardChannel = await discordClient.GetChannelAsync(team.BoardChannelId);
                 boardMessage = await BoardChannel.GetMessageAsync(team.BoardMessageId);
-                SetTeamsNoTasks();
+                //SetTeamsNoTasks();
             }
             else
             {
@@ -109,7 +108,8 @@ namespace RSBingoBot
 
         private void CreateTeamEntry()
         {
-            team = dataWorker.Teams.Create(Name, BoardChannel.Id, boardMessage.Id);
+            //team = dataWorker.Teams.Create(Name, BoardChannel.Id, boardMessage.Id);
+            team = TeamRecord.CreateTeam(dataWorker, Name, BoardChannel.Id, boardMessage.Id);
             dataWorker.SaveChanges();
         }
 
@@ -183,7 +183,7 @@ namespace RSBingoBot
                 Team = this,
             };
 
-            ComponentInteractionHandler.Register<ChangeTileButtonHanlder>(changeTileButtonId, info);
+            ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
             ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info);
             //ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
         }

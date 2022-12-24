@@ -30,5 +30,8 @@ namespace RSBingo_Framework.Records
 
         public static BingoTask CreateBingoTask(IDataWorker dataWorker, string name, Difficulty type) =>
             dataWorker.BingoTasks.Create(name, type);
+
+        public static IEnumerable<BingoTask> GetAllBingoTasks(IDataWorker dataWorker) =>
+            dataWorker.BingoTasks.GetAll();
     }
 }

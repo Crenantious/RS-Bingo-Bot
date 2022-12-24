@@ -11,7 +11,7 @@ namespace RSBingo_Framework.Models
         public ulong DiscordUserId { get; set; }
         public string Url { get; set; } = null!;
         public sbyte Status { get; set; }
-        public sbyte Type { get; set; }
+        public sbyte EvidenceType { get; set; }
 
         public virtual User DiscordUser { get; set; } = null!;
         public virtual Tile Tile { get; set; } = null!;

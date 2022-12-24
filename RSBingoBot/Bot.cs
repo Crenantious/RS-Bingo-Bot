@@ -29,7 +29,7 @@ namespace RSBingoBot
     {
         private readonly ILogger logger;
         private readonly DiscordClient discordClient;
-        private readonly InitialiseTeam.Factory teamFactory;
+        private readonly DiscordTeam.Factory teamFactory;
         private readonly ComponentInteractionDEH componentInteractionDEH;
         private readonly MessageCreatedDEH messageCreatedDEH;
         private readonly ModalSubmittedDEH modalSubmittedDEH;
@@ -44,7 +44,7 @@ namespace RSBingoBot
         /// <param name="componentInteractionDEH">The DEH for component interactions.</param>
         /// <param name="messageCreatedDEH">The DEH for message creation.</param>
         /// <param name="modalSubmittedDEH">The DEH for modal submissions.</param>
-        public Bot(ILogger<Bot> logger, DiscordClient client, InitialiseTeam.Factory teamFactory,
+        public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory,
             ComponentInteractionDEH componentInteractionDEH, MessageCreatedDEH messageCreatedDEH,
             ModalSubmittedDEH modalSubmittedDEH)
         {
@@ -92,9 +92,10 @@ namespace RSBingoBot
         {
             foreach (Team team in dataWorker.Teams.GetTeams())
             {
-                InitialiseTeam initialiseTeam = new (discordClient, team.Name);
+                DiscordTeam initialiseTeam = new (discordClient, team.Name);
                 await initialiseTeam.InitialiseAsync(team);
             }
+            await BoardImage.CreateAndUpdateAllTeamBoards();
         }
     }
 }

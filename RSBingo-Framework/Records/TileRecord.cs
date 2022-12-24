@@ -6,6 +6,7 @@ namespace RSBingo_Framework.Records
 {
     using RSBingo_Common;
     using RSBingo_Framework.DAL;
+    using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Repository;
 
@@ -24,6 +25,10 @@ namespace RSBingo_Framework.Records
 
         #endregion
 
+        public static Tile CreateTile(IDataWorker dataWorker, Team team,
+            BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No) =>
+            dataWorker.Tiles.Create(team, task, boardIndex, verifiedStatus);
+
         public static bool IsVerified(this Tile tile) =>
             tile.Verified == 1;
 
@@ -32,5 +37,19 @@ namespace RSBingo_Framework.Records
 
         public static void ChangeTask(this Tile tile, BingoTask task) =>
             tile.Task = task;
+
+        public static void SwapBoardIndex(this Tile tile, Tile otherTile)
+        {
+            // TODO: JR - fix this
+            //BingoTask otherTileTask = otherTile.Task;
+            //otherTile.Task = tile.Task;
+            //tile.Task = otherTileTask;
+            int otherTileBoardIndex = otherTile.BoardIndex;
+            otherTile.BoardIndex = tile.BoardIndex;
+            tile.BoardIndex = otherTileBoardIndex;
+        }
+
+        public static Tile? GetWithTeamAndBoardIndex(IDataWorker dataWorker, Team team, int boardIndex) =>
+            team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
     }
 }

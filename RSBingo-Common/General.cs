@@ -74,6 +74,11 @@ namespace RSBingo_Common
         public static int MaxOptionsPerSelectMenu => 25;
 
         /// <summary>
+        /// Gets the maximum number of tiles a team's board can have.
+        /// </summary>
+        public static int MaxTilesOnABoard => 25;
+
+        /// <summary>
         /// Startup logging.
         /// </summary>
         public static void LoggingStart()

@@ -13,6 +13,6 @@ namespace RSBingo_Framework.Interfaces.IRepository
     public interface IEvidenceRepository : IRepository<Evidence>
     {
         public Evidence Create(User user, Tile tile, string url, EvidenceType type);
-
+        public Evidence? GetByTile(Tile tile);
     }
 }

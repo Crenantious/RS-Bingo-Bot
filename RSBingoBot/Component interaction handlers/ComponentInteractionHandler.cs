@@ -12,6 +12,7 @@ namespace RSBingoBot.Component_interaction_handlers
     using RSBingo_Framework.Models;
     using RSBingoBot;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Exceptions;
     using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
@@ -40,9 +41,9 @@ namespace RSBingoBot.Component_interaction_handlers
 
         static ComponentInteractionHandler()
         {
-            componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH));
-            messageCreatedDEH = (MessageCreatedDEH)General.DI.GetService(typeof(MessageCreatedDEH));
-            modalSubmittedDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH));
+            componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
+            messageCreatedDEH = (MessageCreatedDEH)General.DI.GetService(typeof(MessageCreatedDEH))!;
+            modalSubmittedDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH))!;
         }
 
         /// <summary>
@@ -100,6 +101,11 @@ namespace RSBingoBot.Component_interaction_handlers
         /// component was interacted with.
         /// </summary>
         protected ComponentInteractionCreateEventArgs OriginalInteractionArgs { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the event args for the most recent interaction with components registered by this handler.
+        /// </summary>
+        protected ComponentInteractionCreateEventArgs CurrentInteractionArgs { get; private set; } = null!;
 
         /// <summary>
         /// Gets the client the interaction happened on.
@@ -175,7 +181,8 @@ namespace RSBingoBot.Component_interaction_handlers
                 instance.CustomId = args.Interaction.Data.CustomId;
                 instance.User = user;
                 instance.Team = team;
-                await instance.InitialiseAsync(args, info.Item2);
+                await ComponentInteracted(instance, discordClient, args,
+                    (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...");
             }
             else
             {
@@ -199,14 +206,16 @@ namespace RSBingoBot.Component_interaction_handlers
 
         /// <summary>
         /// Subscribes the component to <see cref="ComponentInteractionDEH"/> for interaction callbacks and keeps
-        /// track of which components have been subscribed so they can be unsubscribed when the interaction has concluded.
+        /// track of which components have been subscribed so they can be unsubscribed when the interaction has concluded.<br/>
+        /// Creates an automatic response to the component to ensure it does not timeout.
         /// </summary>
         /// <param name="constraints"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.ConstraintsBase, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='constraints']"/></param>
         /// <param name="callback"><inheritdoc cref="ComponentInteractionDEH.Subscribe(ComponentInteractionDEH.ConstraintsBase, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task})" path="/param[@name='callback']"/></param>
         protected void SubscribeComponent(ComponentInteractionDEH.Constraints constraints,
-            Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback)
+            Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback, bool ephemeralResponse, string responseContent = "")
         {
-            componentInteractionDEH.Subscribe(constraints, callback);
+            componentInteractionDEH.Subscribe(constraints,
+                (client, args) => ComponentInteracted(args, callback, ephemeralResponse, responseContent));
             subscribedComponentsInfo.Add((constraints, callback));
         }
 
@@ -239,7 +248,92 @@ namespace RSBingoBot.Component_interaction_handlers
         #endregion
 
         /// <summary>
-        /// Checks if the a user with the given id is in the database. Then possibly post a response, notify an admin,
+        /// Called when a component is subscribed via <see cref="SubscribeComponent(ComponentInteractionDEH.Constraints, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task}, bool, string)"/>.
+        /// Creates an automatic response to ensure the interaction does not timeout, then calls <paramref name="callback"/> which was passed when subscribed.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="callback"></param>
+        /// <param name="ephemeralResponse"></param>
+        /// <param name="responseContent"></param>
+        /// <returns></returns>
+        protected static async Task ComponentInteracted(ComponentInteractionHandler instance, DiscordClient client,
+            ComponentInteractionCreateEventArgs args, Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback,
+            bool ephemeralResponse, string responseContent = "")
+        {
+            instance.CurrentInteractionArgs = args;
+
+            if (responseContent == "")
+            {
+                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+            }
+            else
+            {
+                var builder = new DiscordInteractionResponseBuilder()
+                {
+                    IsEphemeral = ephemeralResponse,
+                    Content = responseContent
+                };
+                await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            }
+
+            try
+            {
+                await callback(client, args);
+            }
+            catch (ComponentInteractionHandlerException e)
+            {
+                if (e.ResponseType == ComponentInteractionHandlerException.ErrorResponseType.EditOriginalResponse)
+                {
+                    var errorBuilder = new DiscordWebhookBuilder()
+                        .WithContent(e.Message);
+                    await args.Interaction.EditOriginalResponseAsync(errorBuilder);
+                }
+
+                if (e.ResponseType == ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse)
+                {
+                    var exceptionBuilder = new DiscordFollowupMessageBuilder()
+                    {
+                        Content = e.Message,
+                        IsEphemeral = e.IsEphemeral
+                    };
+                    await args.Interaction.CreateFollowupMessageAsync(exceptionBuilder);
+                }
+
+                if (e.ConcludeInteraction)
+                {
+                    await instance.InteractionConcluded();
+                }
+            }
+            catch (Exception e)
+            {
+                var exceptionBuilder = new DiscordFollowupMessageBuilder()
+                    .WithContent("And internal error has occurred.")
+                    .AsEphemeral(true);
+                await args.Interaction.CreateFollowupMessageAsync(exceptionBuilder);
+
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// Called when a component is subscribed via <see cref="SubscribeComponent(ComponentInteractionDEH.Constraints, Func{DiscordClient, ComponentInteractionCreateEventArgs, Task}, bool, string)"/>.
+        /// Creates an automatic response to ensure the interaction does not timeout, then calls <paramref name="callback"/> which was passed when subscribed.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="callback"></param>
+        /// <param name="ephemeralResponse"></param>
+        /// <param name="responseContent"></param>
+        /// <returns></returns>
+        protected async Task ComponentInteracted(ComponentInteractionCreateEventArgs args,
+            Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback,
+            bool ephemeralResponse, string responseContent = "")
+        {
+            await ComponentInteracted(this, Client, args, callback, ephemeralResponse, responseContent);
+        }
+
+        // TODO: JR - split this up so it's clear what each function is doing.
+        /// <summary>
+        /// Checks if a user with the given id is in the database. Then possibly post a response, notify an admin,
         /// and/or conclude the interaction.
         /// </summary>
         /// <param name="discordId">The id of the <see cref="DiscordUser"/> in question.</param>
@@ -261,24 +355,6 @@ namespace RSBingoBot.Component_interaction_handlers
             InteractionCreateEventArgs? args = null, bool isAnError = false,
             bool concludeInteraction = true)
         {
-            bool interacctionAlreadyRespondedTo = true;
-
-            if (args != null)
-            {
-                try
-                {
-                    //var builder = new DiscordInteractionResponseBuilder()
-                    //    .WithContent("Thinking...")
-                    //    .AsEphemeral();
-                    //await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                }
-                catch
-                {
-                    interacctionAlreadyRespondedTo = true;
-                }
-            }
-
             int returnValue = 0;
             User? user = DataWorker.Users.GetByDiscordId(discordId);
             string content = string.Empty;
@@ -304,19 +380,10 @@ namespace RSBingoBot.Component_interaction_handlers
                         content += "\nThis appears to be an error so an admin has been notified.";
                     }
 
-                    if (interacctionAlreadyRespondedTo)
-                    {
-                        var builder = new DiscordFollowupMessageBuilder()
-                            .WithContent(content)
-                            .AsEphemeral();
-                        await args.Interaction.CreateFollowupMessageAsync(builder);
-                    }
-                    else
-                    {
-                        var builder = new DiscordWebhookBuilder()
-                            .WithContent(content);
-                        await args.Interaction.EditOriginalResponseAsync(builder);
-                    }
+                    var builder = new DiscordFollowupMessageBuilder()
+                        .WithContent(content)
+                        .AsEphemeral();
+                    await args.Interaction.CreateFollowupMessageAsync(builder);
                 }
                 else if (args != null)
                 {
@@ -384,7 +451,7 @@ namespace RSBingoBot.Component_interaction_handlers
             /// <summary>
             /// The team the handler represents.
             /// </summary>
-            public InitialiseTeam Team;
+            public RSBingoBot.DiscordTeam Team;
         }
     }
 }
