@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using RSBingo_Framework.Interfaces;
+using System.Text;
 
 namespace RSBingoBot.BingoCommands;
 
@@ -19,6 +20,7 @@ public abstract class RequestBase
     /// </summary>
     internal virtual List<Permissions> RequiredPermissions => new ();
 
+    private const string MissingPermissionsErrorMessage = "You require the following permissions to run this command:";
     private protected InteractionContext Ctx;
     private protected IDataWorker DataWorker;
 
@@ -71,15 +73,15 @@ public abstract class RequestBase
     {
         // TODO: JR - Change this to a pre-execution check
 
-        string content = "You require the following permissions to run this command:";
+        StringBuilder errorString = new(MissingPermissionsErrorMessage);
 
         foreach (Permissions permission in missingPermissions)
         {
-            content += $"\n{permission}";
+            errorString.AppendLine($"{permission}");
         }
 
         var builder = new DiscordInteractionResponseBuilder()
-            .WithContent(content)
+            .WithContent(errorString.ToString())
             .AsEphemeral();
         await Ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
     }
