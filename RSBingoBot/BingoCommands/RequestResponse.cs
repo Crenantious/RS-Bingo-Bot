@@ -9,9 +9,8 @@ namespace RSBingoBot.BingoCommands;
 /// </summary>
 /// <param name="Success">If the request was successful.</param>
 /// <param name="Response">The response.</param>
-public record RequestResponse(bool Success, object Response)
+public record RequestResponse(bool Success, object? Response)
 {
-    public bool IsSuccessful => Success;
-    public bool Failed => !Success;
+    public bool HasSucceeded => Success;
+    public bool HasFailed => !Success;
 }
-

@@ -6,12 +6,9 @@ namespace RSBingoBot.BingoCommands
 {
     using DSharpPlus;
     using DSharpPlus.Entities;
-    using DSharpPlus.EventArgs;
     using DSharpPlus.SlashCommands;
-    using DSharpPlus.SlashCommands.Attributes;
     using Microsoft.Extensions.Logging;
     using RSBingo_Framework;
-    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingoBot;
@@ -216,9 +213,9 @@ namespace RSBingoBot.BingoCommands
             if (!await request.ValidateRequest()) { return; }
 
             // TODO: JCH - Not sure how this will work.
-            RequestResponse response = request.ProcessRequest().Result;
+            RequestResponse response = await request.ProcessRequest();
 
-            if (!response.Failed)
+            if (!response.HasFailed)
             {
                 // TODO: Decide what to do.
                 return;

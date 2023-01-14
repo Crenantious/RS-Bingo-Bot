@@ -33,12 +33,12 @@ public class RequestDeleteTeam : RequestBase
     {
         ILogger<RequestDeleteTeam> logger = General.LoggingInstance<RequestDeleteTeam>();
 
-        if (!await DeleteTeamRole(logger, ctx, teamName))
+        if (!await DeleteTeamRole(logger, teamName))
         {
             logger.LogInformation("Failed to delete role for {TeamName}", teamName);
         }
 
-        if(!await DeleteTeamChannels(logger, ctx, teamName))
+        if (!await DeleteTeamChannels(logger, teamName))
         {
             logger.LogInformation("Failed to delete one or more channels for {TeamName}", teamName);
         }
@@ -54,15 +54,14 @@ public class RequestDeleteTeam : RequestBase
         return RequestSuccess("Team deleted.");
     }
 
-    private protected override bool ValidateSpesificsRequest() => true; // No additional validation required.
+    private protected override bool ValidateSpecificRequest() => true; // No additional validation required.
 
-
-    private static async Task<bool> DeleteTeamRole(ILogger<RequestDeleteTeam> logger, InteractionContext ctx, string teamName)
+    private async Task<bool> DeleteTeamRole(ILogger<RequestDeleteTeam> logger, string teamName)
     {
         await roleSemaphore.WaitAsync();
         try
         {
-            if (GetTeamRole(ctx, teamName) is DiscordRole role)
+            if (GetTeamRole(teamName) is DiscordRole role)
             {
                 await role.DeleteAsync();
             }
@@ -81,12 +80,12 @@ public class RequestDeleteTeam : RequestBase
         return true;
     }
 
-    private static async Task<bool> DeleteTeamChannels(ILogger<RequestDeleteTeam> logger, InteractionContext ctx, string teamName)
+    private async Task<bool> DeleteTeamChannels(ILogger<RequestDeleteTeam> logger, string teamName)
     {
         await channelSemaphore.WaitAsync();
         try
         {
-            foreach (var channelPair in ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
+            foreach (var channelPair in Ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
             {
                 await channelPair.Value.DeleteAsync();
             }

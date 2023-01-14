@@ -15,12 +15,11 @@ namespace RSBingoBot.BingoCommands;
 public abstract class RequestBase
 {
     /// <summary>
-    /// Does this request require admin rights to run.
+    /// Gets the permissions required to run the request.
     /// </summary>
-    internal virtual bool RequiresAdmin => false;
+    internal virtual List<Permissions> RequiredPermissions => new ();
 
-
-    private protected InteractionContext ctx;
+    private protected InteractionContext Ctx;
     private protected IDataWorker DataWorker;
 
     /// <summary>
@@ -30,19 +29,20 @@ public abstract class RequestBase
     /// <param name="dataWorker">Reference to the dataWorker.</param>
     public RequestBase(InteractionContext ctx, IDataWorker dataWorker)
     {
-        this.ctx = ctx;
+        Ctx = ctx;
         DataWorker = dataWorker;
     }
 
     public async Task<bool> ValidateRequest()
     {
-        if (RequiresAdmin && !HasAdminPermission(ctx))
+        IEnumerable<Permissions> missingPermissions = await GetMissingPermissions();
+        if (missingPermissions.Any())
         {
-            await InsufficientPermissionsResponse(ctx);
+            await InsufficientPermissionsResponse(missingPermissions);
             return false;
         }
 
-        return ValidateSpesificsRequest();
+        return ValidateSpecificRequest();
     }
 
     /// <summary>
@@ -51,27 +51,40 @@ public abstract class RequestBase
     /// <returns><see langword="true"/> if successful; otherwise, <see langword="false"/>.</returns>
     public abstract Task<RequestResponse> ProcessRequest();
 
-    private protected abstract bool ValidateSpesificsRequest();
+    private protected abstract bool ValidateSpecificRequest();
 
-    private protected static DiscordRole? GetTeamRole(InteractionContext ctx, string teamName)
+    private protected DiscordRole? GetTeamRole(string teamName)
     {
-        KeyValuePair<ulong, DiscordRole> pair = ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
+        KeyValuePair<ulong, DiscordRole> pair = Ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
         if (pair.Equals(default)) { return null; }
         return pair.Value;
     }
 
-    private bool HasAdminPermission(InteractionContext ctx) =>
-        ctx.Guild.GetMemberAsync(ctx.User.Id).Result.Permissions.HasPermission(Permissions.Administrator);
-
-    private async Task InsufficientPermissionsResponse(InteractionContext ctx)
+    private async Task<IEnumerable<Permissions>> GetMissingPermissions()
     {
-        // TODO: JR - Change this to a pre-execution check
-        var builder = new DiscordInteractionResponseBuilder()
-            .WithContent("You do not have the required permissions to run this command.")
-            .AsEphemeral();
-        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        DiscordMember member = await Ctx.Guild.GetMemberAsync(Ctx.User.Id);
+        IEnumerable<Permissions> missingPermissions = RequiredPermissions.Where(p => !member.Permissions.HasPermission(p));
+        return missingPermissions;
     }
 
-    private protected RequestResponse RequestFailed(string errorMessage = null) => new RequestResponse(false, errorMessage);
-    private protected RequestResponse RequestSuccess(object response = null) => new RequestResponse(true, response);
+    private async Task InsufficientPermissionsResponse(IEnumerable<Permissions> missingPermissions)
+    {
+        // TODO: JR - Change this to a pre-execution check
+
+        string content = "You require the following permissions to run this command:";
+
+        foreach (Permissions permission in missingPermissions)
+        {
+            content += $"\n{permission}";
+        }
+
+        var builder = new DiscordInteractionResponseBuilder()
+            .WithContent(content)
+            .AsEphemeral();
+        await Ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+    }
+
+    private protected RequestResponse RequestFailed(string? errorMessage = null) => new RequestResponse(false, errorMessage);
+
+    private protected RequestResponse RequestSuccess(object? response = null) => new RequestResponse(true, response);
 }
