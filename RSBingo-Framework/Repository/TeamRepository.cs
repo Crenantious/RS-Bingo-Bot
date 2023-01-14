@@ -27,15 +27,13 @@ public class TeamRepository : RepositoryBase<Team>, ITeamRepository
     public override Team Create() =>
         Add(new Team());
 
-        public Team Create(string name, ulong boardChannelId)
-        {
-            Team team = Add(new Team()
+        public Team Create(string name, ulong boardChannelId, ulong boardMessageId) =>
+            Add(new Team()
             {
                 Name = name,
                 BoardChannelId = boardChannelId,
+                BoardMessageId = boardMessageId
             });
-            return team;
-        }
 
     public bool DoesTeamExist(string name) =>
         GetByName(name) != null;

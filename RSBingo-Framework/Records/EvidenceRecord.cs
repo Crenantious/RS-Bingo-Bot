@@ -31,5 +31,8 @@ namespace RSBingo_Framework.Records
 
         public static Evidence CreateEvidence(IDataWorker dataWorker, User user, Tile tile, string url, EvidenceType type) =>
             dataWorker.Evidence.Create(user, tile, url, type);
+
+        public static Evidence? GetByTile(IDataWorker dataWorker, Tile tile, User user, EvidenceType evidenceType) =>
+            dataWorker.Evidence.FirstOrDefault(e => e.Tile == tile && e.DiscordUser == user && e.EvidenceType == (sbyte)evidenceType);
     }
 }

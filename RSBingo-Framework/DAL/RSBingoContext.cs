@@ -84,6 +84,8 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.TileId).HasColumnName("TileID");
 
+            entity.Property(e => e.EvidenceType).HasColumnName("Type");
+
             entity.Property(e => e.Url)
                 .HasMaxLength(255)
                 .HasColumnName("URL");
@@ -157,6 +159,8 @@ public partial class RSBingoContext : DbContext
             entity.Property(e => e.RowId).HasColumnName("RowID");
 
             entity.Property(e => e.BoardChannelId).HasColumnName("BoardChannelID");
+
+            entity.Property(e => e.BoardMessageId).HasColumnName("BoardMessageID");
 
             entity.Property(e => e.Name).HasMaxLength(50);
         });

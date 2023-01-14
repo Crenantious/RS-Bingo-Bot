@@ -10,7 +10,7 @@ namespace RSBingo_Framework_Tests
 {
     public abstract class MockDBBaseTestClass
     {
-        public TestContext TestContext { get; set; }
+        public TestContext TestContext { get; set; } = null!;
 
         [TestInitialize]
         public virtual void TestInitialize()

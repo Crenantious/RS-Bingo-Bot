@@ -7,6 +7,7 @@ namespace RSBingo_Framework
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using static RSBingo_Common.General;
 
     public class TaskTemplatePopulator
     {
@@ -33,8 +34,8 @@ namespace RSBingo_Framework
             File.WriteAllText(GetFilePath("Tasks template.csv"), text);
         }
 
-        private static string GetFilePath(string fileName) =>
-            Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName, fileName);
+        public static string GetFilePath(string fileName) =>
+            Path.Combine(AppRootPath, fileName);
 
         private static string GetImagePath(string name) =>
             GetFilePath("Tile images\\" + name);

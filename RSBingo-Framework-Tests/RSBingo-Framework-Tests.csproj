@@ -34,7 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
     <ProjectReference Include="..\RSBingo-Framework\RSBingo-Framework.csproj" />
+    <ProjectReference Include="..\RSBingoBot\RSBingoBot.csproj" />
   </ItemGroup>
 
   <ItemGroup>

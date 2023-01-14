@@ -139,6 +139,8 @@ namespace RSBingo_Framework_Tests
             Assert.IsNull(evidenceAfter);
         }
 
+        // TODO: TEST THIS WITH A REAL DB!
+
         #endregion
     }
 }

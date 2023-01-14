@@ -11,7 +11,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface ITeamRepository : IRepository<Team>
     {
-        public Team Create(string name, ulong boardChannelId);
+        public Team Create(string name, ulong boardChannelId, ulong boardMessageId);
         public bool DoesTeamExist(string name);
         public Team? GetByName(string name);
         public IEnumerable<Team> GetTeams();

@@ -26,9 +26,9 @@ public class MockDBSetup
 
     public static void TestInitializeDB(TestContext testContext) { TestInitializeDB(testContext.FullTestName()); }
 
-    public static Team Add_Team(IDataWorker dataWorker, string name = "Test", ulong id = 0)
+    public static Team Add_Team(IDataWorker dataWorker, string name = "Test", ulong channelID = 0, ulong boardMessageID = 0)
     {
-        Team team = dataWorker.Teams.Create(name, id);
+        Team team = dataWorker.Teams.Create(name, channelID, boardMessageID);
 
         dataWorker.SaveChanges();
         return team;
@@ -42,9 +42,10 @@ public class MockDBSetup
         return user;
     }
 
-    public static Tile Add_Tile(IDataWorker dataWorker, Team team, BingoTask bingoTask, VerifiedStatus verifiedStatus = VerifiedStatus.No)
+    public static Tile Add_Tile(IDataWorker dataWorker, Team team, BingoTask bingoTask, int? boardIndex = null, VerifiedStatus verifiedStatus = VerifiedStatus.No)
     {
-        Tile tile = dataWorker.Tiles.Create(team, bingoTask, verifiedStatus);
+        int index = boardIndex ?? team.Tiles.Count;
+        Tile tile = dataWorker.Tiles.Create(team, bingoTask, index, verifiedStatus);
 
         dataWorker.SaveChanges();
         return tile;
@@ -64,6 +65,14 @@ public class MockDBSetup
 
         dataWorker.SaveChanges();
         return bingoTask;
+    }
+
+    public static Team Add_Team(IDataWorker dataWorker, string name)
+    {
+        Team team = dataWorker.Teams.Create(name, 0, 0);
+
+        dataWorker.SaveChanges();
+        return team;
     }
 
     private static void TestInitializeDB(string name)

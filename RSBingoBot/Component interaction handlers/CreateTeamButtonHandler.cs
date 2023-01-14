@@ -43,7 +43,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 .WithCustomId(modalId)
                 .AddComponents(teamNameInput);
 
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
+            //await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
             SubscribeModal(new ModalSubmittedDEH.Constraints(customId: modalId), TeamNameSubmitted);
         }
 
@@ -51,7 +51,7 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
 
-            if (await UserInDBCheck(args.Interaction.User.Id, false, args) == -1) { return; }
+            if (await UserInDBCheck(args.Interaction.User.Id, false, args) is false) { return; }
 
             string teamName = args.Values[teamNameInputId];
             var builder = new DiscordFollowupMessageBuilder()
@@ -67,8 +67,8 @@ namespace RSBingoBot.Component_interaction_handlers
                 builder.WithContent("Creating team...");
                 DiscordMessage? followupMessage = await args.Interaction.CreateFollowupMessageAsync(builder);
 
-                InitialiseTeam team = new(discordClient, teamName);
-                await team.InitialiseAsync(false, args.Interaction.Guild);
+                RSBingoBot.DiscordTeam team = new(discordClient, teamName);
+                await team.InitialiseAsync(null);
 
                 User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
                 DataWorker.SaveChanges();

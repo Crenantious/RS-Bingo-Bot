@@ -14,8 +14,8 @@ namespace RSBingo_Framework.Records
 
     public static class TeamRecord
     {
-        public static Team CreateTeam(IDataWorker dataWorker, string name, ulong boardChannelId) =>
-            dataWorker.Teams.Create(name, boardChannelId);
+        public static Team CreateTeam(IDataWorker dataWorker, string name, ulong boardChannelId, ulong boardMessageId) =>
+            dataWorker.Teams.Create(name, boardChannelId, boardMessageId);
 
         public static bool IsBoardVerfied(this Team team) =>
             team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;

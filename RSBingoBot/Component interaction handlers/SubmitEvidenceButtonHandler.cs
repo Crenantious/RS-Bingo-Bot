@@ -11,30 +11,33 @@ namespace RSBingoBot.Component_interaction_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
-    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Exceptions;
-    using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Records;
+    using RSBingoBot.Component_interaction_handlers.Select_Component;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Exceptions;
     using static RSBingo_Framework.DAL.DataFactory;
+    using static RSBingo_Common.General;
 
+    // TODO: JR - disable the button if the team's tiles are being changed.
+    // Likewise, disable the change tiles button if this button is being interacted with.
     /// <summary>
     /// Handles the interaction with the "Submit evidence" button in a team's board channel.
     /// </summary>
     public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
     {
-        private readonly List<string> tileItems = new() { "Bandos Chestplate", "Bandos Tassets", "Dragon Rider Lance" };
-        private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
-
         private string initialResponseMessagePrefix =
             $"Add evidence by posting a message with a single image, posting another will override the previous." +
-            $"\nSubmitting the evidence will override any previous for the tile.";
+            $"{Environment.NewLine}Submitting the evidence will override any previous for the tile.";
+
+        private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
+
         private string submittedEvidenceURL = string.Empty;
-        private DiscordSelectComponent tileSelect = null!;
+        private SelectComponent tileSelect = null!;
         private DiscordButtonComponent cancelButton = null!;
         private DiscordButtonComponent submitButton = null!;
-        private ICollection<Tile> selectedTiles = null!;
+        private Dictionary<Error, string> errorMessage = new() { };
 
         /// <inheritdoc/>
         protected override bool ContinueWithNullUser { get { return false; } }
@@ -44,63 +47,59 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             await base.InitialiseAsync(args, info);
 
+            CreateTileSelect();
             submitButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Submit");
             cancelButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Cancel");
 
             initialResponseMessagePrefix = $"{args.User.Mention} " + initialResponseMessagePrefix;
 
-            // Try get existing evidence from DB.
-
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
             MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
-            await UpdateOriginalResponse(args.User.Id);
+            await UpdateOriginalResponse();
 
-            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId), TileSelectInteraction);
-            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: submitButton.CustomId), SubmitButtonInteraction);
-            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: cancelButton.CustomId), CancelButtonInteraction);
-            SubscribeMessage(new MessageCreatedDEH.Constraints(channel: args.Channel, author: args.User, numberOfAttachments: 1), EvidencePosted);
+            SubscribeComponent(
+                new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
+                tileSelect.OnInteraction, true);
+            SubscribeComponent(
+                new ComponentInteractionDEH.Constraints(user: args.User, customId: submitButton.CustomId),
+                SubmitButtonInteracted, true);
+            SubscribeComponent(
+                new ComponentInteractionDEH.Constraints(user: args.User, customId: cancelButton.CustomId),
+                CancelButtonInteraction, true);
+            SubscribeMessage(
+                new MessageCreatedDEH.Constraints(channel: args.Channel, author: args.User, numberOfAttachments: 1),
+                EvidencePosted);
         }
 
-        private void CreateTileSelect(ulong discordUserId)
+        private async Task UpdateOriginalResponse()
         {
-            ICollection<Tile> tiles = User.Team.Tiles;
+            var builder = new DiscordWebhookBuilder()
+                .WithContent($"{initialResponseMessagePrefix}{Environment.NewLine}{submittedEvidenceURL}")
+                .AddComponents(tileSelect.DiscordComponent)
+                .AddComponents(cancelButton, submitButton);
 
-            var tileSelectOptions = new List<DiscordSelectComponentOption>();
+            await OriginalInteractionArgs.Interaction.EditOriginalResponseAsync(builder);
+        }
+
+        private void CreateTileSelect()
+        {
+            IEnumerable<Tile> tiles = Team!.Tiles;
+
+            var options = new List<SelectComponentOption>();
             foreach (Tile tile in tiles)
             {
-                tileSelectOptions.Add(new DiscordSelectComponentOption(tile.Task.Name, tile.RowId.ToString(), isDefault: selectedTiles.Contains(tile)));
+                options.Add(new SelectComponentItem(tile.Task.Name, tile));
             }
 
-            // For maxOptions, the number cannot exceed the amount of options or there'll be an error
-            tileSelect = new DiscordSelectComponent(tileSelectCustomId, "Select tiles", tileSelectOptions, false, 1, tileItems.Count);
-        }
-
-        private async Task<object> TileSelectInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
-        {
-            HashSet<int> tileIds = new();
-
-            foreach (string tileIdStr in args.Values)
-            {
-                if (int.TryParse(tileIdStr, out int tileId))
-                {
-                    tileIds.Add(tileId);
-                }
-            }
-
-            if (tileIds.Count != args.Values.Length) { return Task.FromException(new InvalidTileIdException()); }
-
-            selectedTiles = DataWorker.Tiles.GetByIds(tileIds).ToList();
-            if (selectedTiles.Count != tileIds.Count) { return Task.FromException(new CouldNotFindTileIdException()); }
-
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-            return Task.CompletedTask;
+            tileSelect = new(tileSelectCustomId, "Select tiles", maxOptions: MaxTilesOnABoard);
+            tileSelect.Options = options;
+            tileSelect.Build();
         }
 
         private async Task EvidencePosted(DiscordClient client, MessageCreateEventArgs args)
         {
             submittedEvidenceURL = args.Message.Attachments[0].Url;
-            await UpdateOriginalResponse(args.Author.Id);
+
+            await UpdateOriginalResponse();
 
             try
             {
@@ -108,35 +107,116 @@ namespace RSBingoBot.Component_interaction_handlers
             }
             catch
             {
+                // TODO: JR - create a ButtonComponent class that wraps the DiscordButtonComponent class and handles
+                // limiting interactions and disability based on conditions.
+
                 // If there's multiple submission requests by the same person
                 // the message may have already been deleted.
             }
         }
 
-        private async Task SubmitButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
+        private async Task SubmitButtonInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
         {
-            string content;
+            (Error error, string errorMessage) = GetSubmissionErrorAndMessage();
+            await HandleSubmissionError(error, errorMessage);
 
-            if (selectedTiles.Count == 0)
+            string submittedTiles = SubmitEvidence(
+                args.User,
+                tileSelect.SelectedItems.Select(i => (Tile)i.value!),
+                submittedEvidenceURL);
+
+            await InteractionConcluded();
+
+            await args.Interaction.CreateFollowupMessageAsync(
+                new DiscordFollowupMessageBuilder()
+                .WithContent($"Evidence has been submitted successfully for the following tiles:{Environment.NewLine}" + submittedTiles)
+                .AsEphemeral());
+        }
+
+        private (Error, string) GetSubmissionErrorAndMessage()
+        {
+            Error error = Error.None;
+            string errorMessage = string.Empty;
+
+            if (!tileSelect.SelectedItems.Any())
             {
-                content = "At least one tile must be selected to submit evidence for.";
+                error = Error.NoTilesSelected;
+                errorMessage = "At least one tile must be selected to submit evidence for.";
             }
             else if (submittedEvidenceURL == string.Empty)
             {
-                content = "You cannot submit no evidence; please post a message with a single image to do so.";
+                error = Error.NoEvidenceSubmitted;
+                errorMessage = "You cannot submit no evidence; please post a message with a single image first.";
             }
             else
             {
-                SubmitEvidence(args.User, selectedTiles, submittedEvidenceURL);
-                content = "Evidence has been submitted successfully for the following tiles:\n" +
-                              string.Join("\n", selectedTiles);
-                await InteractionConcluded();
+                string tilesNotFound = "";
+
+                foreach (SelectComponentItem item in tileSelect.SelectedItems)
+                {
+                    Tile selectTile = (Tile)item.value!;
+                    Tile? retrievedTile = DataWorker.Tiles.GetById(selectTile.RowId);
+
+                    if (retrievedTile == null)
+                    {
+                        tilesNotFound += selectTile.Task.Name + Environment.NewLine;
+                    }
+                }
+
+                if (tilesNotFound != "")
+                {
+                    error = Error.ATileCannotBeFoundInTheDatabase;
+                    errorMessage = $"The following tiles could not be found:{Environment.NewLine}{tilesNotFound}They have likely been deleted";
+                }
             }
 
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder()
-                .WithContent(content)
-                .AsEphemeral());
+            return (error, errorMessage);
+        }
+
+        private async Task HandleSubmissionError(Error error, string errorMessage)
+        {
+            if (error != Error.None)
+            {
+                if (error == Error.ATileCannotBeFoundInTheDatabase)
+                {
+                    CreateTileSelect();
+                    await UpdateOriginalResponse();
+                }
+
+                throw new ComponentInteractionHandlerException(errorMessage, CurrentInteractionArgs, false,
+                    ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
+            }
+        }
+
+        private string SubmitEvidence(DiscordUser discordUser, IEnumerable<Tile> tiles, string url)
+        {
+            // TODO: JR - also add a flag (somewhere) that tells if the bingo has started.
+            // evidence type will still be TileVerification until it has.
+            EvidenceRecord.EvidenceType evidenceType = User!.Team.IsBoardVerfied() ?
+                EvidenceRecord.EvidenceType.Drop :
+                EvidenceRecord.EvidenceType.TileVerification;
+
+            string submittedTiles = "";
+            foreach (Tile tile in tiles)
+            {
+                submittedTiles += tile.Task.Name + Environment.NewLine;
+                Evidence? evidence = EvidenceRecord.GetByTile(DataWorker, tile, User, evidenceType);
+
+                if (evidence == null)
+                {
+                    DataWorker.Evidence.Create(User, tile, url, evidenceType);
+                }
+                else
+                {
+                    evidence.Tile = tile;
+                    evidence.Url = url;
+                    evidence.EvidenceType = (sbyte)evidenceType;
+                }
+            }
+
+            DataWorker.SaveChanges();
+
+            return submittedTiles;
         }
 
         private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
@@ -144,37 +224,12 @@ namespace RSBingoBot.Component_interaction_handlers
             await InteractionConcluded();
         }
 
-        private async Task UpdateOriginalResponse(ulong discordUserId)
+        private enum Error
         {
-            CreateTileSelect(discordUserId);
-
-            var builder = new DiscordWebhookBuilder()
-                .WithContent($"{initialResponseMessagePrefix}\n{submittedEvidenceURL}")
-                .AddComponents(tileSelect)
-                .AddComponents(cancelButton, submitButton);
-
-            await OriginalInteractionArgs.Interaction.EditOriginalResponseAsync(builder);
-        }
-
-        private void SubmitEvidence(DiscordUser discordUser, ICollection<Tile> tiles, string url)
-        {
-            if (User == null) { return; }
-
-            EvidenceRecord.EvidenceType evidenceType = User.Team.IsBoardVerfied() ?
-                EvidenceRecord.EvidenceType.Drop :
-                EvidenceRecord.EvidenceType.TileVerification;
-
-            foreach (Tile tile in tiles)
-            {
-                DataWorker.Evidence.Create(User, tile, url, evidenceType);
-            }
-
-            DataWorker.SaveChanges();
-
-            var builder = new DiscordMessageBuilder()
-                .WithContent($"{discordUser.Mention} has submitted evidence for the following tiles: ....{url}");
-            // Post to a centralised evidence channel.
-            //Info.Team.SubmittedEvidenceChannel.SendMessageAsync(builder);
+            None,
+            NoTilesSelected,
+            NoEvidenceSubmitted,
+            ATileCannotBeFoundInTheDatabase
         }
     }
 }

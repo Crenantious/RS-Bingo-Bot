@@ -9,6 +9,7 @@ namespace RSBingoBot.Discord_event_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Exceptions;
     using RSBingoBot.Interfaces;
 
     /// <summary>

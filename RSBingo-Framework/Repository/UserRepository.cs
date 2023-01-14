@@ -45,23 +45,6 @@ namespace RSBingo_Framework.Repository
             Team = team
         });
 
-        public int Delete(ulong discordUserId)
-        {
-            User? user = GetByDiscordId(discordUserId);
-            if (user != null)
-            {
-                Remove(user);
-                return 0;
-            }
-            return -1;
-        }
-
-        public int Delete(User user)
-        {
-            Remove(user);
-            return 0;
-        }
-
         public User? GetByDiscordId(ulong discordId) =>
             FirstOrDefault(u => u.DiscordUserId == discordId);
 

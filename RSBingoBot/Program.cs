@@ -7,6 +7,7 @@ namespace RSBingoBot
     using Autofac;
     using Autofac.Extensions.DependencyInjection;
     using DSharpPlus;
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -14,7 +15,9 @@ namespace RSBingoBot
     using RSBingo_Framework.DAL;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Discord_event_handlers;
+    using RSBingoBot.Imaging;
     using Serilog;
+    using SixLabors.ImageSharp.Web.DependencyInjection;
     using static RSBingo_Common.General;
 
     /// <summary>
@@ -83,12 +86,14 @@ namespace RSBingoBot
                         option.ShutdownTimeout = TimeSpan.FromSeconds(60);
                     });
 
+                    //services.AddImageSharp();
+
                     services.AddHostedService<Bot>();
 
                     // TODO: JCH - this could likely be simplified.
                     services.AddSingleton((_) =>
                     {
-                        DiscordClient discordClient = new (new DiscordConfiguration()
+                        DiscordClient discordClient = new(new DiscordConfiguration()
                         {
                             Token = DataFactory.DiscordToken,
                             TokenType = TokenType.Bot,
@@ -110,7 +115,7 @@ namespace RSBingoBot
                 .ConfigureContainer<ContainerBuilder>(builder =>
                 {
                     // Register types that contain factories here
-                    builder.RegisterType<InitialiseTeam>();
+                    builder.RegisterType<DiscordTeam>();
                 });
         }
     }

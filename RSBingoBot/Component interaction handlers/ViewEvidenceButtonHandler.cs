@@ -22,7 +22,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private string initialResponseMessagePrefix =
             $"Add evidence by posting a message with a single image, posting another will override the previous." +
-            $"\nSubmitting the evidence will override any previous for the tile.";
+            $"{Environment.NewLine}Submitting the evidence will override any previous for the tile.";
         private string submittedEvidenceURL = string.Empty;
         private DiscordSelectComponent tileSelect = null!;
         private DiscordButtonComponent cancelButton = null!;
@@ -112,8 +112,8 @@ namespace RSBingoBot.Component_interaction_handlers
         //    else
         //    {
         //        SubmitEvidence(args.User, selectedTiles, submittedEvidenceURL);
-        //        content = "Evidence has been submitted successfully for the following tiles:\n" +
-        //                      string.Join("\n", selectedTiles);
+        //        content = "Evidence has been submitted successfully for the following tiles:Environment.NewLine" +
+        //                      string.Join("Environment.NewLine", selectedTiles);
         //        await InteractionConcluded();
         //    }
 
@@ -133,7 +133,7 @@ namespace RSBingoBot.Component_interaction_handlers
         //    CreateTileSelect();
 
         //    var builder = new DiscordWebhookBuilder()
-        //        .WithContent($"{initialResponseMessagePrefix}\n{submittedEvidenceURL}")
+        //        .WithContent($"{initialResponseMessagePrefix}Environment.NewLine{submittedEvidenceURL}")
         //        .AddComponents(tileSelect)
         //        .AddComponents(cancelButton, submitButton);
 
