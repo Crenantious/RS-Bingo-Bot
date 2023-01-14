@@ -91,7 +91,7 @@ namespace RSBingoBot.Component_interaction_handlers
             }
 
             tileSelect = new(tileSelectCustomId, "Select tiles", maxOptions: MaxTilesOnABoard);
-            tileSelect.Options = options;
+            tileSelect.SelectOptions = options;
             tileSelect.Build();
         }
 

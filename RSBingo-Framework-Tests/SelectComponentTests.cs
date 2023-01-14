@@ -29,14 +29,14 @@ public class SelectComponentTests : MockDBBaseTestClass
     public void AddMoreItemsToSelectComponentThanMax_SplitIntoPages()
     {
         List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu*2 + 1);
-        selectComponent.Options = new(items);
+        selectComponent.SelectOptions = new(items);
 
         selectComponent.Build();
 
-        Assert.AreEqual(selectComponent.Options.Count, 3);
-        Assert.AreEqual(selectComponent.Options[0].GetType(), typeof(SelectComponentPage));
-        Assert.AreEqual(selectComponent.Options[1].GetType(), typeof(SelectComponentPage));
-        Assert.AreEqual(selectComponent.Options[2].GetType(), typeof(SelectComponentPage));
+        Assert.AreEqual(selectComponent.SelectOptions.Count, 3);
+        Assert.AreEqual(selectComponent.SelectOptions[0].GetType(), typeof(SelectComponentPage));
+        Assert.AreEqual(selectComponent.SelectOptions[1].GetType(), typeof(SelectComponentPage));
+        Assert.AreEqual(selectComponent.SelectOptions[2].GetType(), typeof(SelectComponentPage));
     }
 
     [TestMethod]
@@ -45,7 +45,7 @@ public class SelectComponentTests : MockDBBaseTestClass
         SelectComponentPage page = new("");
         List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu*2 + 1);
         page.Options = new(items);
-        selectComponent.Options.Add(page);
+        selectComponent.SelectOptions.Add(page);
 
         selectComponent.Build();
 
@@ -63,7 +63,7 @@ public class SelectComponentTests : MockDBBaseTestClass
         List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu * 2 + 1);
         page1.Options = new(items);
         page2.Options = new() { page1 };
-        selectComponent.Options.Add(page2);
+        selectComponent.SelectOptions.Add(page2);
 
         selectComponent.Build();
 
@@ -82,7 +82,7 @@ public class SelectComponentTests : MockDBBaseTestClass
         int numberOfItems = 5;
         List<SelectComponentItem> items = CreateItems(numberOfItems);
         page.Options = new(items);
-        selectComponent.Options.Add(page);
+        selectComponent.SelectOptions.Add(page);
 
         selectComponent.Build();
 
@@ -100,7 +100,7 @@ public class SelectComponentTests : MockDBBaseTestClass
         int numberOfItems = 5;
         List<SelectComponentItem> items = CreateItems(numberOfItems);
         page.Options = new(items);
-        selectComponent.Options.Add(page);
+        selectComponent.SelectOptions.Add(page);
 
         selectComponent.Build();
 

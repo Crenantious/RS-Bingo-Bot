@@ -61,22 +61,22 @@ namespace RSBingo_Common
         /// <summary>
         /// Gets the amount of tiles each row of the bingo board has.
         /// </summary>
-        public static int TilesPerRow => 5;
+        public const int TilesPerRow = 5;
 
         /// <summary>
         /// Gets the amount of tiles each column of the bingo board has.
         /// </summary>
-        public static int TilesPerColumn => 5;
+        public const int TilesPerColumn = 5;
 
         /// <summary>
         /// Gets the maximum number of options a <see cref="DiscordSelectComponent"/> can have.
         /// </summary>
-        public static int MaxOptionsPerSelectMenu => 25;
+        public const int MaxOptionsPerSelectMenu = 25;
 
         /// <summary>
         /// Gets the maximum number of tiles a team's board can have.
         /// </summary>
-        public static int MaxTilesOnABoard => 25;
+        public const int MaxTilesOnABoard = 25;
 
         /// <summary>
         /// Startup logging.

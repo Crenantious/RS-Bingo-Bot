@@ -190,7 +190,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 }
             }
 
-            selectComponent.Options = new(items);
+            selectComponent.SelectOptions = new(items);
             selectComponent.Build();
             return selectComponent;
         }
@@ -226,11 +226,11 @@ namespace RSBingoBot.Component_interaction_handlers
             {
                 if (pages.ContainsKey(i))
                 {
-                    selectComponent.Options.Add(pages[i]);
+                    selectComponent.SelectOptions.Add(pages[i]);
                 }
             }
 
-            if (!selectComponent.Options.Any())
+            if (!selectComponent.SelectOptions.Any())
             {
                 throw new ComponentInteractionHandlerException("No tasks were found.", OriginalInteractionArgs, true,
                         ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse);
