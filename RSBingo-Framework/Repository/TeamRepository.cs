@@ -2,67 +2,56 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Repository
+namespace RSBingo_Framework.Repository;
+
+using Microsoft.EntityFrameworkCore;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Interfaces.IRepository;
+using RSBingo_Framework.Models;
+using System.Linq;
+
+/// <summary>
+/// Class detailing use of <see cref="Team"/> as a repository.
+/// </summary>
+public class TeamRepository : RepositoryBase<Team>, ITeamRepository
 {
-    using RSBingo_Framework.DAL;
-    using RSBingo_Framework.Interfaces;
-    using RSBingo_Framework.Interfaces.IRepository;
-    using RSBingo_Framework.Models;
-
     /// <summary>
-    /// Class detailing use of <see cref="Team"/> as a repository.
+    /// Initializes a new instance of the <see cref="TeamRepository"/> class.
     /// </summary>
-    public class TeamRepository : RepositoryBase<Team>, ITeamRepository
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamRepository"/> class.
-        /// </summary>
-        /// <param name="dataWorker">Reference to the dataworker.</param>
-        public TeamRepository(IDataWorker dataWorker)
-            : base(dataWorker) { }
+    /// <param name="dataWorker">Reference to the dataworker.</param>
+    public TeamRepository(IDataWorker dataWorker)
+        : base(dataWorker) { }
 
-        /// <inheritdoc/>
-        public override Team Create() =>
-            Add(new Team());
+    /// <inheritdoc/>
+    public override Team Create() =>
+        Add(new Team());
 
-        public Team Create(string name, ulong boardChannelId)
-        {
-            Team team = Add(new Team()
+        public Team Create(string name, ulong boardChannelId, ulong boardMessageId) =>
+            Add(new Team()
             {
                 Name = name,
                 BoardChannelId = boardChannelId,
+                BoardMessageId = boardMessageId
             });
-            return team;
-        }
 
-        public bool DoesTeamExist(string name) =>
-            GetByName(name) != null;
+    public bool DoesTeamExist(string name) =>
+        GetByName(name) != null;
 
-        public Team? GetByName(string name) =>
-            FirstOrDefault(t => t.Name == name);
+    public Team? GetByName(string name) =>
+        FirstOrDefault(t => t.Name == name);
 
-        public IEnumerable<Team> GetTeams() =>
-            GetAll();
+    public IEnumerable<Team> GetTeams() =>
+        GetAll();
 
-        public int Delete(string name)
-        {
-            Team? team = GetByName(name);
-            if (team != null)
-            {
-                foreach (User user in team.Users)
-                {
-                    DataWorker.Users.Delete(user);
-                }
+    public Team? GetTeamByID(int id) => FirstOrDefault(t => t.RowId == id);
 
-                foreach (Tile tile in team.Tiles)
-                {
-                    DataWorker.Tiles.Delete(tile);
-                }
-
-                Remove(team);
-                return 0;
-            }
-            return -1;
-        }
+    /// <inheritdoc/>
+    public override void LoadCascadeNavigations(Team team)
+    {
+        DataWorker.Teams.Where(t => t.RowId == team.RowId)
+            .Include(t => t.Tiles)
+            .ThenInclude(ti => ti.Evidence)
+            .Include(t => t.Users);
     }
 }

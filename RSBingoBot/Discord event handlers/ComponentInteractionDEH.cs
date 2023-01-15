@@ -9,6 +9,7 @@ namespace RSBingoBot.Discord_event_handlers
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using RSBingoBot.Exceptions;
     using RSBingoBot.Interfaces;
 
     /// <summary>
@@ -20,7 +21,7 @@ namespace RSBingoBot.Discord_event_handlers
 
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
-            new () { constriants.channel, constriants.user, constriants.customId };
+            new () { constriants.channel!, constriants.user!, constriants.customId! };
 
         /// <inheritdoc/>
         public override List<object> GetArgValues(ComponentInteractionCreateEventArgs args) =>

@@ -96,6 +96,9 @@ namespace RSBingo_Framework.Repository
         public abstract TEntity Create();
 
         /// <inheritdoc/>
+        public virtual void LoadCascadeNavigations(TEntity entity) { return; }
+
+        /// <inheritdoc/>
         public TEntity Add(TEntity entity)
         {
             DBSet.Add(entity);
@@ -105,14 +108,16 @@ namespace RSBingo_Framework.Repository
         /// <inheritdoc/>
         public void Remove(TEntity entity)
         {
-            // TODO: JCH - We need to load cascade deletes here. With A project this size AutoInclude could be an option.
+            LoadCascadeNavigations(entity);
+
             DBSet.Remove(entity);
         }
 
         /// <inheritdoc/>
         public void RemoveRange(IEnumerable<TEntity> entities)
         {
-            // TODO: JCH - See abobe.
+            foreach (TEntity entity in entities) { LoadCascadeNavigations(entity); }
+
             DBSet.RemoveRange(entities);
         }
     }

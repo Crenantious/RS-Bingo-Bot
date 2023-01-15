@@ -35,16 +35,15 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             await base.InitialiseAsync(args, info);
 
-            // If the user is already in a team, give them an error.
-            // They must be removed from the team by an admin before being able to join another.
-
             var confirmButton = new DiscordButtonComponent(ButtonStyle.Primary, confirmButtonId, "Confirm");
-            SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId), TeamJoinConfirmed);
+            SubscribeComponent(
+                new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: confirmButtonId),
+                TeamJoinConfirmed, true);
 
             var builder = new DiscordFollowupMessageBuilder();
             IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+            if (await UserInDBCheck(args.User.Id, false, args) is false) { return; }
 
             if (!teams.Any())
             {
@@ -61,7 +60,9 @@ namespace RSBingoBot.Component_interaction_handlers
                 }
 
                 var teamSelect = new DiscordSelectComponent(teamSelectId, "Select team", options);
-                SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: teamSelectId), TeamSelected);
+                SubscribeComponent(
+                    new ComponentInteractionDEH.Constraints(user: args.User, channel: args.Channel, customId: teamSelectId),
+                    TeamSelected, true);
 
                 builder
                     .WithContent($"{args.User.Mention} Select a team to join.")
@@ -82,7 +83,7 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             string content = string.Empty;
 
-            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+            if (!await UserInDBCheck(args.User.Id, false, args)) { return; }
 
             if (teamSelected == string.Empty)
             {
@@ -101,7 +102,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 if (index == -1)
                 {
                     // Error, team role should exist
-                    content += "\nThe team's role does not exist; please tell an admin.";
+                    content += $"{Environment.NewLine}The team's role does not exist; please tell an admin.";
                 }
                 else
                 {

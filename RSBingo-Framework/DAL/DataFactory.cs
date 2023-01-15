@@ -25,6 +25,7 @@ public static class DataFactory
     private const string DiscordTokenKey = "BotToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
     private const string GuildIdKey = "GuildId";
+    private const string SubmittedEvidenceChannelIdKey = "SubmittedEvidenceChannelId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -32,6 +33,7 @@ public static class DataFactory
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
     private static DiscordGuild guild = null!;
+    private static DiscordChannel submittedEvidenceChannel = null!;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -44,6 +46,11 @@ public static class DataFactory
     /// Gets the guild the bot is being used for.
     /// </summary>
     public static DiscordGuild Guild => guild;
+
+    /// <summary>
+    /// Gets the "submitted-evidence" channel.
+    /// </summary>
+    public static DiscordChannel SubmittedEvidenceChannel => submittedEvidenceChannel;
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -80,7 +87,8 @@ public static class DataFactory
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
+            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 
         if (dataIsMock)

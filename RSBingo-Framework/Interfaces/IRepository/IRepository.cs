@@ -67,6 +67,13 @@ namespace RSBingo_Framework.Interfaces.IRepository
         TEntity Create();
 
         /// <summary>
+        /// Load required into the context for a cascade delete.
+        /// </summary>
+        /// <param name="entity">The entity to load navigations for.</param>
+        abstract void LoadCascadeNavigations(TEntity entity);
+
+
+        /// <summary>
         /// Add an entity of the given type to the DBSet.
         /// </summary>
         /// <param name="entity">The entity to add.</param>

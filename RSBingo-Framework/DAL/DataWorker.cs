@@ -29,7 +29,6 @@ namespace RSBingo_Framework.DAL
             BingoTasks = new BingoTaskRepository(this);
             Evidence = new EvidenceRepository(this);
             Restrictions = new RestrictionRepository(this);
-            BingoTaskRestriction = new BingoTaskRestrictionRepository(this);
             Teams = new TeamRepository(this);
             Tiles = new TileRepository(this);
             Users = new UserRepository(this);
@@ -85,9 +84,6 @@ namespace RSBingo_Framework.DAL
 
         /// <inheritdoc/>
         public IRestrictionRepository Restrictions { get; set; }
-
-        /// <inheritdoc/>
-        public IBingoTaskRestrictionRepository BingoTaskRestriction { get; set; }
 
         /// <inheritdoc/>
         public ITeamRepository Teams { get; set; }

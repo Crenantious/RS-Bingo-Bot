@@ -17,12 +17,20 @@ namespace RSBingo_Common
     /// </summary>
     public static class General
     {
+        private const string taskImageFolderName = "Task images";
+        private const string taskImageExtension = ".png";
+
         static General()
         {
             try
             {
                 AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly() !.Location) !;
                 AppName = Assembly.GetEntryAssembly().GetName().Name;
+
+                // TODO: add the path for release version.
+#if DEBUG
+                AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
+#endif
             }
             catch (Exception)
             {
@@ -46,19 +54,29 @@ namespace RSBingo_Common
         public static string AppName { get; } = null!;
 
         /// <summary>
+        /// Gets the root path of the application.
+        /// </summary>
+        public static string AppRootPath { get; } = null!;
+
+        /// <summary>
         /// Gets the amount of tiles each row of the bingo board has.
         /// </summary>
-        public static int TilesPerRow { get; } = 5;
+        public const int TilesPerRow = 5;
 
         /// <summary>
         /// Gets the amount of tiles each column of the bingo board has.
         /// </summary>
-        public static int TilesPerColumn { get; } = 5;
+        public const int TilesPerColumn = 5;
 
         /// <summary>
         /// Gets the maximum number of options a <see cref="DiscordSelectComponent"/> can have.
         /// </summary>
-        public static int MaxOptionsPerSelectMenu { get; } = 25;
+        public const int MaxOptionsPerSelectMenu = 25;
+
+        /// <summary>
+        /// Gets the maximum number of tiles a team's board can have.
+        /// </summary>
+        public const int MaxTilesOnABoard = 25;
 
         /// <summary>
         /// Startup logging.
@@ -203,6 +221,24 @@ namespace RSBingo_Common
             }
 
             return value;
+        }
+
+        /// <summary>
+        /// Gets the image path of the task. Creates the directory where they are stored if it does not exist.
+        /// </summary>
+        /// <param name="taskName">The name of the task to get the path for.</param>
+        /// <returns>The image path.</returns>
+        public static string GetTaskImagePath(string taskName)
+        {
+            // TODO: JR - check this is the same path for both development and release builds.
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), taskImageFolderName);
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            return Path.Combine(folderPath, taskName + taskImageExtension);
         }
     }
 }

@@ -31,11 +31,13 @@ namespace RSBingo_Framework.Repository
             evidence.DiscordUser = user;
             evidence.Tile = tile;
             evidence.Url = url;
-            evidence.Type = (sbyte)type;
+            evidence.EvidenceType = (sbyte)type;
 
             user.Evidence.Add(evidence);
 
             return evidence;
         }
+
+        public Evidence? GetById(int rowId) => FirstOrDefault(e => e.RowId == rowId);
     }
 }

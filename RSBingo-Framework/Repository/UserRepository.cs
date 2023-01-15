@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework.Repository
 {
+    using Microsoft.EntityFrameworkCore;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
@@ -35,29 +36,14 @@ namespace RSBingo_Framework.Repository
                 throw new NullReferenceException("The given team does not exist.");
             }
 
-            return Add(new User()
-            {
-                DiscordUserId = discordId,
-                Team = team
-            });
+            return Create(discordId, team);
         }
 
-        public int Delete(ulong discordUserId)
+        public User Create(ulong discordId, Team team) => Add(new User()
         {
-            User? user = GetByDiscordId(discordUserId);
-            if (user != null)
-            {
-                Remove(user);
-                return 0;
-            }
-            return -1;
-        }
-
-        public int Delete(User user)
-        {
-            Remove(user);
-            return 0;
-        }
+            DiscordUserId = discordId,
+            Team = team
+        });
 
         public User? GetByDiscordId(ulong discordId) =>
             FirstOrDefault(u => u.DiscordUserId == discordId);
@@ -82,6 +68,13 @@ namespace RSBingo_Framework.Repository
             if (user == null) { return -1; }
             ChangeTeam(user, newTeam);
             return 0;
+        }
+
+        /// <inheritdoc/>
+        public override void LoadCascadeNavigations(User user)
+        {
+            DataWorker.Users.Where(u => u.DiscordUserId == user.DiscordUserId)
+                .Include(t => t.Evidence);
         }
     }
 }

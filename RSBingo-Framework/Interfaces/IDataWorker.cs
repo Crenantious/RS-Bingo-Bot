@@ -55,11 +55,6 @@ namespace RSBingo_Framework.Interfaces
         IRestrictionRepository Restrictions { get; set; }
 
         /// <summary>
-        /// Gets or sets link to the repository for <see cref="BingoTaskRestriction"/> entities.
-        /// </summary>
-        IBingoTaskRestrictionRepository BingoTaskRestriction { get; set; }
-
-        /// <summary>
         /// Gets or sets link to the repository for <see cref="Team"/> entities.
         /// </summary>
         ITeamRepository Teams { get; set; }
