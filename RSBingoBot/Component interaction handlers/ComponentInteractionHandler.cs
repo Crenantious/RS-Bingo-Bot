@@ -119,9 +119,9 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <typeparam name="T">The type of handler to created.</typeparam>
         /// <param name="customId">The custom id of the component.</param>
         /// <param name="info">Info to pass to the handler when the component is interacted with.</param>
-        public static void Register<T>(string customId, InitialisationInfo info = default) where T : ComponentInteractionHandler
+        public static void Register<T>(string customId, InitialisationInfo? info = null) where T : ComponentInteractionHandler
         {
-            RegisteredComponentIds[customId] = (typeof(T), info);
+            RegisteredComponentIds[customId] = (typeof(T), info ?? new());
             componentInteractionDEH.Subscribe(
                 new ComponentInteractionDEH.Constraints(customId: customId),
                 RegisteredComponentInteracted);

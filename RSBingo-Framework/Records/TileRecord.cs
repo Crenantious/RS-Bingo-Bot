@@ -42,5 +42,8 @@ namespace RSBingo_Framework.Records
             team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
 
         public static void SwapTasks(this Tile tileOne, Tile tileTwo, IDataWorker dataWorker) => dataWorker.Tiles.SwapTasks(tileOne, tileTwo);
+
+        public static Evidence? GetEvidence(this Tile tile, IDataWorker dataWorker, ulong discordUserId) =>
+            tile.Evidence.FirstOrDefault(e => e.DiscordUserId == discordUserId);
     }
 }

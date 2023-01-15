@@ -185,7 +185,7 @@ namespace RSBingoBot
 
             ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
             ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info);
-            //ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
+            ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
         }
     }
 }
