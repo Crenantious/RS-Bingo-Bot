@@ -125,7 +125,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 tileSelect.SelectedItems.Select(i => (Tile)i.value!),
                 submittedEvidenceURL);
 
-            await InteractionConcluded();
+            await ConcludeInteraction();
 
             await args.Interaction.CreateFollowupMessageAsync(
                 new DiscordFollowupMessageBuilder()
@@ -221,7 +221,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
         private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
         {
-            await InteractionConcluded();
+            await ConcludeInteraction();
         }
 
         private enum Error

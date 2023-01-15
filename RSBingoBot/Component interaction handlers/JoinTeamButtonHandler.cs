@@ -43,7 +43,10 @@ namespace RSBingoBot.Component_interaction_handlers
             var builder = new DiscordFollowupMessageBuilder();
             IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-            if (await UserInDBCheck(args.User.Id, false, args) is false) { return; }
+            if (await TrySendUserTeamStatusErrorMessage(args.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             if (!teams.Any())
             {
@@ -83,7 +86,10 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             string content = string.Empty;
 
-            if (!await UserInDBCheck(args.User.Id, false, args)) { return; }
+            if (await TrySendUserTeamStatusErrorMessage(args.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             if (teamSelected == string.Empty)
             {
@@ -109,7 +115,7 @@ namespace RSBingoBot.Component_interaction_handlers
                     await args.Guild.GetMemberAsync(args.User.Id).Result.GrantRoleAsync(roles[index]);
                 }
 
-                await InteractionConcluded();
+                await ConcludeInteraction();
             }
 
             var builder = new DiscordFollowupMessageBuilder()

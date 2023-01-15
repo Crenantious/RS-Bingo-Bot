@@ -51,7 +51,10 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
 
-            if (await UserInDBCheck(args.Interaction.User.Id, false, args) is false) { return; }
+            if (await TrySendUserTeamStatusErrorMessage(args.Interaction.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             string teamName = args.Values[teamNameInputId];
             var builder = new DiscordFollowupMessageBuilder()
@@ -93,7 +96,7 @@ namespace RSBingoBot.Component_interaction_handlers
                     await args.Interaction.CreateFollowupMessageAsync(newBuilder);
                 }
             }
-            await InteractionConcluded();
+            await ConcludeInteraction();
         }
     }
 }

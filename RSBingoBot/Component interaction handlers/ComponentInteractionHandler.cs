@@ -301,7 +301,7 @@ namespace RSBingoBot.Component_interaction_handlers
 
                 if (e.ConcludeInteraction)
                 {
-                    await instance.InteractionConcluded();
+                    await instance.ConcludeInteraction();
                 }
             }
             catch (Exception e)
@@ -331,62 +331,42 @@ namespace RSBingoBot.Component_interaction_handlers
             await ComponentInteracted(this, Client, args, callback, ephemeralResponse, responseContent);
         }
 
-        // TODO: JR - split this up so it's clear what each function is doing.
         /// <summary>
-        /// Checks if a user with the given id is in the database. Then possibly post a response, notify an admin,
-        /// and/or conclude the interaction.
+        /// Checks if a user is on a team in the database. Then possibly post a response should that
+        /// fail to meet the <paramref name="shouldBeOnATeam"/> requirement.
         /// </summary>
         /// <param name="discordId">The id of the <see cref="DiscordUser"/> in question.</param>
-        /// <param name="shouldBeInBD">Weather or not the user is supposed to be in the database.</param>
+        /// <param name="shouldBeOnATeam">Whether or not the user is supposed to be on a team.</param>
         /// <param name="args">The args for the interaction.
-        /// If this is not null, a response will be posted telling the user they are (not) on a team,
-        /// if they are (not) supposed to be.<br/>
-        /// Being in the database means they are on a team (and vice versa).
-        /// <param name="isAnError">If the user is in the database when they are not suppose to be (or vice versa),
-        /// an admin will be notified of this error if this parameter is true. The user will also be notified that an admin
-        /// has been notified if <paramref name="postStandardResponse"/> is true.</param>
-        /// <param name="concludeInteraction">If the user is in the database when they are not suppose to be (or vice versa)
-        /// and this parameter is true, the <see cref="InteractionConcluded"/> method will be called.</param>
+        /// If this is not <see langword="null"/> and the user incorrectly (not) on a team, a response will be posted
+        /// notifying the user.
         /// <returns>
-        /// 0: if the user is in the database when they are suppose to be. <br/>
-        /// 1: if the user is in the database when they are not suppose to be.
+        /// <see langword="true"/> if an error message was sent.<br/>
+        /// <see langword="false"/ otherwise>.
         /// </returns>
-        protected async Task<bool> UserInDBCheck(ulong discordId, bool shouldBeInBD,
-            InteractionCreateEventArgs? args = null, bool isAnError = false,
-            bool concludeInteraction = true)
+        protected async Task<bool> TrySendUserTeamStatusErrorMessage(ulong discordId, bool shouldBeOnATeam,
+            InteractionCreateEventArgs? args = null)
         {
             User? user = DataWorker.Users.GetByDiscordId(discordId);
 
-            string content = (user, shouldBeInBD) switch
+            string content = (user, shouldBeOnATeam) switch
             {
                 (null, true) => "You are not on a team.",
                 (not null, false) => "You are already on a team. Contact an admin if you would like to be removed from it.",
                 _ => string.Empty,
             };
 
-            if (string.IsNullOrEmpty(content)) { return true; }
+            if (string.IsNullOrEmpty(content)) { return false; }
 
             if (args != null)
             {
-                if (isAnError)
-                {
-                    // TODO: notify admins of this
-                    content += $"{Environment.NewLine}This appears to be an error so an admin has been notified.";
-                }
-
                 var builder = new DiscordFollowupMessageBuilder()
                     .WithContent(content)
                     .AsEphemeral();
                 await args.Interaction.CreateFollowupMessageAsync(builder);
             }
-            else if (args != null)
-            {
-                await args.Interaction.DeleteOriginalResponseAsync();
-            }
 
-            if (concludeInteraction) { await InteractionConcluded(); }
-
-            return false;
+            return true;
         }
 
         protected async Task NotifyAdmins(string message)
@@ -400,7 +380,7 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <see cref="ComponentInteractionDEH"/> and <see cref="MessageCreatedDEH"/>.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        protected async virtual Task InteractionConcluded()
+        protected async virtual Task ConcludeInteraction()
         {
             foreach (DiscordMessage? message in MessagesForCleanup)
             {

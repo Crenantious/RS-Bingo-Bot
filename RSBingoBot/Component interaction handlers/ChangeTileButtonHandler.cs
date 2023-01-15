@@ -282,7 +282,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 .WithContent(editBuilderContent);
             await args.Interaction.EditOriginalResponseAsync(editBuilder);
 
-            await InteractionConcluded();
+            await ConcludeInteraction();
         }
 
         private class FromTileSelectValue
