@@ -63,7 +63,8 @@ namespace RSBingoBot.Component_interaction_handlers
                 Evidence? evidence = tile.GetEvidence(DataWorker, User!.DiscordUserId);
                 if (evidence is null) { continue; }
 
-                DiscordComponentEmoji emoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
+                DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
+                DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
                 tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, selectedTile == tile, emoji));
             }
 

@@ -23,6 +23,8 @@ namespace RSBingoBot.Discord_event_handlers
     public abstract class DiscordEventHandlerBase<TEventArgs, TConstraints>
         where TEventArgs : DiscordEventArgs
     {
+        protected static DiscordClient DiscordClient = (DiscordClient)General.DI.GetService(typeof(DiscordClient));
+
         private readonly List<ConstraintActions<object, TEventArgs>> constraintActions = new ();
 
         /// <summary>
@@ -84,7 +86,7 @@ namespace RSBingoBot.Discord_event_handlers
         /// <summary>
         /// Called when the Discord event is fired.
         /// </summary>
-        /// <param name="client">The <see cref="DiscordClient"/> the event was fired on.</param>
+        /// <param name="client">The <see cref="DSharpPlus.DiscordClient"/> the event was fired on.</param>
         /// <param name="args">The args for the event.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task OnEvent(DiscordClient client, TEventArgs args)

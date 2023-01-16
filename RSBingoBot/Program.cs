@@ -42,6 +42,7 @@ namespace RSBingoBot
 
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
+                AdminEvidenceReaction.SetUp();
 #if DEBUG
                 TaskTemplatePopulator.Run();
 #endif
@@ -104,8 +105,9 @@ namespace RSBingoBot
                     });
 
                     services.AddScoped<CommandController>();
-
+                    
                     services.AddSingleton<ComponentInteractionDEH>();
+                    services.AddSingleton<MessageReactionAddedDEH>();
                     services.AddSingleton<MessageCreatedDEH>();
                     services.AddSingleton<ModalSubmittedDEH>();
                 })

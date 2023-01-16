@@ -43,10 +43,13 @@ public static class EvidenceRecord
 
     #endregion
 
-    public static Evidence CreateEvidence(IDataWorker dataWorker, User user, Tile tile, string url, EvidenceType type) =>
-        dataWorker.Evidence.Create(user, tile, url, type);
+    public static Evidence CreateEvidence(IDataWorker dataWorker, User user, Tile tile, string url,
+        EvidenceType type, ulong discordMessageId) =>
+        dataWorker.Evidence.Create(user, tile, url, type, discordMessageId);
 
-    public static Evidence? GetByTile(IDataWorker dataWorker, Tile tile, User user, EvidenceType evidenceType) =>
-        dataWorker.Evidence.FirstOrDefault(e => e.Tile == tile && e.DiscordUser == user && e.EvidenceType == (sbyte)evidenceType);
+    public static Evidence? GetByTileAndUser(IDataWorker dataWorker, Tile tile, User user) =>
+        dataWorker.Evidence.FirstOrDefault(e => e.Tile == tile && e.DiscordUser == user);
+
+    public static IEnumerable<Evidence> GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
+        dataWorker.Evidence.Where(e => e.DiscordMessageId == messageId);
 }
-

@@ -19,6 +19,9 @@ namespace RSBingoBot.Discord_event_handlers
     {
         public record Constraints(DiscordChannel? channel = null, DiscordUser? user = null, string? customId = null);
 
+        public ComponentInteractionDEH() =>
+            DiscordClient.ComponentInteractionCreated += OnEvent;
+
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
             new () { constriants.channel!, constriants.user!, constriants.customId! };
