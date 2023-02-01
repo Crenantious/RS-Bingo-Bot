@@ -31,6 +31,8 @@ namespace RSBingoBot.Component_interaction_handlers
 
         /// <inheritdoc/>
         protected override bool ContinueWithNullUser { get { return false; } }
+        protected override bool CreateAutoResponse { get { return true; } }
+
 
         /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)

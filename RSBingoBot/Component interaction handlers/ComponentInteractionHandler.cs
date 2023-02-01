@@ -61,6 +61,7 @@ namespace RSBingoBot.Component_interaction_handlers
         /// if the user that interacted with the component is not found in the database.
         /// </summary>
         protected abstract bool ContinueWithNullUser { get; }
+        protected abstract bool CreateAutoResponse { get; }
 
         /// <summary>
         /// Gets a value indicating whether or not the interaction should continue
@@ -182,7 +183,7 @@ namespace RSBingoBot.Component_interaction_handlers
                 instance.User = user;
                 instance.Team = team;
                 await ComponentInteracted(instance, discordClient, args,
-                    (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...");
+                    (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
             }
             else
             {
@@ -258,9 +259,12 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <returns></returns>
         protected static async Task ComponentInteracted(ComponentInteractionHandler instance, DiscordClient client,
             ComponentInteractionCreateEventArgs args, Func<DiscordClient, ComponentInteractionCreateEventArgs, Task> callback,
-            bool ephemeralResponse, string responseContent = "")
+            bool ephemeralResponse, string responseContent = "", bool createResponse = true)
         {
             instance.CurrentInteractionArgs = args;
+
+            if (createResponse)
+            {
 
             if (responseContent == "")
             {
@@ -274,6 +278,7 @@ namespace RSBingoBot.Component_interaction_handlers
                     Content = responseContent
                 };
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            }
             }
 
             try

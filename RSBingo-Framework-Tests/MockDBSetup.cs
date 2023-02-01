@@ -42,7 +42,8 @@ public class MockDBSetup
         return user;
     }
 
-    public static Tile Add_Tile(IDataWorker dataWorker, Team team, BingoTask bingoTask, int? boardIndex = null, VerifiedStatus verifiedStatus = VerifiedStatus.No)
+    public static Tile Add_Tile(IDataWorker dataWorker, Team team, BingoTask bingoTask, int? boardIndex = null,
+        VerifiedStatus verifiedStatus = VerifiedStatus.No)
     {
         int index = boardIndex ?? team.Tiles.Count;
         Tile tile = dataWorker.Tiles.Create(team, bingoTask, index, verifiedStatus);
@@ -51,9 +52,10 @@ public class MockDBSetup
         return tile;
     }
 
-    public static Evidence Add_Evidence(IDataWorker dataWorker, User user, Tile tile, string url = "", EvidenceType evidenceType = EvidenceType.TileVerification)
+    public static Evidence Add_Evidence(IDataWorker dataWorker, User user, Tile tile, string url = "",
+        EvidenceType evidenceType = EvidenceType.TileVerification, ulong discordMessageId = 0)
     {
-        Evidence evidence = dataWorker.Evidence.Create(user, tile, url, evidenceType);
+        Evidence evidence = dataWorker.Evidence.Create(user, tile, url, evidenceType, discordMessageId);
 
         dataWorker.SaveChanges();
         return evidence;

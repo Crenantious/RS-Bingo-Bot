@@ -33,5 +33,8 @@ namespace RSBingo_Framework.Records
 
         public static IEnumerable<BingoTask> GetAllBingoTasks(IDataWorker dataWorker) =>
             dataWorker.BingoTasks.GetAll();
+
+        public static Difficulty GetDifficutyAsDifficulty(this BingoTask bingoTask) =>
+            DifficultyLookup.Get(bingoTask.Difficulty);
     }
 }

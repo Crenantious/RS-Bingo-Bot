@@ -24,6 +24,8 @@ namespace RSBingoBot.Component_interaction_handlers
 
         /// <inheritdoc/>
         protected override bool ContinueWithNullUser { get { return true; } }
+        protected override bool CreateAutoResponse { get { return true; } }
+
 
         /// <summary>
         /// Gets the custom Id for the "Join team" button.

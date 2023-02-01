@@ -17,7 +17,16 @@ namespace RSBingo_Framework.Records
         private static readonly EnumDict<VerifiedStatus> VerifiedLookup = new EnumDict<VerifiedStatus>(VerifiedStatus.No)
          .Add(VerifiedStatus.Yes, 1);
 
+        private static readonly EnumDict<CompleteStatus> CompleteLookup = new EnumDict<CompleteStatus>(CompleteStatus.No)
+            .Add(CompleteStatus.Yes, 1);
+
         public enum VerifiedStatus
+        {
+            No,
+            Yes
+        }
+
+        public enum CompleteStatus
         {
             No,
             Yes
@@ -30,10 +39,10 @@ namespace RSBingo_Framework.Records
             dataWorker.Tiles.Create(team, task, boardIndex, verifiedStatus);
 
         public static bool IsVerified(this Tile tile) =>
-            tile.Verified == 1;
+            tile.IsVerified == 1;
 
         public static bool IsNotVerified(this Tile tile) =>
-            tile.Verified != 1;
+            tile.IsVerified != 1;
 
         public static void ChangeTask(this Tile tile, BingoTask task) =>
             tile.Task = task;
@@ -45,5 +54,11 @@ namespace RSBingo_Framework.Records
 
         public static Evidence? GetEvidence(this Tile tile, IDataWorker dataWorker, ulong discordUserId) =>
             tile.Evidence.FirstOrDefault(e => e.DiscordUserId == discordUserId);
+
+        public static bool IsCompleteAsBool(this Tile tile) =>
+            tile.IsComplete == (sbyte)CompleteStatus.Yes;
+
+        public static void SetCompleteStatus(this Tile tile, CompleteStatus completeStatus) =>
+            tile.IsComplete = (sbyte)completeStatus;
     }
 }

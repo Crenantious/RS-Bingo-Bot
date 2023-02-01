@@ -32,11 +32,10 @@ public class TileRepository : RepositoryBase<Tile>, ITileRepository
     public Tile Create(Team team, BingoTask task, int boardIndex, VerifiedStatus verifiedStatus = VerifiedStatus.No)
     {
         Tile tile = Create();
-        tile.Verified = (sbyte)verifiedStatus;
-        tile.BoardIndex = boardIndex;
-
+        tile.Team = team;
         tile.Task = task;
-
+        tile.BoardIndex = boardIndex;
+        tile.IsVerified = (sbyte)verifiedStatus;
         return tile;
     }
 
