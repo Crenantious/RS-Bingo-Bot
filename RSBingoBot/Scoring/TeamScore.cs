@@ -43,6 +43,7 @@ internal class TeamScore
 
     private void UpdateScoreFromDifficulty(Tile tile)
     {
+        // This assumes the tile's complete status has changed
         int sign = tile.IsCompleteAsBool() ? 1 : -1;
         Score += sign * PointsForDifficulty[tile.Task.GetDifficutyAsDifficulty()];
     }

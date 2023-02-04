@@ -12,23 +12,25 @@ using static RSBingo_Framework.Records.BingoTaskRecord;
 
 public static class Scoring
 {
-    private const int bonusPointsPerRow = 1;
-    private const int bonusPointsPerColumn = 1;
+    private static HashSet<int>[] rowBoardIndexes = GetRowBoardIndexes();
+    private static HashSet<int>[] columnBoardIndexes = GetColumnBoardIndexes();
+    private static HashSet<int> easyBoardIndexes = new(rowBoardIndexes[0].Concat(rowBoardIndexes[1]));
+    private static HashSet<int> mediumBoardIndexes = new(rowBoardIndexes[2].Concat(rowBoardIndexes[3]));
+    private static HashSet<int> hardBoardIndexes = new(rowBoardIndexes[4]);
 
-    private static HashSet<int> easyBonusBoardIndexes = new() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    private static HashSet<int> mediumBonusBoardIndexes = new() { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
-    private static HashSet<int> hardBonusBoardIndexes = new() { 20, 21, 22, 23, 24 };
-
-    private static BonusPoints easyBonusPoints = new(easyBonusBoardIndexes, 1);
-    private static BonusPoints mediumBonusPoints = new(mediumBonusBoardIndexes, 2);
-    private static BonusPoints hardBonusPoints = new(hardBonusBoardIndexes, 3);
+    private static BonusPoints[] rowBonusPoints = CreateMultipleBonusPoints(rowBoardIndexes, 1);
+    private static BonusPoints[] columnBonusPoints = CreateMultipleBonusPoints(columnBoardIndexes, 1);
+    private static BonusPoints easyBonusPoints = new(easyBoardIndexes, 1);
+    private static BonusPoints mediumBonusPoints = new(mediumBoardIndexes, 2);
+    private static BonusPoints hardBonusPoints = new(hardBoardIndexes, 3);
+    private static IEnumerable<BonusPoints> allBonusPoints = new List<BonusPoints>(rowBonusPoints.Concat(columnBonusPoints))
+    { easyBonusPoints, mediumBonusPoints, hardBonusPoints };
 
     private static Dictionary<Difficulty, int> pointsForDifficulty = new() {
         {Difficulty.Easy, 1 },
         {Difficulty.Medium, 2 },
         {Difficulty.Hard, 3 } };
     private static Dictionary<Team, TeamScore> teamScores = new();
-    private static IEnumerable<BonusPoints> allBonusPoints;
     private static IDataWorker dataWorker;
 
     /// <summary>
@@ -37,7 +39,6 @@ public static class Scoring
     public static void SetUp()
     {
         dataWorker = CreateDataWorker();
-        IEnumerable<BonusPoints> allBonusPoints = CreateAllBonusPoints();
         CommonSetUp(pointsForDifficulty, allBonusPoints);
     }
 
@@ -48,11 +49,10 @@ public static class Scoring
         IEnumerable<BonusPoints> bonusPoints)
     {
         Scoring.dataWorker = dataWorker;
-        Scoring.pointsForDifficulty = pointsForDifficulty;
         CommonSetUp(pointsForDifficulty, bonusPoints);
     }
 
-    public static void CreateTeamScore(Team team)
+    public static void AddTeam(Team team)
     {
         if (teamScores.ContainsKey(team) is false)
         {
@@ -71,53 +71,46 @@ public static class Scoring
         CreateTeamScores();
     }
 
-    private static IEnumerable<BonusPoints> CreateAllBonusPoints()
+    private static BonusPoints[] CreateMultipleBonusPoints(IEnumerable<HashSet<int>> boardIndexes, int bonusValue)
     {
-        BonusPoints[] rowAndColumnBonusPoints = CreateRowAndColumnBonusPoints(GetRowBoardIndexes(), GetColumnBoardIndexes());
-        BonusPoints[] otherBonusPoints = new BonusPoints[] { easyBonusPoints, mediumBonusPoints, hardBonusPoints };
-        return rowAndColumnBonusPoints.Concat(otherBonusPoints);
+        BonusPoints[] bonusPoints = new BonusPoints[boardIndexes.Count()];
+        foreach(HashSet<int> indexes in boardIndexes)
+        {
+            bonusPoints[^1] = new(indexes, bonusValue);
+        }
+        return bonusPoints;
     }
 
-    private static IEnumerable<HashSet<int>> GetRowBoardIndexes()
+    private static HashSet<int>[] GetRowBoardIndexes()
     {
         HashSet<int>[] rowBonusBoardIndexes = new HashSet<int>[TilesPerColumn];
 
         for (int i = 0; i < MaxTilesOnABoard; i++)
         {
+            if (rowBonusBoardIndexes[i / TilesPerRow] == default)
+            {
+                rowBonusBoardIndexes[i / TilesPerRow] = new HashSet<int>();
+            }
             rowBonusBoardIndexes[i / TilesPerRow].Add(i);
         }
 
         return rowBonusBoardIndexes;
     }
 
-    private static IEnumerable<HashSet<int>> GetColumnBoardIndexes()
+    private static HashSet<int>[] GetColumnBoardIndexes()
     {
         HashSet<int>[] columnBonusBoardIndexes = new HashSet<int>[TilesPerRow];
 
         for (int i = 0; i < MaxTilesOnABoard; i++)
         {
+            if (columnBonusBoardIndexes[i % TilesPerColumn] == default)
+            {
+                columnBonusBoardIndexes[i % TilesPerColumn] = new HashSet<int>();
+            }
             columnBonusBoardIndexes[i % TilesPerColumn].Add(i);
         }
 
         return columnBonusBoardIndexes;
-    }
-
-    private static BonusPoints[] CreateRowAndColumnBonusPoints(IEnumerable<HashSet<int>> rowBoardIndexes,
-        IEnumerable<HashSet<int>> columnBoardIndexes)
-    {
-        BonusPoints[] bonusPoints = new BonusPoints[rowBoardIndexes.Count() + columnBoardIndexes.Count()];
-
-        foreach (HashSet<int> boardIndexes in rowBoardIndexes)
-        {
-            bonusPoints[^1] = new(boardIndexes, bonusPointsPerRow);
-        }
-
-        foreach (HashSet<int> boardIndexes in columnBoardIndexes)
-        {
-            bonusPoints[^1] = new(boardIndexes, bonusPointsPerColumn);
-        }
-
-        return bonusPoints;
     }
 
     private static Dictionary<int, List<BonusPoints>> MapBoardIndexesToBonusPoints(IEnumerable<BonusPoints> bonusPointsEnumerable)
@@ -143,7 +136,7 @@ public static class Scoring
     {
         foreach (Team team in dataWorker.Teams.GetAll())
         {
-            CreateTeamScore(team);
+            AddTeam(team);
         }
     }
 

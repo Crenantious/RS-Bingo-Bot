@@ -35,7 +35,7 @@ public class BonusPoints
 
         if (completedTiles.ContainsKey(tile.Team) is false) { AddTeam(tile.Team); }
 
-        if (TileRecord.IsCompleteAsBool(tile))
+        if (tile.IsCompleteAsBool())
         {
             completedTiles[tile.Team].Add(tile.BoardIndex);
         }

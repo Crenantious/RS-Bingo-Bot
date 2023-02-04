@@ -35,7 +35,7 @@ public class ScoringTests : MockDBBaseTestClass
         dataWorkerAfter = CreateDW();
 
         team = MockDBSetup.Add_Team(dataWorkerBefore, testTeamName);
-        Scoring.CreateTeamScore(team);
+        Scoring.AddTeam(team);
 
         easyTaskOne = MockDBSetup.Add_BingoTask(dataWorkerBefore, "Test1", Difficulty.Easy);
         easyTaskTwo = MockDBSetup.Add_BingoTask(dataWorkerBefore, "Test2", Difficulty.Easy);
