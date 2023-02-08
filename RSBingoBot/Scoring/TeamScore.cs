@@ -9,7 +9,7 @@ using RSBingo_Framework.Records;
 using RSBingoBot.Exceptions;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 
-internal class TeamScore
+public class TeamScore
 {
     /// <summary>
     /// Maps tile board indexes to all <see cref="BonusPoints"/> that require them for completing.

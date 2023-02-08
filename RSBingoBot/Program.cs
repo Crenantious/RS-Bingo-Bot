@@ -43,6 +43,7 @@ namespace RSBingoBot
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
                 AdminEvidenceReaction.SetUp();
+                Scoring.Scoring.SetUp();
 #if DEBUG
                 TaskTemplatePopulator.Run();
 #endif

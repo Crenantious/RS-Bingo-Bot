@@ -60,8 +60,8 @@ public static class Scoring
         }
     }
 
-    public static int GetTeamScore(Team team) =>
-        teamScores[team].Score;
+    public static TeamScore GetTeamScore(Team team) =>
+        teamScores[team];
 
     private static void CommonSetUp(Dictionary<Difficulty, int> pointsForDifficulty, IEnumerable<BonusPoints> allBonusPoints)
     {
