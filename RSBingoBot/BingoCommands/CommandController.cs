@@ -12,6 +12,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using RSBingo_Common;
 using RSBingo_Framework;
+using RSBingo_Framework.CSV_reader;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
@@ -264,11 +265,11 @@ public class CommandController : ApplicationCommandModule
 
         string action = addTasks ? "add" : "delete";
         string actionVerb = addTasks ? "added" : "deleted";
-        string errorMessage = addTasks ?
+        string? errorMessage = addTasks ?
             CSVReader.AddTasks(TasksFileName) :
             CSVReader.RemoveTasks(TasksFileName);
 
-        return errorMessage == string.Empty ?
+        return errorMessage == null ?
             $"Tasks successfully {actionVerb}." :
             $"The following error occurred while attempting to {action} tasks: {errorMessage}";
     }
