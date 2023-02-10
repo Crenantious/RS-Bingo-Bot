@@ -222,18 +222,18 @@ public class CommandController : ApplicationCommandModule
     //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        if (await AddOrDeleteTasks(ctx, attachment, false) is string errorMessage)
+        if (await AddOrDeleteTasks(ctx, attachment, false) is string message)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(errorMessage));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(message));
         }
     }
 
     [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        if (await AddOrDeleteTasks(ctx, attachment, false) is string errorMessage)
+        if (await AddOrDeleteTasks(ctx, attachment, false) is string message)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(errorMessage));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(message));
         }
     }
 
@@ -266,8 +266,8 @@ public class CommandController : ApplicationCommandModule
         string action = addTasks ? "add" : "delete";
         string actionVerb = addTasks ? "added" : "deleted";
         string? errorMessage = addTasks ?
-            CSVReader.AddTasks(TasksFileName) :
-            CSVReader.RemoveTasks(TasksFileName);
+            new AddTasksCSVReader().Parse(TasksFileName) :
+            new RemoveTasksCSVReader().Parse(TasksFileName);
 
         return errorMessage == null ?
             $"Tasks successfully {actionVerb}." :

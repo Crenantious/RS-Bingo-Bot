@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework.CSV_reader.CSV_lines;
 
-internal class AddTaskRestrictionCSVLine : CSVLine
+public class AddTaskRestrictionCSVLine : CSVLine
 {
     public string RestrictionName { get; private set; } = String.Empty;    
     public string RestrictionDescription { get; private set; } = String.Empty;

@@ -6,7 +6,7 @@ using RSBingo_Framework.Exceptions;
 
 namespace RSBingo_Framework.CSV_reader.CSV_lines;
 
-internal class AddTaskCSVLine : AddOrRemoveTaskCSVLine
+public class AddTaskCSVLine : AddOrRemoveTaskCSVLine
 {
     public string TaskImageUrl { get; private set; } = String.Empty;
 

@@ -7,7 +7,7 @@ using static RSBingo_Framework.Records.BingoTaskRecord;
 
 namespace RSBingo_Framework.CSV_reader.CSV_lines;
 
-internal class AddOrRemoveTaskCSVLine : CSVLine
+public class AddOrRemoveTaskCSVLine : CSVLine
 {
     // This is an arbitrary value to not crash the bot and to not eat memory in the DB.
     // Currently, there is no need to use anywhere near this number.

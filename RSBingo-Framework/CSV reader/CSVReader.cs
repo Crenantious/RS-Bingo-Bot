@@ -18,72 +18,39 @@ using RSBingo_Framework.CSV_reader.CSV_lines;
 /// <summary>
 /// Reads and parses a CSV file, then updates the database accordingly.
 /// </summary>
-public abstract class CSVReader
+public abstract class CSVReader<LineType> where LineType : CSVLine
 {
-    private const string taskImageExtension = ".png";
+    protected readonly IDataWorker DataWorker = CreateDataWorker();
+    protected LineType Line = Activator.CreateInstance<LineType>();
 
-    private static readonly IDataWorker DataWorker = CreateDataWorker();
-    private static readonly Dictionary<string, int> RestrictionNameToId = new();
-    private static readonly HashSet<int> TaskIds = new();
+    private int currentFileLine = 1;
 
-    private static int currentFileLine = 1;
-
-    static CSVReader()
-    {
-        // Reset auto increment just in case it overflows
-        // TODO: this should not be done here; move it to somewhere appropriate.
-        DataWorker.Context.Database.ExecuteSqlRaw("ALTER TABLE task AUTO_INCREMENT = 1");
-    }
-
-    /// <summary>
-    /// Attempts to add tasks to the database.
-    /// </summary>
-    /// <param name="filePath">The path of the CSV file to parse.</param>
-    /// <returns>An error message to display to the user, or <see langword="null"/> if no errors occurred.</returns>
-    public static string? AddTasks(string filePath) =>
-        ParseAndGetErrorMessage<AddOrRemoveTaskCSVLine>(filePath, new AddOrRemoveTaskCSVLine(), CreateTask);
-
-    /// <summary>
-    /// Attempts to remove tasks from the database.
-    /// </summary>
-    /// <param name="filePath">The path of the CSV file to parse.</param>
-    /// <returns>An error message to display to the user, or <see langword="null"/> if no errors occurred.</returns>
-    public static string RemoveTasks(string filePath) =>
-        ParseAndGetErrorMessage<RemoveTaskCSVLine>(filePath, new RemoveTaskCSVLine(), DeleteTask);
-
-    /// <summary>
-    /// Attempts to add task restrictions to the database.
-    /// </summary>
-    /// <param name="filePath">The path of the CSV file to parse.</param>
-    /// <returns>An error message to display to the user, or <see langword="null"/> if no errors occurred.</returns>
-    public static string AddTaskRestrictions(string filePath) =>
-        ParseAndGetErrorMessage<AddTaskRestrictionCSVLine>(filePath, new AddTaskRestrictionCSVLine(), AddTaskRestriction);
-
-    private static string ParseAndGetErrorMessage<T>(string filePath, T CSVLineInstance, Action<T> action) where T : CSVLine
+    public string Parse(string filePath)
     {
         try
         {
-            ParseFile(filePath, CSVLineInstance, action);
-            DataWorker.SaveChanges();
+            PreParsing();
+            ParseFile(filePath);
+            PostParsing();
+        }
+        catch (CSVReaderException e)
+        {
+            return GetFileExceptionMessage(e.Message);
         }
         catch (Exception e)
         {
-            if (e.GetType() == typeof(CSVReaderException))
-            {
-                return GetFileExceptionMessage(e.Message);
-            }
-            else
-            {
-                General.LoggingLog(e, e.Message);
-                return "Internal error.";
-            }
+            General.LoggingLog(e, e.Message);
+            return "Internal error.";
         }
+
         return string.Empty;
     }
 
-    /// <param name="CSVLineInstance">Required to ensure CSVLine is not passed as a type since it is abstract</param>
-    /// <param name="action">Called on each line of the file with the CSVLineInstance updated accordingly.</param>
-    private static void ParseFile<T>(string fileName, T CSVLineInstance, Action<T> action) where T : CSVLine
+    protected virtual void PreParsing() { }
+    protected virtual void PostParsing() { }
+    protected abstract void LineSuccessfullyParsed();
+
+    private void ParseFile(string fileName)
     {
         using (StreamReader reader = new(fileName))
         {
@@ -101,63 +68,13 @@ public abstract class CSVReader
                     if (values[i][0] is ' ') { values[i] = values[i][1..]; }
                 }
 
-                CSVLineInstance.Parse(values);
-                action(CSVLineInstance);
+                Line.Parse(values);
+                LineSuccessfullyParsed();
                 currentFileLine++;
             }
         }
     }
 
-    private static void AddTaskRestriction(AddTaskRestrictionCSVLine line)
-    {
-        if (RestrictionNameToId.ContainsKey(line.RestrictionName))
-        {
-            throw new CSVReaderException("Duplicate restriction name found");
-        }
-
-        Restriction restriction = DataWorker.Restrictions.Create(line.RestrictionDescription);
-        RestrictionNameToId.Add(line.RestrictionName, restriction.RowId);
-    }
-
-    private static void CreateTask(AddOrRemoveTaskCSVLine line)
-    {
-        // Download task image.
-        try
-        {
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(line.TaskName, GetTaskImagePath(line.TaskName));
-            }
-        }
-        catch (NotSupportedException e)
-        {
-            throw new CSVReaderException("Image format is unsupported");
-        }
-        catch (WebException e)
-        {
-            throw new CSVReaderException("Unable to download the image");
-        }
-        catch (UnknownImageFormatException e)
-        {
-            throw new CSVReaderException("Unknown image format");
-        }
-        catch (InvalidImageContentException e)
-        {
-            throw new CSVReaderException("Invalid image content");
-        }
-
-        DataWorker.BingoTasks.CreateMany(line.TaskName,
-            line.TaskDifficulty,
-            line.AmountOfTasks);
-    }
-
-    private static void DeleteTask(RemoveTaskCSVLine line)
-    {
-        DataWorker.BingoTasks.DeleteMany(
-            DataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName, line.TaskDifficulty)
-            .Take(line.AmountOfTasks));
-    }
-
-    private static string GetFileExceptionMessage(string prefix) =>
+    private string GetFileExceptionMessage(string prefix) =>
         $"{prefix} on line {currentFileLine}.";
 }

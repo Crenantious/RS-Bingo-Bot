@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework.CSV_reader.CSV_lines;
 
-internal class RemoveTaskCSVLine : AddOrRemoveTaskCSVLine
+public class RemoveTaskCSVLine : AddOrRemoveTaskCSVLine
 {
     public override void Parse(string[] values)
     {
