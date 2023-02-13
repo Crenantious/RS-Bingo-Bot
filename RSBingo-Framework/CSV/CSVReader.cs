@@ -14,6 +14,7 @@ using SixLabors.ImageSharp;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingo_Common.General;
 using RSBingo_Framework.CSV.Lines;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Reads and parses a CSV file.
@@ -28,24 +29,24 @@ public static class CSVReader
     /// </summary>
     /// <param name="filePath">The path to the CSV file to be parsed.</param>
     /// <returns>An error message, if not <see langword="null"/>.</returns>
-    /// <exception cref="CSVReaderException"/>
+    /// <exception cref="CSVReaderException">Thrown if unable to read a line, or the data is in an unexpected format.</exception>
+    /// <exception cref="Exception">Generic exception thrown when an unexpected error occurs i.e. does not have read permission of the file.</exception>
     public static CSVData<LineType> Parse<LineType>(string filePath) where LineType : CSVLine
     {
         try
         {
-            using (StreamReader reader = new(filePath))
-            {
-                return ParseFile<LineType>(reader);
-            }
+            StreamReader reader = new(filePath);
+            return ParseFile<LineType>(reader);
         }
         catch (CSVReaderException e)
         {
-            throw new CSVReaderException($"{e.Message} on line {currentLineNumber}.");
+            // Wrap message, but keep original exception to see stack trace,
+            throw new CSVReaderException($"{e.Message} on line {currentLineNumber}.", e);
         }
-        catch (Exception e)
-        {
-            General.LoggingLog(e, e.Message);
-            throw e;
+        catch
+        {            
+            // Re-throw to keep stack trace.
+            throw;
         }
     }
 
@@ -58,7 +59,7 @@ public static class CSVReader
         {
             currentLineNumber++;
             string line = GetNextLine(streamReader);
-            string[] values = GetLineValues(line);
+            IEnumerable<string> values = GetLineValues(line);
 
             lines.Add((LineType)Activator.CreateInstance(typeof(LineType), currentLineNumber, values)!);
         }
@@ -73,15 +74,5 @@ public static class CSVReader
         return line;
     }
 
-    private static string[] GetLineValues(string line)
-    {
-        string[] values = line.Split(',');
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            if (values[i][0] is ' ') { values[i] = values[i][1..]; }
-        }
-
-        return values;
-    }
+    private static IEnumerable<string> GetLineValues(string line) => line.Split(',').Select(s => s.Trim());
 }

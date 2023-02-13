@@ -21,7 +21,7 @@ public abstract class CSVOperator<LineType> where LineType : CSVLine
     /// <summary>
     /// Performs operations based on the data provided.
     /// </summary>
-    /// <exception cref="CSVOperatorException"/>
+    /// <exception cref="CSVOperatorException"></exception>
     public void Operate(CSVData<LineType> data)
     {
         errorMessageStringBuilder = null;

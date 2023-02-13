@@ -12,7 +12,8 @@ public class AddTaskRestrictionCSVLine : CSVLine
     private CSVValueGeneric<string> restrictionNameValue = new("Task restriction name", 0);
     private CSVValueGeneric<string> restrictionDescriptionValue = new("Task restriction description", 1);
 
-    public AddTaskRestrictionCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }
+    public AddTaskRestrictionCSVLine(int lineNumber, string[] values)
+        : base(lineNumber, values) { }
 
     protected override void Parse(string[] values)
     {
