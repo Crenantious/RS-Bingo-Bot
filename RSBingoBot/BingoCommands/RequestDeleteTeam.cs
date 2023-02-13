@@ -29,7 +29,7 @@ public class RequestDeleteTeam : RequestBase
         this.teamName = teamName;
     }
 
-    public override async Task<RequestResponse> ProcessRequest()
+    public override async Task<bool> ProcessRequest()
     {
         ILogger<RequestDeleteTeam> logger = General.LoggingInstance<RequestDeleteTeam>();
 
@@ -46,12 +46,12 @@ public class RequestDeleteTeam : RequestBase
         if (DataWorker.Teams.GetByName(teamName) is not Team team)
         {
             logger.LogInformation("Failed to find team with name {TeamName}", teamName);
-            return RequestFailed(CouldNotFindTeamError.FormatConst(teamName));
+            return ProcessFailure(CouldNotFindTeamError.FormatConst(teamName));
         }
 
         DataWorker.Teams.Remove(team);
 
-        return RequestSuccess("Team deleted.");
+        return ProcessSuccess("Team deleted.");
     }
 
     private protected override bool ValidateSpecificRequest() => true; // No additional validation required.

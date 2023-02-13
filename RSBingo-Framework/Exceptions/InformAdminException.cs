@@ -1,10 +1,12 @@
-﻿// <copyright file="CouldNotFindTileIdException.cs" company="PlaceholderCompany">
+﻿// <copyright file="InformAdminException.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Exceptions
+namespace RSBingo_Framework.Exceptions;
+
+public abstract class InformAdminException : RSBingoException
 {
-    public abstract class InformAdminException : Exception
+    public InformAdminException(string? message) : base(message)
     {
     }
 }

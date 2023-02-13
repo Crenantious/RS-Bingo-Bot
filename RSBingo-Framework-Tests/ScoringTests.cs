@@ -7,9 +7,9 @@ namespace RSBingo_Framework_Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
 using RSBingoBot.Scoring;
 using static RSBingo_Framework.Records.BingoTaskRecord;
-using RSBingo_Framework.Records;
 
 [TestClass]
 public class ScoringTests : MockDBBaseTestClass

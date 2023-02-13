@@ -112,6 +112,10 @@ namespace RSBingoBot.Discord_event_handlers
                     // TODO: Inform admin
                     LogException(e);
                 }
+                catch (RSBingoException e)
+                {
+                    LogException(e);
+                }
                 catch (Exception e)
                 {
                     LogException(e);

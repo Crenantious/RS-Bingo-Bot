@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Exceptions
+namespace RSBingo_Framework.Exceptions;
+
+public class DuplicateRestrictionNameException : RSBingoException
 {
-    public class DuplicateRestrictionNameException : Exception
-    {
-        public DuplicateRestrictionNameException(string? message) : base(message) { }
-    }
+    public DuplicateRestrictionNameException(string? message) : base(message) { }
 }
