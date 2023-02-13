@@ -4,7 +4,7 @@
 
 using RSBingo_Framework.Exceptions;
 
-namespace RSBingo_Framework.CSV_reader.CSV_lines;
+namespace RSBingo_Framework.CSV.Lines;
 
 public class AddTaskCSVLine : AddOrRemoveTaskCSVLine
 {
@@ -12,7 +12,9 @@ public class AddTaskCSVLine : AddOrRemoveTaskCSVLine
 
     private CSVValueGeneric<string> taskUrlValue = new("Task URL", 3);
 
-    public override void Parse(string[] values)
+    public AddTaskCSVLine(int lineNumber, string[] values) : base(lineNumber, values) {  }
+
+    protected override void Parse(string[] values)
     {
         base.Parse(values);
         TaskImageUrl = taskUrlValue.Parse(values);

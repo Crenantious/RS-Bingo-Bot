@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV_reader.CSV_lines;
+namespace RSBingo_Framework.CSV.Lines;
 
 public class AddTaskRestrictionCSVLine : CSVLine
 {
@@ -12,7 +12,9 @@ public class AddTaskRestrictionCSVLine : CSVLine
     private CSVValueGeneric<string> restrictionNameValue = new("Task restriction name", 0);
     private CSVValueGeneric<string> restrictionDescriptionValue = new("Task restriction description", 1);
 
-    public override void Parse(string[] values)
+    public AddTaskRestrictionCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }
+
+    protected override void Parse(string[] values)
     {
         RestrictionName = restrictionNameValue.Parse(values);
         RestrictionDescription = restrictionDescriptionValue.Parse(values);

@@ -110,7 +110,7 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.HasIndex(e => e.Description, "Name")
+            entity.HasIndex(e => e.Name, "Name")
                 .IsUnique();
 
             entity.Property(e => e.RowId).HasColumnName("RowID");

@@ -11,6 +11,8 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface IRestrictionRepository : IRepository<Restriction>
     {
-        public Restriction Create(string description);
+        public Restriction Create(string name, string description);
+
+        public Restriction? GetByName(string name);
     }
 }

@@ -4,7 +4,7 @@
 
 using RSBingo_Framework.Exceptions;
 
-namespace RSBingo_Framework.CSV_reader;
+namespace RSBingo_Framework.CSV;
 
 internal class CSVValueGeneric<T> : CSVValue<T>
 {

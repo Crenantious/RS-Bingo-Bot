@@ -51,5 +51,7 @@ public class MockDBSetup
     {
         IDataWorker dataWorker = CreateDataWorker(name);
         dataWorker.Context.Database.EnsureDeleted();
+
+        dataWorker.SaveChanges();
     }
 }

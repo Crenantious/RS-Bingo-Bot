@@ -12,8 +12,10 @@ using DSharpPlus.SlashCommands.Attributes;
 using Microsoft.Extensions.Logging;
 using RSBingo_Common;
 using RSBingo_Framework;
-using RSBingo_Framework.CSV_reader;
+using RSBingo_Framework.CSV;
+using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot;
@@ -265,13 +267,31 @@ public class CommandController : ApplicationCommandModule
 
         string action = addTasks ? "add" : "delete";
         string actionVerb = addTasks ? "added" : "deleted";
-        string? errorMessage = addTasks ?
-            new AddTasksCSVReader().Parse(TasksFileName) :
-            new RemoveTasksCSVReader().Parse(TasksFileName);
 
-        return errorMessage == null ?
-            $"Tasks successfully {actionVerb}." :
-            $"The following error occurred while attempting to {action} tasks: {errorMessage}";
+        try
+        {
+            if (addTasks)
+            {
+                CSVData<AddTaskCSVLine> data = CSVReader.Parse<AddTaskCSVLine>(TasksFileName);
+                new AddTasksCSVOperator().Operate(data);
+            }
+            else
+            {
+                CSVData<RemoveTaskCSVLine> data = CSVReader.Parse<RemoveTaskCSVLine>(TasksFileName);
+                new RemoveTasksCSVOperator().Operate(data);
+            }
+        }
+        catch (Exception e)
+        {
+            if (e is CSVReaderException || e is CSVOperatorException)
+            {
+                return e.Message;
+            }
+
+            return "An internal error occurred.";
+        }
+
+        return $"Tasks successfully {actionVerb}.";
     }
 
     private async Task InsufficientPermissionsResponse(InteractionContext ctx)

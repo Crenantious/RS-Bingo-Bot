@@ -36,6 +36,7 @@ public static class DataFactory
     private static DiscordChannel submittedEvidenceChannel = null!;
 
     private static InMemoryDatabaseRoot imdRoot;
+    private static string? mostRecentMockName = null;
 
     /// <summary>
     /// Gets the discord token.
@@ -93,7 +94,8 @@ public static class DataFactory
         if (dataIsMock)
         {
             imdRoot ??= new InMemoryDatabaseRoot();
-            builder.UseInMemoryDatabase(mockName, imdRoot);
+            if (mockName != null) { mostRecentMockName = mockName; }
+            builder.UseInMemoryDatabase(mostRecentMockName, imdRoot);
         }
 
         RSBingoContext dbContext = new (builder.Options);

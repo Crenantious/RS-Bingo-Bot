@@ -2,12 +2,12 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV_reader.CSV_lines;
+namespace RSBingo_Framework.CSV.Lines;
 
 public class RemoveTaskCSVLine : AddOrRemoveTaskCSVLine
 {
-    public override void Parse(string[] values)
-    {
+    public RemoveTaskCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }
+
+    protected override void Parse(string[] values) =>
         base.Parse(values);
-    }
 }

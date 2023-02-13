@@ -1,41 +1,48 @@
-﻿// <copyright file="AddTaskCSVReader.cs" company="PlaceholderCompany">
+﻿// <copyright file="AddTasksCSVOperator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV_reader;
+namespace RSBingo_Framework.CSV;
 
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using RSBingo_Framework.Exceptions;
 using SixLabors.ImageSharp;
+using RSBingo_Framework.CSV.Lines;
+using RSBingo_Framework.Interfaces;
 using static RSBingo_Common.General;
-using RSBingo_Framework.CSV_reader.CSV_lines;
+using static RSBingo_Framework.DAL.DataFactory;
 
 /// <inheritdoc/>
-public class AddTasksCSVReader : CSVReader<AddTaskCSVLine>
+public class AddTasksCSVOperator : CSVOperator<AddTaskCSVLine>
 {
-    public AddTasksCSVReader()
+    private IDataWorker dataWorker = CreateDataWorker();
+
+    public AddTasksCSVOperator()
     {
         // Reset auto increment just in case it overflows
         // TODO: this should not be done here; move it to somewhere appropriate.
-        DataWorker.Context.Database.ExecuteSqlRaw("ALTER TABLE task AUTO_INCREMENT = 1");
+        dataWorker.Context.Database.ExecuteSqlRaw("ALTER TABLE task AUTO_INCREMENT = 1");
     }
 
-    protected override void LineSuccessfullyParsed()
+    protected override void OperateOnLine(AddTaskCSVLine line)
     {
-        DownloadTaskImage();
-        DataWorker.BingoTasks.CreateMany(Line.TaskName,
-            Line.TaskDifficulty,
-            Line.AmountOfTasks);
+        DownloadTaskImage(line);
+        dataWorker.BingoTasks.CreateMany(line.TaskName,
+            line.TaskDifficulty,
+            line.AmountOfTasks);
     }
 
-    private void DownloadTaskImage()
+    protected override void OnPostOperating() =>
+        dataWorker.SaveChanges();
+
+    private void DownloadTaskImage(AddTaskCSVLine line)
     {
         try
         {
             using (var client = new WebClient())
             {
-                client.DownloadFile(Line.TaskName, GetTaskImagePath(Line.TaskName));
+                client.DownloadFile(line.TaskName, GetTaskImagePath(line.TaskName));
             }
         }
         catch (NotSupportedException e)
@@ -55,7 +62,4 @@ public class AddTasksCSVReader : CSVReader<AddTaskCSVLine>
             throw new CSVReaderException("Invalid image content");
         }
     }
-
-    protected override void PostParsing() =>
-        DataWorker.SaveChanges();
 }

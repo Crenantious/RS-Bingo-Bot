@@ -5,7 +5,7 @@
 using RSBingo_Framework.Exceptions;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 
-namespace RSBingo_Framework.CSV_reader.CSV_lines;
+namespace RSBingo_Framework.CSV.Lines;
 
 public class AddOrRemoveTaskCSVLine : CSVLine
 {
@@ -21,7 +21,9 @@ public class AddOrRemoveTaskCSVLine : CSVLine
     private CSVValueEnum<Difficulty> difficultyValue = new("Task difficulty", 1, false);
     private CSVValueCompareable<int> amountOfTasksValue = new("Amount of tasks", 2, 1, MaxNumberOfTasks);
 
-    public override void Parse(string[] values)
+    public AddOrRemoveTaskCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }
+
+    protected override void Parse(string[] values)
     {
         TaskName = nameValue.Parse(values);
         TaskDifficulty = difficultyValue.Parse(values);
