@@ -30,7 +30,7 @@ public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVL
     {
         if (restrictionNames.Contains(line.RestrictionName))
         {
-            AddLineToErrorMessage(line, line.RestrictionName);
+            AddWarning(line, line.RestrictionName);
         }
         else
         {

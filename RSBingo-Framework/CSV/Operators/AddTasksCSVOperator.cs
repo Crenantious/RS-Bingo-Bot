@@ -40,24 +40,22 @@ public class AddTasksCSVOperator : CSVOperator<AddTaskCSVLine>
     {
         try
         {
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(line.TaskName, GetTaskImagePath(line.TaskName));
-            }
+            WebClient client = new();
+            client.DownloadFile(line.TaskName, GetTaskImagePath(line.TaskName));
         }
-        catch (NotSupportedException e)
+        catch (NotSupportedException)
         {
             throw new CSVReaderException("Image format is unsupported");
         }
-        catch (WebException e)
+        catch (WebException)
         {
             throw new CSVReaderException("Unable to download the image");
         }
-        catch (UnknownImageFormatException e)
+        catch (UnknownImageFormatException)
         {
             throw new CSVReaderException("Unknown image format");
         }
-        catch (InvalidImageContentException e)
+        catch (InvalidImageContentException)
         {
             throw new CSVReaderException("Invalid image content");
         }

@@ -14,9 +14,7 @@ public abstract class CSVOperator<LineType> where LineType : CSVLine
 {
     protected virtual string ErrorMessagePrefix => "The following errors occurred: ";
 
-    protected string? ErrorMessage = null;
-
-    private StringBuilder? errorMessageStringBuilder = null;
+    private protected List<string> Warnings = new();
 
     /// <summary>
     /// Performs operations based on the data provided.
@@ -24,29 +22,20 @@ public abstract class CSVOperator<LineType> where LineType : CSVLine
     /// <exception cref="CSVOperatorException"></exception>
     public void Operate(CSVData<LineType> data)
     {
-        errorMessageStringBuilder = null;
-        ErrorMessage = null;
+        Warnings = new();
 
         OnPreOperating();
         OperateOnLines(data);
         OnPostOperating();
-        FinaliseErrorMessage();
-
-        if (ErrorMessage is not null) { throw new CSVOperatorException(ErrorMessage); }
     }
 
     protected virtual void OnPreOperating() { }
     protected abstract void OperateOnLine(LineType line);
     protected virtual void OnPostOperating() { }
 
-    protected void AddLineToErrorMessage(LineType line, string prefix)
+    protected void AddWarning(LineType line, string prefix)
     {
-        if (errorMessageStringBuilder is null)
-        {
-            errorMessageStringBuilder = new StringBuilder(ErrorMessagePrefix);
-        }
-
-        errorMessageStringBuilder.AppendLine($"{prefix} on line {line.LineNumber}");
+        Warnings.Add($"{prefix} on line {line.LineNumber}");
     }
 
     private void OperateOnLines(CSVData<LineType> data)
@@ -57,12 +46,16 @@ public abstract class CSVOperator<LineType> where LineType : CSVLine
         }
     }
 
-    private void FinaliseErrorMessage()
+    public string GetWarningMessage(int maxMessageSize)
     {
-        if (errorMessageStringBuilder != null)
+        if (Warnings.Count == 0) { return string.Empty; } 
+        StringBuilder warningMessage = new StringBuilder($"Process was successful but had {Warnings.Count} warnings. Here are the first warnings: ");
+        foreach (string warning in Warnings)
         {
-            //errorMessageStringBuilder.Append(".");
-            ErrorMessage = errorMessageStringBuilder.ToString();
+            if (warning.Length + warningMessage.Length + Environment.NewLine.Length > maxMessageSize) { break; }
+            warningMessage.AppendLine(warning);
         }
+
+        return warningMessage.ToString();
     }
 }

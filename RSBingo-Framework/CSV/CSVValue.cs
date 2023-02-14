@@ -30,15 +30,9 @@ internal abstract class CSVValue<T>
 
     protected abstract T ParseValue(string value);
 
-    protected T ConvertType(string value)
+    protected T ConvertType(string value) => Convert.ChangeType(value, typeof(T)) switch
     {
-        if (Convert.ChangeType(value, typeof(T)) is T convertedValue)
-        {
-            return convertedValue;
-        }
-        else
-        {
-            throw new CSVReaderException($"Cannot convert {Name} at value index {ValueIndex} to type {typeof(T).Name}.");
-        }
-    }
+        object convertedValue => (T)convertedValue,
+        null => throw new CSVReaderException($"Cannot convert {Name} at value index {ValueIndex} to type {typeof(T).Name}."),
+    };
 }

@@ -17,6 +17,8 @@ namespace RSBingo_Common
     /// </summary>
     public static class General
     {
+        public const int DiscordMessageCharLimit = 2000;
+
         private const string taskImageFolderName = "Task images";
         private const string taskImageExtension = ".png";
 
