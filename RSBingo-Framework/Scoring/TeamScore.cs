@@ -2,25 +2,16 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Scoring;
+namespace RSBingo_Framework.Scoring;
 
+using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingoBot.Exceptions;
 using static RSBingo_Framework.Records.BingoTaskRecord;
+using static RSBingo_Framework.Scoring.Scoring;
 
-internal class TeamScore
+public class TeamScore
 {
-    /// <summary>
-    /// Maps tile board indexes to all <see cref="BonusPoints"/> that require them for completing.
-    /// </summary>
-    public static Dictionary<int, List<BonusPoints>> BoardIndexToBonusPoints { get; set; } = new();
-
-    /// <summary>
-    /// The points awarded for completing a tile with a given difficulty.
-    /// </summary>
-    public static Dictionary<Difficulty, int> PointsForDifficulty { get; set; } = new();
-
     public int Score { get; private set; } = 0;
 
     /// <summary>
@@ -30,10 +21,7 @@ internal class TeamScore
     /// <exception cref="TileDifficultyPointValueNotSetException"/>
     public void Update(Tile tile)
     {
-        if (PointsForDifficulty.ContainsKey(tile.Task.GetDifficutyAsDifficulty()) is false)
-        {
-            throw new TileDifficultyPointValueNotSetException($"Point value has not been set for {tile.Task.GetDifficutyAsDifficulty().ToString()} tiles.");
-        }
+        ValidateTileDifficulty(tile);
 
         UpdateScoreFromDifficulty(tile);
 
@@ -61,6 +49,14 @@ internal class TeamScore
                 if (bonusAchievedCurrently) { Score += bonusPoints.BonusValue; }
                 else { Score -= bonusPoints.BonusValue; }
             }
+        }
+    }
+
+    private static void ValidateTileDifficulty(Tile tile)
+    {
+        if (PointsForDifficulty.ContainsKey(tile.Task.GetDifficutyAsDifficulty()) is false)
+        {
+            throw new TileDifficultyPointValueNotSetException($"Point value has not been set for {tile.Task.GetDifficutyAsDifficulty().ToString()} tiles.");
         }
     }
 }

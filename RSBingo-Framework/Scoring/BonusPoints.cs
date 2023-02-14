@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Scoring;
+namespace RSBingo_Framework.Scoring;
 
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;

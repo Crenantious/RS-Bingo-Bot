@@ -13,6 +13,7 @@ namespace RSBingoBot
     using Microsoft.Extensions.Hosting;
     using RSBingo_Framework;
     using RSBingo_Framework.DAL;
+    using RSBingo_Framework.Scoring;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Discord_event_handlers;
     using RSBingoBot.Imaging;
@@ -40,6 +41,9 @@ namespace RSBingoBot
 
                 DI = host.Services;
 
+
+                InitaliseScoring();
+
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
                 AdminEvidenceReaction.SetUp();
@@ -57,6 +61,24 @@ namespace RSBingoBot
                 LoggingLog($"Closing with exit code: {Environment.ExitCode}");
                 LoggingEnd();
             }
+        }
+
+        private static void InitaliseScoring()
+        {
+            ScoringConfig config = new()
+            {
+                PointsForEasyTile = int.Parse(Config_Get("PointsForEasyTile")),
+                PointsForMediumTile = int.Parse(Config_Get("PointsForMediumTile"),
+                PointsForHardTile = int.Parse(Config_Get("PointsForHardTile")),
+                BonusPointsForEasyCompletion = int.Parse(Config_Get("BonusPointsForEasyCompletion")),
+                BonusPointsForMediumCompletion = int.Parse(Config_Get("BonusPointsForMediumCompletion")),
+                BonusPointsForHardCompletion = int.Parse(Config_Get("BonusPointsForHardCompletion")),
+                BonusPointsForRow = int.Parse(Config_Get("BonusPointsForRow")),
+                BonusPointsForColumn = int.Parse(Config_Get("BonusPointsForColumn")),
+                BonusPointsForDiagonal = int.Parse(Config_Get("BonusPointsForDiagonal"))
+            };
+
+            Scoring.SetUp(config);
         }
 
         /// <summary>
