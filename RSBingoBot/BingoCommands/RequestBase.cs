@@ -18,11 +18,13 @@ public abstract class RequestBase
     /// <summary>
     /// Gets the permissions required to run the request.
     /// </summary>
-    internal virtual List<Permissions> RequiredPermissions => new ();
+    internal virtual List<Permissions> RequiredPermissions => new();
 
     private const string MissingPermissionsErrorMessage = "You require the following permissions to run this command:";
     private protected InteractionContext Ctx;
     private protected IDataWorker DataWorker;
+
+    public string ResponseMessage { get; private protected set; }
 
     /// <summary>
     /// Constructor.
@@ -40,8 +42,7 @@ public abstract class RequestBase
         IEnumerable<Permissions> missingPermissions = await GetMissingPermissions();
         if (missingPermissions.Any())
         {
-            await InsufficientPermissionsResponse(missingPermissions);
-            return false;
+            return InsufficientPermissionsResponse(missingPermissions);
         }
 
         return ValidateSpecificRequest();
@@ -51,7 +52,7 @@ public abstract class RequestBase
     /// 
     /// </summary>
     /// <returns><see langword="true"/> if successful; otherwise, <see langword="false"/>.</returns>
-    public abstract Task<RequestResponse> ProcessRequest();
+    public abstract Task<bool> ProcessRequest();
 
     private protected abstract bool ValidateSpecificRequest();
 
@@ -69,7 +70,7 @@ public abstract class RequestBase
         return missingPermissions;
     }
 
-    private async Task InsufficientPermissionsResponse(IEnumerable<Permissions> missingPermissions)
+    private bool InsufficientPermissionsResponse(IEnumerable<Permissions> missingPermissions)
     {
         // TODO: JR - Change this to a pre-execution check
 
@@ -80,13 +81,19 @@ public abstract class RequestBase
             errorString.AppendLine($"{permission}");
         }
 
-        var builder = new DiscordInteractionResponseBuilder()
-            .WithContent(errorString.ToString())
-            .AsEphemeral();
-        await Ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        ResponseMessage = errorString.ToString();
+        return false;
     }
 
-    private protected RequestResponse RequestFailed(string? errorMessage = null) => new RequestResponse(false, errorMessage);
+    private protected bool ProcessFailure(string failureMessage)
+    {
+        ResponseMessage = failureMessage;
+        return false;
+    }
 
-    private protected RequestResponse RequestSuccess(object? response = null) => new RequestResponse(true, response);
+    private protected bool ProcessSuccess(string successMessage)
+    {
+        ResponseMessage = successMessage;
+        return true;
+    }
 }

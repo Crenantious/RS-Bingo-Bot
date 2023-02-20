@@ -2,73 +2,71 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Scoring;
+namespace RSBingo_Framework.Scoring;
 
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public static class Scoring
 {
+    public static int PointsForEasyTile { get; private set; }
+    public static int PointsForMediumTile { get; private set; }
+    public static int PointsForHardTile { get; private set; }
+
+    public static Dictionary<int, List<BonusPoints>> BoardIndexToBonusPoints { get; private set; } = null!;
+
+    public static Dictionary<Difficulty, int> PointsForDifficulty { get; private set; } = null!;
+
     private static HashSet<int>[] rowBoardIndexes = GetRowBoardIndexes();
     private static HashSet<int>[] columnBoardIndexes = GetColumnBoardIndexes();
     private static HashSet<int> easyBoardIndexes = new(rowBoardIndexes[0].Concat(rowBoardIndexes[1]));
     private static HashSet<int> mediumBoardIndexes = new(rowBoardIndexes[2].Concat(rowBoardIndexes[3]));
     private static HashSet<int> hardBoardIndexes = new(rowBoardIndexes[4]);
 
-    private static BonusPoints[] rowBonusPoints = CreateMultipleBonusPoints(rowBoardIndexes, 1);
-    private static BonusPoints[] columnBonusPoints = CreateMultipleBonusPoints(columnBoardIndexes, 1);
-    private static BonusPoints easyBonusPoints = new(easyBoardIndexes, 1);
-    private static BonusPoints mediumBonusPoints = new(mediumBoardIndexes, 2);
-    private static BonusPoints hardBonusPoints = new(hardBoardIndexes, 3);
-    private static IEnumerable<BonusPoints> allBonusPoints = new List<BonusPoints>(rowBonusPoints.Concat(columnBonusPoints))
-    { easyBonusPoints, mediumBonusPoints, hardBonusPoints };
+    // TODO: JR - Add diagonal BonusPoints
 
-    private static Dictionary<Difficulty, int> pointsForDifficulty = new() {
-        {Difficulty.Easy, 1 },
-        {Difficulty.Medium, 2 },
-        {Difficulty.Hard, 3 } };
-    private static Dictionary<Team, TeamScore> teamScores = new();
-    private static IDataWorker dataWorker;
+    private static BonusPoints[] rowBonusPoints = null!;
+    private static BonusPoints[] columnBonusPoints = null!;
+    private static BonusPoints easyBonusPoints = null!;
+    private static BonusPoints mediumBonusPoints = null!;
+    private static BonusPoints hardBonusPoints = null!;
+    private static IEnumerable<BonusPoints> allBonusPoints = null!;
+
+    private static bool IsInitialised = false;
 
     /// <summary>
     /// Sets up the <see cref="BonusPoints"/>, <see cref="TeamScore"/> and <see cref="TeamScore"/>s.
     /// </summary>
-    public static void SetUp()
+    public static void SetUp(ScoringConfig scoringConfig)
     {
-        dataWorker = CreateDataWorker();
-        CommonSetUp(pointsForDifficulty, allBonusPoints);
-    }
+        if (IsInitialised) { return; }
 
-    /// <summary>
-    /// Sets up the <see cref="TeamScore"/> and <see cref="TeamScore"/>s.
-    /// </summary>
-    public static void SetUpAsMock(IDataWorker dataWorker, Dictionary<Difficulty, int> pointsForDifficulty,
-        IEnumerable<BonusPoints> bonusPoints)
-    {
-        Scoring.dataWorker = dataWorker;
-        CommonSetUp(pointsForDifficulty, bonusPoints);
-    }
+        PointsForEasyTile = scoringConfig.PointsForEasyTile;
+        PointsForMediumTile = scoringConfig.PointsForMediumTile;
+        PointsForHardTile = scoringConfig.PointsForHardTile;
 
-    public static void AddTeam(Team team)
-    {
-        if (teamScores.ContainsKey(team) is false)
+        rowBonusPoints = CreateMultipleBonusPoints(rowBoardIndexes, scoringConfig.BonusPointsForRow);
+        columnBonusPoints = CreateMultipleBonusPoints(columnBoardIndexes, scoringConfig.BonusPointsForColumn);
+        easyBonusPoints = new(easyBoardIndexes, scoringConfig.BonusPointsForEasyCompletion);
+        mediumBonusPoints = new(mediumBoardIndexes, scoringConfig.BonusPointsForMediumCompletion);
+        hardBonusPoints = new(hardBoardIndexes, scoringConfig.BonusPointsForHardCompletion);
+
+        allBonusPoints = new List<BonusPoints>(rowBonusPoints.Concat(columnBonusPoints)) { easyBonusPoints, mediumBonusPoints, hardBonusPoints };
+
+        BoardIndexToBonusPoints = MapBoardIndexesToBonusPoints(allBonusPoints);
+
+        PointsForDifficulty = new()
         {
-            teamScores.Add(team, new TeamScore());
-        }
-    }
+            {Difficulty.Easy, PointsForEasyTile },
+            {Difficulty.Medium, PointsForMediumTile },
+            {Difficulty.Hard, PointsForHardTile },
+        };
 
-    public static TeamScore GetTeamScore(Team team) =>
-        teamScores[team];
-
-    private static void CommonSetUp(Dictionary<Difficulty, int> pointsForDifficulty, IEnumerable<BonusPoints> allBonusPoints)
-    {
-        Scoring.allBonusPoints = allBonusPoints;
-        TeamScore.BoardIndexToBonusPoints = MapBoardIndexesToBonusPoints(allBonusPoints);
-        TeamScore.PointsForDifficulty = pointsForDifficulty;
-        CreateTeamScores();
+        IsInitialised = true;
     }
 
     private static BonusPoints[] CreateMultipleBonusPoints(IEnumerable<HashSet<int>> boardIndexes, int bonusValue)
@@ -131,15 +129,4 @@ public static class Scoring
 
         return bonusPointsMap;
     }
-
-    private static void CreateTeamScores()
-    {
-        foreach (Team team in dataWorker.Teams.GetAll())
-        {
-            AddTeam(team);
-        }
-    }
-
-    public static void UpdateTeamScore(Tile tileThatChanged) =>
-        teamScores[tileThatChanged.Team].Update(tileThatChanged);
 }

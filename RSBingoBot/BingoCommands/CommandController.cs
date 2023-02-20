@@ -9,6 +9,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot;
@@ -22,7 +24,8 @@ using static RSBingo_Framework.DAL.DataFactory;
 public class CommandController : ApplicationCommandModule
 {
     private const string TestTeamName = "Test";
-
+    private const string ProcessingResponse = "Processing response.";
+    private const string UnknownError = "An unknown error occurred.";
     private readonly ILogger<CommandController> logger;
     private readonly IDataWorker dataWorker = CreateDataWorker();
     private readonly DiscordClient discordClient;
@@ -151,33 +154,74 @@ public class CommandController : ApplicationCommandModule
 
     private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
     {
-        if (!await request.ValidateRequest()) { return; }
-
-        // TODO: JCH - Not sure how this will work.
-        RequestResponse response = await request.ProcessRequest();
-
-        if (!response.HasFailed)
-        {
-            // TODO: Decide what to do.
-            return;
-        }
+        DiscordWebhookBuilder editBuilder = new DiscordWebhookBuilder();
 
         try
         {
+            if (await SendKeepAliveMessage(ctx) is false)
+            {
+                // Could not establish a connection to the discord channel. So we do not attempt to set a message for a response. 
+                // As the response when sent would throw.
+                return;
+            }
+
+            if (await request.ValidateRequest() is false)
+            {
+                editBuilder.WithContent(request.ResponseMessage);
+                return;
+            }
+
+            if (await request.ProcessRequest() is false)
+            {
+                editBuilder.WithContent(request.ResponseMessage);
+                return;
+            }
+
             dataWorker.SaveChanges();
 
-            if (response.Response is string respString)
-            {
-                DiscordWebhookBuilder editBuilder = new DiscordWebhookBuilder()
-                    .WithContent(respString);
-            }
+            // Success.
+            editBuilder.WithContent(request.ResponseMessage);
 
             return;
         }
-        catch
+        catch (RSBingoException e)
         {
-            // TODO: JCH - Decide what to do here.
+            editBuilder.WithContent(e.Message);
+            logger.LogInformation(e, e.Message);
             return;
+        }
+        catch (Exception e)
+        {
+            // Unexpected exception
+            editBuilder.WithContent(UnknownError);
+            logger.LogError(e, e.Message);
+            return;
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(editBuilder.Content))
+            {
+                await ctx.EditResponseAsync(editBuilder);
+            }
+        }
+    }
+
+    private async Task<bool> SendKeepAliveMessage(InteractionContext ctx)
+    {
+        try
+        {
+            var builder = new DiscordInteractionResponseBuilder()
+                .AsEphemeral()
+                .WithContent(ProcessingResponse);
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+
+            return true;
+        }
+        catch(Exception e)
+        {
+            logger.LogInformation(e, e.Message);
+            return false;
         }
     }
 
