@@ -1,13 +1,11 @@
-﻿using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Scoring;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="Team.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingo_Framework.Models;
+
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Scoring;
 
 public partial class Team : IHasScore
 {
@@ -17,8 +15,6 @@ public partial class Team : IHasScore
 
     public TeamScore TeamScore => teamScore ??= new();
 
-    public void UpdateScore(Tile tile)
-    {
+    public void UpdateScore(Tile tile) =>
         TeamScore.Update(tile);
-    }
 }

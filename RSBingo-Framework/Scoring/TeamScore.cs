@@ -17,7 +17,7 @@ public class TeamScore
     /// <summary>
     /// Updates the team's score.
     /// </summary>
-    /// <param name="tile">The tile who's completion status changed, triggering the need to update the team's score.</param>
+    /// <param name="tile">The tile who's completion status changed, triggering the need to recalculate the team's score.</param>
     /// <exception cref="TileDifficultyPointValueNotSetException"/>
     public void Update(Tile tile)
     {
