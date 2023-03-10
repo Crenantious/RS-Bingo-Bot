@@ -13,14 +13,14 @@ namespace RSBingo_Framework.Records
     {
         #region enums & lookups
 
-        private static readonly EnumDict<Difficulty> DifficultyLookup = new EnumDict<Difficulty>(Difficulty.None)
+        private static readonly EnumDict<Difficulty> DifficultyLookup = new EnumDict<Difficulty>(Difficulty.Undefined)
             .Add(Difficulty.Easy, 1)
             .Add(Difficulty.Medium, 2)
             .Add(Difficulty.Hard, 3);
 
         public enum Difficulty
         {
-            None,
+            Undefined,
             Easy,
             Medium,
             Hard
@@ -33,5 +33,8 @@ namespace RSBingo_Framework.Records
 
         public static IEnumerable<BingoTask> GetAllBingoTasks(IDataWorker dataWorker) =>
             dataWorker.BingoTasks.GetAll();
+
+        public static Difficulty GetDifficutyAsDifficulty(this BingoTask bingoTask) =>
+            DifficultyLookup.Get(bingoTask.Difficulty);
     }
 }

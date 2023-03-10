@@ -12,7 +12,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
     /// </summary>
     public interface IEvidenceRepository : IRepository<Evidence>
     {
-        public Evidence Create(User user, Tile tile, string url, EvidenceType type);
-        public Evidence? GetByTile(Tile tile);
+        public Evidence Create(User user, Tile tile, string url, EvidenceType type, ulong discordMessageId);
+        Evidence? GetById(int rowId);
     }
 }

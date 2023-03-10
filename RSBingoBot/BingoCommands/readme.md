@@ -1,1 +1,0 @@
-﻿This folder is for creating logic classes for the command controller to call.

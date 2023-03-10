@@ -25,7 +25,9 @@ public static class DataFactory
     private const string DiscordTokenKey = "BotToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
     private const string GuildIdKey = "GuildId";
-    private const string SubmittedEvidenceChannelIdKey = "SubmittedEvidenceChannelId";
+    private const string PendingEvidenceChannelIdKey = "PendingEvidenceChannelId";
+    private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
+    private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -33,7 +35,9 @@ public static class DataFactory
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
     private static DiscordGuild guild = null!;
-    private static DiscordChannel submittedEvidenceChannel = null!;
+    private static DiscordChannel pendingEvidenceChannel = null!;
+    private static DiscordChannel verifiedEvidenceChannel = null!;
+    private static DiscordChannel rejectedEvidenceChannel = null!;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -48,9 +52,19 @@ public static class DataFactory
     public static DiscordGuild Guild => guild;
 
     /// <summary>
-    /// Gets the "submitted-evidence" channel.
+    /// Gets the "pending-evidence" channel.
     /// </summary>
-    public static DiscordChannel SubmittedEvidenceChannel => submittedEvidenceChannel;
+    public static DiscordChannel PendingReviewEvidenceChannel => pendingEvidenceChannel;
+
+    /// <summary>
+    /// Gets the "verified-evidence" channel.
+    /// </summary>
+    public static DiscordChannel VerfiedEvidenceChannel => verifiedEvidenceChannel;
+
+    /// <summary>
+    /// Gets the "rejected-evidence" channel.
+    /// </summary>
+    public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -73,6 +87,9 @@ public static class DataFactory
             // Not needed in tests.
             discordToken = Config_Get(DiscordTokenKey) !;
             guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+            pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
+            verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
+            rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
         }
     }
 
@@ -83,11 +100,12 @@ public static class DataFactory
     /// <returns>The data worker object defined as an interface.</returns>
     public static IDataWorker CreateDataWorker(string? mockName = null)
     {
-        DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
+            DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion));
+            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 
         if (dataIsMock)

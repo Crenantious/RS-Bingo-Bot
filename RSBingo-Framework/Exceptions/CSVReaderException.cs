@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Exceptions
+namespace RSBingo_Framework.Exceptions;
+
+public class CSVReaderException : RSBingoException
 {
-    public class CSVReaderException : Exception
-    {
-        public CSVReaderException(string? message) : base(message) { }
-    }
+    public CSVReaderException(string? message) : base(message) { }
 }

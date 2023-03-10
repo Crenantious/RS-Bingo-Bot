@@ -24,6 +24,8 @@ namespace RSBingoBot.Component_interaction_handlers
 
         /// <inheritdoc/>
         protected override bool ContinueWithNullUser { get { return true; } }
+        protected override bool CreateAutoResponse { get { return true; } }
+
 
         /// <summary>
         /// Gets the custom Id for the "Join team" button.
@@ -43,7 +45,10 @@ namespace RSBingoBot.Component_interaction_handlers
             var builder = new DiscordFollowupMessageBuilder();
             IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+            if (await TrySendUserTeamStatusErrorMessage(args.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             if (!teams.Any())
             {
@@ -83,7 +88,10 @@ namespace RSBingoBot.Component_interaction_handlers
         {
             string content = string.Empty;
 
-            if (await UserInDBCheck(args.User.Id, false, args) == -1) { return; }
+            if (await TrySendUserTeamStatusErrorMessage(args.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             if (teamSelected == string.Empty)
             {
@@ -102,14 +110,14 @@ namespace RSBingoBot.Component_interaction_handlers
                 if (index == -1)
                 {
                     // Error, team role should exist
-                    content += "\nThe team's role does not exist; please tell an admin.";
+                    content += $"{Environment.NewLine}The team's role does not exist; please tell an admin.";
                 }
                 else
                 {
                     await args.Guild.GetMemberAsync(args.User.Id).Result.GrantRoleAsync(roles[index]);
                 }
 
-                await InteractionConcluded();
+                await ConcludeInteraction();
             }
 
             var builder = new DiscordFollowupMessageBuilder()

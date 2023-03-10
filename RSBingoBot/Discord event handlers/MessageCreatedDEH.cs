@@ -18,6 +18,9 @@ namespace RSBingoBot.Discord_event_handlers
         public record Constraints(DiscordChannel? channel = null, DiscordUser? author = null,
             int? numberOfAttachments = null, string? attatchmentFileExtension = null);
 
+        public MessageCreatedDEH() =>
+            DiscordClient.MessageCreated += OnEvent;
+
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
             new () { constriants.channel, constriants.author,

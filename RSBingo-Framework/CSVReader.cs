@@ -59,32 +59,31 @@ namespace RSBingo_Framework
 
         private static string AddDeleteTasks(string csvUrl, bool addTasks)
         {
-            using (var client = new WebClient())
+            WebClient client = new();
+            string TasksFileName = "Tasks.csv";
+
+            try
             {
-                string TasksFileName = "Tasks.csv";
+                client.DownloadFile(csvUrl, TasksFileName);
 
-                try
+                ParseFile(TasksFileName,
+                    addTasks ? 4 : 3,
+                    addTasks ? CreateTask : DeleteTasks);
+                DataWorker.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(CSVReaderException))
                 {
-                    client.DownloadFile(csvUrl, TasksFileName);
-
-                    ParseFile(TasksFileName,
-                        addTasks ? 4 : 3,
-                        addTasks ? CreateTask : DeleteTask);
-                    DataWorker.SaveChanges();
+                    return e.Message;
                 }
-                catch (Exception e)
+                else
                 {
-                    if (e.GetType() == typeof(CSVReaderException))
-                    {
-                        return e.Message;
-                    }
-                    else
-                    {
-                        General.LoggingLog(e, e.Message);
-                        return "Internal error.";
-                    }
+                    General.LoggingLog(e, e.Message);
+                    return "Internal error.";
                 }
             }
+
             return string.Empty;
         }
 
@@ -181,9 +180,9 @@ namespace RSBingo_Framework
                 GetTaskAmount(values));
         }
 
-        private static void DeleteTask(string[] values)
+        private static void DeleteTasks(string[] values)
         {
-            DataWorker.BingoTasks.DeleteMany(
+            DataWorker.BingoTasks.RemoveRange(
                 DataWorker.BingoTasks.GetByNameAndDifficulty(GetTaskName(values), GetTaskDifficulty(values))
                 .Take(GetTaskAmount(values)));
         }

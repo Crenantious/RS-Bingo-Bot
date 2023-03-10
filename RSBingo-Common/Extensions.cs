@@ -9,6 +9,6 @@ namespace RSBingo_Common
     /// </summary>
     public static class Extensions
     {
-
+        public static string FormatConst(this string str, params object[] args) => string.Format(str, args);
     }
 }

@@ -30,9 +30,6 @@ namespace RSBingoBot
         private readonly ILogger logger;
         private readonly DiscordClient discordClient;
         private readonly DiscordTeam.Factory teamFactory;
-        private readonly ComponentInteractionDEH componentInteractionDEH;
-        private readonly MessageCreatedDEH messageCreatedDEH;
-        private readonly ModalSubmittedDEH modalSubmittedDEH;
         private readonly IDataWorker dataWorker = CreateDataWorker();
 
         /// <summary>
@@ -41,19 +38,11 @@ namespace RSBingoBot
         /// <param name="logger">The logger the instance will log to.</param>
         /// <param name="client">The client the bot will connect to.</param>
         /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-        /// <param name="componentInteractionDEH">The DEH for component interactions.</param>
-        /// <param name="messageCreatedDEH">The DEH for message creation.</param>
-        /// <param name="modalSubmittedDEH">The DEH for modal submissions.</param>
-        public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory,
-            ComponentInteractionDEH componentInteractionDEH, MessageCreatedDEH messageCreatedDEH,
-            ModalSubmittedDEH modalSubmittedDEH)
+        public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory)
         {
             this.logger = logger;
             this.discordClient = client;
             this.teamFactory = teamFactory;
-            this.componentInteractionDEH = componentInteractionDEH;
-            this.messageCreatedDEH = messageCreatedDEH;
-            this.modalSubmittedDEH = modalSubmittedDEH;
         }
 
         /// <inheritdoc/>
@@ -67,10 +56,6 @@ namespace RSBingoBot
             });
             slash.RegisterCommands<CommandController>(Guild.Id);
 
-            discordClient.ComponentInteractionCreated += componentInteractionDEH.OnEvent;
-            discordClient.MessageCreated += messageCreatedDEH.OnEvent;
-            discordClient.ModalSubmitted += modalSubmittedDEH.OnEvent;
-
             ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
             ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
 
@@ -79,10 +64,8 @@ namespace RSBingoBot
         }
 
         /// <inheritdoc/>
-        public override async Task StopAsync(CancellationToken stoppingToken)
-        {
+        public override async Task StopAsync(CancellationToken stoppingToken) =>
             await discordClient.DisconnectAsync();
-        }
 
         /// <inheritdoc/>
         protected override Task ExecuteAsync(CancellationToken stoppingToken)

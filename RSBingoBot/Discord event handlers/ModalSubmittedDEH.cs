@@ -16,6 +16,9 @@ namespace RSBingoBot.Discord_event_handlers
     {
         public record Constraints(DiscordUser? user = null, string? customId = null);
 
+        public ModalSubmittedDEH() =>
+            DiscordClient.ModalSubmitted += OnEvent;
+
         /// <inheritdoc/>
         public override List<object> GetConstraintValues(Constraints constriants) =>
             new () { constriants.user, constriants.customId };

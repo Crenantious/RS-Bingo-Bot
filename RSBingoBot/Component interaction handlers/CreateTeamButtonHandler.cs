@@ -31,6 +31,8 @@ namespace RSBingoBot.Component_interaction_handlers
         /// <inheritdoc/>
         protected override bool ContinueWithNullUser { get { return true; } }
 
+        protected override bool CreateAutoResponse { get { return false; } }
+
         /// <inheritdoc/>
         public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
         {
@@ -43,15 +45,18 @@ namespace RSBingoBot.Component_interaction_handlers
                 .WithCustomId(modalId)
                 .AddComponents(teamNameInput);
 
-            //await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
+            await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
             SubscribeModal(new ModalSubmittedDEH.Constraints(customId: modalId), TeamNameSubmitted);
         }
 
         private async Task TeamNameSubmitted(DiscordClient discordClient, ModalSubmitEventArgs args)
         {
             User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
-
-            if (await UserInDBCheck(args.Interaction.User.Id, false, args) == -1) { return; }
+            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("23"));
+            if (await TrySendUserTeamStatusErrorMessage(args.Interaction.User.Id, false, args) is false)
+            {
+                await ConcludeInteraction();
+            }
 
             string teamName = args.Values[teamNameInputId];
             var builder = new DiscordFollowupMessageBuilder()
@@ -93,7 +98,7 @@ namespace RSBingoBot.Component_interaction_handlers
                     await args.Interaction.CreateFollowupMessageAsync(newBuilder);
                 }
             }
-            await InteractionConcluded();
+            await ConcludeInteraction();
         }
     }
 }

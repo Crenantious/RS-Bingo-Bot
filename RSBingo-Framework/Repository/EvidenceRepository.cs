@@ -25,20 +25,20 @@ namespace RSBingo_Framework.Repository
         public override Evidence Create() =>
             Add(new Evidence());
 
-        public Evidence Create(User user, Tile tile, string url, EvidenceType type)
+        public Evidence Create(User user, Tile tile, string url, EvidenceType type, ulong discordMessageId)
         {
             Evidence evidence = Create();
             evidence.DiscordUser = user;
             evidence.Tile = tile;
             evidence.Url = url;
             evidence.EvidenceType = (sbyte)type;
+            evidence.DiscordMessageId = discordMessageId;
 
             user.Evidence.Add(evidence);
 
             return evidence;
         }
 
-        public Evidence? GetByTile(Tile tile) =>
-            FirstOrDefault(e => e.Tile == tile);
+        public Evidence? GetById(int rowId) => FirstOrDefault(e => e.RowId == rowId);
     }
 }

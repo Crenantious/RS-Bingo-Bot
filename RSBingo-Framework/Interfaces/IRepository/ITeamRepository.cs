@@ -15,7 +15,7 @@ namespace RSBingo_Framework.Interfaces.IRepository
         public bool DoesTeamExist(string name);
         public Team? GetByName(string name);
         public IEnumerable<Team> GetTeams();
-        public int Delete(string name);
-        public void Delete(Team team);
+
+        public Team? GetTeamByID(int id);
     }
 }

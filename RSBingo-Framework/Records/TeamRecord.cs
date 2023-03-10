@@ -6,6 +6,8 @@ namespace RSBingo_Framework.Records
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Repository;

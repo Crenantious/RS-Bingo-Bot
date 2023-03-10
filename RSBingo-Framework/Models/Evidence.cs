@@ -9,6 +9,7 @@ namespace RSBingo_Framework.Models
         public int RowId { get; set; }
         public int TileId { get; set; }
         public ulong DiscordUserId { get; set; }
+        public ulong DiscordMessageId { get; set; }
         public string Url { get; set; } = null!;
         public sbyte Status { get; set; }
         public sbyte EvidenceType { get; set; }

@@ -2,22 +2,21 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Models
+namespace RSBingo_Framework.Models;
+
+public partial class Team : BingoRecord
 {
-    public partial class Team : BingoRecord
+    public Team()
     {
-        public Team()
-        {
-            Tiles = new HashSet<Tile>();
-            Users = new HashSet<User>();
-        }
-
-        public int RowId { get; set; }
-        public string Name { get; set; } = null!;
-        public ulong BoardChannelId { get; set; }
-        public ulong BoardMessageId { get; set; }
-
-        public virtual ICollection<Tile> Tiles { get; set; }
-        public virtual ICollection<User> Users { get; set; }
+        Tiles = new HashSet<Tile>();
+        Users = new HashSet<User>();
     }
+
+    public int RowId { get; set; }
+    public string Name { get; set; } = null!;
+    public ulong BoardChannelId { get; set; }
+    public ulong BoardMessageId { get; set; }
+
+    public virtual ICollection<Tile> Tiles { get; set; }
+    public virtual ICollection<User> Users { get; set; }
 }

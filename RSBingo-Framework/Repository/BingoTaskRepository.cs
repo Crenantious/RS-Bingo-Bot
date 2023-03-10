@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework.Repository
 {
+    using Microsoft.EntityFrameworkCore;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Interfaces.IRepository;
     using RSBingo_Framework.Models;
@@ -64,35 +65,10 @@ namespace RSBingo_Framework.Repository
         public IEnumerable<BingoTask> GetAllWithDifficulty(Difficulty difficulty) =>
             Where(t => t.Difficulty == (sbyte)difficulty).ToList();
 
-        public void Delete(string name, Difficulty difficulty)
+        /// <inheritdoc/>
+        public override void LoadCascadeNavigations(BingoTask bingoTask)
         {
-            BingoTask? task = FirstOrDefault(t => t.Name == name && t.Difficulty == (sbyte)difficulty);
-            if (task != null) { Delete(task); }
+            DataWorker.BingoTasks.Where(bt => bt.RowId == bingoTask.RowId);
         }
-
-        public void Delete(BingoTask bingoTask) =>
-            Remove(bingoTask);
-
-        /// <summary>
-        /// Deletes as many <see cref="BingoTask"/>s that can be found with matching <paramref name="name"/>
-        /// and <paramref name="difficulty"/> up to the <paramref name="amount"/>.<br/>
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="difficulty"></param>
-        /// <param name="amount"></param>
-        public void DeleteMany(string name, Difficulty difficulty, int amount)
-        {
-            IEnumerable<BingoTask> tasks = Where(t => t.Name == name && t.Difficulty == (sbyte)difficulty).AsEnumerable();
-            for (int i = 0; i < MathF.Min(tasks.Count(), amount); i++)
-            {
-                Delete(tasks.ElementAt(i));
-            }
-        }
-
-        public void DeleteMany(IEnumerable<BingoTask> bingoTasks) =>
-            RemoveRange(bingoTasks);
-
-        public void DeleteAll() =>
-            RemoveRange(GetAll());
     }
 }

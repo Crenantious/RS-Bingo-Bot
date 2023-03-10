@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Exceptions
+namespace RSBingo_Framework.Exceptions;
+
+public class InvalidDifficultyException : RSBingoException
 {
-    public class InvalidDifficultyException : Exception
-    {
-        public InvalidDifficultyException(string? message) : base(message) { }
-    }
+    public InvalidDifficultyException(string? message) : base(message) { }
 }
