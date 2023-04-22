@@ -5,29 +5,35 @@
 namespace RSBingo_Framework.CSV;
 
 using RSBingo_Framework.CSV.Lines;
+using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using static RSBingo_Framework.DAL.DataFactory;
     
 /// <inheritdoc/>
-public class RemoveTasksCSVOperator : CSVOperator<RemoveTaskCSVLine>
+public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
 {
-    protected override string WarningMessagesPrefix => "Unable to remove the following tasks (they likely does not exist): ";
-
-    private IDataWorker dataWorker = CreateDataWorker();
+    private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <inheritdoc/>
-    protected override void OperateOnLine(RemoveTaskCSVLine line)
+    protected override void OperateOnLine(RemoveTasksCSVLine line)
     {
-        try
+        IEnumerable<BingoTask> tasks = dataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName.Value, line.TaskDifficulty.Value)
+                                           .Take(line.AmountOfTasks.Value);
+        int tasksCount = tasks.Count();
+
+        if (tasksCount > 0)
         {
-            dataWorker.BingoTasks.DeleteMany(
-                dataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName, line.TaskDifficulty)
-                .Take(line.AmountOfTasks));
+            if (tasksCount < line.AmountOfTasks.Value)
+            {
+                AddWarning(new NotEnoughTasksToDeleteWarning(line.TaskName.ValueIndex, line.LineNumber, tasksCount));
+            }
+
+            dataWorker.BingoTasks.RemoveRange(tasks);
+            return;
         }
-        catch
-        {
-            AddWarning(line.TaskName, line);
-        }
+
+        AddWarning(new TaskDoesNotExistWarning(line.TaskName.ValueIndex, line.LineNumber));
     }
 
     /// <inheritdoc/>

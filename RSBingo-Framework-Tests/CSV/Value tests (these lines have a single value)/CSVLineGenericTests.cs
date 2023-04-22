@@ -15,7 +15,7 @@ public class CSVLineGenericTests : CSVTestsBase<CSVTestLineGeneric>
     {
         CreateAndParseCSVFile("1");
 
-        Assert.AreEqual(1, ParsedCSVData.Lines.ElementAt(0).GenericValue);
+        Assert.AreEqual(1, ParsedCSVData.Lines.ElementAt(0).Value.Value);
     }
 
     [TestMethod]

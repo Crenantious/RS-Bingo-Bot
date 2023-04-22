@@ -5,28 +5,26 @@
 namespace RSBingo_Framework.CSV;
 
 using RSBingo_Framework.CSV.Lines;
+using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <inheritdoc/>
 public class RemoveTaskRestrictionsCSVOperator : CSVOperator<RemoveTaskRestrictionCSVLine>
 {
-    protected override string WarningMessagesPrefix => "Unable to remove the following task restrictions (they likely does not exist): ";
-
-    private IDataWorker dataWorker = CreateDataWorker();
+    private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <inheritdoc/>
     protected override void OperateOnLine(RemoveTaskRestrictionCSVLine line)
     {
-        try
+        if (dataWorker.Restrictions.GetByName(line.RestrictionName.Value) is Restriction restriction)
         {
-            dataWorker.Restrictions.Remove(
-                dataWorker.Restrictions.GetByName(line.RestrictionName));
+            dataWorker.Restrictions.Remove(restriction);
+            return;
         }
-        catch
-        {
-            AddWarning(line.RestrictionName, line);
-        }
+
+        AddWarning(new TaskRestrictionDoesNotExistWarning(line.RestrictionName.ValueIndex, line.LineNumber));
     }
 
     /// <inheritdoc/>

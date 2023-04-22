@@ -93,6 +93,8 @@ public static class DataFactory
         }
     }
 
+    private static string mockName = string.Empty;
+
     /// <summary>
     /// Creates a new instance of a DataWorker.
     /// </summary>
@@ -111,7 +113,8 @@ public static class DataFactory
         if (dataIsMock)
         {
             imdRoot ??= new InMemoryDatabaseRoot();
-            builder.UseInMemoryDatabase(mockName, imdRoot);
+            DataFactory.mockName = mockName ?? DataFactory.mockName;
+            builder.UseInMemoryDatabase(DataFactory.mockName, imdRoot);
         }
 
         RSBingoContext dbContext = new (builder.Options);

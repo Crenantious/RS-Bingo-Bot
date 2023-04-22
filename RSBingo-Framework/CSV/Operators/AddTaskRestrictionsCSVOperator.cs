@@ -5,19 +5,18 @@
 namespace RSBingo_Framework.CSV;
 
 using RSBingo_Framework.CSV.Lines;
+using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Framework.DAL.DataFactory;
 
-
 /// <inheritdoc/>
 public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVLine>
 {
-    protected override string WarningMessagesPrefix => "Restrictions with the following names already exist, so they were ignored: ";
-
-    private IDataWorker dataWorker = CreateDataWorker();
+    private readonly IDataWorker dataWorker = CreateDataWorker();
     private readonly HashSet<string> existingRestrictionNames = new();
 
+    /// <inheritdoc/>
     protected override void OnPreOperating()
     {
         foreach (Restriction restriction in dataWorker.Restrictions.GetAll())
@@ -26,18 +25,20 @@ public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVL
         }
     }
 
+    /// <inheritdoc/>
     protected override void OperateOnLine(AddTaskRestrictionCSVLine line)
     {
-        if (existingRestrictionNames.Contains(line.RestrictionName))
+        if (existingRestrictionNames.Contains(line.RestrictionName.Value))
         {
-            AddWarning(line.RestrictionName, line);
+            AddWarning(new TaskRestrictionAlreadyExistsWarning(line.RestrictionName.ValueIndex, line.LineNumber));
             return;
         }
 
-        Restriction restriction = dataWorker.Restrictions.Create(line.RestrictionName, line.RestrictionDescription);
-        existingRestrictionNames.Add(line.RestrictionName);
+        Restriction restriction = dataWorker.Restrictions.Create(line.RestrictionName.Value, line.RestrictionDescription.Value);
+        existingRestrictionNames.Add(line.RestrictionName.Value);
     }
 
+    /// <inheritdoc/>
     protected override void OnPostOperating() =>
         dataWorker.SaveChanges();
 }

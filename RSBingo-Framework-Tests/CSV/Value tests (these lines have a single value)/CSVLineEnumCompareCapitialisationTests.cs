@@ -4,7 +4,6 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineEnumBase;
@@ -17,13 +16,21 @@ public class CSVLineEnumCompareCapitialisationTests : CSVTestsBase<CSVTestLineEn
     {
         CreateAndParseCSVFile(TestEnum.TestValue.ToString());
 
-        Assert.AreEqual(TestEnum.TestValue, ParsedCSVData.Lines.ElementAt(0).EnumValue);
+        Assert.AreEqual(TestEnum.TestValue, ParsedCSVData.Lines.ElementAt(0).Value.Value);
     }
 
     [TestMethod]
     public void AddLowercasedEnumValueToCSVFile_Parse_GetException()
     {
         CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToLower());
+
+        AssertReader(typeof(InvalidCSVValueTypeException));
+    }
+
+    [TestMethod]
+    public void AddUppercasedEnumValueToCSVFile_Parse_GetException()
+    {
+        CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToUpper());
 
         AssertReader(typeof(InvalidCSVValueTypeException));
     }

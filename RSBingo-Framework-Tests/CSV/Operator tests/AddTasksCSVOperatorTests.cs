@@ -1,110 +1,139 @@
-﻿// <copyright file="AddTaskRestrictionsCSVOperatorTests.cs" company="PlaceholderCompany">
+﻿// <copyright file="AddTasksCSVOperatorTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.CSV;
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.Exceptions.CSV;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.CSV.Lines;
+using RSBingo_Framework_Tests.CSV.LocalServer;
+using RSBingo_Framework.CSV.Operators.Warnings;
+using static RSBingo_Common.General;
+using static RSBingo_Framework.Records.BingoTaskRecord;
+using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
 
 [TestClass]
-public class AddTaskRestrictionsCSVOperatorTests : CSVOperatorTestsBase<AddTaskRestrictionsCSVOperator, AddTaskRestrictionCSVLine>
+public class AddTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<AddTasksCSVOperator, AddTasksCSVLine>
 {
+    /// <summary>
+    /// The server is opened here instead of before each test because it's possible that
+    /// the url won't be released when the server tries to register it.
+    /// </summary>
+    static AddTasksCSVOperatorTests() =>
+        LocalTestServer.Open();
+
     [TestMethod]
-    public void AddRestrictionToFile_ParseAndOperate_IsAddedToDBCorrectlyWithNoWarningMessages()
+    public void AddMaxOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"));
+        TaskInfo taskInfo = new("Task 1", Difficulty.Easy, MaxNumberOfTasks, ValidImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 0);
-        AssertRestrictions(("Restriction 1", "Description 1"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithDifferentNamesAndDescriptionsToFile_ParseAndOperate_BothAreAddedToDBWithNoWarningMessages()
+    public void AddMinOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"), ("Restriction 2", "Description 2"));
+        TaskInfo taskInfo = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 0);
-        AssertRestrictions(("Restriction 1", "Description 1"), ("Restriction 2", "Description 2"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithDifferentNamesAndTheSameDescriptionToFile_ParseAndOperate_BothAreAddedToDBWithNoWarningMessages()
+    public void AddTasksWithSameNameAndDifferentDifficultiesToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"), ("Restriction 2", "Description 1"));
+        TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        TaskInfo taskInfo2 = new("Task 1", Difficulty.Medium, MinNumberOfTasks, ValidImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo1, taskInfo2);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 0);
-        AssertRestrictions(("Restriction 1", "Description 1"), ("Restriction 2", "Description 1"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo1, taskInfo2);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithTheSameNameAndDifferentDescriptionsToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarningMessage()
+    public void AddTasksWithDifferentNamesAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"), ("Restriction 1", "Description 2"));
+        TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        TaskInfo taskInfo2 = new("Task 2", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo1, taskInfo2);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 1);
-        AssertRestrictions(("Restriction 1", "Description 1"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo1, taskInfo2);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithTheSameNameAndTheSameDescriptionToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarningMessage()
+    public void AddTasksWithSameNameAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"), ("Restriction 1", "Description 1"));
+        TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MinNumberOfTasks * 2, ValidImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo1, taskInfo1);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 1);
-        AssertRestrictions(("Restriction 1", "Description 1"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo2);
     }
 
     [TestMethod]
-    public void AddRestrictionToDBAndARestrictionToFileWithTheSameName_ParseAndOperate_TheRestrictionInTheFileIsNotAddedToDBWithAWarningMessage()
+    public void AddTasksToDbAndToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
     {
-        DataWorkerBefore.Restrictions.Create("Restriction 1", "Description 1");
+        TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
+        TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MinNumberOfTasks * 2, ValidImageURL);
+        DataWorkerBefore.BingoTasks.CreateMany(taskInfo1.Name, taskInfo1.Difficulty, taskInfo1.Amount);
         DataWorkerBefore.SaveChanges();
-        CreateRestrictionsInFile(("Restriction 1", "Description 1"));
+        CreateAndParseTasksInCSVFile(taskInfo1);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 1);
-        AssertRestrictions(("Restriction 1", "Description 1"));
+        AssertReaderAndOperator(null, null);
+        AssertTasks(taskInfo2);
     }
 
     [TestMethod]
-    public void AddRestrictionToDBAndARestrictionToFileWithDifferentNames_ParseAndOperate_TheRestrictionInTheFileIsAddedToDBWithNoWarningMessages()
+    public void AddTasksWithAnInvalidURLToFile_ParseAndOperate_NotAddedToDBAndGetAWarningAndNoExceptions()
     {
-        DataWorkerBefore.Restrictions.Create("Restriction 1", "Description 1");
-        DataWorkerBefore.SaveChanges();
-        CreateRestrictionsInFile(("Restriction 2", "Description 1"));
+        TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, InvalidURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
 
-        ParseFileAndOperate();
+        Operate();
 
-        AssertReaderAndOperator(null, null, 0);
-        AssertRestrictions(("Restriction 1", "Description 1"), ("Restriction 2", "Description 1"));
+        AssertReaderAndOperator(null, null, typeof(UnableToReachWebsiteWarning));
+        AssertTasks();
     }
 
-    private void AssertRestrictions(params (string, string)[] expectedRestrictionsInDB)
+    [TestMethod]
+    public void AddTasksWithACorruptImageURLToFile_ParseAndOperate_NotAddedToDBAndGetAWarningAndNoExceptions()
     {
-        foreach((string, string) restrictionComponents in expectedRestrictionsInDB)
-        {
-            Restriction? restriction = DataWorkerAfter.Restrictions.GetByName(restrictionComponents.Item1);
-            Assert.IsNotNull(restriction);
-            Assert.AreEqual(restrictionComponents.Item2, restriction.Description);
-        }
+        TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, CorruptImageURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
 
-        Assert.AreEqual(expectedRestrictionsInDB.Count(), DataWorkerAfter.Restrictions.GetAll().Count());
+        Operate();
+
+        AssertReaderAndOperator(null, null, typeof(InvalidImageWarning));
+        AssertTasks();
     }
 
-    private void CreateRestrictionsInFile(params (string, string)[] restrictions) =>
-        CreateAndParseCSVFile(restrictions.Select(r => $"{r.Item1}, {r.Item2}").ToArray());
+    [TestMethod]
+    public void AddTasksWithAnInvalidImageFormatURLToFile_ParseAndOperate_NotAddedToDBAndGetAWarningAndNoExceptions()
+    {
+        TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, InvalidImageFormatURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
+
+        Operate();
+
+        AssertReaderAndOperator(null, null, typeof(InvalidImageWarning));
+        AssertTasks();
+    }
 }

@@ -39,6 +39,22 @@ public class CSVLineCompareableTests : CSVTestsBase<CSVTestLineComparable>
     }
 
     [TestMethod]
+    public void AddValueToCSVFileThatIsTooLargeToConvert_Parse_GetException()
+    {
+        CreateAndParseCSVFile(Int32.MaxValue.ToString() + "0");
+
+        AssertReader(typeof(InvalidCSVValueTypeException));
+    }
+
+    [TestMethod]
+    public void AddValueToCSVFileThatIsTooSmallToConvert_Parse_GetException()
+    {
+        CreateAndParseCSVFile(Int32.MinValue.ToString() + "0");
+
+        AssertReader(typeof(InvalidCSVValueTypeException));
+    }
+
+    [TestMethod]
     public void AddValueLessThanMinToCSVFile_Parse_GetException()
     {
         CreateAndParseCSVFile((ComparableValueMin - 1).ToString());
@@ -63,5 +79,5 @@ public class CSVLineCompareableTests : CSVTestsBase<CSVTestLineComparable>
     }
 
     private void AssertCSVValue(int value) =>
-        Assert.AreEqual(value, ParsedCSVData.Lines.ElementAt(0).ComparableValue);
+        Assert.AreEqual(value, ParsedCSVData.Lines.ElementAt(0).Value.Value);
 }

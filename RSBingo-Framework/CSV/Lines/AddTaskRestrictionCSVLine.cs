@@ -4,22 +4,12 @@
 
 namespace RSBingo_Framework.CSV.Lines;
 
-public class AddTaskRestrictionCSVLine : CSVLine
+public class AddTaskRestrictionCSVLine : AddOrRemoveTaskRestrictionCSVLine
 {
-    private CSVValueGeneric<string> restrictionNameValue = new("Task restriction name", 0);
-    private CSVValueGeneric<string> restrictionDescriptionValue = new("Task restriction description", 1);
+    public CSVValueGeneric<string> RestrictionDescription { get; } = new("Task restriction description", 1);
 
-    public string RestrictionName { get; private set; } = String.Empty;    
-    public string RestrictionDescription { get; private set; } = String.Empty;
+    public AddTaskRestrictionCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }
 
-    protected override int NumberOfValues => 2;
-
-    public AddTaskRestrictionCSVLine(int lineNumber, string[] values)
-        : base(lineNumber, values) { }
-
-    protected override void Parse(string[] values)
-    {
-        RestrictionName = restrictionNameValue.Parse(values);
-        RestrictionDescription = restrictionDescriptionValue.Parse(values);
-    }
+    protected override List<ICSVValue> GetValues() =>
+        new List<ICSVValue>(base.GetValues()) { RestrictionDescription };
 }

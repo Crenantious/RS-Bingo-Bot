@@ -11,16 +11,10 @@ public class CSVTestLineComparable : CSVLine
     public const int ComparableValueMin = 1;
     public const int ComparableValueMax = 5;
 
-    private CSVValueComparable<int> comparableValue = new("Comparable value", 0, ComparableValueMin, ComparableValueMax);
-
-    public int ComparableValue { get; private set; }
-
-    protected override int NumberOfValues => 1;
+    public CSVValueComparable<int> Value { get; } = new("Comparable value", 0, ComparableValueMin, ComparableValueMax);
 
     public CSVTestLineComparable(int lineNumber, string[] values) : base(lineNumber, values) { }
 
-    protected override void Parse(string[] values)
-    {
-        ComparableValue = comparableValue.Parse(values);
-    }
+    protected override List<ICSVValue> GetValues() =>
+        new() { Value };
 }

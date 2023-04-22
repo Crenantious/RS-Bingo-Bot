@@ -11,18 +11,19 @@ public abstract class CSVLine
 {
     public int LineNumber { get; }
 
-    protected abstract int NumberOfValues { get; }
-
     public CSVLine(int lineNumber, string[] values)
     {
-        if(values.Length != NumberOfValues)
+        List<ICSVValue> CSVValues = GetValues();
+
+        if (CSVValues.Count != values.Length)
         {
-            throw new IncorrectNumberOfCSVValuesException($"Expected {NumberOfValues} values but got {values.Length}");
+            throw new IncorrectNumberOfCSVValuesException($"Expected {CSVValues.Count} values but got {values.Length}");
         }
 
         LineNumber = lineNumber;
-        Parse(values);
+        CSVValues.ForEach(v => v.Parse(values[v.ValueIndex]));
     }
 
-    protected abstract void Parse(string[] values);
+    /// <returns>A list of all <see cref="ICSVValue"/>s for this line, to be parsed.</returns>
+    protected abstract List<ICSVValue> GetValues();
 }

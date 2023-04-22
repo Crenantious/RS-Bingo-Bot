@@ -4,7 +4,6 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineEnumBase;
@@ -18,7 +17,7 @@ public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestL
         CreateAndParseCSVFile(TestEnum.TestValue.ToString());
 
         AssertReader(null);
-        Assert.AreEqual(TestEnum.TestValue, ParsedCSVData.Lines.ElementAt(0).EnumValue);
+        AssertCSVValue(TestEnum.TestValue);
     }
 
     [TestMethod]
@@ -27,7 +26,7 @@ public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestL
         CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToLower());
 
         AssertReader(null);
-        Assert.AreEqual(TestEnum.TestValue, ParsedCSVData.Lines.ElementAt(0).EnumValue);
+        AssertCSVValue(TestEnum.TestValue);
     }
 
     [TestMethod]
@@ -36,7 +35,7 @@ public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestL
         CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToUpper());
 
         AssertReader(null);
-        Assert.AreEqual(TestEnum.TestValue, ParsedCSVData.Lines.ElementAt(0).EnumValue);
+        AssertCSVValue(TestEnum.TestValue);
     }
 
     [TestMethod]
@@ -46,4 +45,7 @@ public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestL
 
         AssertReader(typeof(InvalidCSVValueTypeException));
     }
+
+    private void AssertCSVValue(TestEnum value) =>
+        Assert.AreEqual(value, ParsedCSVData.Lines.ElementAt(0).Value.Value);
 }

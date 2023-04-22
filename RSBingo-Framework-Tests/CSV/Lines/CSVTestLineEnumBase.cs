@@ -8,20 +8,15 @@ using RSBingo_Framework.CSV;
 
 public abstract class CSVTestLineEnumBase : CSVLine
 {
-    public TestEnum EnumValue { get; private set; }
-
-    protected abstract CSVValueEnum<TestEnum> enumValue { get; }
-
-    protected override int NumberOfValues => 1;
+    public abstract CSVValueEnum<TestEnum> Value { get; }
 
     public enum TestEnum
     {
         TestValue
     }
 
-    public CSVTestLineEnumBase(int lineNumber, string[] values)
-        : base(lineNumber, values) { }
+    public CSVTestLineEnumBase(int lineNumber, string[] values) : base(lineNumber, values) { }
 
-    protected override void Parse(string[] values) =>
-        EnumValue = enumValue.Parse(values);
+    protected override List<ICSVValue> GetValues() =>
+        new() { Value };
 }

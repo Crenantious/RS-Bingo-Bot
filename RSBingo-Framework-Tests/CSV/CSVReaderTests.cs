@@ -4,9 +4,7 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework.Models;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVReaderTestLine;
 
@@ -14,7 +12,7 @@ using static RSBingo_Framework_Tests.CSV.Lines.CSVReaderTestLine;
 public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
 {
     [TestMethod]
-    public void CreateNonCSVFile_Parse_GetFormatException()
+    public void CreateNonCSVFile_Parse_GetException()
     {
         CreateAndParseFile("Test.txt");
 
@@ -26,19 +24,21 @@ public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
     {
         CreateAndParseCSVFile($"Test,{TestEnum.TestValue},1");
 
+        AssertReader(null);
         AssertParsedValues("Test", TestEnum.TestValue, 1);
     }
 
     [TestMethod]
     public void CreateCSVFileWithValidValuesAndDifferentAmountsOfWhiteSpace_Parse_GetCorrectValuesAndNoExceptions()
     {
-        CreateAndParseCSVFile($"Test,              {TestEnum.TestValue},      1");
+        CreateAndParseCSVFile($"Test,              {TestEnum.TestValue},1");
 
+        AssertReader(null);
         AssertParsedValues("Test", TestEnum.TestValue, 1);
     }
 
     [TestMethod]
-    public void CreateCSVFileWithValidValuesInIncorrectOrder_Parse_GetInvalidTypeException()
+    public void CreateCSVFileWithValidValuesInIncorrectOrder_Parse_GetException()
     {
         CreateAndParseCSVFile($"Test, 1, {TestEnum.TestValue}");
 
@@ -46,15 +46,15 @@ public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
     }
 
     [TestMethod]
-    public void CreateCSVFileWithTooFewValues_Parse_GetIncrrectNumberOfValuesException()
+    public void CreateCSVFileWithTooFewValues_Parse_GetException()
     {
-        CreateAndParseCSVFile($"Test");
+        CreateAndParseCSVFile($"1");
 
         AssertReader(typeof(IncorrectNumberOfCSVValuesException));
     }
 
     [TestMethod]
-    public void CreateCSVFileWithTooManyValues_Parse_GetIncrrectNumberOfValuesException()
+    public void CreateCSVFileWithTooManyValues_Parse_GetException()
     {
         CreateAndParseCSVFile($"1, 2, 3, 4");
 
@@ -63,9 +63,8 @@ public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
 
     private void AssertParsedValues(string genericValue, TestEnum enumValue, int comparableValue)
     {
-        AssertReader(null);
-        Assert.AreEqual(genericValue, ParsedCSVData.Lines.ElementAt(0).GenericValue);
-        Assert.AreEqual(enumValue, ParsedCSVData.Lines.ElementAt(0).EnumValue);
-        Assert.AreEqual(comparableValue, ParsedCSVData.Lines.ElementAt(0).CompareableValue);
+        Assert.AreEqual(genericValue, ParsedCSVData.Lines.ElementAt(0).GenericValue.Value);
+        Assert.AreEqual(enumValue, ParsedCSVData.Lines.ElementAt(0).EnumValue.Value);
+        Assert.AreEqual(comparableValue, ParsedCSVData.Lines.ElementAt(0).CompareableValue.Value);
     }
 }

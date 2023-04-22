@@ -13,12 +13,17 @@ public abstract class CSVTestsBase<CSVLineType> : MockDBBaseTestClass
 {
     private readonly string CSVFileName = Path.GetTempPath() + "Test.csv";
 
-    private string currentFileName = string.Empty;
+    private CSVReader reader = new CSVReader();
+    private Type? readerExceptionType = null;
 
-    protected IDataWorker DataWorkerBefore = null!;
-    protected IDataWorker DataWorkerAfter = null!;
-    protected Exception? CSVReaderException = null;
-    protected CSVData<CSVLineType> ParsedCSVData;
+    protected IDataWorker DataWorkerBefore { get; private set; } = null!;
+    protected IDataWorker DataWorkerAfter { get; private set; } = null!;
+
+    /// <summary>
+    /// Data parsed by a <see cref="CSVReader"/>.<br/>
+    /// Only set once <see cref="CreateAndParseCSVFile"/> has been called and the reader had no exceptions.
+    /// </summary>
+    protected CSVData<CSVLineType> ParsedCSVData { get; private set; }
 
     [TestInitialize]
     public override void TestInitialize()
@@ -32,39 +37,30 @@ public abstract class CSVTestsBase<CSVLineType> : MockDBBaseTestClass
     public override void TestCleanup() =>
         File.Delete(CSVFileName);
 
-    private void CreateCSVFile(params string[] lines)
-    {
-        File.WriteAllLines(CSVFileName, lines);
-        currentFileName = CSVFileName;
-    }
-
     protected void CreateAndParseCSVFile(params string[] lines)
     {
         CreateCSVFile(lines);
-        ParseFile();
+        ParseFile(CSVFileName);
     }
 
-    protected void CreateAndParseFile(string name)
+    protected void CreateAndParseFile(string fileName)
     {
-        File.Create(name);
-        currentFileName = name;
-        ParseFile();
+        File.Create(fileName);
+        ParseFile(fileName);
     }
 
-    protected void ParseFile()
-    {
-        try { ParsedCSVData = CSVReader.Parse<CSVLineType>(currentFileName); }
-        catch (CSVReaderException e) { CSVReaderException = e; }
-    }
+    /// <summary>
+    /// Assert that the reader threw an exception of type <paramref name="exceptionType"/>.
+    /// </summary>
+    protected void AssertReader(Type? exceptionType) =>
+        Assert.AreEqual(readerExceptionType, exceptionType);
 
-    protected void AssertReader(Type? readerExceptionType)
-    {
-        if (readerExceptionType is null || CSVReaderException is null)
-        {
-            Assert.AreEqual(readerExceptionType, CSVReaderException);
-            return;
-        }
+    private void CreateCSVFile(params string[] lines) =>
+        File.WriteAllLines(CSVFileName, lines);
 
-        Assert.AreEqual(readerExceptionType, CSVReaderException.GetType());
+    private void ParseFile(string fileName)
+    {
+        try { ParsedCSVData = reader.Parse<CSVLineType>(fileName); }
+        catch (CSVReaderException e) { readerExceptionType = e.GetType(); }
     }
 }
