@@ -10,9 +10,9 @@ namespace RSBingoBot.Leaderboard;
 internal record LeaderboadPreferences
 {
     public static Font Font { get; private set; } = null!;
-    public static Color TextColour { get; private set; }
-    public static Color TextBackgroundBorderColour { get; private set; }
-    public static float TextBackgroundBorderThickness { get; private set; }
+    public static Color TextColour { get; private set; } = Color.Black;
+    public static Color TextBackgroundBorderColour { get; private set; } = Color.Black;
+    public static float TextBackgroundBorderThickness { get; private set; } = 1;
     public static int MinimumBackgroundWidth => 15;
     public static int MinimumBackgroundHeight => 10;
     public static int TextPaddingWidth => 10;

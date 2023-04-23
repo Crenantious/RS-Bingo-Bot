@@ -2,13 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+namespace RSBingoBot.Leaderboard;
+
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-
-namespace RSBingoBot.Leaderboard;
 
 internal class LeaderboardTextBackground
 {
@@ -21,6 +21,11 @@ internal class LeaderboardTextBackground
     public LeaderboardTextBackground() =>
         Image = CreateBackground();
 
+    /// <summary>
+    /// If <paramref name="name"/> is of greater size than the current max size,
+    /// then the max width and/or max height will be updated to match that of <paramref name="name"/>.
+    /// </summary>
+    /// <returns><see langword="true"/> if either the max width or max height was changed, <see langword="false"/> otherwise.</returns>
     public bool TryUpdateMaxSize(string name)
     {
         (int textWidth, int textHeight) = GetTextSize(name);
@@ -40,9 +45,9 @@ internal class LeaderboardTextBackground
 
         if (isDirty)
         {
+            Centre = new(currentTextMaxWidth / 2, currentTextMaxHeight / 2);
             Image box = CreateBackground();
         }
-
         return isDirty;
     }
 
@@ -59,7 +64,7 @@ internal class LeaderboardTextBackground
         Image image = new Image<Rgba32>(currentTextMaxWidth, currentTextMaxHeight);
         image.Mutate(x =>
             DrawRectangleExtensions.Draw(x, LeaderboadPreferences.TextColour,
-            LeaderboadPreferences.TextBackgroundBorderThickness, new RectangleF(0, 0, image.Width, image.Height)));
+                LeaderboadPreferences.TextBackgroundBorderThickness, new RectangleF(0, 0, currentTextMaxWidth, currentTextMaxHeight)));
         return image;
     }
 }

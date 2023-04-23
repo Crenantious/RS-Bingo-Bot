@@ -11,6 +11,7 @@ namespace RSBingo_Framework.Records
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingo_Framework.Repository;
+    using static RSBingo_Common.General;
 
     public static class TeamRecord
     {
@@ -18,6 +19,7 @@ namespace RSBingo_Framework.Records
             dataWorker.Teams.Create(name, boardChannelId, boardMessageId);
 
         public static bool IsBoardVerfied(this Team team) =>
+            team.Tiles.Count == MaxTilesOnABoard &&
             team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
     }
 }

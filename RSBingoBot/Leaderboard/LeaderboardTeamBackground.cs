@@ -4,8 +4,6 @@
 
 namespace RSBingoBot.Leaderboard;
 
-using SixLabors;
-using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -20,42 +18,49 @@ internal static class LeaderboardTeamBackground
 
     private static LeaderboardTextBackground[] textBackgrounds = { nameBackground, scoreBackground, rankBackground };
 
-    static LeaderboardTeamBackground()
-    {
+    static LeaderboardTeamBackground() =>
         Image = CreateBackground();
-    }
 
-    public static void TryUpdateMaxSize(string name, string score, string rank)
+    public static bool TryUpdateMaxSize(string name, string score, string rank)
     {
-        if (nameBackground.TryUpdateMaxSize(name) || 
+        if (nameBackground.TryUpdateMaxSize(name) ||
             scoreBackground.TryUpdateMaxSize(score) ||
             rankBackground.TryUpdateMaxSize(rank))
         {
             CreateBackground();
+            return true;
         }
+        return false;
     }
 
     //TODO: JR - make this more efficient by storing the indexes of each textBackground and only redrawing the ones
     // past the dirtied index.
     private static Image CreateBackground()
     {
-        int[] componentXPositions = new int[textBackgrounds.Length];
-        int height = MinimumBackgroundHeight;
-        componentXPositions[0] = 0;
+        (int[] xCoordinates, int height) = GetXCoordinatesAndHeight();
 
-        for (int i = 1; i < textBackgrounds.Length - 1; i++)
-        {
-            componentXPositions[i] = componentXPositions[i - 1] + textBackgrounds[i].Image.Width;
-            if (textBackgrounds[i].Image.Height > height) height = textBackgrounds[i].Image.Height;
-        }
-
-        Image background = new Image<Rgba32>(componentXPositions[^1], height);
+        Image background = new Image<Rgba32>(xCoordinates[^1], height);
 
         for (int i = 0; i < textBackgrounds.Length; i++)
         {
-            background.Mutate(x => x.DrawImage(textBackgrounds[i].Image, new Point(componentXPositions[i], 0), 1));
+            background.Mutate(x => x.DrawImage(textBackgrounds[i].Image, new Point(xCoordinates[i], 0), 1));
         }
 
         return background;
+    }
+
+    private static (int[] xCoordinates, int height) GetXCoordinatesAndHeight()
+    {
+        int[] xCoordinates = new int[textBackgrounds.Length];
+        int height = MinimumBackgroundHeight;
+        xCoordinates[0] = 0;
+
+        for (int i = 1; i < textBackgrounds.Length - 1; i++)
+        {
+            xCoordinates[i] = xCoordinates[i - 1] + textBackgrounds[i - 1].Image.Width;
+            if (textBackgrounds[i].Image.Height > height) { height = textBackgrounds[i].Image.Height; }
+        }
+
+        return (xCoordinates, height);
     }
 }

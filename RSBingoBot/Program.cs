@@ -41,13 +41,11 @@ namespace RSBingoBot
 
                 DI = host.Services;
 
-
                 InitaliseScoring();
 
                 // Tell the DataFactory we want it to create connections in default mode
                 DataFactory.SetupDataFactory();
                 AdminEvidenceReaction.SetUp();
-                Scoring.Scoring.SetUp();
 #if DEBUG
                 TaskTemplatePopulator.Run();
 #endif
@@ -69,7 +67,7 @@ namespace RSBingoBot
             ScoringConfig config = new()
             {
                 PointsForEasyTile = int.Parse(Config_Get("PointsForEasyTile")),
-                PointsForMediumTile = int.Parse(Config_Get("PointsForMediumTile"),
+                PointsForMediumTile = int.Parse(Config_Get("PointsForMediumTile")),
                 PointsForHardTile = int.Parse(Config_Get("PointsForHardTile")),
                 BonusPointsForEasyCompletion = int.Parse(Config_Get("BonusPointsForEasyCompletion")),
                 BonusPointsForMediumCompletion = int.Parse(Config_Get("BonusPointsForMediumCompletion")),

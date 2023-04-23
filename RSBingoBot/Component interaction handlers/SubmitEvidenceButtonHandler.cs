@@ -4,26 +4,22 @@
 
 namespace RSBingoBot.Component_interaction_handlers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingo_Framework.Exceptions;
 using RSBingoBot.Discord_event_handlers;
-using static RSBingo_Framework.DAL.DataFactory;
+using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Common.General;
-using static BingoBotCommon;
-using System.Text;
+using static RSBingo_Framework.DAL.DataFactory;
 
 
 // TODO: JR - disable the button if the team's tiles are being changed.
 // Likewise, disable the change tiles button if this button is being interacted with.
+// TODO: JR - split this into two different buttons; one for evidence and one for drops.
 /// <summary>
 /// Handles the interaction with the "Submit evidence" button in a team's board channel.
 /// </summary>
@@ -42,9 +38,8 @@ public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
     private Dictionary<SubmissionError, string> errorMessage = new() { };
 
     /// <inheritdoc/>
-    protected override bool ContinueWithNullUser { get { return false; } }
-    protected override bool CreateAutoResponse { get { return true; } }
-
+    protected override bool ContinueWithNullUser { get; } = false;
+    protected override bool CreateAutoResponse { get; } = true;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
@@ -60,6 +55,11 @@ public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
         MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
         await UpdateOriginalResponse();
 
+        InitialDEHSubscriptions(args);
+    }
+
+    private void InitialDEHSubscriptions(ComponentInteractionCreateEventArgs args)
+    {
         SubscribeComponent(
             new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
             tileSelect.OnInteraction, true);
@@ -105,17 +105,14 @@ public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
 
         await UpdateOriginalResponse();
 
-        try
-        {
-            await args.Message.DeleteAsync();
-        }
+        try { await args.Message.DeleteAsync(); }
         catch
         {
-            // TODO: JR - create a ButtonComponent class that wraps the DiscordButtonComponent class and handles
-            // limiting interactions and disability based on conditions.
-
             // If there's multiple submission requests by the same person
             // the message may have already been deleted.
+
+            // TODO: JR - create a ButtonComponent class that wraps the DiscordButtonComponent class and handles
+            // limiting interactions and disability based on conditions.
         }
     }
 
@@ -194,16 +191,32 @@ public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
 
     private async Task<string> SubmitEvidence(DiscordUser discordUser, IEnumerable<Tile> tiles, string url)
     {
+        // TODO: JR - delete any currently submitted evidence messages for the tiles.
+        // TODO: JR - post one evidence message per tile so they can be individually handled (deleted in this case).
         ulong discordMessageId = await SubmitEvidenceDiscord(tiles, url);
         string submittedTiles = SubmitEvidenceDB(tiles, url, discordMessageId);
         return submittedTiles;
     }
 
+    private async Task<ulong> SubmitEvidenceDiscord(IEnumerable<Tile> tiles, string url)
+    {
+        StringBuilder submittedTiles = new();
+
+        foreach (Tile tile in tiles)
+        {
+            submittedTiles.AppendLine(tile.Task.Name);
+        }
+
+        DiscordMessage message = await PendingReviewEvidenceChannel.SendMessageAsync(new DiscordMessageBuilder()
+            .WithContent($"{CurrentInteractionArgs.User.Mention} has submitted evidence for the following tiles:" +
+            $"{Environment.NewLine}{submittedTiles}{Environment.NewLine}{url}"));
+        return message.Id;
+    }
+
     private string SubmitEvidenceDB(IEnumerable<Tile> tiles, string url, ulong discordMessageId)
     {
-        // TODO: JR - also add a flag (somewhere) that tells if the bingo has started.
-        // evidence type will still be TileVerification until it has.
-        EvidenceRecord.EvidenceType evidenceType = User!.Team.IsBoardVerfied() ?
+        //EvidenceRecord.EvidenceType evidenceType = User!.Team.IsBoardVerfied() && HasCompetitionStarted?
+        EvidenceRecord.EvidenceType evidenceType = HasCompetitionStarted ?
             EvidenceRecord.EvidenceType.Drop :
             EvidenceRecord.EvidenceType.TileVerification;
 
@@ -232,25 +245,8 @@ public class SubmitEvidenceButtonHandler : ComponentInteractionHandler
         return submittedTiles.ToString();
     }
 
-    private async Task<ulong> SubmitEvidenceDiscord(IEnumerable<Tile> tiles, string url)
-    {
-        StringBuilder submittedTiles = new();
-
-        foreach (Tile tile in tiles)
-        {
-            submittedTiles.AppendLine(tile.Task.Name);
-        }
-
-        DiscordMessage message = await PendingReviewEvidenceChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .WithContent($"{CurrentInteractionArgs.User.Mention} has submitted evidence for the following tiles:" +
-            $"{Environment.NewLine}{submittedTiles}{Environment.NewLine}{url}"));
-        return message.Id;
-    }
-
-    private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
-    {
+    private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args) =>
         await ConcludeInteraction();
-    }
 
     private enum SubmissionError
     {
