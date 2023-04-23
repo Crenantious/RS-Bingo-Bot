@@ -31,11 +31,10 @@ public class CSVValueComparable<T> : CSVValue<T> where T : IComparable<T>
     {
         T value = ConvertType(stringValue);
 
-        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
-        {
-            throw new CSVValueOutOfRangeException($"The '{Name}' value must be greater than or equal to {min} and less than or equal to {max}");
-        }
+        if (IsInRange(value)) { return value; }
 
-        return value;
+        throw new CSVValueOutOfRangeException($"The '{Name}' value must be greater than or equal to {min} and less than or equal to {max}");
     }
+
+    private bool IsInRange(T value) => value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0;
 }

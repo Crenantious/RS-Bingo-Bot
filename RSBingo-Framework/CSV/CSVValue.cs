@@ -4,11 +4,17 @@
 
 namespace RSBingo_Framework.CSV;
 
+using RSBingo_Common;
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework.Interfaces;
 
 ///<inheritdoc/>
 public abstract class CSVValue<ValueType> : ICSVValue
 {
+    private const string ExcpetionMessage = "Cannot convert '{0}' at value index {1} to type {2}. {3}";
+    private const string OverflowErrorMessage = "The value is too big or small for the require type.";
+
+
     ///<inheritdoc/>
     public string Name { get; }
 
@@ -56,19 +62,17 @@ public abstract class CSVValue<ValueType> : ICSVValue
     /// <exception cref="InvalidCSVValueTypeException"></exception>
     protected ValueType ConvertType(string value)
     {
-        string excpetionMessage = $"Cannot convert '{Name}' at value index {ValueIndex} to type {typeof(ValueType).Name}.";
-
         try
         {
             return (ValueType)Convert.ChangeType(value, typeof(ValueType));
         }
         catch (OverflowException)
         {
-            throw new InvalidCSVValueTypeException(excpetionMessage + "The value is too big or small for the require type.");
+            throw new InvalidCSVValueTypeException(ExcpetionMessage.FormatConst(Name, ValueIndex, typeof(ValueType).Name, CSVValue<ValueType>.OverflowErrorMessage));
         }
         catch (Exception)
         {
-            throw new InvalidCSVValueTypeException(excpetionMessage);
+            throw new InvalidCSVValueTypeException(ExcpetionMessage.FormatConst(Name, ValueIndex, typeof(ValueType).Name, string.Empty));
         }
     }
 }

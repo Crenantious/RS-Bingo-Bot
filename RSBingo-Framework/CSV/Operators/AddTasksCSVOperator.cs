@@ -15,9 +15,8 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
-    private readonly IDataWorker dataWorker = CreateDataWorker();
-
-    public AddTasksCSVOperator()
+    public AddTasksCSVOperator(IDataWorker dataWorker)
+        : base(dataWorker)
     {
         // Reset auto increment just in case it overflows
         // TODO: this should not be done here; move it to somewhere appropriate.
@@ -42,14 +41,14 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
             return;
         }
 
-        dataWorker.BingoTasks.CreateMany(line.TaskName.Value,
+        DataWorker.BingoTasks.CreateMany(line.TaskName.Value,
             line.TaskDifficulty.Value,
             line.AmountOfTasks.Value);
     }
 
     /// <inheritdoc/>
     protected override void OnPostOperating() =>
-        dataWorker.SaveChanges();
+        DataWorker.SaveChanges();
 
     private Warning? DownloadTaskImage(AddTasksCSVLine line, string imagePath)
     {

@@ -5,6 +5,7 @@
 namespace RSBingo_Framework_Tests.CSV.Lines;
 
 using RSBingo_Framework.CSV;
+using RSBingo_Framework.Interfaces;
 using System.Collections.Generic;
 
 public class CSVTestLineGeneric : CSVLine

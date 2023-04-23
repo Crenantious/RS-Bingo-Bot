@@ -5,14 +5,18 @@
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.CSV;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingo_Framework_Tests.DTO;
 
-[TestClass]
-public class TaskRestrictionsCSVOperatorTestsBase<CSVOperatorType, CSVLineType> : CSVOperatorTestsBase<CSVOperatorType, CSVLineType>
-    where CSVOperatorType : CSVOperator<CSVLineType>, new()
-    where CSVLineType : CSVLine
+public class TaskRestrictionsCSVOperatorTestHelper
 {
-    protected record RestrictionInfo(string Name, string? Description = null);
+    private IDataWorker DataWorkerBefore;
+
+    public TaskRestrictionsCSVOperatorTestHelper(IDataWorker dataWorker)
+    {
+        DataWorkerBefore = dataWorker;
+    }
 
     protected void CreateResrictionsInDB(params RestrictionInfo[] restrictions)
     {
@@ -29,11 +33,11 @@ public class TaskRestrictionsCSVOperatorTestsBase<CSVOperatorType, CSVLineType> 
             (r.Description is null ? "" : $", {r.Description}"))
             .ToArray());
 
-    protected void AssertRestrictions(params RestrictionInfo[] expectedRestrictionsInDB)
+    protected void AssertRestrictions(IDataWorker dataWorkerAfter, params RestrictionInfo[] expectedRestrictionsInDB)
     {
         foreach (RestrictionInfo restrictionInfo in expectedRestrictionsInDB)
         {
-            Restriction? restriction = DataWorkerAfter.Restrictions.GetByName(restrictionInfo.Name);
+            Restriction? restriction = dataWorkerAfter.Restrictions.GetByName(restrictionInfo.Name);
             Assert.IsNotNull(restriction);
 
             if (restrictionInfo.Description is not null)
@@ -42,6 +46,6 @@ public class TaskRestrictionsCSVOperatorTestsBase<CSVOperatorType, CSVLineType> 
             }
         }
 
-        Assert.AreEqual(expectedRestrictionsInDB.Count(), DataWorkerAfter.Restrictions.CountAll());
+        Assert.AreEqual(expectedRestrictionsInDB.Count(), dataWorkerAfter.Restrictions.CountAll());
     }
 }

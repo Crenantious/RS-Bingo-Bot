@@ -14,7 +14,7 @@ using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
 
 [TestClass]
-public class AddTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<AddTasksCSVOperator, AddTasksCSVLine>
+public class AddTasksCSVOperatorTests : BingoTasksCSVOperatorTestHelper<AddTasksCSVOperator, AddTasksCSVLine>
 {
     /// <summary>
     /// The server is opened here instead of before each test because it's possible that

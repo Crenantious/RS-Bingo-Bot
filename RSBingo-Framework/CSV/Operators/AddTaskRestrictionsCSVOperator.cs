@@ -13,16 +13,15 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <inheritdoc/>
 public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVLine>
 {
-    private readonly IDataWorker dataWorker = CreateDataWorker();
-    private readonly HashSet<string> existingRestrictionNames = new();
+    private HashSet<string> existingRestrictionNames = null!;
+
+    public AddTaskRestrictionsCSVOperator(IDataWorker dataWorker)
+        : base(dataWorker) { }
 
     /// <inheritdoc/>
     protected override void OnPreOperating()
     {
-        foreach (Restriction restriction in dataWorker.Restrictions.GetAll())
-        {
-            existingRestrictionNames.Add(restriction.Name);
-        }
+        existingRestrictionNames = DataWorker.Restrictions.GetAll().Select(r => r.Name).ToHashSet();
     }
 
     /// <inheritdoc/>
@@ -34,11 +33,11 @@ public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVL
             return;
         }
 
-        Restriction restriction = dataWorker.Restrictions.Create(line.RestrictionName.Value, line.RestrictionDescription.Value);
+        Restriction restriction = DataWorker.Restrictions.Create(line.RestrictionName.Value, line.RestrictionDescription.Value);
         existingRestrictionNames.Add(line.RestrictionName.Value);
     }
 
     /// <inheritdoc/>
     protected override void OnPostOperating() =>
-        dataWorker.SaveChanges();
+        DataWorker.SaveChanges();
 }

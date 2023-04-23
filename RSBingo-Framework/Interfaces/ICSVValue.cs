@@ -2,7 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+using RSBingo_Framework.CSV;
+
+namespace RSBingo_Framework.Interfaces;
 
 /// <summary>
 /// Contains information relating to a value parsed from a csv file.

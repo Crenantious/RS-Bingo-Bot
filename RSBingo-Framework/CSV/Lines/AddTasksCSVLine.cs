@@ -5,6 +5,7 @@
 namespace RSBingo_Framework.CSV.Lines;
 
 using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.Interfaces;
 
 public class AddTasksCSVLine : AddOrRemoveTasksCSVLine
 {

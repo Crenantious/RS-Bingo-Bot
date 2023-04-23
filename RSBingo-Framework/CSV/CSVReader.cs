@@ -41,13 +41,10 @@ public class CSVReader
         catch (CSVReaderException e)
         {
             // Wrap message, but keep original exception to see stack trace,
-            throw (CSVReaderException)Activator.CreateInstance(e.GetType(), $"{e.Message}, on line {lineNumber}.", e);
+            throw (CSVReaderException)Activator.CreateInstance(e.GetType(), $"{e.Message}, on line {lineNumber}.", e)!;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            //TODO: figure out how stack traces work and what the best solution is here.
-            // Re-throw to keep stack trace.
-            ExceptionDispatchInfo.Capture(e).Throw();
             throw;
         }
     }
@@ -65,7 +62,7 @@ public class CSVReader
             lineNumber++;
 
             string? line = streamReader.ReadLine();
-            if (line is null) { break; }
+            if (line is null) { break; } // TODO: JCH - What happens if a file has multiple blank lines? Write a UT to confirm this works as expected.
 
             IEnumerable<string> values = GetLineValues(line);
             AddLine(lines, values);
@@ -82,7 +79,7 @@ public class CSVReader
         }
         catch (System.Reflection.TargetInvocationException e)
         {
-            throw e.InnerException;
+            throw e.InnerException!;
         }
     }
 }

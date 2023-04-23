@@ -5,6 +5,7 @@
 namespace RSBingo_Framework.CSV;
 
 using RSBingo_Framework.CSV.Operators.Warnings;
+using RSBingo_Framework.Interfaces;
 using System.Text;
 
 /// <summary>
@@ -17,6 +18,13 @@ public abstract class CSVOperator<LineType>
 
     private protected readonly List<Warning> warnings = new();
     private protected readonly List<string> warningMessages = new();
+    private protected IDataWorker DataWorker;
+
+
+    public CSVOperator(IDataWorker dataWorker)
+    {
+        DataWorker = dataWorker;
+    }
 
     /// <summary>
     /// Gets messages compiled with warnings that occurred while operating on the <see cref="CSVData{LineType}"/>.

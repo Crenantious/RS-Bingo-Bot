@@ -6,6 +6,7 @@ namespace RSBingo_Framework.CSV;
 
 using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework.Interfaces;
 
 public abstract class CSVLine
 {

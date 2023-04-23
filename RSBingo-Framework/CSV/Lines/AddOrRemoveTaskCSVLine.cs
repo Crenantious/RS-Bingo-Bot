@@ -5,6 +5,7 @@
 namespace RSBingo_Framework.CSV.Lines;
 
 using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.Interfaces;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 
 public abstract class AddOrRemoveTasksCSVLine : CSVLine
@@ -17,7 +18,7 @@ public abstract class AddOrRemoveTasksCSVLine : CSVLine
     public const int MinNumberOfTasks = 1;
 
     public CSVValueGeneric<string> TaskName { get; } = new("Task name", 0);
-    public CSVValueEnum<Difficulty> TaskDifficulty { get; } = new("Task difficulty", 1, false);
+    public CSVValueEnum<Difficulty> TaskDifficulty { get; } = new("Task difficulty", 1);
     public CSVValueComparable<int> AmountOfTasks { get; } = new("Amount of tasks", 2, MinNumberOfTasks, MaxNumberOfTasks);
 
     public AddOrRemoveTasksCSVLine(int lineNumber, string[] values) : base(lineNumber, values) { }

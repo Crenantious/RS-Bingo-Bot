@@ -5,6 +5,7 @@
 namespace RSBingo_Framework_Tests.CSV.Lines;
 
 using RSBingo_Framework.CSV;
+using RSBingo_Framework.Interfaces;
 
 public class CSVReaderTestLine : CSVLine
 {
@@ -12,7 +13,7 @@ public class CSVReaderTestLine : CSVLine
     public const int CompareableValueMax = 5;
 
     public CSVValueGeneric<string> GenericValue { get; } = new("Generic value", 0);
-    public CSVValueEnum<TestEnum> EnumValue { get; } = new("Enum value", 1, false);
+    public CSVValueEnum<TestEnum> EnumValue { get; } = new("Enum value", 1);
     public CSVValueComparable<int> CompareableValue { get; } = new("CompareableValue", 2, CompareableValueMin, CompareableValueMax);
 
     public enum TestEnum

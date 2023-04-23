@@ -9,7 +9,7 @@ using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.CSV.Operators.Warnings;
 
 [TestClass]
-public class AddTaskRestrictionsCSVOperatorTests : TaskRestrictionsCSVOperatorTestsBase<AddTaskRestrictionsCSVOperator, AddTaskRestrictionCSVLine>
+public class AddTaskRestrictionsCSVOperatorTests
 {
     [TestMethod]
     public void AddRestrictionToFile_ParseAndOperate_AddedToDBCorrectlyAndThereAreNoExceptionsOrWarnings()

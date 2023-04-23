@@ -7,9 +7,10 @@ namespace RSBingo_Framework_Tests.CSV;
 using RSBingo_Framework.CSV;
 using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.CSV.Operators.Warnings;
+using RSBingo_Framework_Tests.DTO;
 
 [TestClass]
-public class RemoveTaskRestrictionsCSVOperatorTests : TaskRestrictionsCSVOperatorTestsBase<RemoveTaskRestrictionsCSVOperator, RemoveTaskRestrictionCSVLine>
+public class RemoveTaskRestrictionsCSVOperatorTests
 {
     [TestMethod]
     public void AddRestrictionToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoExceptionsOrWarnings()

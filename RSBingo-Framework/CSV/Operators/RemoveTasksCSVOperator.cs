@@ -13,12 +13,13 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <inheritdoc/>
 public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
 {
-    private readonly IDataWorker dataWorker = CreateDataWorker();
+    public RemoveTasksCSVOperator(IDataWorker dataWorker)
+        : base(dataWorker) { }
 
     /// <inheritdoc/>
     protected override void OperateOnLine(RemoveTasksCSVLine line)
     {
-        IEnumerable<BingoTask> tasks = dataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName.Value, line.TaskDifficulty.Value)
+        IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName.Value, line.TaskDifficulty.Value)
                                            .Take(line.AmountOfTasks.Value);
         int tasksCount = tasks.Count();
 
@@ -29,7 +30,7 @@ public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
                 AddWarning(new NotEnoughTasksToDeleteWarning(line.TaskName.ValueIndex, line.LineNumber, tasksCount));
             }
 
-            dataWorker.BingoTasks.RemoveRange(tasks);
+            DataWorker.BingoTasks.RemoveRange(tasks);
             return;
         }
 
@@ -38,5 +39,5 @@ public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
 
     /// <inheritdoc/>
     protected override void OnPostOperating() =>
-        dataWorker.SaveChanges();
+        DataWorker.SaveChanges();
 }

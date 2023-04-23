@@ -13,14 +13,15 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <inheritdoc/>
 public class RemoveTaskRestrictionsCSVOperator : CSVOperator<RemoveTaskRestrictionCSVLine>
 {
-    private readonly IDataWorker dataWorker = CreateDataWorker();
+    public RemoveTaskRestrictionsCSVOperator(IDataWorker dataWorker)
+        : base(dataWorker) { }
 
     /// <inheritdoc/>
     protected override void OperateOnLine(RemoveTaskRestrictionCSVLine line)
     {
-        if (dataWorker.Restrictions.GetByName(line.RestrictionName.Value) is Restriction restriction)
+        if (DataWorker.Restrictions.GetByName(line.RestrictionName.Value) is Restriction restriction)
         {
-            dataWorker.Restrictions.Remove(restriction);
+            DataWorker.Restrictions.Remove(restriction);
             return;
         }
 
@@ -29,5 +30,5 @@ public class RemoveTaskRestrictionsCSVOperator : CSVOperator<RemoveTaskRestricti
 
     /// <inheritdoc/>
     protected override void OnPostOperating() =>
-        dataWorker.SaveChanges();
+        DataWorker.SaveChanges();
 }

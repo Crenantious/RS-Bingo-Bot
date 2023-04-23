@@ -8,7 +8,7 @@ using RSBingo_Framework.CSV;
 
 public class CSVTestLineEnumDoNotCompareCapitalisation : CSVTestLineEnumBase
 {
-    public override CSVValueEnum<TestEnum> Value { get; } = new("Enum value", 0, false);
+    public override CSVValueEnum<TestEnum> Value { get; } = new("Enum value", 0);
 
     public CSVTestLineEnumDoNotCompareCapitalisation(int lineNumber, string[] values) : base(lineNumber, values) { }
 }

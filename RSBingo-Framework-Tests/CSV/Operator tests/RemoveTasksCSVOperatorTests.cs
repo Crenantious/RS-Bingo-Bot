@@ -11,10 +11,26 @@ using RSBingo_Framework.CSV.Operators.Warnings;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
+using static RSBingo_Framework_Tests.CSV.CSVOperatorTestHelper;
+using RSBingo_Framework_Tests.DTO;
+using RSBingo_Framework.Interfaces;
 
 [TestClass]
-public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<RemoveTasksCSVOperator, RemoveTasksCSVLine>
+public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 {
+    private BingoTasksCSVOperatorTestHelper bingoTasksCSVOperatorTestHelper = null!;
+    private IDataWorker dataWorkerBefore = null!;
+    private IDataWorker dataWorkerAfter = null!;
+
+    public override void TestInitialize()
+    {
+        dataWorkerBefore = CreateDW();
+        dataWorkerAfter = CreateDW();
+        bingoTasksCSVOperatorTestHelper = new();
+        RemoveTaskRestrictionsCSVOperator removeTaskRestrictionsCSVOperator = new(dataWorkerBefore);
+        base.TestInitialize();
+    }
+
     [TestMethod]
     public void AddATaskToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoExceptionsOrWarnings()
     {
@@ -22,10 +38,10 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
         CreateTasksInDB(task);
         CreateAndParseTasksInCSVFile(task);
 
-        Operate();
+        OperatorResults result = Operate();
 
-        AssertReaderAndOperator(null, null);
-        AssertTasks();
+        AssertOperator(null);
+        CSVOperatorTestHelper.AssertTasks(dataWorkerAfter);
     }
 
     [TestMethod]
@@ -38,7 +54,7 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
 
         Operate();
 
-        AssertReaderAndOperator(null, null, typeof(TaskDoesNotExistWarning));
+        AssertOperator(null, null, typeof(TaskDoesNotExistWarning));
         AssertTasks(task1);
     }
 
@@ -52,7 +68,7 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
 
         Operate();
 
-        AssertReaderAndOperator(null, null, typeof(TaskDoesNotExistWarning));
+        AssertOperator(null, null, typeof(TaskDoesNotExistWarning));
         AssertTasks(task1);
     }
 
@@ -66,7 +82,7 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
 
         Operate();
 
-        AssertReaderAndOperator(null, null, typeof(NotEnoughTasksToDeleteWarning));
+        AssertOperator(null, null, typeof(NotEnoughTasksToDeleteWarning));
         AssertTasks();
     }
 
@@ -81,7 +97,7 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
 
         Operate();
 
-        AssertReaderAndOperator(null, null);
+        AssertOperator();
         AssertTasks(task2);
     }
 
@@ -89,8 +105,23 @@ public class RemoveTasksCSVOperatorTests : BingoTasksCSVOperatorTestsBase<Remove
     {
         foreach (TaskInfo task in tasks)
         {
-            DataWorkerBefore.BingoTasks.CreateMany(task.Name, task.Difficulty, task.Amount);
+            dataWorkerBefore.BingoTasks.CreateMany(task.Name, task.Difficulty, task.Amount);
         }
-        DataWorkerBefore.SaveChanges();
+
+        dataWorkerBefore.SaveChanges();
     }
+
+    #region Private
+
+    private void CreateAndParseTasksInCSVFile(params TaskInfo[] info)
+    {
+        bingoTasksCSVOperatorTestHelper.CreateAndParseTasksInCSVFile(info);
+    }
+
+    private void AssertTasks(params TaskInfo[] info)
+    {
+        bingoTasksCSVOperatorTestHelper.AssertTasks(dataWorkerAfter, info);
+    }
+
+    #endregion
 }
