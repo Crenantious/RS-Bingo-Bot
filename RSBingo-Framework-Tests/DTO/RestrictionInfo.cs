@@ -4,4 +4,4 @@
 
 namespace RSBingo_Framework_Tests.DTO;
 
-public record RestrictionInfo(string Name, string? Description = null);
+public record RestrictionInfo(string Name, string Description = "Description");

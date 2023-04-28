@@ -5,24 +5,37 @@
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
+using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 
 [TestClass]
-public class CSVLineGenericTests : CSVTestsBase<CSVTestLineGeneric>
+public class CSVLineGenericTests : MockDBBaseTestClass
 {
+    private ReaderResults<CSVTestLineGeneric> readerResults = null!;
+
     [TestMethod]
     public void AddCorrectlyTypedValueToCSVFile_Parse_GetCorrectValue()
     {
         CreateAndParseCSVFile("1");
 
-        Assert.AreEqual(1, ParsedCSVData.Lines.ElementAt(0).Value.Value);
+        AssertCSVValue(1);
     }
 
     [TestMethod]
     public void AddIncorrectlyTypedValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile("string");
+        CreateAndParseCSVFile("Invalid value");
 
         AssertReader(typeof(InvalidCSVValueTypeException));
     }
+
+    private void CreateAndParseCSVFile(params string[] lines) =>
+        readerResults = CreateAndParseCSVFile<CSVTestLineGeneric>(lines);
+
+    private void AssertReader(Type? exceptionType) =>
+        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+
+    private void AssertCSVValue(int value) =>
+        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
 }

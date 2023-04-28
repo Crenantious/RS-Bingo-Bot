@@ -1,4 +1,4 @@
-﻿// <copyright file="BingoTasksCSVOperatorTestsBase.cs" company="PlaceholderCompany">
+﻿// <copyright file="BingoTasksCSVOperatorTestHelper.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,33 +6,30 @@ namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.CSV;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework_Tests.CSV.LocalServer;
-using RSBingo_Framework.CSV.Operators.Warnings;
-using static RSBingo_Common.General;
-using static RSBingo_Framework.Records.BingoTaskRecord;
-using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework_Tests.DTO;
+using RSBingo_Framework_Tests.CSV.LocalServer;
+using static RSBingo_Common.General;
 
 public class BingoTasksCSVOperatorTestHelper
 {
-    private readonly List<string> filesToCleanup = new();
+    public static ReaderResults<LineType> CreateAndParseTasksInCSVFile<LineType>(params TaskInfo[] tasks)
+        where LineType : CSVLine =>
+        CSVReaderTestHelper.CreateAndParseCSVFile<LineType>(tasks.Select(t =>
+            $"{t.Name}, {t.Difficulty}, {t.Amount}" +
+            (t.ImageURL is null ? "" : $", {t.ImageURL}"))
+            .ToArray());
 
-    public static string ValidImageURL { get; } = LocalTestServer.GetUrl<ValidImagePage>();
-    public static string CorruptImageURL { get; } = LocalTestServer.GetUrl<CorruptImagePage>();
-    public static string InvalidImageFormatURL { get; } = LocalTestServer.GetUrl<InvalidImageFormatPage>();
-    public static string InvalidURL { get; } = LocalTestServer.InvalidURL;
-    public void TestCleanup()
+    public static void CreateTasksInDB(IDataWorker dataWorker, params TaskInfo[] tasks)
     {
-        foreach (string fileName in filesToCleanup)
+        foreach (TaskInfo task in tasks)
         {
-            try { File.Delete(fileName); }
-            catch { }
+            dataWorker.BingoTasks.CreateMany(task.Name, task.Difficulty, task.Amount);
         }
+        dataWorker.SaveChanges();
     }
 
-    public void AssertTasks(IDataWorker dataWorkerAfter, params TaskInfo[] expectedTasksInDB)
+    public static void AssertTasks(IDataWorker dataWorkerAfter, params TaskInfo[] expectedTasksInDB)
     {
         int expectedNumberOfTasks = 0;
 
@@ -41,19 +38,20 @@ public class BingoTasksCSVOperatorTestHelper
             IEnumerable<BingoTask> tasks = dataWorkerAfter.BingoTasks.GetByNameAndDifficulty(taskInfo.Name, taskInfo.Difficulty);
             expectedNumberOfTasks += taskInfo.Amount;
             Assert.AreEqual(taskInfo.Amount, tasks.Count());
-
-            foreach (BingoTask task in tasks)
-            {
-                if (taskInfo.ImageURL is not null) { filesToCleanup.Add(GetTaskImagePath(taskInfo.Name)); }
-            }
         }
 
         Assert.AreEqual(expectedNumberOfTasks, dataWorkerAfter.BingoTasks.CountAll());
     }
 
-    public void CreateAndParseTasksInCSVFile(params TaskInfo[] tasks) =>
-        CreateAndParseCSVFile(tasks.Select(t => 
-            $"{t.Name}, {t.Difficulty}, {t.Amount}" + 
-            (t.ImageURL is null ? "" : $", {t.ImageURL}"))
-            .ToArray());
+    public static void TestCleanup(params TaskInfo[] tasks)
+    {
+        foreach (TaskInfo task in tasks)
+        {
+            if (task.ImageURL is not null)
+            {
+                try { File.Delete(GetTaskImagePath(task.Name)); }
+                catch { }
+            }
+        }
+    }
 }

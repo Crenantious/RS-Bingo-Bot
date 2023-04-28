@@ -5,12 +5,16 @@
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
+using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineComparable;
 
 [TestClass]
-public class CSVLineCompareableTests : CSVTestsBase<CSVTestLineComparable>
+public class CSVLineCompareableTests : MockDBBaseTestClass
 {
+    private ReaderResults<CSVTestLineComparable> readerResults = null!;
+
     [TestMethod]
     public void AddMinValueToCSVFile_Parse_NoExceptions()
     {
@@ -78,6 +82,12 @@ public class CSVLineCompareableTests : CSVTestsBase<CSVTestLineComparable>
         AssertReader(typeof(InvalidCSVValueTypeException));
     }
 
+    private void CreateAndParseCSVFile(params string[] lines) =>
+       readerResults = CreateAndParseCSVFile<CSVTestLineComparable>(lines);
+
+    private void AssertReader(Type? exceptionType) =>
+        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+
     private void AssertCSVValue(int value) =>
-        Assert.AreEqual(value, ParsedCSVData.Lines.ElementAt(0).Value.Value);
+        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
 }

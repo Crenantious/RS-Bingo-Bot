@@ -231,6 +231,7 @@ namespace RSBingo_Common
         public static string GetTaskImagePath(string taskName)
         {
             // TODO: JR - check this is the same path for both development and release builds.
+            // TODO: JR - make sure this is different for tests, probably a temp folder.
             string folderPath = Path.Combine(Directory.GetCurrentDirectory(), taskImageFolderName);
 
             if (!Directory.Exists(folderPath))

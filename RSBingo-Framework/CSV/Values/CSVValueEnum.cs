@@ -27,10 +27,13 @@ public class CSVValueEnum<T> : CSVValue<T> where T : Enum
         StringComparison comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         IEnumerable<T> enumValues = Enum.GetValues(typeof(T)).Cast<T>();
 
-        return enumValues.FirstOrDefault(e => e.GetName().Equals(stringValue, comparison)) switch
+        try
         {
-            T t => t,
-            null => throw new InvalidCSVValueTypeException($"'{stringValue}' is not a valid value for {typeof(T).Name}"),
-        };
+            return enumValues.First(e => e.GetName().Equals(stringValue, comparison));
+        }
+        catch
+        {
+            throw new InvalidCSVValueTypeException($"'{stringValue}' is not a valid value for {typeof(T).Name}");
+        }
     }
 }

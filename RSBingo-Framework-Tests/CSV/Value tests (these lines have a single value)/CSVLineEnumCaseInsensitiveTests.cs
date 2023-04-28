@@ -1,16 +1,20 @@
-﻿// <copyright file="CSVLineEnumDoNotCompareCapitialisationTests.cs.cs" company="PlaceholderCompany">
+﻿// <copyright file="CSVLineEnumCaseInsensitiveTests.cs.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
+using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineEnumBase;
 
 [TestClass]
-public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestLineEnumDoNotCompareCapitalisation>
+public class CSVLineEnumCaseInsensitiveTests : MockDBBaseTestClass
 {
+    private ReaderResults<CSVTestLineEnumCaseInsensitive> readerResults = null!;
+
     [TestMethod]
     public void AddEnumValueToCSVFile_Parse_GetCorrectValue()
     {
@@ -41,11 +45,17 @@ public class CSVLineEnumDoNotCompareCapitialisationTests : CSVTestsBase<CSVTestL
     [TestMethod]
     public void AddNonEnumValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile(Guid.NewGuid().ToString());
+        CreateAndParseCSVFile("Invalid value".ToString());
 
         AssertReader(typeof(InvalidCSVValueTypeException));
     }
 
+    private void CreateAndParseCSVFile(params string[] lines) =>
+        readerResults = CreateAndParseCSVFile<CSVTestLineEnumCaseInsensitive>(lines);
+
+    private void AssertReader(Type? exceptionType) =>
+        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+
     private void AssertCSVValue(TestEnum value) =>
-        Assert.AreEqual(value, ParsedCSVData.Lines.ElementAt(0).Value.Value);
+        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
 }

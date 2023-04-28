@@ -5,12 +5,16 @@
 namespace RSBingo_Framework_Tests.CSV;
 
 using RSBingo_Framework.Exceptions.CSV;
+using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
+using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVReaderTestLine;
 
 [TestClass]
-public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
+public class CSVReaderTests : MockDBBaseTestClass
 {
+    private ReaderResults<CSVReaderTestLine> readerResults = null!;
+
     [TestMethod]
     public void CreateNonCSVFile_Parse_GetException()
     {
@@ -48,7 +52,7 @@ public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
     [TestMethod]
     public void CreateCSVFileWithTooFewValues_Parse_GetException()
     {
-        CreateAndParseCSVFile($"1");
+        CreateAndParseCSVFile("1");
 
         AssertReader(typeof(IncorrectNumberOfCSVValuesException));
     }
@@ -56,15 +60,26 @@ public class CSVReaderTests : CSVTestsBase<CSVReaderTestLine>
     [TestMethod]
     public void CreateCSVFileWithTooManyValues_Parse_GetException()
     {
-        CreateAndParseCSVFile($"1, 2, 3, 4");
+        CreateAndParseCSVFile("1, 2, 3, 4");
 
         AssertReader(typeof(IncorrectNumberOfCSVValuesException));
     }
 
+    private void CreateAndParseCSVFile(params string[] lines) =>
+        readerResults = CreateAndParseCSVFile<CSVReaderTestLine>(lines);
+
+    private void CreateAndParseFile(string fileName) =>
+        readerResults = CreateAndParseFile<CSVReaderTestLine>(fileName);
+
+    private void AssertReader(Type? exceptionType) =>
+        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+
     private void AssertParsedValues(string genericValue, TestEnum enumValue, int comparableValue)
     {
-        Assert.AreEqual(genericValue, ParsedCSVData.Lines.ElementAt(0).GenericValue.Value);
-        Assert.AreEqual(enumValue, ParsedCSVData.Lines.ElementAt(0).EnumValue.Value);
-        Assert.AreEqual(comparableValue, ParsedCSVData.Lines.ElementAt(0).CompareableValue.Value);
+        CSVReaderTestLine line = readerResults.data.Lines.ElementAt(0);
+
+        Assert.AreEqual(genericValue, line.GenericValue.Value);
+        Assert.AreEqual(enumValue, line.EnumValue.Value);
+        Assert.AreEqual(comparableValue, line.CompareableValue.Value);
     }
 }
