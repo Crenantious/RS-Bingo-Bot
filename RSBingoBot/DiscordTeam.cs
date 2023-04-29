@@ -24,13 +24,14 @@ public class DiscordTeam
 
     private readonly DiscordClient discordClient;
     private readonly IDataWorker dataWorker = CreateDataWorker();
+    private readonly string changeTileButtonId = "{0}_change_tile_button";
+    private readonly string submitEvidenceButtonId = "{0}_submit_evidence_button";
+    private readonly string submitDropButtonId = "{0}_submit_drop_button";
+    private readonly string viewEvidenceButtonId = "{0}_view_evidence_button";
+    private readonly string clearEvidenceButtonId = "{0}_clear_evidence_button";
+    private readonly string completeNextTileEvidenceButtonId = "{0}_complete_next_tile_button";
 
     private Team team = null!;
-    private string changeTileButtonId = string.Empty!;
-    private string submitEvidenceButtonId = string.Empty!;
-    private string viewEvidenceButtonId = string.Empty!;
-    private string clearEvidenceButtonId = string.Empty!;
-    private string completeNextTileEvidenceButtonId = string.Empty!;
     private DiscordMessage boardMessage;
 
     public DiscordTeam(DiscordClient discordClient, string name)
@@ -93,11 +94,12 @@ public class DiscordTeam
 
     private void SetButtonIds()
     {
-        changeTileButtonId = Name + "_change_tile_button";
-        submitEvidenceButtonId = Name + "_submit_evidence_button";
-        viewEvidenceButtonId = Name + "_view_evidence_button";
-        clearEvidenceButtonId = Name + "_clear_evidence_button";
-        completeNextTileEvidenceButtonId = Name + "_complete_next_tile_button";
+        changeTileButtonId.FormatConst(Name);
+        submitEvidenceButtonId.FormatConst(Name);
+        submitDropButtonId.FormatConst(Name);
+        viewEvidenceButtonId.FormatConst(Name);
+        clearEvidenceButtonId.FormatConst(Name);
+        completeNextTileEvidenceButtonId.FormatConst(Name);
     }
 
     private void CreateTeamEntry()
@@ -126,7 +128,12 @@ public class DiscordTeam
             ButtonStyle.Primary,
             submitEvidenceButtonId,
             "Submit evidence");
-        
+
+        var submitDropButton = new DiscordButtonComponent(
+            ButtonStyle.Primary,
+            submitDropButtonId,
+            "Submit drop");
+
         var viewEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
             viewEvidenceButtonId,
@@ -162,7 +169,7 @@ public class DiscordTeam
 
         var builder = new DiscordMessageBuilder()
             .WithEmbed(boardImageEmbed)
-            .AddComponents(changeTileButton, submitEvidenceButton, viewEvidenceButton)
+            .AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton)
             .AddComponents(clearEvidenceButton, completeNextTileButton);
         // TODO: JR - get this to work with a file upload instead of an embed since it will look nicer.
         //.WithFile("Team board.png", fs, true);
@@ -186,6 +193,7 @@ public class DiscordTeam
         
         ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
         ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info); 
+        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(submitDropButtonId, info);
         ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
         ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(clearEvidenceButtonId, info);
         ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(completeNextTileEvidenceButtonId, info);
