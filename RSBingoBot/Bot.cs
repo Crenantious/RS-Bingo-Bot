@@ -14,6 +14,7 @@ namespace RSBingoBot
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Component_interaction_handlers;
     using RSBingoBot.Imaging;
+    using RSBingoBot.Leaderboard;
     using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
@@ -55,6 +56,7 @@ namespace RSBingoBot
 
             await discordClient.ConnectAsync();
             await CreateExistingTeams();
+            await LeaderboardDiscord.SetUp();
         }
 
         /// <inheritdoc/>

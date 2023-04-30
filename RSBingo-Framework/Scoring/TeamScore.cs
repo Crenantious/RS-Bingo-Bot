@@ -4,10 +4,9 @@
 
 namespace RSBingo_Framework.Scoring;
 
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using static RSBingo_Framework.Records.BingoTaskRecord;
+using RSBingo_Framework.Exceptions;
 using static RSBingo_Framework.Scoring.Scoring;
 
 public class TeamScore
@@ -16,7 +15,7 @@ public class TeamScore
 
     public delegate Task AsyncEventData(TeamScore teamScore);
 
-    public static event AsyncEventData ScoreUpdatedEventAsync;
+    public static event AsyncEventData? ScoreUpdatedEventAsync;
 
     /// <summary>
     /// Updates the team's score.

@@ -18,49 +18,57 @@ internal static class LeaderboardTeamBackground
 
     private static LeaderboardTextBackground[] textBackgrounds = { nameBackground, scoreBackground, rankBackground };
 
-    static LeaderboardTeamBackground() =>
-        Image = CreateBackground();
-
     public static bool TryUpdateMaxSize(string name, string score, string rank)
     {
-        if (nameBackground.TryUpdateMaxSize(name) ||
-            scoreBackground.TryUpdateMaxSize(score) ||
-            rankBackground.TryUpdateMaxSize(rank))
+        bool isDirty = TryUpdateTextBackgroundSizes(name, score, rank);
+
+        if (isDirty is false) { return false; }
+
+        foreach (LeaderboardTextBackground background in textBackgrounds)
         {
-            CreateBackground();
-            return true;
+            background.CreateImageIfDirty();
         }
-        return false;
+
+        Image = CreateBackground();
+        return true;
+    }
+
+    private static bool TryUpdateTextBackgroundSizes(params string[] values)
+    {
+        bool isDirty = false;
+        for (int i = 0; i < textBackgrounds.Length; i++)
+        {
+            if (textBackgrounds[i].TryUpdateMaxSize(values[i])) { isDirty = true; }
+        }
+        return isDirty;
     }
 
     //TODO: JR - make this more efficient by storing the indexes of each textBackground and only redrawing the ones
     // past the dirtied index.
     private static Image CreateBackground()
     {
-        (int[] xCoordinates, int height) = GetXCoordinatesAndHeight();
+        SetBackgroundsXPositions();
+        int width = textBackgrounds[^1].XPosition + textBackgrounds[^1].Image.Width;
 
-        Image background = new Image<Rgba32>(xCoordinates[^1], height);
+        // Size must be increased by one to fit the border.
+        Image background = new Image<Rgba32>(width, LeaderboardTextBackground.Height);
 
         for (int i = 0; i < textBackgrounds.Length; i++)
         {
-            background.Mutate(x => x.DrawImage(textBackgrounds[i].Image, new Point(xCoordinates[i], 0), 1));
+            background.Mutate(x => x.DrawImage(textBackgrounds[i].Image, new Point(textBackgrounds[i].XPosition, 0), 1));
         }
 
         return background;
     }
 
-    private static (int[] xCoordinates, int height) GetXCoordinatesAndHeight()
+    private static void SetBackgroundsXPositions()
     {
-        int[] xCoordinates = new int[textBackgrounds.Length];
-        int height = MinimumBackgroundHeight;
-        xCoordinates[0] = 0;
-
-        for (int i = 1; i < textBackgrounds.Length - 1; i++)
+        for (int i = 1; i < textBackgrounds.Length; i++)
         {
-            xCoordinates[i] = xCoordinates[i - 1] + textBackgrounds[i - 1].Image.Width;
-            if (textBackgrounds[i].Image.Height > height) { height = textBackgrounds[i].Image.Height; }
+            // Move to the left by one so we don't get double borders where the backgrounds meet;
+            textBackgrounds[i].XPosition = textBackgrounds[i - 1].XPosition + textBackgrounds[i - 1].Image.Width - 1;
         }
-
-        return (xCoordinates, height);
     }
+
+    record BackgroundInfo(int[] XPositions, int Width);
 }

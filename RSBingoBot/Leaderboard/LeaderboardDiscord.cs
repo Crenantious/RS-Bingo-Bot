@@ -14,9 +14,10 @@ public class LeaderboardDiscord
 {
     private const string leaderboardImageFileName = "Leaderboard.png";
 
-    public static void SetUp()
+    public static async Task SetUp()
     {
-        Create();
+        //TODO: JR - remove startup posing when finished with tests
+        await PostLeaderboard(Create());
         TeamScore.ScoreUpdatedEventAsync += UpdateLeaderboard;
     }
 
@@ -31,9 +32,9 @@ public class LeaderboardDiscord
         DiscordMessage imageMessage;
         leaderboard.SaveAsPng(leaderboardImageFileName);
 
-        using (var fs = new FileStream(leaderboardImageFileName, FileMode.Open, FileAccess.Read))
+        using (var fs = new FileStream(leaderboardImageFileName, FileMode.Open))
 
         imageMessage = await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .WithFile("Leaderboard", fs));
+            .WithFile(fs));
     }
 }

@@ -25,6 +25,7 @@ public class CompleteNextTileButtonHandler : ComponentInteractionHandler
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
     {
         await base.InitialiseAsync(args, info);
+
         if (Team!.Tiles.FirstOrDefault(t => t.IsCompleteAsBool() is false) is Tile tile)
         {
             tile.SetCompleteStatus(TileRecord.CompleteStatus.Yes);

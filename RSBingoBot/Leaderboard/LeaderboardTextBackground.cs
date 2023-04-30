@@ -9,17 +9,26 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using static RSBingoBot.Leaderboard.LeaderboadPreferences;
 
 internal class LeaderboardTextBackground
 {
-    public Image Image { get; private set; }
-    public Point Centre { get; private set; }
+    private static int currentTextMaxHeight = MinimumBackgroundHeight;
 
-    private int currentTextMaxWidth = LeaderboadPreferences.MinimumBackgroundWidth;
-    private int currentTextMaxHeight = LeaderboadPreferences.MinimumBackgroundHeight;
+    private int currentTextMaxWidth = MinimumBackgroundWidth;
 
-    public LeaderboardTextBackground() =>
-        Image = CreateBackground();
+    public static int Height => currentTextMaxHeight + TextPaddingHeight * 2 + TextBackgroundBorderThickness * 2;
+
+    public int Width => currentTextMaxWidth + TextPaddingWidth * 2 + TextBackgroundBorderThickness * 2;
+    public int XPosition { get; set; }
+    public Image Image { get; private set; } = null!;
+    public Point TextPosition { get; private set; }
+
+    public LeaderboardTextBackground()
+    {
+        SetTextPosition();
+        CreateImage();
+    }
 
     /// <summary>
     /// If <paramref name="name"/> is of greater size than the current max size,
@@ -43,12 +52,15 @@ internal class LeaderboardTextBackground
             isDirty = true;
         }
 
-        if (isDirty)
-        {
-            Centre = new(currentTextMaxWidth / 2, currentTextMaxHeight / 2);
-            Image box = CreateBackground();
-        }
+        if (isDirty) { SetTextPosition(); }
+
         return isDirty;
+    }
+
+    public void CreateImageIfDirty()
+    {
+        if ((Width > Image.Width || Height > Image.Height) is false) { return; }
+        CreateImage();
     }
 
     private static (int width, int height) GetTextSize(string name)
@@ -59,12 +71,22 @@ internal class LeaderboardTextBackground
         return (width, height);
     }
 
-    private Image CreateBackground()
+    private void SetTextPosition() =>
+        //TextPosition = new(TextPaddingWidth + TextBackgroundBorderThickness, TextPaddingHeight + TextBackgroundBorderThickness);
+        TextPosition = new(Width/2, Height/2);
+
+    private void CreateImage()
     {
-        Image image = new Image<Rgba32>(currentTextMaxWidth, currentTextMaxHeight);
-        image.Mutate(x =>
-            DrawRectangleExtensions.Draw(x, LeaderboadPreferences.TextColour,
-                LeaderboadPreferences.TextBackgroundBorderThickness, new RectangleF(0, 0, currentTextMaxWidth, currentTextMaxHeight)));
-        return image;
+        Image = new Image<Rgba32>(Width, Height, TextBackgroundColour);
+        Console.WriteLine($"{Width}, {Height}");
+
+        //TODO: test
+        if (Width <= 0 || Height <= 0) { return; }
+
+        Image.Mutate(x =>
+            DrawRectangleExtensions.Draw(x,
+                TextColour,
+                TextBackgroundBorderThickness,
+                new RectangleF(0, 0, Width - TextBackgroundBorderThickness, Height - TextBackgroundBorderThickness)));
     }
 }

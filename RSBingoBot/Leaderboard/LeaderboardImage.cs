@@ -11,6 +11,7 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Drawing.Processing;
 using static RSBingo_Framework.DAL.DataFactory;
+using SixLabors.Fonts;
 
 public class LeaderboardImage
 {
@@ -23,10 +24,25 @@ public class LeaderboardImage
 
         for (int i = 0; i < orderedTeams.Count(); i++)
         {
-            AddTeamImage(CreateTeamImage(orderedTeams.ElementAt(i), i + 1));
+            Team team = orderedTeams.ElementAt(i);
+            LeaderboardTeamBackground.TryUpdateMaxSize(team.Name, team.Score.ToString(), (i + 1).ToString());
+        }
+
+        leaderboardImage = new Image<Rgba32>(LeaderboardTeamBackground.Image.Width, LeaderboardTeamBackground.Image.Height * orderedTeams.Count());
+
+        for (int i = 0; i < orderedTeams.Count(); i++)
+        {
+            AddTeamImage(orderedTeams.ElementAt(i), i);
         }
 
         return leaderboardImage;
+    }
+
+    private static void AddTeamImage(Team team, int rowIndex)
+    {
+        // This appends the image to the bottom of the leaderboard.
+        Image teamImage = CreateTeamImage(team, rowIndex + 1);
+        leaderboardImage.Mutate(x => x.DrawImage(teamImage, new Point(0, LeaderboardTeamBackground.Image.Height * rowIndex), 1));
     }
 
     private static Image CreateTeamImage(Team team, int rank)
@@ -38,19 +54,24 @@ public class LeaderboardImage
 
     private static Image DrawTeamInfo(Image background, string name, int score, int rank)
     {
-        DrawText(background, name, LeaderboardTeamBackground.nameBackground.Centre);
-        DrawText(background, score.ToString(), LeaderboardTeamBackground.scoreBackground.Centre);
-        DrawText(background, rank.ToString(), LeaderboardTeamBackground.rankBackground.Centre);
+        DrawText(background, name, GetTextPosition(LeaderboardTeamBackground.nameBackground));
+        DrawText(background, score.ToString(), GetTextPosition(LeaderboardTeamBackground.scoreBackground));
+        DrawText(background, rank.ToString(), GetTextPosition(LeaderboardTeamBackground.rankBackground));
         return background;
     }
 
-    private static void AddTeamImage(Image teamImage)
-    {
-        // This appends the image to the bottom of the leaderboard.
-        leaderboardImage.Mutate(x => x.Resize(leaderboardImage.Width, leaderboardImage.Height + teamImage.Height));
-        leaderboardImage.Mutate(x => x.DrawImage(teamImage, new Point(0, leaderboardImage.Height), 1));
-    }
+    private static Point GetTextPosition(LeaderboardTextBackground background) =>
+        new(background.XPosition + background.TextPosition.X, background.TextPosition.Y);
 
-    private static void DrawText(Image image, string text, Point position) =>
-        image.Mutate(x => x.DrawText(text, LeaderboadPreferences.Font, LeaderboadPreferences.TextColour, position));
+    private static void DrawText(Image image, string text, Point position)
+    {
+        TextOptions textOptions = new(LeaderboadPreferences.Font)
+        {
+            Origin = position,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Console.WriteLine(position);
+        image.Mutate(x => x.DrawText(textOptions, text, LeaderboadPreferences.TextColour));
+    }
 }
