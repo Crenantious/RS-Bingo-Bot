@@ -14,37 +14,76 @@ internal class GridImage
 {
     public Image Image { get; private set; }
 
-    private int columns;
-    private int rows;
     private int cellXPosition;
     private int cellYPosition;
+    private GridImageDimensions dimensions;
+    private ImageBorderInfo borderInfo;
+    private Action<Image, int, int>? mutateCell;
 
-    public GridImage(GridImageDimensions dimensions, ImageBorderInfo borderInfo, Action<Image>? mutateCell = null)
+    public GridImage(GridImageDimensions dimensions, ImageBorderInfo borderInfo, Action<Image, int, int>? mutateCell = null)
     {
-        columns = dimensions.ColumnWidths.Count();
-        rows = dimensions.RowHeights.Count();
+        this.dimensions = dimensions;
+        this.borderInfo = borderInfo;
+        this.mutateCell = mutateCell;
 
-        for (int i = 0; i < columns; i++)
+        CreateEmptyImage();
+        CreateCells();
+    }
+
+    private void CreateEmptyImage()
+    {
+        (int width, int height) = GetImageSize();
+        Image = new Image<Rgba32>(width, height);
+    }
+
+    private void CreateCells()
+    {
+        int cellWidth = 0;
+        int cellHeight = 0;
+
+        for (int i = 0; i < dimensions.ColumnWidths.Count(); i++)
         {
-            for (int j = 0; j < rows; j++)
+            SetCellXPosition(cellWidth, i);
+
+            for (int j = 0; j < dimensions.RowHeights.Count(); j++)
             {
-                Image cell = CreateCell(dimensions.ColumnWidths.ElementAt(i), dimensions.RowHeights.ElementAt(j), borderInfo, mutateCell);
-                AddCell(cell, i, j, borderInfo);
+                SetCellYPosition(cellHeight, j);
+
+                Image cell = CreateCell(dimensions.ColumnWidths.ElementAt(i), dimensions.RowHeights.ElementAt(j), i, j);
+                cellWidth = cell.Width;
+                cellHeight = cell.Height;
+
+                AddCell(cell);
             }
         }
     }
 
-    private void AddCell(Image cell, int column, int row, ImageBorderInfo borderInfo)
+    private (int width, int height) GetImageSize()
     {
-        Image.Mutate(x => x.DrawImage(cell, new Point(cellXPosition, cellYPosition), 1));
-        cellXPosition = column == columns ? 0 : cellXPosition + Image.Width - borderInfo.Thickness;
-        cellYPosition = row == rows ? 0 : cellYPosition + Image.Height - borderInfo.Thickness;
+        int width = GetDimensionSize(dimensions.ColumnWidths);
+        int height = GetDimensionSize(dimensions.RowHeights);
+        return (width, height);
     }
 
-    private static Image CreateCell(int width, int height, ImageBorderInfo borderInfo, Action<Image>? mutateCell)
+    private int GetDimensionSize(IEnumerable<int> cellDimensionSizes)
+    {
+        int size = cellDimensionSizes.Sum();
+        if (cellDimensionSizes.Any()) { size -= borderInfo.Thickness * (cellDimensionSizes.Count() - 1); }
+        return size;
+    }
+
+    private void AddCell(Image cell) =>
+        Image.Mutate(x => x.DrawImage(cell, new Point(cellXPosition, cellYPosition), 1));
+
+    private void SetCellXPosition(int width, int column) =>
+        cellXPosition = column == 0 ? 0 : cellXPosition + width - borderInfo.Thickness;
+    private void SetCellYPosition(int height, int row) =>
+        cellYPosition = row == 0 ? 0 : cellYPosition + height - borderInfo.Thickness;
+
+    private Image CreateCell(int width, int height, int column, int row)
     {
         Image cell = new Image<Rgba32>(width, height);
-        mutateCell?.Invoke(cell);
+        mutateCell?.Invoke(cell, column, row);
         AddCellBorder(cell, borderInfo);
         return cell;
     }

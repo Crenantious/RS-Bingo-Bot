@@ -26,7 +26,7 @@ internal static class LeaderboardTextDrawer
     private static Point GetTextPosition(LeaderboardCellBackground background) =>
         new(background.Position.X + background.TextPosition.X, background.Position.Y + background.TextPosition.Y);
 
-    private static void DrawText(Image image, string text, Point position)
+    public static void DrawText(Image image, string text, Point position)
     {
         TextOptions textOptions = new(LeaderboadPreferences.Font)
         {

@@ -13,6 +13,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.Leaderboard.LeaderboardDimensionUtilities;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
+using RSBingoBot.Imaging;
 
 public class LeaderboardImage
 {
@@ -26,15 +27,9 @@ public class LeaderboardImage
 
         int rowCount = orderedTeams.Count() + 1;
         LeaderboardRowDimensions rowDimensions = CreateRowBackground(orderedTeams, rowCount);
-        CreateEmptyBoard(rowDimensions, rowCount);
-
-        AddHeaders();
-
-        for (int i = 0; i < orderedTeams.Count(); i++)
-        {
-            AddTeam(orderedTeams.ElementAt(i), i + 1, i + 1);
-        }
-
+        GridImageDimensions gridImageDimensions = new(rowDimensions.widths, Enumerable.Repeat(rowDimensions.height, rowCount));
+        GridImage gridImage = new(gridImageDimensions, new(TextBackgroundBorderColour, TextBackgroundBorderThickness), MutateCell);
+        image = gridImage.Image;
         return image;
     }
 
@@ -44,7 +39,10 @@ public class LeaderboardImage
         rowBackground = new(rowDimensions);
         return rowDimensions;
     }
-
+    private static void MutateCell(Image cell, int column, int row)
+    {
+        LeaderboardTextDrawer.DrawText(cell, (column, row).ToString(), new(cell.Width/2, cell.Height/2));
+    }
     private static void CreateEmptyBoard(LeaderboardRowDimensions rowDimensions, int rowCount)
     {
         (int width, int height) = GetBoardDimensions(rowDimensions, rowCount);
