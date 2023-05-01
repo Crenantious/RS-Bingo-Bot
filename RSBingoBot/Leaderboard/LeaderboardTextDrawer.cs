@@ -12,20 +12,18 @@ using SixLabors.ImageSharp.Drawing.Processing;
 internal static class LeaderboardTextDrawer
 {
     /// <summary>
-    /// Draws each value as text on the background. Positioned based on <see cref="LeaderboardRowBackground.Components"/>.<br/>
-    /// <paramref name="values"/> must have the same Count as <see cref="LeaderboardRowBackground.Components"/>.
+    /// Draws each value as text on the background. Positioned based on <paramref name="cells"/>.<br/>
+    /// <paramref name="values"/> must have the same Count as <paramref name="cells"/>.
     /// </summary>
-    /// <param name="image">The image to draw on.</param>
-    /// <param name="values">The text to draw onto the image.</param>
-    public static void DrawInfo(Image image, IEnumerable<string> values)
+    public static void DrawInfo(Image image, IEnumerable<LeaderboardCellBackground> cells, IEnumerable<string> values)
     {
         for (int i = 0; i < values.Count(); i++)
         {
-            DrawText(image, values.ElementAt(i), GetTextPosition(LeaderboardRowBackground.Components[i]));
+            DrawText(image, values.ElementAt(i), GetTextPosition(cells.ElementAt(i)));
         }
     }
 
-    private static Point GetTextPosition(LeaderboardRowBackgroundComponent background) =>
+    private static Point GetTextPosition(LeaderboardCellBackground background) =>
         new(background.Position.X + background.TextPosition.X, background.Position.Y + background.TextPosition.Y);
 
     private static void DrawText(Image image, string text, Point position)

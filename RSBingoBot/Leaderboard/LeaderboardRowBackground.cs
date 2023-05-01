@@ -10,26 +10,24 @@ using SixLabors.ImageSharp.Processing;
 using RSBingoBot.DTO;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
 
-internal static class LeaderboardRowBackground
+internal class LeaderboardRowBackground
 {
-    public static Image Image { get; private set; }
-    public static LeaderboardRowBackgroundComponent[] Components { get; private set; }
+    public Image Image { get; private set; }
+    public LeaderboardCellBackground[] Cells { get; private set; }
 
-    public static Image Create(LeaderboardRowDimensions dimensions)
+    public LeaderboardRowBackground(LeaderboardRowDimensions dimensions)
     {
         Image = new Image<Rgba32>(dimensions.widths.Sum(), dimensions.height);
-        Components = new LeaderboardRowBackgroundComponent[dimensions.widths.Count()];
+        Cells = new LeaderboardCellBackground[dimensions.widths.Count()];
         int xPosition = 0;
 
         for (int i = 0; i < dimensions.widths.Count(); i++)
         {
             int width = dimensions.widths.ElementAt(i);
-            Components[i] = new(width, dimensions.height, new(xPosition, 0));
+            Cells[i] = new(width, dimensions.height, new(xPosition, 0));
 
-            Image.Mutate(x => x.DrawImage(Components[i].Image, Components[i].Position, 1));
+            Image.Mutate(x => x.DrawImage(Cells[i].Image, Cells[i].Position, 1));
             xPosition += width - TextBackgroundBorderThickness;
         }
-
-        return Image;
     }
 }

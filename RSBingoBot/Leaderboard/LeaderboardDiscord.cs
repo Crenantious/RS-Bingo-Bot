@@ -14,6 +14,8 @@ public class LeaderboardDiscord
 {
     private const string leaderboardImageFileName = "Leaderboard.png";
 
+    private static SemaphoreSlim semaphore = new(1, 1);
+
     public static async Task SetUp()
     {
         //TODO: JR - remove startup posing when finished with tests
@@ -23,8 +25,11 @@ public class LeaderboardDiscord
 
     private static async Task UpdateLeaderboard(TeamScore teamScore)
     {
+        await semaphore.WaitAsync();
+
         // Recreating the board each time is very inefficient but the system does not need to be fast.
         await PostLeaderboard(Create());
+        semaphore.Release();
     }
 
     private static async Task PostLeaderboard(Image leaderboard)

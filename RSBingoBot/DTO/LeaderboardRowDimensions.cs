@@ -6,6 +6,6 @@ namespace RSBingoBot.DTO;
 
 using RSBingoBot.Leaderboard;
 
-/// <param name="widths">The width of each <see cref="LeaderboardRowBackgroundComponent"/> in order left to right.</param>
+/// <param name="widths">The width of each <see cref="LeaderboardCellBackground"/> in order left to right.</param>
 /// <param name="height">The height of the <see cref="LeaderboardRowBackground"/>.</param>
 internal record LeaderboardRowDimensions(IEnumerable<int> widths, int height);

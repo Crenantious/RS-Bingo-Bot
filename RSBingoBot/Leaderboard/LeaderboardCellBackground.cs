@@ -1,4 +1,4 @@
-﻿// <copyright file="LeaderboardRowBackgroundComponent.cs" company="PlaceholderCompany">
+﻿// <copyright file="LeaderboardCellBackground.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
 
-internal class LeaderboardRowBackgroundComponent
+internal class LeaderboardCellBackground
 {
     public Image Image { get; private set; } = null!;
     public Point TextPosition { get; private set; }
@@ -21,7 +21,7 @@ internal class LeaderboardRowBackgroundComponent
     /// </summary>
     public Point Position { get; private set; }
 
-    public LeaderboardRowBackgroundComponent(int width, int height, Point position)
+    public LeaderboardCellBackground(int width, int height, Point position)
     {
         Position = position;
         CreateImage(width, height);

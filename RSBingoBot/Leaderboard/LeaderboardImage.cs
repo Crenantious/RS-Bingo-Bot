@@ -12,44 +12,65 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.Leaderboard.LeaderboardDimensionUtilities;
+using static RSBingoBot.Leaderboard.LeaderboadPreferences;
 
 public class LeaderboardImage
 {
     private static IDataWorker dataWorker = CreateDataWorker(); 
     private static Image image = new Image<Rgba32>(1,1);
+    private static LeaderboardRowBackground rowBackground;
 
     public static Image Create()
     {
         IEnumerable<Team> orderedTeams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
 
-        CreateBackground(orderedTeams);
+        int rowCount = orderedTeams.Count() + 1;
+        LeaderboardRowDimensions rowDimensions = CreateRowBackground(orderedTeams, rowCount);
+        CreateEmptyBoard(rowDimensions, rowCount);
+
+        AddHeaders();
 
         for (int i = 0; i < orderedTeams.Count(); i++)
         {
-            AddTeamImage(orderedTeams.ElementAt(i), i);
+            AddTeam(orderedTeams.ElementAt(i), i + 1, i + 1);
         }
 
         return image;
     }
 
-    private static void CreateBackground(IEnumerable<Team> orderedTeams)
+    private static LeaderboardRowDimensions CreateRowBackground(IEnumerable<Team> teams, int rowCount)
     {
-        LeaderboardRowDimensions dimensions = GetRowDimensions(orderedTeams);
-        LeaderboardRowBackground.Create(dimensions);
-        image = new Image<Rgba32>(LeaderboardRowBackground.Image.Width, LeaderboardRowBackground.Image.Height * orderedTeams.Count());
+        LeaderboardRowDimensions rowDimensions = GetRowDimensions(teams);
+        rowBackground = new(rowDimensions);
+        return rowDimensions;
     }
 
-    // This appends the image to the bottom of the leaderboard.
-    private static void AddTeamImage(Team team, int rowIndex)
+    private static void CreateEmptyBoard(LeaderboardRowDimensions rowDimensions, int rowCount)
     {
-        Image teamImage = CreateTeamImage(team, rowIndex + 1);
-        image.Mutate(x => x.DrawImage(teamImage, new Point(0, LeaderboardRowBackground.Image.Height * rowIndex), 1));
+        (int width, int height) = GetBoardDimensions(rowDimensions, rowCount);
+        image = new Image<Rgba32>(width, height);
     }
 
-    private static Image CreateTeamImage(Team team, int rank)
+    private static void AddHeaders()
     {
-        Image teamImage = LeaderboardRowBackground.Image.Clone(x => { });
-        LeaderboardTextDrawer.DrawInfo(teamImage, new List<string> { team.Name, team.Score.ToString(), rank.ToString() });
-        return teamImage;
+        Image headders = CreateRow("Name", "Score", "Rank");
+        AppendRow(headders, 0);
     }
+
+    private static void AddTeam(Team team, int rank, int rowIndex)
+    {
+        Image teamRow = CreateRow(team.Name, team.Score.ToString(), rank.ToString());
+        AppendRow(teamRow, rowIndex);
+    }
+
+    private static Image CreateRow(params string[] values)
+    {
+        Image rowImage = rowBackground.Image.Clone(x => { });
+        LeaderboardTextDrawer.DrawInfo(rowImage, rowBackground.Cells, values);
+        return rowImage;
+    }
+
+    private static void AppendRow(Image rowImage, int rowIndex) =>
+        image.Mutate(x => x.DrawImage(rowImage,
+            new Point(0, rowBackground.Image.Height * rowIndex - TextBackgroundBorderThickness * (rowIndex - 1)), 1));
 }

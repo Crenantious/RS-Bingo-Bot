@@ -23,9 +23,9 @@ internal static class LeaderboardDimensionUtilities
 
         for (int i = 0; i < teams.Count(); i++)
         {
-            (textWidths[0], textHeight) = GetMaxSize(teams.ElementAt(i).Name, textWidths[0], textHeight);
-            (textWidths[1], textHeight) = GetMaxSize(teams.ElementAt(i).Score.ToString(), textWidths[1], textHeight);
-            (textWidths[2], textHeight) = GetMaxSize(i.ToString(), textWidths[2], textHeight);
+            (textWidths[0], textHeight) = GetMaxTextSize(teams.ElementAt(i).Name, textWidths[0], textHeight);
+            (textWidths[1], textHeight) = GetMaxTextSize(teams.ElementAt(i).Score.ToString(), textWidths[1], textHeight);
+            (textWidths[2], textHeight) = GetMaxTextSize(i.ToString(), textWidths[2], textHeight);
         }
 
         int xPadding = TextPaddingWidth * 2 + TextBackgroundBorderThickness * 2;
@@ -36,7 +36,10 @@ internal static class LeaderboardDimensionUtilities
         return new(widths, (int)textHeight);
     }
 
-    private static (float width, float height) GetMaxSize(string value, float width, float height)
+    public static (int width, int height) GetBoardDimensions(LeaderboardRowDimensions rowDimensions, int rowCount) =>
+        (rowDimensions.widths.Sum(), rowDimensions.height * rowCount - TextBackgroundBorderThickness * (rowCount - 1));
+
+    private static (float width, float height) GetMaxTextSize(string value, float width, float height)
     {
         (float textWidth, float textHeight) = GetTextSize(value);
         return (MathF.Max(textWidth, width), MathF.Max(textHeight, height));
