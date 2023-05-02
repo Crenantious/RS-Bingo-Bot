@@ -4,22 +4,17 @@
 
 namespace RSBingoBot
 {
-    using System.Threading;
     using DSharpPlus;
-    using DSharpPlus.Interactivity;
     using DSharpPlus.Interactivity.Extensions;
     using DSharpPlus.SlashCommands;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using RSBingo_Common;
-    using RSBingo_Framework.DAL;
     using RSBingo_Framework.Interfaces;
     using RSBingo_Framework.Models;
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Component_interaction_handlers;
-    using RSBingoBot.Discord_event_handlers;
     using RSBingoBot.Imaging;
-    using RSBingoBot.Interfaces;
+    using RSBingoBot.Leaderboard;
     using static RSBingo_Framework.DAL.DataFactory;
 
     /// <summary>
@@ -61,6 +56,7 @@ namespace RSBingoBot
 
             await discordClient.ConnectAsync();
             await CreateExistingTeams();
+            await LeaderboardDiscord.SetUp();
         }
 
         /// <inheritdoc/>
@@ -75,8 +71,8 @@ namespace RSBingoBot
         {
             foreach (Team team in dataWorker.Teams.GetTeams())
             {
-                DiscordTeam initialiseTeam = new (discordClient, team.Name);
-                await initialiseTeam.InitialiseAsync(team);
+                DiscordTeam discordTeam = new (discordClient, team.Name);
+                await discordTeam.InitialiseAsync(team);
             }
             await BoardImage.CreateAndUpdateAllTeamBoards();
         }

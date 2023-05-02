@@ -7,12 +7,6 @@ namespace RSBingo_Framework.Records;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static RSBingo_Framework.Repository.EvidenceRepository;
 
 public static class EvidenceRecord
 {
@@ -47,8 +41,11 @@ public static class EvidenceRecord
         EvidenceType type, ulong discordMessageId) =>
         dataWorker.Evidence.Create(user, tile, url, type, discordMessageId);
 
-    public static Evidence? GetByTileAndUser(IDataWorker dataWorker, Tile tile, User user) =>
-        dataWorker.Evidence.FirstOrDefault(e => e.Tile == tile && e.DiscordUser == user);
+    public static Evidence? GetByTileUserAndType(IDataWorker dataWorker, Tile tile, User user, EvidenceType evidenceType) =>
+        dataWorker.Evidence.FirstOrDefault(e =>
+        e.Tile == tile &&
+        e.DiscordUser == user &&
+        e.EvidenceType == EvidenceTypeLookup.Get(evidenceType));
 
     public static IEnumerable<Evidence> GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
         dataWorker.Evidence.Where(e => e.DiscordMessageId == messageId);

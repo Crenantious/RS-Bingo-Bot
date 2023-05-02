@@ -28,16 +28,19 @@ public static class DataFactory
     private const string PendingEvidenceChannelIdKey = "PendingEvidenceChannelId";
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
+    private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
+
     private static DiscordGuild guild = null!;
     private static DiscordChannel pendingEvidenceChannel = null!;
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
+    private static DiscordChannel leaderboardEvidenceChannel = null!;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -67,6 +70,11 @@ public static class DataFactory
     public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;
 
     /// <summary>
+    /// Gets the "rejected-evidence" channel.
+    /// </summary>
+    public static DiscordChannel LeaderboardChannel => leaderboardEvidenceChannel;
+
+    /// <summary>
     /// Setup the data factory ready to process requests for data connections.
     /// </summary>
     /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
@@ -90,6 +98,7 @@ public static class DataFactory
             pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
             verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
             rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
+            leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
         }
     }
 

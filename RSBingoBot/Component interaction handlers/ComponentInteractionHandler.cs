@@ -20,8 +20,8 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// </summary>
 public abstract class ComponentInteractionHandler : IDisposable
 {
-    private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new ();
-    private static readonly List<ComponentInteractionHandler> Instances = new ();
+    private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new();
+    private static readonly List<ComponentInteractionHandler> Instances = new();
     private static readonly ComponentInteractionDEH componentInteractionDEH = null!;
     private static readonly MessageCreatedDEH messageCreatedDEH = null!;
     private static readonly ModalSubmittedDEH modalSubmittedDEH = null!;
@@ -29,15 +29,15 @@ public abstract class ComponentInteractionHandler : IDisposable
     // TODO: JR - re-factor to not have to wrap every DEH subscription.
     private readonly List<(ComponentInteractionDEH.Constraints,
                            Func<DiscordClient,
-                           ComponentInteractionCreateEventArgs, Task>)> subscribedComponentsInfo = new ();
+                           ComponentInteractionCreateEventArgs, Task>)> subscribedComponentsInfo = new();
 
     private readonly List<(MessageCreatedDEH.Constraints,
                            Func<DiscordClient,
-                           MessageCreateEventArgs, Task>)> subscribedMessagesInfo = new ();
+                           MessageCreateEventArgs, Task>)> subscribedMessagesInfo = new();
 
     private readonly List<(ModalSubmittedDEH.Constraints,
                    Func<DiscordClient,
-                   ModalSubmitEventArgs, Task>)> subscribedModalInfo = new ();
+                   ModalSubmitEventArgs, Task>)> subscribedModalInfo = new();
 
     static ComponentInteractionHandler()
     {
@@ -85,7 +85,7 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// <summary>
     /// Gets the messages to delete when the original interaction has concluded.
     /// </summary>
-    protected List<DiscordMessage> MessagesForCleanup { get; private set; } = new ();
+    protected List<DiscordMessage> MessagesForCleanup { get; private set; } = new();
 
     /// <summary>
     /// Gets the info used to initialize the class instance.
@@ -265,20 +265,23 @@ public abstract class ComponentInteractionHandler : IDisposable
 
         if (createResponse)
         {
+            // TODO: JR - create a timer to update the message every 0.5s or so to animate the ellipsis to show that
+            // the bot is loading and hasn't crashed if it's taking a long time.
+            // E.g. message 1: "Loading.", message 2: "Loading..", message 3: "Loading..." etc.
 
-        if (responseContent == "")
-        {
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-        }
-        else
-        {
-            var builder = new DiscordInteractionResponseBuilder()
+            if (responseContent == "")
             {
-                IsEphemeral = ephemeralResponse,
-                Content = responseContent
-            };
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-        }
+                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+            }
+            else
+            {
+                var builder = new DiscordInteractionResponseBuilder()
+                {
+                    IsEphemeral = ephemeralResponse,
+                    Content = responseContent
+                };
+                await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            }
         }
 
         try

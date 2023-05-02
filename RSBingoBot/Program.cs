@@ -17,6 +17,7 @@ namespace RSBingoBot
     using RSBingoBot.BingoCommands;
     using RSBingoBot.Discord_event_handlers;
     using RSBingoBot.Imaging;
+    using RSBingoBot.Leaderboard;
     using Serilog;
     using SixLabors.ImageSharp.Web.DependencyInjection;
     using static RSBingo_Common.General;
@@ -40,7 +41,6 @@ namespace RSBingoBot
                 IHost host = CreateHostBuilder(args).Build();
 
                 DI = host.Services;
-
 
                 InitaliseScoring();
 

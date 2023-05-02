@@ -4,15 +4,18 @@
 
 namespace RSBingo_Framework.Scoring;
 
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using static RSBingo_Framework.Records.BingoTaskRecord;
+using RSBingo_Framework.Exceptions;
 using static RSBingo_Framework.Scoring.Scoring;
 
 public class TeamScore
 {
     public int Score { get; private set; } = 0;
+
+    public delegate Task AsyncEventData(TeamScore teamScore);
+
+    public static event AsyncEventData? ScoreUpdatedEventAsync;
 
     /// <summary>
     /// Updates the team's score.
@@ -22,11 +25,11 @@ public class TeamScore
     public void Update(Tile tile)
     {
         ValidateTileDifficulty(tile);
-
         UpdateScoreFromDifficulty(tile);
 
-        if (BoardIndexToBonusPoints.ContainsKey(tile.BoardIndex) is false) { return; }
-        UpdateBonusPointsAndScore(tile);
+        if (BoardIndexToBonusPoints.ContainsKey(tile.BoardIndex)) { UpdateBonusPointsAndScore(tile); }
+
+        ScoreUpdatedEventAsync?.Invoke(this);
     }
 
     private void UpdateScoreFromDifficulty(Tile tile)

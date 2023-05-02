@@ -1,16 +1,13 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RSBingoBot.Discord_event_handlers;
-using DSharpPlus;
+﻿// <copyright file="SelectComponent.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace RSBingoBot.Component_interaction_handlers.Select_Component;
 
-// TODO: JR - support multiple item selection
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+
 public class SelectComponent
 {
     /// <summary>
@@ -19,7 +16,7 @@ public class SelectComponent
     public DiscordSelectComponent? DiscordComponent { get; private set; }
     public SelectComponentPage? SelectedPage { get; private set; } = null;
     public List<SelectComponentItem> SelectedItems { get; private set; } = new();
-    public List<SelectComponentOption> SelectOptions = new();
+    public List<SelectComponentOption> SelectOptions { get; set; } = new();
     public string CustomId { get; set; } = null!;
     public string InitialPlaceholder { get; set; } = null!;
     public bool Disabled { get; set; }
@@ -27,7 +24,6 @@ public class SelectComponent
     public int MaxOptions { get; set; }
 
     private string? placeholder = null;
-    private bool hasBeenInteracted = false;
     private Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
     private Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
     private List<DiscordSelectComponentOption> discordOptions = new();
@@ -78,7 +74,6 @@ public class SelectComponent
     {
         if (DiscordComponent == null) { throw new NullReferenceException($"Component must not be null; make sure Build() has been called before this method."); }
 
-        hasBeenInteracted = true;
         (List<SelectComponentOption> options, OptionSelectionType pageSelected)  = GetOptionsFromInteractonArgs(args);
 
         if (pageSelected is OptionSelectionType.Page)
@@ -137,21 +132,6 @@ public class SelectComponent
         }
     }
 
-    private void BuildDefaultDiscordOptions()
-    {
-        for (int i = 0; i < SelectOptions.Count; i++)
-        {
-            SelectComponentOption option = SelectOptions[i];
-
-            if (SelectedItemsHashSet.Contains(option))
-            {
-                option.isDefault = true;
-                option.Build(i.ToString());
-                discordOptions[i] = option.discordOption;
-            }
-        }
-    }
-
     private void CreateDiscordSelectComponent()
     {
         int maxOptions = (int)MathF.Min(MaxOptions, discordOptions.Count());
@@ -180,7 +160,7 @@ public class SelectComponent
         SelectedPage = null;
         SelectedItems = new(items);
         SelectedItemsHashSet = new(items);
-        BuildDefaultDiscordOptions();
+        BuildAllDiscordOptions();
         CreateDiscordSelectComponent();
 
         if (itemSelectedCallback != null)

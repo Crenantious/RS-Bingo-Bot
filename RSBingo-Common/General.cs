@@ -78,6 +78,12 @@ namespace RSBingo_Common
         /// </summary>
         public const int MaxTilesOnABoard = 25;
 
+        // TODO: make sure this is false for production.
+        /// <summary>
+        /// Gets or sets weather or not the competition has started.
+        /// </summary>
+        public static bool HasCompetitionStarted { get; set; } = true;
+
         /// <summary>
         /// Startup logging.
         /// </summary>

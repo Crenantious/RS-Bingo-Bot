@@ -72,9 +72,9 @@ public static class Scoring
     private static BonusPoints[] CreateMultipleBonusPoints(IEnumerable<HashSet<int>> boardIndexes, int bonusValue)
     {
         BonusPoints[] bonusPoints = new BonusPoints[boardIndexes.Count()];
-        foreach(HashSet<int> indexes in boardIndexes)
+        for (int i = 0; i < boardIndexes.Count(); i++)
         {
-            bonusPoints[^1] = new(indexes, bonusValue);
+            bonusPoints[i] = new(boardIndexes.ElementAt(i), bonusValue);
         }
         return bonusPoints;
     }

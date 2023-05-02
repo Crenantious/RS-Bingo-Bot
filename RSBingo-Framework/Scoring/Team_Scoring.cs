@@ -1,4 +1,4 @@
-﻿// <copyright file="Team.cs" company="PlaceholderCompany">
+﻿// <copyright file="Team_Scoring.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
