@@ -23,18 +23,14 @@ public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
                                            .Take(line.AmountOfTasks.Value);
         int tasksCount = tasks.Count();
 
-        if (tasksCount > 0)
+        if (tasksCount <= 0)
         {
-            if (tasksCount < line.AmountOfTasks.Value)
-            {
-                AddWarning(new NotEnoughTasksToDeleteWarning(line.TaskName.ValueIndex, line.LineNumber, tasksCount));
-            }
-
-            DataWorker.BingoTasks.RemoveRange(tasks);
+            AddWarning(new TaskDoesNotExistWarning(line.TaskName.ValueIndex, line.LineNumber));
             return;
         }
 
-        AddWarning(new TaskDoesNotExistWarning(line.TaskName.ValueIndex, line.LineNumber));
+        DataWorker.BingoTasks.RemoveRange(tasks);
+        return;
     }
 
     /// <inheritdoc/>

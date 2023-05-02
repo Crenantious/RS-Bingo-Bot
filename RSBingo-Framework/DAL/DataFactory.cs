@@ -29,6 +29,7 @@ public static class DataFactory
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
+    private const string WhitelistedDomains = "WhitelistedDomains";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -40,7 +41,7 @@ public static class DataFactory
     private static DiscordChannel pendingEvidenceChannel = null!;
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
-    private static DiscordChannel leaderboardEvidenceChannel = null!;
+    private static DiscordChannel leaderboardChannel = null!;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -72,37 +73,12 @@ public static class DataFactory
     /// <summary>
     /// Gets the "rejected-evidence" channel.
     /// </summary>
-    public static DiscordChannel LeaderboardChannel => leaderboardEvidenceChannel;
+    public static DiscordChannel LeaderboardChannel => leaderboardChannel;
 
-    /// <summary>
-    /// Setup the data factory ready to process requests for data connections.
-    /// </summary>
-    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
-    public static void SetupDataFactory(bool asMockDB = false)
-    {
-        dataIsMock = asMockDB;
-        connectionString = Config_GetConnection(DBKey) !;
 
-        schemaName = Config_GetConnection(SchemaKey) !;
-
-        if (string.IsNullOrEmpty(schemaName))
-        {
-            schemaName = DefaultSchema;
-        }
-
-        if (!asMockDB)
-        {
-            // Not needed in tests.
-            discordToken = Config_Get(DiscordTokenKey) !;
-            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
-            pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
-            verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
-            rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
-            leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
-        }
-    }
-
+    // HACK: Remove this.
     private static string mockName = string.Empty;
+
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
@@ -111,7 +87,7 @@ public static class DataFactory
     /// <returns>The data worker object defined as an interface.</returns>
     public static IDataWorker CreateDataWorker(string? mockName = null)
     {
-            DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
+        DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
@@ -128,5 +104,49 @@ public static class DataFactory
 
         RSBingoContext dbContext = new (builder.Options);
         return new DataWorker(dbContext, LoggingInstance<DataWorker>());
+    }
+
+    /// <summary>
+    /// Setup the data factory ready to process requests for data connections.
+    /// </summary>
+    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
+    public static void SetupDataFactory(bool asMockDB = false)
+    {
+        InitializeDB(asMockDB);
+
+        InitializeWhitelistedDomains();
+
+        if (!asMockDB) { InitializeDiscordComponents(); }
+    }
+
+    private static void InitializeDB(bool asMockDB)
+    {
+        dataIsMock = asMockDB;
+
+        connectionString = Config_GetConnection(DBKey)!;
+
+        schemaName = Config_GetConnection(SchemaKey)!;
+
+        if (string.IsNullOrEmpty(schemaName))
+        {
+            schemaName = DefaultSchema;
+        }
+    }
+
+    private static void InitializeWhitelistedDomains()
+    {
+        List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomains);
+        WhitelistChecker.Initialize(whitelistedDomains);
+    }
+
+    private static void InitializeDiscordComponents()
+    {
+        // Not needed in tests.
+        discordToken = Config_Get<string>(DiscordTokenKey)!;
+        guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))!).GetGuildAsync(Config_Get<ulong>(GuildIdKey)).Result;
+        pendingEvidenceChannel = guild.GetChannel(Config_Get<ulong>(PendingEvidenceChannelIdKey));
+        verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
+        rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
+        leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
     }
 }

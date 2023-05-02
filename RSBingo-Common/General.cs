@@ -11,6 +11,8 @@ namespace RSBingo_Common
     using Microsoft.Extensions.Logging;
     using Serilog;
     using Serilog.Events;
+    using static System.Net.Mime.MediaTypeNames;
+    using static SixLabors.ImageSharp.Image;
 
     /// <summary>
     /// Common Fields, Declares, Methods shared across the RSBingo platform.
@@ -210,7 +212,7 @@ namespace RSBingo_Common
         /// <param name="key">The key of the value being read.</param>
         /// <param name="defaultValue">The default value to return if not found within the config.</param>
         /// <returns>The value found.</returns>
-        public static string Config_Get(string key, string defaultValue = null)
+        public static T? Config_Get<T>(string key, T? defaultValue = default)
         {
             if (key == null)
             {
@@ -220,13 +222,28 @@ namespace RSBingo_Common
             IConfiguration config = DI.GetService<IConfiguration>() !;
 
             // We don't check for the a missing service, its a design failure
-            string value = config.GetValue<string>(key);
+            T value = config.GetValue<T>(key);
             if (value == null)
             {
                 return defaultValue;
             }
 
             return value;
+        }
+
+        public static List<T> Config_GetList<T>(string key)
+        {
+            if (key == null)
+            {
+                return Enumerable.Empty<T>().ToList();
+            }
+
+            IConfiguration config = DI.GetService<IConfiguration>()!;
+
+            // We don't check for the a missing service, its a design failure
+            List<T> values = config.GetSection(key).Get<List<T>>();
+
+            return values;
         }
 
         /// <summary>
@@ -246,6 +263,21 @@ namespace RSBingo_Common
             }
 
             return Path.Combine(folderPath, taskName + taskImageExtension);
+        }
+
+        public static bool ValidateImage(string imagePath)
+        {
+            if (!File.Exists(imagePath)) { return false; }
+
+            try
+            {
+                return Identify(File.ReadAllBytes(imagePath)) is not null;
+            }
+            catch (Exception ex)
+            {
+                General.LoggingLog(ex, ex.Message);
+                return false;
+            }
         }
     }
 }

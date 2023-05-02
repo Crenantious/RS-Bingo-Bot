@@ -7,14 +7,19 @@ namespace RSBingo_Framework.CSV;
 using System.Net;
 using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Imaging;
 using RSBingo_Framework.CSV.Operators.Warnings;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.DAL.DataFactory;
+using System;
+using System.Collections.Immutable;
+using RSBingo_Framework.Exceptions;
+using RSBingo_Common;
 
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
+    private const string DownloadImageExceptionMessage = "The given URL: {0} is not a part of a white listed domain.";
+
     public AddTasksCSVOperator(IDataWorker dataWorker)
         : base(dataWorker)
     {
@@ -35,7 +40,7 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
             return;
         }
 
-        if (ValidateImage.ValidatePath(imagePath) is false)
+        if (General.ValidateImage(imagePath) is false)
         {
             AddWarning(new InvalidImageWarning(line.TaskUrl.ValueIndex, line.LineNumber));
             return;
@@ -54,6 +59,11 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
     {
         try
         {
+            if (!WhitelistChecker.IsUrlWhitelisted(line.TaskUrl.Value))
+            {
+                throw new UnpermittedURLException(DownloadImageExceptionMessage.FormatConst(line.TaskUrl.Value));
+            }
+
             WebClient client = new();
             client.DownloadFile(line.TaskUrl.Value, imagePath);
         }

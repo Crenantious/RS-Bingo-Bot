@@ -17,15 +17,8 @@ public static class CSVOperatorTestHelper
     public static OperatorResults Operate<LineType>(CSVOperator<LineType> csvOperator, CSVData<LineType> parsedCSVData)
         where LineType : CSVLine
     {
-        try
-        {
-            csvOperator.Operate(parsedCSVData);
-            return new(null, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToList());
-        }
-        catch (CSVOperatorException e)
-        {
-            return new(e.GetType(), Enumerable.Empty<Type>().ToList());
-        }
+        csvOperator.Operate(parsedCSVData);
+        return new(null, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToList());
     }
 
     /// <summary>
