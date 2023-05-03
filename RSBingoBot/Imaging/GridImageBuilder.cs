@@ -10,14 +10,13 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
 
-internal class GridImageBuilder
+internal class GridImageBuilder<TPixel> where TPixel : unmanaged, IPixel<TPixel>
 {
-    public Image Image { get; private set; } = null!;
-
+    private Image image;
     private int cellXPosition;
     private int cellYPosition;
-    private GridImageDimensions dimensions;
     private ImageBorderInfo borderInfo;
+    private GridImageDimensions dimensions;
     private Action<Image, int, int>? mutateCell;
 
     public GridImageBuilder(GridImageDimensions dimensions, ImageBorderInfo borderInfo, Action<Image, int, int>? mutateCell = null)
@@ -25,15 +24,22 @@ internal class GridImageBuilder
         this.dimensions = dimensions;
         this.borderInfo = borderInfo;
         this.mutateCell = mutateCell;
+    }
 
+    /// <summary>
+    /// Builds the <see cref="GridImage"/>. This instance should now be disposed of.
+    /// </summary>
+    public GridImage Build()
+    {
         CreateEmptyImage();
         CreateCells();
+        return new(image, dimensions);
     }
 
     private void CreateEmptyImage()
     {
         (int width, int height) = GetImageSize();
-        Image = new Image<Rgba32>(width, height);
+        image = new Image<TPixel>(width, height);
     }
 
     private void CreateCells()
@@ -73,7 +79,7 @@ internal class GridImageBuilder
     }
 
     private void AddCell(Image cell) =>
-        Image.Mutate(x => x.DrawImage(cell, new Point(cellXPosition, cellYPosition), 1));
+        image.Mutate(x => x.DrawImage(cell, new Point(cellXPosition, cellYPosition), 1));
 
     private void SetCellXPosition(int width, int column) =>
         cellXPosition = column == 0 ? 0 : cellXPosition + width - borderInfo.Thickness;
@@ -82,11 +88,11 @@ internal class GridImageBuilder
 
     private Image CreateCell(int width, int height, int column, int row)
     {
-        Image cellInside = new Image<Rgba32>(width, height);
+        Image cellInside = new Image<TPixel>(width, height);
         mutateCell?.Invoke(cellInside, column, row);
 
         int border = borderInfo.Thickness;
-        Image cellWithBorder = new Image<Rgba32>(width + border, height + border);
+        Image cellWithBorder = new Image<TPixel>(width + border, height + border);
         cellWithBorder.Mutate(x => x.DrawImage(cellInside, new Point(border, border), 1));
         AddCellBorder(cellWithBorder);
 
