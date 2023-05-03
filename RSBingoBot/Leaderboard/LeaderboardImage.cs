@@ -5,70 +5,76 @@
 namespace RSBingoBot.Leaderboard;
 
 using RSBingoBot.DTO;
+using RSBingoBot.Imaging;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
-using static RSBingo_Framework.DAL.DataFactory;
-using static RSBingoBot.Leaderboard.LeaderboardDimensionUtilities;
+using SixLabors.ImageSharp.Drawing.Processing;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
-using RSBingoBot.Imaging;
+using static RSBingo_Framework.DAL.DataFactory;
 
 public class LeaderboardImage
 {
-    private static IDataWorker dataWorker = CreateDataWorker(); 
-    private static Image image = new Image<Rgba32>(1,1);
-    private static LeaderboardRowBackground rowBackground;
+    private static IDataWorker dataWorker = CreateDataWorker();
+    private static string[,] cellValues;
 
     public static Image Create()
     {
-        IEnumerable<Team> orderedTeams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
-
-        int rowCount = orderedTeams.Count() + 1;
-        LeaderboardRowDimensions rowDimensions = CreateRowBackground(orderedTeams, rowCount);
-        GridImageDimensions gridImageDimensions = new(rowDimensions.widths, Enumerable.Repeat(rowDimensions.height, rowCount));
-        GridImage gridImage = new(gridImageDimensions, new(TextBackgroundBorderColour, TextBackgroundBorderThickness), MutateCell);
-        image = gridImage.Image;
-        return image;
+        SetCellValues();
+        return CreateImage(GetGridImageDimensions());
     }
 
-    private static LeaderboardRowDimensions CreateRowBackground(IEnumerable<Team> teams, int rowCount)
+    private static void SetCellValues()
     {
-        LeaderboardRowDimensions rowDimensions = GetRowDimensions(teams);
-        rowBackground = new(rowDimensions);
-        return rowDimensions;
+        IEnumerable<Team> teams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
+        cellValues = new string[3, teams.Count() + 1];
+        AddHeaders();
+        AddTeams(teams);
     }
+
+    private static void AddHeaders() =>
+        AddRow(0, new string[] { "Name", "Score", "Rank" });
+
+    private static void AddTeams(IEnumerable<Team> teams)
+    {
+        for (int i = 1; i < teams.Count() + 1; i++)
+        {
+            Team team = teams.ElementAt(i - 1);
+            AddRow(i, new string[] { team.Name, team.Score.ToString(), i.ToString() });
+        }
+    }
+
+    private static void AddRow(int rowIndex, IEnumerable<string> rowValues)
+    {
+        for (int i = 0; i < rowValues.Count(); i++)
+        {
+            cellValues[i, rowIndex] = rowValues.ElementAt(i);
+        }
+    }
+
     private static void MutateCell(Image cell, int column, int row)
     {
-        LeaderboardTextDrawer.DrawText(cell, (column, row).ToString(), new(cell.Width/2, cell.Height/2));
-    }
-    private static void CreateEmptyBoard(LeaderboardRowDimensions rowDimensions, int rowCount)
-    {
-        (int width, int height) = GetBoardDimensions(rowDimensions, rowCount);
-        image = new Image<Rgba32>(width, height);
+        cell.Mutate(x => x.Fill(TextBackgroundColour));
+        DrawText(cell, cellValues[column, row], new(cell.Width / 2, cell.Height / 2));
     }
 
-    private static void AddHeaders()
+    private static void DrawText(Image image, string text, Point position)
     {
-        Image headders = CreateRow("Name", "Score", "Rank");
-        AppendRow(headders, 0);
+        TextOptions textOptions = new(LeaderboadPreferences.Font)
+        {
+            Origin = position,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        image.Mutate(x => x.DrawText(textOptions, text, TextColour));
     }
 
-    private static void AddTeam(Team team, int rank, int rowIndex)
-    {
-        Image teamRow = CreateRow(team.Name, team.Score.ToString(), rank.ToString());
-        AppendRow(teamRow, rowIndex);
-    }
+    private static Image CreateImage(GridImageDimensions dimensions) =>
+    GridImage.Create(dimensions, new(TextBackgroundBorderColour, TextBackgroundBorderThickness), MutateCell);
 
-    private static Image CreateRow(params string[] values)
-    {
-        Image rowImage = rowBackground.Image.Clone(x => { });
-        LeaderboardTextDrawer.DrawInfo(rowImage, rowBackground.Cells, values);
-        return rowImage;
-    }
-
-    private static void AppendRow(Image rowImage, int rowIndex) =>
-        image.Mutate(x => x.DrawImage(rowImage,
-            new Point(0, rowBackground.Image.Height * rowIndex - TextBackgroundBorderThickness * (rowIndex - 1)), 1));
+    private static GridImageDimensions GetGridImageDimensions() =>
+        GridImageUtilities.GetGridImageDimensions(cellValues, TextPaddingWidth, TextPaddingHeight);
 }
