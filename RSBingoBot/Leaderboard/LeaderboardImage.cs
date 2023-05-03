@@ -25,14 +25,14 @@ public static class LeaderboardImage
 
     public static Image Create()
     {
-        string[,] cellValues = GetCellValues(dataWorker);
+        Grid cellValues = GetCellValues(dataWorker);
         return CreateImage(GetGridImageDimensions(cellValues), cellValues);
     }
 
-    private static void MutateCell(Image cell, string[,] cellValues, int column, int row)
+    private static void MutateCell(Image cell, Grid cellValues, int column, int row)
     {
         cell.Mutate(x => x.Fill(TextBackgroundColour));
-        DrawText(cell, cellValues[column, row], new(cell.Width / 2, cell.Height / 2));
+        DrawText(cell, cellValues.Cells[column, row], new(cell.Width / 2, cell.Height / 2));
     }
 
     private static void DrawText(Image image, string text, Point position)
@@ -47,12 +47,12 @@ public static class LeaderboardImage
         image.Mutate(x => x.DrawText(textOptions, text, TextColour));
     }
 
-    private static Image CreateImage(GridImageDimensions dimensions, string[,] cellValues) =>
+    private static Image CreateImage(GridImageDimensions dimensions, Grid cellValues) =>
         new GridImageBuilder<Rgba32>(dimensions, new ImageBorderInfo(TextBackgroundBorderColour, TextBackgroundBorderThickness),
             (image, column, row) => MutateCell(image, cellValues, column, row))
         .Build()
         .Image;
 
-    private static GridImageDimensions GetGridImageDimensions(string[,] cellValues) =>
+    private static GridImageDimensions GetGridImageDimensions(Grid cellValues) =>
         GridImageUtilities.GetGridImageDimensions(cellValues, LeaderboadPreferences.Font, TextPaddingWidth, TextPaddingHeight);
 }

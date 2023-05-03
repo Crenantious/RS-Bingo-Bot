@@ -14,10 +14,10 @@ public class LeaderboardImageUtilities
     /// </summary>
     /// <param name="dataWorker"></param>
     /// <returns>The values. Dimension 0 is the columns and dimension 1 is the rows.</returns>
-    public static string[,] GetCellValues(IDataWorker dataWorker)
+    public static Grid GetCellValues(IDataWorker dataWorker)
     {
         IEnumerable<Team> teams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
-        string[,] cellValues = new string[3, teams.Count() + 1];
+        Grid cellValues = new(3, teams.Count() + 1);
 
         AddHeaders(cellValues);
         AddTeams(cellValues, teams);
@@ -25,23 +25,15 @@ public class LeaderboardImageUtilities
         return cellValues;
     }
 
-    private static void AddHeaders(string[,] cellValues) =>
-       AddRow(cellValues, 0, new string[] { "Name", "Score", "Rank" });
+    private static void AddHeaders(Grid cellValues) =>
+       cellValues.SetRow(0, new string[] { "Name", "Score", "Rank" });
 
-    private static void AddTeams(string[,] cellValues, IEnumerable<Team> teams)
+    private static void AddTeams(Grid cellValues, IEnumerable<Team> teams)
     {
         for (int i = 0; i < teams.Count(); i++)
         {
             Team team = teams.ElementAt(i);
-            AddRow(cellValues, i + 1, new string[] { team.Name, team.Score.ToString(), (i + 1).ToString() });
-        }
-    }
-
-    private static void AddRow(string[,] cellValues, int rowIndex, string[] rowValues)
-    {
-        for (int i = 0; i < rowValues.Count(); i++)
-        {
-            cellValues[i, rowIndex] = rowValues.ElementAt(i);
+            cellValues.SetRow(i + 1, new string[] { team.Name, team.Score.ToString(), (i + 1).ToString() });
         }
     }
 }
