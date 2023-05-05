@@ -16,8 +16,7 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
     private IDataWorker dataWorkerBefore = null!;
     private IDataWorker dataWorkerAfter = null!;
     private AddTaskRestrictionsCSVOperator csvOperator = null!;
-    private OperatorResults operatorResults = null!;
-    private ReaderResults<AddTaskRestrictionCSVLine> readerResults = null!;
+    private CSVData<AddTaskRestrictionCSVLine> parsedCSVData = null!;
 
     [TestInitialize]
     public override void TestInitialize()
@@ -28,21 +27,27 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
         csvOperator = new(dataWorkerBefore);
     }
 
+    [TestCleanup]
+    public override void TestCleanup()
+    {
+        CSVReaderTestHelper.TestCleanup();
+        BingoTasksCSVOperatorTestHelper.TestCleanup();
+    }
+
     [TestMethod]
-    public void AddRestrictionToFile_ParseAndOperate_AddedToDBCorrectlyWithAreNoExceptionsOrWarnings()
+    public void AddRestrictionToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         RestrictionInfo restriction = new("Restriction 1", "Description 1");
         CreateAndParseRestrictionsInCSVFile(restriction);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertRestrictions(restriction);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithDifferentNamesAndDescriptionsToFile_ParseAndOperate_BothAreAddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTwoRestrictionsWithDifferentNamesAndDescriptionsToFile_ParseAndOperate_BothAreAddedToDBCorrectlyWithNoWarnings()
     {
         RestrictionInfo restriction1 = new("Restriction 1", "Description 1");
         RestrictionInfo restriction2 = new("Restriction 2", "Description 2");
@@ -50,13 +55,12 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertRestrictions(restriction1, restriction2);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithDifferentNamesAndTheSameDescriptionToFile_ParseAndOperate_BothAreAddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTwoRestrictionsWithDifferentNamesAndTheSameDescriptionToFile_ParseAndOperate_BothAreAddedToDBCorrectlyWithNoWarnings()
     {
         RestrictionInfo restriction1 = new("Restriction 1", "Description 1");
         RestrictionInfo restriction2 = new("Restriction 2", "Description 1");
@@ -64,13 +68,12 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertRestrictions(restriction1, restriction2);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithTheSameNameAndDifferentDescriptionsToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarningAndNoExceptions()
+    public void AddTwoRestrictionsWithTheSameNameAndDifferentDescriptionsToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarning()
     {
 
         RestrictionInfo restriction1 = new("Restriction 1", "Description 1");
@@ -79,13 +82,12 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskRestrictionAlreadyExistsWarning));
+        AssertOperatorWarnings(typeof(TaskRestrictionAlreadyExistsWarning));
         AssertRestrictions(restriction1);
     }
 
     [TestMethod]
-    public void AddTwoRestrictionsWithTheSameNameAndTheSameDescriptionToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarningAndNoExceptions()
+    public void AddTwoRestrictionsWithTheSameNameAndTheSameDescriptionToFile_ParseAndOperate_OnlyTheFirstIsAddedToDBWithAWarning()
     {
         RestrictionInfo restriction1 = new("Restriction 1", "Description 1");
         RestrictionInfo restriction2 = new("Restriction 1", "Description 1");
@@ -93,13 +95,12 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskRestrictionAlreadyExistsWarning));
+        AssertOperatorWarnings(typeof(TaskRestrictionAlreadyExistsWarning));
         AssertRestrictions(restriction1);
     }
 
     [TestMethod]
-    public void AddARestrictionToDBAndARestrictionToFileWithTheSameName_ParseAndOperate_TheRestrictionInTheFileIsNotAddedToDBWithAWarningAndNoExceptions()
+    public void AddARestrictionToDBAndARestrictionToFileWithTheSameName_ParseAndOperate_TheRestrictionInTheFileIsNotAddedToDBWithAWarning()
     {
         RestrictionInfo restriction = new("Restriction 1", "Description 1");
         CreateRestrictionsInDB(restriction);
@@ -107,13 +108,12 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskRestrictionAlreadyExistsWarning));
+        AssertOperatorWarnings(typeof(TaskRestrictionAlreadyExistsWarning));
         AssertRestrictions(restriction);
     }
 
     [TestMethod]
-    public void AddARestrictionToDBAndARestrictionToFileWithDifferentNames_ParseAndOperate_TheRestrictionInTheFileIsAddedToDBWithNoExceptionsOrWarnings()
+    public void AddARestrictionToDBAndARestrictionToFileWithDifferentNames_ParseAndOperate_TheRestrictionInTheFileIsAddedToDBWithNoWarnings()
     {
         RestrictionInfo restriction1 = new("Restriction 1", "Description 1");
         RestrictionInfo restriction2 = new("Restriction 2", "Description 1");
@@ -122,28 +122,24 @@ public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertRestrictions(restriction1, restriction2);
     }
 
     #region Private
 
     private void CreateAndParseRestrictionsInCSVFile(params RestrictionInfo[] restrictions) =>
-        readerResults = CSVReaderTestHelper.CreateAndParseCSVFile<AddTaskRestrictionCSVLine>(
+        parsedCSVData = CSVReaderTestHelper.CreateAndParseCSVFile<AddTaskRestrictionCSVLine>(
             restrictions.Select(r => $"{r.Name}, {r.Description}").ToArray());
 
     private void CreateRestrictionsInDB(params RestrictionInfo[] restrictions) =>
         TaskRestrictionsCSVOperatorTestHelper.CreateRestrictionsInDB(dataWorkerBefore, restrictions);
 
     private void Operate() =>
-        operatorResults = CSVOperatorTestHelper.Operate(csvOperator, readerResults.data);
+        csvOperator.Operate(parsedCSVData);
 
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
-
-    private void AssertOperator(Type? exceptionType, params Type[] warningTypes) =>
-         CSVOperatorTestHelper.AssertOperator(new(exceptionType, warningTypes.ToList()), operatorResults);
+    private void AssertOperatorWarnings(params Type[] warningTypes) =>
+        CollectionAssert.AreEqual(warningTypes, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToArray());
 
     private void AssertRestrictions(params RestrictionInfo[] restrictions) =>
         TaskRestrictionsCSVOperatorTestHelper.AssertRestrictions(dataWorkerAfter, restrictions);

@@ -4,8 +4,8 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
+using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineEnumBase;
@@ -13,12 +13,18 @@ using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineEnumBase;
 [TestClass]
 public class CSVLineEnumCaseSensitiveTests : MockDBBaseTestClass
 {
-    private ReaderResults<CSVTestLineEnumCaseSensitive> readerResults = null!;
+    private CSVData<CSVTestLineEnumCaseSensitive> csvData;
+
+    [TestCleanup]
+    public override void TestCleanup() =>
+        CSVReaderTestHelper.TestCleanup();
 
     [TestMethod]
-    public void AddEnumValueToCSVFile_Parse_GetCorrectValue()
+    public void AddEnumValueToCSVFile_Parse_CorrectValueParsed()
     {
-        CreateAndParseCSVFile(TestEnum.TestValue.ToString());
+        CreateCSVFile(TestEnum.TestValue.ToString());
+
+        ParseCSVFile();
 
         AssertCSVValue(TestEnum.TestValue);
     }
@@ -26,45 +32,44 @@ public class CSVLineEnumCaseSensitiveTests : MockDBBaseTestClass
     [TestMethod]
     public void AddLowercasedEnumValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToLower());
+        CreateCSVFile(TestEnum.TestValue.ToString().ToLower());
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddUppercasedEnumValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile(TestEnum.TestValue.ToString().ToUpper());
+        CreateCSVFile(TestEnum.TestValue.ToString().ToUpper());
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddCaseInvertedEnumValueToCSVFile_Parse_GetException()
     {
-        string enumValue = TestEnum.TestValue.ToString();
-        string caseInvertedValue = new string(enumValue.Select(c =>
-            char.IsUpper(c) ? char.ToLower(c) : char.ToUpper(c))
-            .ToArray());
-        CreateAndParseCSVFile(caseInvertedValue);
+        string caseInvertedValue = InvertCase(TestEnum.TestValue.ToString());
+        CreateCSVFile(caseInvertedValue);
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddNonEnumValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile("Invalid value");
+        CreateCSVFile("Invalid value");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
-    private void CreateAndParseCSVFile(params string[] lines) =>
-        readerResults = CreateAndParseCSVFile<CSVTestLineEnumCaseSensitive>(lines);
+    private void ParseCSVFile() =>
+        csvData = ParseCSVFile<CSVTestLineEnumCaseSensitive>();
 
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+    private static string InvertCase(string value) =>
+        new string(value.Select(c =>
+            char.IsUpper(c) ? char.ToLower(c) : char.ToUpper(c))
+        .ToArray());
 
     private void AssertCSVValue(TestEnum value) =>
-        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
+        Assert.AreEqual(value, csvData.Lines.ElementAt(0).Value.Value);
 }

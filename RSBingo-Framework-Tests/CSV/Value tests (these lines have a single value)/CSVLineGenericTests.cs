@@ -4,20 +4,26 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
+using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 
 [TestClass]
 public class CSVLineGenericTests : MockDBBaseTestClass
 {
-    private ReaderResults<CSVTestLineGeneric> readerResults = null!;
+    private CSVData<CSVTestLineGeneric> csvData;
+
+    [TestCleanup]
+    public override void TestCleanup() =>
+        CSVReaderTestHelper.TestCleanup();
 
     [TestMethod]
-    public void AddCorrectlyTypedValueToCSVFile_Parse_GetCorrectValue()
-    {
-        CreateAndParseCSVFile("1");
+    public void AddCorrectlyTypedValueToCSVFile_Parse_CorrectValueParsed()
+    { 
+        CreateCSVFile("1");
+
+        ParseCSVFile();
 
         AssertCSVValue(1);
     }
@@ -25,17 +31,14 @@ public class CSVLineGenericTests : MockDBBaseTestClass
     [TestMethod]
     public void AddIncorrectlyTypedValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile("Invalid value");
+        CreateCSVFile("Invalid value");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
-    private void CreateAndParseCSVFile(params string[] lines) =>
-        readerResults = CreateAndParseCSVFile<CSVTestLineGeneric>(lines);
-
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+    private void ParseCSVFile() =>
+        csvData = ParseCSVFile<CSVTestLineGeneric>();
 
     private void AssertCSVValue(int value) =>
-        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
+        Assert.AreEqual(value, csvData.Lines.ElementAt(0).Value.Value);
 }

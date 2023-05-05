@@ -4,22 +4,13 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework_Tests.DTO;
-using RSBingo_Framework_Tests.CSV.LocalServer;
 using static RSBingo_Common.General;
 
-public class BingoTasksCSVOperatorTestHelper
+public static class BingoTasksCSVOperatorTestHelper
 {
-    public static ReaderResults<LineType> CreateAndParseTasksInCSVFile<LineType>(params TaskInfo[] tasks)
-        where LineType : CSVLine =>
-        CSVReaderTestHelper.CreateAndParseCSVFile<LineType>(tasks.Select(t =>
-            $"{t.Name}, {t.Difficulty}, {t.Amount}" +
-            (t.ImageURL is null ? "" : $", {t.ImageURL}"))
-            .ToArray());
-
     public static void CreateTasksInDB(IDataWorker dataWorker, params TaskInfo[] tasks)
     {
         foreach (TaskInfo task in tasks)

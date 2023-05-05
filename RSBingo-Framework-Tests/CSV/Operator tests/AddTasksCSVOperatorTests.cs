@@ -19,8 +19,7 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
     private IDataWorker dataWorkerBefore = null!;
     private IDataWorker dataWorkerAfter = null!;
     private AddTasksCSVOperator csvOperator = null!;
-    private OperatorResults operatorResults = null!;
-    private ReaderResults<AddTasksCSVLine> readerResults = null!;
+    private CSVData<AddTasksCSVLine> parsedCSVData = null!;
 
     private string ValidImageURL = LocalTestServer.GetUrl<ValidImagePage>();
     private string CorruptImageURL = LocalTestServer.GetUrl<CorruptImagePage>();
@@ -36,6 +35,13 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
         csvOperator = new(dataWorkerBefore);
     }
 
+    [TestCleanup]
+    public override void TestCleanup()
+    {
+        CSVReaderTestHelper.TestCleanup();
+        BingoTasksCSVOperatorTestHelper.TestCleanup();
+    }
+
     /// <summary>
     /// The server is opened here instead of before each test because it's possible that
     /// the url won't be released when the server tries to register it.
@@ -44,33 +50,31 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
         LocalTestServer.Open();
 
     [TestMethod]
-    public void AddMaxOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddMaxOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo = new("Task 1", Difficulty.Easy, MaxNumberOfTasks, ValidImageURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo);
     }
 
     [TestMethod]
-    public void AddMinOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddMinOfATaskToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo);
     }
 
     [TestMethod]
-    public void AddTasksWithSameNameAndDifferentDifficultiesToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTasksWithSameNameAndDifferentDifficultiesToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Medium, MinNumberOfTasks, ValidImageURL);
@@ -78,13 +82,12 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo1, taskInfo2);
     }
 
     [TestMethod]
-    public void AddTasksWithDifferentNamesAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTasksWithDifferentNamesAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
         TaskInfo taskInfo2 = new("Task 2", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
@@ -92,13 +95,12 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo1, taskInfo2);
     }
 
     [TestMethod]
-    public void AddTasksWithSameNameAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTasksWithSameNameAndSameDifficultyToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MinNumberOfTasks * 2, ValidImageURL);
@@ -106,84 +108,74 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo2);
     }
 
     [TestMethod]
-    public void AddTasksToDBAndToFile_ParseAndOperate_AddedToDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddTasksToDBAndToFile_ParseAndOperate_AddedToDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks, ValidImageURL);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MinNumberOfTasks * 2, ValidImageURL);
-        CreateTasksInDB(taskInfo1);
+        BingoTasksCSVOperatorTestHelper.CreateTasksInDB(dataWorkerBefore, taskInfo1);
         CreateAndParseTasksInCSVFile(taskInfo1);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo2);
     }
 
     [TestMethod]
-    public void AddTasksWithAnInvalidURLToFile_ParseAndOperate_NotAddedToDBWithAWarningAndNoExceptions()
+    public void AddTasksWithAnInvalidURLToFile_ParseAndOperate_NotAddedToDBWithAWarning()
     {
         TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, InvalidURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(UnableToReachWebsiteWarning));
+        AssertOperatorWarnings(typeof(UnableToReachWebsiteWarning));
         AssertTasks();
     }
 
     [TestMethod]
-    public void AddTasksWithACorruptImageURLToFile_ParseAndOperate_NotAddedToDBWithAWarningAndNoExceptions()
+    public void AddTasksWithACorruptImageURLToFile_ParseAndOperate_NotAddedToDBWithAWarning()
     {
         TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, CorruptImageURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(InvalidImageWarning));
+        AssertOperatorWarnings(typeof(InvalidImageWarning));
         AssertTasks();
     }
 
     [TestMethod]
-    public void AddTasksWithAnInvalidImageFormatURLToFile_ParseAndOperate_NotAddedToDBWithAWarningAndNoExceptions()
+    public void AddTasksWithAnInvalidImageFormatURLToFile_ParseAndOperate_NotAddedToDBWithAWarning()
     {
         TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, InvalidImageFormatURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(InvalidImageWarning));
+        AssertOperatorWarnings(typeof(InvalidImageWarning));
         AssertTasks();
     }
 
     #region Private
 
-    private void CreateAndParseTasksInCSVFile(params TaskInfo[] info) =>
-        readerResults = BingoTasksCSVOperatorTestHelper.CreateAndParseTasksInCSVFile<AddTasksCSVLine>(info);
+    private void CreateAndParseTasksInCSVFile(params TaskInfo[] tasks) =>
+        parsedCSVData = CSVReaderTestHelper.CreateAndParseCSVFile<AddTasksCSVLine>(tasks.Select(t =>
+            $"{t.Name}, {t.Difficulty}, {t.Amount}, {t.ImageURL}").ToArray());
 
     private void Operate() =>
-        operatorResults = CSVOperatorTestHelper.Operate(csvOperator, readerResults.data);
+        csvOperator.Operate(parsedCSVData);
 
-    private void CreateTasksInDB(params TaskInfo[] tasks) =>
-        BingoTasksCSVOperatorTestHelper.CreateTasksInDB(dataWorkerBefore, tasks);
+    private void AssertOperatorWarnings(params Type[] warningTypes) =>
+        CollectionAssert.AreEqual(warningTypes, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToArray());
 
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
-
-    private void AssertOperator(Type? exceptionType, params Type[] warningTypes) =>
-         CSVOperatorTestHelper.AssertOperator(new(exceptionType, warningTypes.ToList()), operatorResults);
-
-    private void AssertTasks(params TaskInfo[] info) =>
-        BingoTasksCSVOperatorTestHelper.AssertTasks(dataWorkerAfter, info);
+    private void AssertTasks(params TaskInfo[] tasks) =>
+        BingoTasksCSVOperatorTestHelper.AssertTasks(dataWorkerAfter, tasks);
 
     #endregion
 }

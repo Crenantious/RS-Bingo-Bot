@@ -18,8 +18,7 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
     private IDataWorker dataWorkerBefore = null!;
     private IDataWorker dataWorkerAfter = null!;
     private RemoveTasksCSVOperator csvOperator = null!;
-    private OperatorResults operatorResults = null!;
-    private ReaderResults<RemoveTasksCSVLine> readerResults = null!;
+    private CSVData<RemoveTasksCSVLine> parsedCSVData = null!;
 
     [TestInitialize]
     public override void TestInitialize()
@@ -30,8 +29,15 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
         csvOperator = new(dataWorkerBefore);
     }
 
+    [TestCleanup]
+    public override void TestCleanup()
+    {
+        CSVReaderTestHelper.TestCleanup();
+        BingoTasksCSVOperatorTestHelper.TestCleanup();
+    }
+
     [TestMethod]
-    public void AddATaskToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarningsOrExceptions()
+    public void AddATaskToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo = new("Task 1", Difficulty.Easy, MinNumberOfTasks);
         CreateTasksInDB(taskInfo);
@@ -39,13 +45,12 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks();
     }
 
     [TestMethod]
-    public void AddATaskToDBAndOneToFileWithADifferentName_ParseAndOperate_NotRemovedFromDBWithAWarningAndNoExceptions()
+    public void AddATaskToDBAndOneToFileWithADifferentName_ParseAndOperate_NotRemovedFromDBWithAWarning()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks);
         TaskInfo taskInfo2 = new("Task 2", Difficulty.Easy, MinNumberOfTasks);
@@ -54,13 +59,12 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskDoesNotExistWarning));
+        AssertOperatorWarnings(typeof(TaskDoesNotExistWarning));
         AssertTasks(taskInfo1);
     }
 
     [TestMethod]
-    public void AddATaskToDBAndOneToFileWithADifferentDifficulty_ParseAndOperate_NotRemovedFromDBWithAWarningAndNoExceptions()
+    public void AddATaskToDBAndOneToFileWithADifferentDifficulty_ParseAndOperate_NotRemovedFromDBWithAWarning()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Hard, MinNumberOfTasks);
@@ -69,15 +73,12 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskDoesNotExistWarning));
+        AssertOperatorWarnings(typeof(TaskDoesNotExistWarning));
         AssertTasks(taskInfo1);
     }
 
-    // TOODO: FIX ME!
-
     [TestMethod]
-    public void AddATaskToDBAndOneToFileWithAGreaterAmountThanInDB_ParseAndOperate_RemovedFromDBCorrectlyWithAWarningAndNoExceptions()
+    public void AddATaskToDBAndOneToFileWithAGreaterAmountThanInDB_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MinNumberOfTasks);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MaxNumberOfTasks);
@@ -86,15 +87,12 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-
-        // AssertOperator(null, typeof(NotEnoughTasksToDeleteWarning));
-
+        AssertOperatorWarnings();
         AssertTasks();
     }
 
     [TestMethod]
-    public void AddATaskToDBAndOneToFileWithASmallerAmountThanInDB_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarningsOrExceptions()
+    public void AddATaskToDBAndOneToFileWithASmallerAmountThanInDB_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarnings()
     {
         TaskInfo taskInfo1 = new("Task 1", Difficulty.Easy, MaxNumberOfTasks);
         TaskInfo taskInfo2 = new("Task 1", Difficulty.Easy, MaxNumberOfTasks * 2);
@@ -104,30 +102,27 @@ public class RemoveTasksCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertTasks(taskInfo2);
     }
 
     #region Private
 
-    private void CreateAndParseTasksInCSVFile(params TaskInfo[] info) =>
-        readerResults = BingoTasksCSVOperatorTestHelper.CreateAndParseTasksInCSVFile<RemoveTasksCSVLine>(info);
-
-    private void Operate() =>
-        operatorResults = CSVOperatorTestHelper.Operate(csvOperator, readerResults.data);
-
     private void CreateTasksInDB(params TaskInfo[] taskInfos) =>
         BingoTasksCSVOperatorTestHelper.CreateTasksInDB(dataWorkerBefore, taskInfos);
 
-    private void AssertReader(Type? exceptionType) =>
-    Assert.AreEqual(readerResults.exceptionType, exceptionType);
+    private void CreateAndParseTasksInCSVFile(params TaskInfo[] tasks) =>
+        parsedCSVData = CSVReaderTestHelper.CreateAndParseCSVFile<RemoveTasksCSVLine>(tasks.Select(t =>
+            $"{t.Name}, {t.Difficulty}, {t.Amount}").ToArray());
 
-    private void AssertOperator(Type? exceptionType, params Type[] warningTypes) =>
-         CSVOperatorTestHelper.AssertOperator(new(exceptionType, warningTypes.ToList()), operatorResults);
+    private void Operate() =>
+        csvOperator.Operate(parsedCSVData);
 
-    private void AssertTasks(params TaskInfo[] info) =>
-        BingoTasksCSVOperatorTestHelper.AssertTasks(dataWorkerAfter, info);
+    private void AssertOperatorWarnings(params Type[] warningTypes) =>
+        CollectionAssert.AreEqual(warningTypes, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToArray());
+
+    private void AssertTasks(params TaskInfo[] tasks) =>
+        BingoTasksCSVOperatorTestHelper.AssertTasks(dataWorkerAfter, tasks);
 
     #endregion
 }

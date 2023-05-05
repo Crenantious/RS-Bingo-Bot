@@ -4,8 +4,8 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
+using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVReaderTestLine;
@@ -13,70 +13,67 @@ using static RSBingo_Framework_Tests.CSV.Lines.CSVReaderTestLine;
 [TestClass]
 public class CSVReaderTests : MockDBBaseTestClass
 {
-    private ReaderResults<CSVReaderTestLine> readerResults = null!;
+    private CSVData<CSVReaderTestLine> csvData;
+
+    [TestCleanup]
+    public override void TestCleanup() =>
+        CSVReaderTestHelper.TestCleanup();
 
     [TestMethod]
     public void CreateNonCSVFile_Parse_GetException()
     {
-        CreateAndParseFile("Test.txt");
+        CreateNonCSVFile();
 
-        AssertReader(typeof(InvalidFileTypeException));
+        Assert.ThrowsException<InvalidFileTypeException>(() => ParseFile<CSVReaderTestLine>());
     }
 
     [TestMethod]
-    public void CreateCSVFileWithValidValuesAndNoWhiteSpace_Parse_GetCorrectValuesAndNoExceptions()
+    public void CreateCSVFileWithValidValuesAndNoWhiteSpace_Parse_GetCorrectValues()
     {
-        CreateAndParseCSVFile($"Test,{TestEnum.TestValue},1");
+        CreateCSVFile($"Test,{TestEnum.TestValue},1");
 
-        AssertReader(null);
+        csvData = ParseCSVFile<CSVReaderTestLine>();
+
         AssertParsedValues("Test", TestEnum.TestValue, 1);
     }
 
     [TestMethod]
-    public void CreateCSVFileWithValidValuesAndDifferentAmountsOfWhiteSpace_Parse_GetCorrectValuesAndNoExceptions()
+    public void CreateCSVFileWithValidValuesAndDifferentAmountsOfWhiteSpace_Parse_GetCorrectValues()
     {
-        CreateAndParseCSVFile($"Test,              {TestEnum.TestValue},1");
+        CreateCSVFile($"Test,              {TestEnum.TestValue},1");
 
-        AssertReader(null);
+        csvData = ParseCSVFile<CSVReaderTestLine>();
+
         AssertParsedValues("Test", TestEnum.TestValue, 1);
     }
 
     [TestMethod]
-    public void CreateCSVFileWithValidValuesInIncorrectOrder_Parse_GetException()
+    public void CreateCSVFileWithValidValuesInAnIncorrectOrder_Parse_GetException()
     {
-        CreateAndParseCSVFile($"Test, 1, {TestEnum.TestValue}");
+        CreateCSVFile($"Test, 1, {TestEnum.TestValue}");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile<CSVReaderTestLine>());
     }
 
     [TestMethod]
     public void CreateCSVFileWithTooFewValues_Parse_GetException()
     {
-        CreateAndParseCSVFile("1");
+        CreateCSVFile("1");
 
-        AssertReader(typeof(IncorrectNumberOfCSVValuesException));
+        Assert.ThrowsException<IncorrectNumberOfCSVValuesException>(() => ParseCSVFile<CSVReaderTestLine>());
     }
 
     [TestMethod]
     public void CreateCSVFileWithTooManyValues_Parse_GetException()
     {
-        CreateAndParseCSVFile("1, 2, 3, 4");
+        CreateCSVFile("1, 2, 3, 4");
 
-        AssertReader(typeof(IncorrectNumberOfCSVValuesException));
+        Assert.ThrowsException<IncorrectNumberOfCSVValuesException>(() => ParseCSVFile<CSVReaderTestLine>());
     }
-
-    private void CreateAndParseCSVFile(params string[] lines) =>
-        readerResults = CreateAndParseCSVFile<CSVReaderTestLine>(lines);
-
-    private void CreateAndParseFile(string fileName) =>
-        readerResults = CreateAndParseFile<CSVReaderTestLine>(fileName);
-
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
 
     private void AssertParsedValues(string genericValue, TestEnum enumValue, int comparableValue)
     {
-        CSVReaderTestLine line = readerResults.data.Lines.ElementAt(0);
+        CSVReaderTestLine line = csvData.Lines.ElementAt(0);
 
         Assert.AreEqual(genericValue, line.GenericValue.Value);
         Assert.AreEqual(enumValue, line.EnumValue.Value);

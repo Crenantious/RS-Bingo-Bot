@@ -32,6 +32,9 @@ public class LocalServerTests : MockDBBaseTestClass
         DownloadFile<ValidImagePage>();
         DownloadFile<CorruptImagePage>();
         DownloadFile<InvalidImageFormatPage>();
+
+        // Since the test is for manual inspection, this is to avoid confusion when running all tests.
+        Assert.IsTrue(true);
     }
 
     private void DownloadFile<Page>() =>

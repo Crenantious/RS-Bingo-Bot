@@ -10,20 +10,11 @@ using RSBingo_Framework_Tests.DTO;
 
 public class TaskRestrictionsCSVOperatorTestHelper
 {
-    public static void CreateResrictionsInDB(IDataWorker dataWorker, params RestrictionInfo[] restrictions)
-    {
-        foreach (RestrictionInfo restriction in restrictions)
-        {
-            dataWorker.Restrictions.Create(restriction.Name, restriction.Description ?? "Description 1");
-        }
-        dataWorker.SaveChanges();
-    }
-
     public static void CreateRestrictionsInDB(IDataWorker dataWorker, params RestrictionInfo[] restrictions)
     {
         foreach (RestrictionInfo restriction in restrictions)
         {
-            dataWorker.Restrictions.Create(restriction.Name, restriction.Description);
+            dataWorker.Restrictions.Create(restriction.Name, restriction.Description ?? "Description");
         }
         dataWorker.SaveChanges();
     }

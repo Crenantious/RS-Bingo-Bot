@@ -16,8 +16,7 @@ public class RemoveTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
     private IDataWorker dataWorkerBefore = null!;
     private IDataWorker dataWorkerAfter = null!;
     private RemoveTaskRestrictionsCSVOperator csvOperator = null!;
-    private OperatorResults operatorResults = null!;
-    private ReaderResults<RemoveTaskRestrictionCSVLine> readerResults = null!;
+    private CSVData<RemoveTaskRestrictionCSVLine> parsedCSVData = null!;
 
     [TestInitialize]
     public override void TestInitialize()
@@ -28,8 +27,15 @@ public class RemoveTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
         csvOperator = new(dataWorkerBefore);
     }
 
+    [TestCleanup]
+    public override void TestCleanup()
+    {
+        CSVReaderTestHelper.TestCleanup();
+        BingoTasksCSVOperatorTestHelper.TestCleanup();
+    }
+
     [TestMethod]
-    public void AddRestrictionToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoExceptionsOrWarnings()
+    public void AddRestrictionToDBAndFile_ParseAndOperate_RemovedFromDBCorrectlyWithNoWarnings()
     {
         RestrictionInfo restriction = new("Restriction 1");
         CreateRestrictionsInDB(restriction);
@@ -37,13 +43,12 @@ public class RemoveTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null);
+        AssertOperatorWarnings();
         AssertRestrictions();
     }
 
     [TestMethod]
-    public void AddARestrictionToDBAndOneToFileWithADifferentName_ParseAndOperate_NotRemovedFromDBWithAWarningAndNoExceptions()
+    public void AddARestrictionToDBAndOneToFileWithADifferentName_ParseAndOperate_NotRemovedFromDBWithAWarning()
     {
         RestrictionInfo restriction1 = new("Restriction 1");
         RestrictionInfo restriction2 = new("Restriction 2");
@@ -52,41 +57,36 @@ public class RemoveTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskRestrictionDoesNotExistWarning));
+        AssertOperatorWarnings(typeof(TaskRestrictionDoesNotExistWarning));
         AssertRestrictions(restriction1);
     }
 
     [TestMethod]
-    public void AddRestrictionToFile_ParseAndOperate_GetAWarningAndNoExceptions()
+    public void AddRestrictionToFile_ParseAndOperate_GetAWarning()
     {
         RestrictionInfo restriction = new("Restriction 1");
         CreateAndParseRestrictionsInCSVFile(restriction);
 
         Operate();
 
-        AssertReader(null);
-        AssertOperator(null, typeof(TaskRestrictionDoesNotExistWarning));
+        AssertOperatorWarnings(typeof(TaskRestrictionDoesNotExistWarning));
         AssertRestrictions();
     }
 
     #region Private
 
     private void CreateAndParseRestrictionsInCSVFile(params RestrictionInfo[] restrictions) =>
-        readerResults = CSVReaderTestHelper.CreateAndParseCSVFile<RemoveTaskRestrictionCSVLine>(
-            restrictions.Select(r => r.Name).ToArray());
+        parsedCSVData = CSVReaderTestHelper.CreateAndParseCSVFile<RemoveTaskRestrictionCSVLine>(
+            restrictions.Select(r => $"{r.Name}").ToArray());
 
     private void CreateRestrictionsInDB(params RestrictionInfo[] restrictions) =>
         TaskRestrictionsCSVOperatorTestHelper.CreateRestrictionsInDB(dataWorkerBefore, restrictions);
 
     private void Operate() =>
-        operatorResults = CSVOperatorTestHelper.Operate(csvOperator, readerResults.data);
+        csvOperator.Operate(parsedCSVData);
 
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
-
-    private void AssertOperator(Type? exceptionType, params Type[] warningTypes) =>
-         CSVOperatorTestHelper.AssertOperator(new(exceptionType, warningTypes.ToList()), operatorResults);
+    private void AssertOperatorWarnings(params Type[] warningTypes) =>
+        CollectionAssert.AreEqual(warningTypes, csvOperator.GetRawWarnings().Select(w => w.GetType()).ToArray());
 
     private void AssertRestrictions(params RestrictionInfo[] restrictions) =>
         TaskRestrictionsCSVOperatorTestHelper.AssertRestrictions(dataWorkerAfter, restrictions);

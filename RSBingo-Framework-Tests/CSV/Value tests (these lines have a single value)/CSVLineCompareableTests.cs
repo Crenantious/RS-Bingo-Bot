@@ -4,8 +4,8 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
+using RSBingo_Framework.CSV;
 using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.Lines;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineComparable;
@@ -13,81 +13,85 @@ using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineComparable;
 [TestClass]
 public class CSVLineCompareableTests : MockDBBaseTestClass
 {
-    private ReaderResults<CSVTestLineComparable> readerResults = null!;
+    private CSVData<CSVTestLineComparable> csvData;
+
+    [TestCleanup]
+    public override void TestCleanup() =>
+        CSVReaderTestHelper.TestCleanup();
 
     [TestMethod]
-    public void AddMinValueToCSVFile_Parse_NoExceptions()
+    public void AddMinValueToCSVFile_Parse_CorrectValueParsed()
     {
-        CreateAndParseCSVFile(ComparableValueMin.ToString());
+        CreateCSVFile(ComparableValueMin.ToString());
 
-        AssertReader(null);
+        ParseCSVFile();
+
         AssertCSVValue(ComparableValueMin);
     }
 
     [TestMethod]
-    public void AddMaxValueToCSVFile_Parse_NoExceptions()
+    public void AddMaxValueToCSVFile_Parse_CorrectValueParsed()
     {
-        CreateAndParseCSVFile(ComparableValueMax.ToString());
+        CreateCSVFile(ComparableValueMax.ToString());
 
-        AssertReader(null);
+        ParseCSVFile();
+
         AssertCSVValue(ComparableValueMax);
     }
 
     [TestMethod]
-    public void AddValueInbetweenMinAndMaxToCSVFile_Parse_NoExceptions()
+    public void AddValueInbetweenMinAndMaxToCSVFile_Parse_CorrectValueParsed()
     {
-        CreateAndParseCSVFile((ComparableValueMax - 1).ToString());
+        CreateCSVFile((ComparableValueMax - 1).ToString());
 
-        AssertReader(null);
+        ParseCSVFile();
+
         AssertCSVValue(ComparableValueMax - 1);
     }
 
     [TestMethod]
     public void AddValueToCSVFileThatIsTooLargeToConvert_Parse_GetException()
     {
-        CreateAndParseCSVFile(Int32.MaxValue.ToString() + "0");
+        CreateCSVFile(Int32.MaxValue.ToString() + "0");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(()=> ParseCSVFile());
     }
 
     [TestMethod]
     public void AddValueToCSVFileThatIsTooSmallToConvert_Parse_GetException()
     {
-        CreateAndParseCSVFile(Int32.MinValue.ToString() + "0");
+        CreateCSVFile(Int32.MinValue.ToString() + "0");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddValueLessThanMinToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile((ComparableValueMin - 1).ToString());
+        CreateCSVFile((ComparableValueMin - 1).ToString());
 
-        AssertReader(typeof(CSVValueOutOfRangeException));
+        Assert.ThrowsException<CSVValueOutOfRangeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddValueGreaterThanMaxToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile((ComparableValueMax + 1).ToString());
+        CreateCSVFile((ComparableValueMax + 1).ToString());
 
-        AssertReader(typeof(CSVValueOutOfRangeException));
+        Assert.ThrowsException<CSVValueOutOfRangeException>(() => ParseCSVFile());
     }
 
     [TestMethod]
     public void AddIncorrectlyTypedValueToCSVFile_Parse_GetException()
     {
-        CreateAndParseCSVFile("1.23");
+        CreateCSVFile("1.23");
 
-        AssertReader(typeof(InvalidCSVValueTypeException));
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
-    private void CreateAndParseCSVFile(params string[] lines) =>
-       readerResults = CreateAndParseCSVFile<CSVTestLineComparable>(lines);
-
-    private void AssertReader(Type? exceptionType) =>
-        Assert.AreEqual(exceptionType, readerResults.exceptionType);
+    private void ParseCSVFile() =>
+       csvData = ParseCSVFile<CSVTestLineComparable>();
 
     private void AssertCSVValue(int value) =>
-        Assert.AreEqual(value, readerResults.data.Lines.ElementAt(0).Value.Value);
+        Assert.AreEqual(value, csvData.Lines.ElementAt(0).Value.Value);
 }
