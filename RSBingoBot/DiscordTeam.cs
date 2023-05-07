@@ -4,14 +4,14 @@
 
 namespace RSBingoBot;
 
-using DSharpPlus;
-using DSharpPlus.Entities;
 using RSBingoBot.Imaging;
 using RSBingoBot.Component_interaction_handlers;
 using RSBingoBot.Component_interaction_handlers.Testing;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Interfaces;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using SixLabors.ImageSharp;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -20,32 +20,45 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// </summary>
 public class DiscordTeam
 {
-    private static Dictionary<int, DiscordTeam> instances = new();
-
     private readonly DiscordClient discordClient;
     private readonly IDataWorker dataWorker = CreateDataWorker();
-    private readonly string changeTileButtonId = "{0}_change_tile_button";
-    private readonly string submitEvidenceButtonId = "{0}_submit_evidence_button";
-    private readonly string submitDropButtonId = "{0}_submit_drop_button";
-    private readonly string viewEvidenceButtonId = "{0}_view_evidence_button";
-    private readonly string clearEvidenceButtonId = "{0}_clear_evidence_button";
-    private readonly string completeNextTileEvidenceButtonId = "{0}_complete_next_tile_button";
+
+    #region channelNames
+
+    private const string categoryChannelName = "{0}";
+    private const string boardChannelName = "{0}-board";
+    private const string generalChannelName = "{0}-general";
+    private const string voiceChannelName = "{0}-voice";
+
+    #endregion
+
+    #region buttonIds
+
+    private const string changeTileButtonId = "{0}_change_tile_button";
+    private const string submitEvidenceButtonId = "{0}_submit_evidence_button";
+    private const string submitDropButtonId = "{0}_submit_drop_button";
+    private const string viewEvidenceButtonId = "{0}_view_evidence_button";
+    private const string clearEvidenceButtonId = "{0}_clear_evidence_button";
+    private const string completeNextTileEvidenceButtonId = "{0}_complete_next_tile_button";
+
+    #endregion
+
+    private static Dictionary<int, DiscordTeam> instances = new();
 
     private Team team = null!;
     private DiscordMessage boardMessage;
+
+    public string Name { get; private set; } = null!;
+
+    public DiscordChannel BoardChannel { get; private set; } = null!;
+
+    public delegate DiscordTeam Factory(string name);
 
     public DiscordTeam(DiscordClient discordClient, string name)
     {
         Name = name;
         this.discordClient = discordClient;
-        SetButtonIds();
     }
-
-    public delegate DiscordTeam Factory(string name);
-
-    public string Name { get; private set; } = null!;
-
-    public DiscordChannel BoardChannel { get; private set; } = null!;
 
     public static async Task UpdateBoard(Team team, Image boardImage) =>
         await instances[team.RowId].UpdateBoardMessage(boardImage);
@@ -54,7 +67,6 @@ public class DiscordTeam
     {
         if (instances.ContainsKey(team.RowId))
         {
-            // TODO: JR - dispose of the instance
             instances.Remove(team.RowId);
         }
     }
@@ -65,9 +77,11 @@ public class DiscordTeam
     /// </summary>
     public async Task InitialiseAsync()
     {
-        await CreateChannels();
+        List<ulong> channelAndMessageIds = await CreateChannels();
         await InitialiseBoardChannel();
-        CreateTeamEntry();
+        channelAndMessageIds.Add(boardMessage.Id);
+
+        CreateTeamEntry(channelAndMessageIds);
         await UpdateBoardMessage(BoardImage.CreateBoard(team));
 
         CommonInitialisation();
@@ -92,29 +106,27 @@ public class DiscordTeam
         RegisterBoardChannelComponentInteractions();
     }
 
-    private void SetButtonIds()
-    {
-        changeTileButtonId.FormatConst(Name);
-        submitEvidenceButtonId.FormatConst(Name);
-        submitDropButtonId.FormatConst(Name);
-        viewEvidenceButtonId.FormatConst(Name);
-        clearEvidenceButtonId.FormatConst(Name);
-        completeNextTileEvidenceButtonId.FormatConst(Name);
-    }
+    private string GetId(string stringToFormat) =>
+        stringToFormat.FormatConst(Name);
 
-    private void CreateTeamEntry()
+    private void CreateTeamEntry(List<ulong> ids)
     {
-        team = TeamRecord.CreateTeam(dataWorker, Name, BoardChannel.Id, boardMessage.Id);
+        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]);
         dataWorker.SaveChanges();
     }
 
-    private async Task CreateChannels()
+    private async Task<List<ulong>> CreateChannels()
     {
-        DiscordChannel? category = await Guild.CreateChannelAsync($"{Name}", ChannelType.Category);
-        BoardChannel = await Guild.CreateChannelAsync($"{Name}-board", ChannelType.Text, category);
-        await Guild.CreateChannelAsync($"{Name}-general", ChannelType.Text, category);
-        await Guild.CreateChannelAsync($"{Name}-submitted-evidence", ChannelType.Text, category);
-        await Guild.CreateChannelAsync($"{Name}-voice", ChannelType.Voice, category);
+        List<ulong> ids = new(4);
+
+        DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category);
+        BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category);
+
+        ids.Add(category.Id);
+        ids.Add(BoardChannel.Id);
+        ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category)).Id);
+        ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category)).Id);
+        return ids;
     }
 
     private async Task UpdateBoardMessage(Image boardImage)
@@ -191,11 +203,11 @@ public class DiscordTeam
             Team = this,
         };
         
-        ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
-        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info); 
-        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(submitDropButtonId, info);
-        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
-        ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(clearEvidenceButtonId, info);
-        ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(completeNextTileEvidenceButtonId, info);
+        ComponentInteractionHandler.Register<ChangeTileButtonHandler>(GetId(changeTileButtonId), info);
+        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(GetId(submitEvidenceButtonId), info); 
+        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(GetId(submitDropButtonId), info);
+        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(GetId(viewEvidenceButtonId), info);
+        ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(GetId(clearEvidenceButtonId), info);
+        ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(GetId(completeNextTileEvidenceButtonId), info);
     }
 }

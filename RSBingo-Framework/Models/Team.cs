@@ -14,8 +14,13 @@ public partial class Team : BingoRecord
 
     public int RowId { get; set; }
     public string Name { get; set; } = null!;
+
+    public ulong CategoryChannelId { get; set; }
     public ulong BoardChannelId { get; set; }
+    public ulong GeneralChannelId { get; set; }
+    public ulong VoiceChannelId { get; set; }
     public ulong BoardMessageId { get; set; }
+    public ulong RoleId { get; set; }
 
     public virtual ICollection<Tile> Tiles { get; set; }
     public virtual ICollection<User> Users { get; set; }

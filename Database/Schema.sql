@@ -9,6 +9,7 @@ CREATE TABLE `User` (
     DiscordUserID bigint UNSIGNED PRIMARY KEY,
     TeamID int NOT NULL,
 	FOREIGN KEY (TeamID) REFERENCES Team(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Task (
@@ -40,8 +41,10 @@ CREATE TABLE Tile (
 	TaskID int NOT NULL,
     Verified tinyint NOT NULL,
     BoardIndex int NOT NULL,
-    FOREIGN KEY (TeamID) REFERENCES Team(RowID),
-    FOREIGN KEY (TaskID) REFERENCES Task(RowID),
+    FOREIGN KEY (TeamID) REFERENCES Team(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (TaskID) REFERENCES Task(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT team_task_relationship UNIQUE KEY (TeamID, TaskID),
 	CONSTRAINT task_team_relationship UNIQUE KEY (TaskID, TeamID),
 	CONSTRAINT team_boardIndex_relationship UNIQUE KEY (TeamID, BoardIndex),
@@ -55,6 +58,8 @@ CREATE TABLE Evidence (
     URL varchar(255) NOT NULL,
 	`Status` tinyint NOT NULL,
     `Type` tinyint NOT NULL,
-    FOREIGN KEY (TileID) REFERENCES Tile(RowID),
+    FOREIGN KEY (TileID) REFERENCES Tile(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (DiscordUserID) REFERENCES `User`(DiscordUserID)
+		ON DELETE CASCADE ON UPDATE CASCADE
 );

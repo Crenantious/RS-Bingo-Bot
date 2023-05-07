@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+namespace RSBingoBot.BingoCommands;
+
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
@@ -10,58 +12,63 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Discord_event_handlers;
 using Serilog;
 
-namespace RSBingoBot.BingoCommands;
-
 /// <summary>
 /// Request for deleting a team.
 /// </summary>
 public class RequestDeleteTeam : RequestBase
 {
-    private const string CouldNotFindTeamError = "Could not find team with name {0} for deletion";
+    private const string CouldNotFindTeamError = "Could not find team with name {0}.";
 
     private readonly string teamName;
-    private static SemaphoreSlim roleSemaphore = new SemaphoreSlim(1, 1);
-    private static SemaphoreSlim channelSemaphore = new SemaphoreSlim(1, 1);
 
-    public RequestDeleteTeam(InteractionContext ctx, IDataWorker dataWorker, string teamName)
-        : base(ctx, dataWorker)
-    {
+    private static SemaphoreSlim roleSemaphore = new(1, 1);
+    private static SemaphoreSlim channelSemaphore = new(1, 1);
+
+    private ILogger<RequestDeleteTeam> logger;
+    private Team team;
+
+    public RequestDeleteTeam(InteractionContext ctx, IDataWorker dataWorker, string teamName) : base(ctx, dataWorker) =>
         this.teamName = teamName;
-    }
 
     public override async Task<bool> ProcessRequest()
     {
-        ILogger<RequestDeleteTeam> logger = General.LoggingInstance<RequestDeleteTeam>();
+        logger = General.LoggingInstance<RequestDeleteTeam>();
 
-        if (!await DeleteTeamRole(logger, teamName))
+        if (await DeleteTeamRole() is false)
         {
             logger.LogInformation("Failed to delete role for {TeamName}", teamName);
         }
 
-        if (!await DeleteTeamChannels(logger, teamName))
+        if (await DeleteTeamChannels() is false)
         {
             logger.LogInformation("Failed to delete one or more channels for {TeamName}", teamName);
         }
-
-        if (DataWorker.Teams.GetByName(teamName) is not Team team)
-        {
-            logger.LogInformation("Failed to find team with name {TeamName}", teamName);
-            return ProcessFailure(CouldNotFindTeamError.FormatConst(teamName));
-        }
-
+        
+        // TODO: find out if this throws and exception
         DataWorker.Teams.Remove(team);
+        DiscordTeam.TeamDeleted(team);
 
         return ProcessSuccess("Team deleted.");
     }
 
-    private protected override bool ValidateSpecificRequest() => true; // No additional validation required.
+    private protected override bool ValidateSpecificRequest()
+    {
+        if (DataWorker.Teams.GetByName(teamName) is Team team)
+        {
+            this.team = team;
+            return true;
+        }
 
-    private async Task<bool> DeleteTeamRole(ILogger<RequestDeleteTeam> logger, string teamName)
+        ResponseMessage = CouldNotFindTeamError.FormatConst(teamName);
+        return false;
+    }
+
+    private async Task<bool> DeleteTeamRole()
     {
         await roleSemaphore.WaitAsync();
         try
         {
-            if (GetTeamRole(teamName) is DiscordRole role)
+            if (GetTeamRole(team) is DiscordRole role)
             {
                 await role.DeleteAsync();
             }
@@ -80,15 +87,24 @@ public class RequestDeleteTeam : RequestBase
         return true;
     }
 
-    private async Task<bool> DeleteTeamChannels(ILogger<RequestDeleteTeam> logger, string teamName)
+    private async Task<bool> DeleteTeamChannels()
     {
         await channelSemaphore.WaitAsync();
+
+        bool allChannelsDeleted = await TryDeleteChannel(team.CategoryChannelId);
+        allChannelsDeleted = await TryDeleteChannel(team.BoardChannelId) && allChannelsDeleted;
+        allChannelsDeleted = await TryDeleteChannel(team.GeneralChannelId) && allChannelsDeleted;
+        allChannelsDeleted = await TryDeleteChannel(team.VoiceChannelId) && allChannelsDeleted;
+
+        channelSemaphore.Release();
+        return true;
+    }
+
+    private async Task<bool> TryDeleteChannel(ulong id)
+    {
         try
         {
-            foreach (var channelPair in Ctx.Guild.Channels.Where(c => c.Value.Name.StartsWith(teamName)))
-            {
-                await channelPair.Value.DeleteAsync();
-            }
+            await Ctx.Guild.GetChannel(id).DeleteAsync();
         }
         catch (Exception e)
         {
@@ -96,11 +112,6 @@ public class RequestDeleteTeam : RequestBase
             logger.LogDebug(e.Message);
             return false;
         }
-        finally
-        {
-            channelSemaphore.Release();
-        }
-
         return true;
     }
 }
