@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Leaderboard;
 
+using RSBingoBot.DTO;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 
