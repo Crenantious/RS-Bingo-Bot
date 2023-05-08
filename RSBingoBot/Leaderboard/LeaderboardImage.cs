@@ -5,72 +5,54 @@
 namespace RSBingoBot.Leaderboard;
 
 using RSBingoBot.DTO;
-using RSBingo_Framework.Models;
+using RSBingoBot.Imaging;
 using RSBingo_Framework.Interfaces;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
-using static RSBingo_Framework.DAL.DataFactory;
-using static RSBingoBot.Leaderboard.LeaderboardDimensionUtilities;
+using SixLabors.ImageSharp.Drawing.Processing;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
+using static RSBingoBot.Leaderboard.LeaderboardImageUtilities;
+using static RSBingo_Framework.DAL.DataFactory;
 
-public class LeaderboardImage
+public static class LeaderboardImage
 {
-    private static IDataWorker dataWorker = CreateDataWorker(); 
-    private static Image image = new Image<Rgba32>(1,1);
-    private static LeaderboardRowBackground rowBackground;
+    private static IDataWorker dataWorker;
+
+    static LeaderboardImage() =>
+        dataWorker = CreateDataWorker();
 
     public static Image Create()
     {
-        IEnumerable<Team> orderedTeams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
+        Grid cellValues = GetCellValues(dataWorker);
+        return CreateImage(GetGridImageDimensions(cellValues), cellValues);
+    }
 
-        int rowCount = orderedTeams.Count() + 1;
-        LeaderboardRowDimensions rowDimensions = CreateRowBackground(orderedTeams, rowCount);
-        CreateEmptyBoard(rowDimensions, rowCount);
+    private static void MutateCell(Image cell, Grid cellValues, int column, int row)
+    {
+        cell.Mutate(x => x.Fill(TextBackgroundColour));
+        DrawText(cell, cellValues.Cells[column, row], new(cell.Width / 2, cell.Height / 2));
+    }
 
-        AddHeaders();
-
-        for (int i = 0; i < orderedTeams.Count(); i++)
+    private static void DrawText(Image image, string text, Point position)
+    {
+        TextOptions textOptions = new(LeaderboadPreferences.Font)
         {
-            AddTeam(orderedTeams.ElementAt(i), i + 1, i + 1);
-        }
+            Origin = position,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        return image;
+        image.Mutate(x => x.DrawText(textOptions, text, TextColour));
     }
 
-    private static LeaderboardRowDimensions CreateRowBackground(IEnumerable<Team> teams, int rowCount)
-    {
-        LeaderboardRowDimensions rowDimensions = GetRowDimensions(teams);
-        rowBackground = new(rowDimensions);
-        return rowDimensions;
-    }
+    private static Image CreateImage(GridImageDimensions dimensions, Grid cellValues) =>
+        new GridImageBuilder<Rgba32>(dimensions, new ImageBorderInfo(TextBackgroundBorderColour, TextBackgroundBorderThickness),
+            (image, column, row) => MutateCell(image, cellValues, column, row))
+        .Build()
+        .Image;
 
-    private static void CreateEmptyBoard(LeaderboardRowDimensions rowDimensions, int rowCount)
-    {
-        (int width, int height) = GetBoardDimensions(rowDimensions, rowCount);
-        image = new Image<Rgba32>(width, height);
-    }
-
-    private static void AddHeaders()
-    {
-        Image headders = CreateRow("Name", "Score", "Rank");
-        AppendRow(headders, 0);
-    }
-
-    private static void AddTeam(Team team, int rank, int rowIndex)
-    {
-        Image teamRow = CreateRow(team.Name, team.Score.ToString(), rank.ToString());
-        AppendRow(teamRow, rowIndex);
-    }
-
-    private static Image CreateRow(params string[] values)
-    {
-        Image rowImage = rowBackground.Image.Clone(x => { });
-        LeaderboardTextDrawer.DrawInfo(rowImage, rowBackground.Cells, values);
-        return rowImage;
-    }
-
-    private static void AppendRow(Image rowImage, int rowIndex) =>
-        image.Mutate(x => x.DrawImage(rowImage,
-            new Point(0, rowBackground.Image.Height * rowIndex - TextBackgroundBorderThickness * (rowIndex - 1)), 1));
+    private static GridImageDimensions GetGridImageDimensions(Grid cellValues) =>
+        GridImageUtilities.GetGridImageDimensions(cellValues, LeaderboadPreferences.Font, TextPaddingWidth, TextPaddingHeight);
 }

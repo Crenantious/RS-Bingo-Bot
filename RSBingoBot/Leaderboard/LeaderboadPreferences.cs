@@ -8,7 +8,8 @@ using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using static RSBingo_Common.General;
 
-internal record LeaderboadPreferences
+// TODO: refactor in to appsettings.
+internal static class LeaderboadPreferences
 {
     public static Font Font { get; private set; } = null!;
     public static Color TextColour => Color.Black;
@@ -24,10 +25,7 @@ internal record LeaderboadPreferences
     private static int FontSize = 18;
     private static FontStyle Style = FontStyle.Bold;
 
-    static LeaderboadPreferences() =>
-        CreateFont();
-
-    private static void CreateFont()
+    static LeaderboadPreferences()
     {
         FontCollection collection = new();
         FontFamily family = collection.Add(FontPath);
