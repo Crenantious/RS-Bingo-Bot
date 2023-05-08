@@ -29,7 +29,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
     /// <inheritdoc/>
     protected override bool ContinueWithNullUser => true;
     protected override bool CreateAutoResponse => false;
-    protected override bool OneInstancePerUser => false;
+    protected override bool AutoRegisterInteraction => false;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)

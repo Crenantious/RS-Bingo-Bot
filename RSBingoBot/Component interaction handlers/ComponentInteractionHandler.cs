@@ -24,6 +24,7 @@ public abstract class ComponentInteractionHandler : IDisposable
 {
     protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";
     protected const string NotOnATeamMessage = "You are not on a team.";
+    protected const string AlreadyInteractingMessage = "You are already interacting with another component.";
 
     private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new();
     private static readonly Dictionary<DiscordUser, HashSet<Type>> UserActiveInstances = new();
@@ -68,9 +69,21 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// </summary>
     protected abstract bool ContinueWithNullUser { get; }
 
+    /// <summary>
+    /// Automatically creates a response to the interaction so that it does not time out.
+    /// </summary>
     protected abstract bool CreateAutoResponse { get; }
 
-    protected virtual bool OneInstancePerUser { get; } = true;
+    /// <summary>
+    /// If false and the user has a active instance with another component,
+    /// a response will be generated notifying them and this interaction will be concluded.
+    /// </summary>
+    protected virtual bool AllowInteractionWithAnotherComponent { get; } = false;
+
+    /// <summary>
+    /// Automatically registers the interaction for use with <see cref="AllowInteractionWithAnotherComponent"/>.
+    /// </summary>
+    protected virtual bool AutoRegisterInteraction { get; } = true;
 
     /// <summary>
     /// Gets a value indicating whether or not the interaction should continue
@@ -147,69 +160,69 @@ public abstract class ComponentInteractionHandler : IDisposable
     public static async Task RegisteredComponentInteracted(DiscordClient discordClient, ComponentInteractionCreateEventArgs args)
     {
         (Type, InitialisationInfo) info = RegisteredComponentIds[args.Interaction.Data.CustomId];
+        ComponentInteractionHandler? instance = (ComponentInteractionHandler?)Activator.CreateInstance(info.Item1);
 
-        if (UserActiveInstances.ContainsKey(args.User) && UserActiveInstances[args.User].Contains(info.Item1))
+        if (instance == null)
         {
-            await Respond(args, "You already have an instance of this active.", true);
+            // Log error
             return;
         }
 
-        ComponentInteractionHandler? instance = (ComponentInteractionHandler?)Activator.CreateInstance(info.Item1);
-
-        if (instance != null)
+        if (instance.AllowInteractionWithAnotherComponent is false &&
+            UserActiveInstances.ContainsKey(args.User) &&
+            UserActiveInstances[args.User].Any())
         {
-            User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
-            Team? team = info.Item2.Team != null ?
-                instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
-                null;
+            await Respond(args, AlreadyInteractingMessage, true);
+            return;
+        }
 
-            if (user == null)
+        User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
+        Team? team = info.Item2.Team != null ?
+            instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
+            null;
+
+        if (user == null)
+        {
+            if (!instance.ContinueWithNullUser)
             {
-                if (!instance.ContinueWithNullUser)
-                {
-                    // TODO: notify admins of this and tell the user they have been notified
-                    throw new NullReferenceException("User is not in the database.");
-                }
+                // TODO: notify admins of this and tell the user they have been notified
+                throw new NullReferenceException("User is not in the database.");
+            }
+        }
+
+        if (info.Item2.Team != null)
+        {
+            if (instance.TeamMustExist && team == null)
+            {
+                // TODO: notify admins of this and tell the user they have been notified
+                throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
             }
 
-            if (info.Item2.Team != null)
+            if (instance.UserMustBeInTeam)
             {
-                if (instance.TeamMustExist && team == null)
+                if (team == null || user.Team != team)
                 {
-                    // TODO: notify admins of this and tell the user they have been notified
-                    throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
-                }
-
-                if (instance.UserMustBeInTeam)
-                {
-                    if (team == null || user.Team != team)
-                    {
-                        var builder = new DiscordInteractionResponseBuilder()
-                            .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
-                            .AsEphemeral();
-                        await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-                        return;
-                    }
+                    var builder = new DiscordInteractionResponseBuilder()
+                        .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
+                        .AsEphemeral();
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                    return;
                 }
             }
-
-            Instances.Add(instance);
-
-            instance.Client = discordClient;
-            instance.CustomId = args.Interaction.Data.CustomId;
-            instance.User = user;
-            instance.Team = team;
-            instance.OriginalInteractionArgs = args;
-            instance.Info = info.Item2;
-
-            if (instance.OneInstancePerUser) { instance.RegisterUserInstance(); }
-            await ComponentInteracted(instance, discordClient, args,
-                (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
         }
-        else
-        {
-            // Log error
-        }
+
+        Instances.Add(instance);
+
+        instance.Client = discordClient;
+        instance.CustomId = args.Interaction.Data.CustomId;
+        instance.User = user;
+        instance.Team = team;
+        instance.OriginalInteractionArgs = args;
+        instance.Info = info.Item2;
+        if (instance.AutoRegisterInteraction) { instance.RegisterUserInstance(); }
+
+        await ComponentInteracted(instance, discordClient, args,
+            (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
     }
 
     /// <summary>
@@ -363,7 +376,6 @@ public abstract class ComponentInteractionHandler : IDisposable
         {
             UserActiveInstances[user] = new();
         }
-        var a = GetType();
         UserActiveInstances[user].Add(GetType());
     }
 
@@ -443,7 +455,6 @@ public abstract class ComponentInteractionHandler : IDisposable
 
         if (UserActiveInstances.ContainsKey(OriginalInteractionArgs.User))
         {
-            var a = GetType();
             UserActiveInstances[OriginalInteractionArgs.User].Remove(GetType());
         }
     }

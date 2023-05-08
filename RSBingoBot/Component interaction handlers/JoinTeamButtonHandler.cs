@@ -34,54 +34,53 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
     {
         await base.InitialiseAsync(args, info);
 
-        if (DataWorker.Users.Exists(args.Interaction.User.Id))
+        if (await ValidateUser()) { await TeamSelectionResponse(); }
+    }
+
+    private async Task<bool> ValidateUser()
+    {
+        if (DataWorker.Users.Exists(OriginalInteractionArgs.Interaction.User.Id))
         {
-            await Respond(args, AlreadyOnATeamMessage, true);
+            await Respond(OriginalInteractionArgs, AlreadyOnATeamMessage, true);
             await ConcludeInteraction();
+            return false;
         }
-        else { await TeamSelectionResponse(); }
+        return true;
     }
 
     private async Task TeamSelectionResponse()
     {
-        var confirmButton = new DiscordButtonComponent(ButtonStyle.Primary, confirmButtonId, "Confirm");
-        SubscribeComponent(
-            new ComponentInteractionDEH.Constraints(user: OriginalInteractionArgs.User, channel: OriginalInteractionArgs.Channel, customId: confirmButtonId),
-            TeamJoinConfirmed, true);
-
-        var builder = new DiscordInteractionResponseBuilder();
-        IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
-
         if (await TrySendUserTeamStatusErrorMessage(OriginalInteractionArgs.User.Id, false, OriginalInteractionArgs))
         {
             await ConcludeInteraction();
             return;
         }
 
-        if (!teams.Any())
-        {
-            builder
-               .WithContent("No teams created.")
-               .AsEphemeral();
-        }
-        else
-        {
-            var options = new List<DiscordSelectComponentOption>();
-            foreach (Team team in teams)
-            {
-                options.Add(new(team.Name, team.Name));
-            }
+        IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-            var teamSelect = new DiscordSelectComponent(teamSelectId, "Select team", options);
-            SubscribeComponent(
-                new ComponentInteractionDEH.Constraints(user: OriginalInteractionArgs.User, channel: OriginalInteractionArgs.Channel, customId: teamSelectId),
-                TeamSelected, true);
-
-            builder
-                .WithContent($"{OriginalInteractionArgs.User.Mention} Select a team to join.")
-                .AddComponents(teamSelect)
-                .AddComponents(confirmButton);
+        if (teams.Any() is false)
+        {
+            await Respond(OriginalInteractionArgs, "No teams created.", true);
+            await ConcludeInteraction();
+            return;
         }
+
+        IEnumerable<DiscordSelectComponentOption> options = teams.Select(t => new DiscordSelectComponentOption(t.Name, t.Name));
+
+        DiscordSelectComponent teamSelect = new(teamSelectId, "Select team", options);
+        SubscribeComponent(
+            new ComponentInteractionDEH.Constraints(user: OriginalInteractionArgs.User, channel: OriginalInteractionArgs.Channel, customId: teamSelectId),
+            TeamSelected, true);
+
+        DiscordButtonComponent confirmButton = new(ButtonStyle.Primary, confirmButtonId, "Confirm");
+        SubscribeComponent(
+            new ComponentInteractionDEH.Constraints(user: OriginalInteractionArgs.User, channel: OriginalInteractionArgs.Channel, customId: confirmButtonId),
+            TeamJoinConfirmed, true);
+
+        var builder = new DiscordInteractionResponseBuilder()
+            .WithContent($"{OriginalInteractionArgs.User.Mention} Select a team to join.")
+            .AddComponents(teamSelect)
+            .AddComponents(confirmButton);
 
         await OriginalInteractionArgs.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
         MessagesForCleanup.Add(await OriginalInteractionArgs.Interaction.GetOriginalResponseAsync());
@@ -92,39 +91,38 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
 
     private async Task TeamJoinConfirmed(DiscordClient discordClient, ComponentInteractionCreateEventArgs args)
     {
-        string content = string.Empty;
-
         if (teamSelected == string.Empty)
         {
-            content = "You must select a team to join.";
+            await Followup(args, "You must select a team to join.", true);
+            return;
         }
-        else
+
+        await JoinTeam(args);
+    }
+
+    private async Task JoinTeam(ComponentInteractionCreateEventArgs args)
+    {
+        string content = string.Empty;
+
+        Team? team = DataWorker.Teams.GetByName(teamSelected);
+
+        DataWorker.Users.Create(args.User.Id, team);
+        DataWorker.SaveChanges();
+
+        content = $"You have joined team {teamSelected}.";
+
+        DiscordRole role = RSBingoBot.DiscordTeam.GetInstance(team).Role;
+
+        try
         {
-            DataWorker.Users.Create(args.User.Id, teamSelected);
-            DataWorker.SaveChanges();
-
-            var roles = args.Guild.Roles.Select(x => x.Value).ToList();
-            int index = roles.Select(x => x.Name).ToList().IndexOf(teamSelected);
-
-            content = $"You have joined team {teamSelected}.";
-
-            if (index == -1)
-            {
-                // Error, team role should exist
-                content += $"{Environment.NewLine}The team's role does not exist; please tell an admin.";
-            }
-            else
-            {
-                await args.Guild.GetMemberAsync(args.User.Id).Result.GrantRoleAsync(roles[index]);
-            }
-
-            await ConcludeInteraction();
+            await args.Guild.GetMemberAsync(args.User.Id).Result.GrantRoleAsync(role);
+        }
+        catch (DSharpPlus.Exceptions.NotFoundException)
+        {
+            content += $"{Environment.NewLine}The team's role does not exist; please tell a host.";
         }
 
-        var builder = new DiscordFollowupMessageBuilder()
-            .WithContent(content)
-            .AsEphemeral();
-
-        await args.Interaction.CreateFollowupMessageAsync(builder);
+        await Followup(args, content, true);
+        await ConcludeInteraction();
     }
 }
