@@ -8,6 +8,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using RSBingoBot.Discord_event_handlers;
+using static RSBingoBot.InteractionMessageUtilities;
 
 /// <summary>
 /// Handles the interaction with the "Create team" button in the team-registration channel.
@@ -32,6 +33,16 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
     {
         await base.InitialiseAsync(args, info);
 
+        if (DataWorker.Users.Exists(args.Interaction.User.Id))
+        {
+            await Respond(args, AlreadyOnATeamMessage, true);
+            await ConcludeInteraction();
+        }
+        else { await ModalResponse(); }
+    }
+
+    private async Task ModalResponse()
+    {
         var teamNameInput = new TextInputComponent("Team name", teamNameInputId);
 
         var builder = new DiscordInteractionResponseBuilder()
@@ -39,7 +50,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
             .WithCustomId(modalId)
             .AddComponents(teamNameInput);
 
-        await args.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
+        await CurrentInteractionArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
         SubscribeModal(new ModalSubmittedDEH.Constraints(customId: modalId), TeamNameSubmitted);
     }
 
@@ -47,11 +58,6 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
     {
         User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
         await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-
-        if (await TrySendUserTeamStatusErrorMessage(args.Interaction.User.Id, false, args) is false)
-        {
-            await ConcludeInteraction();
-        }
 
         string teamName = args.Values[teamNameInputId];
         var builder = new DiscordFollowupMessageBuilder()

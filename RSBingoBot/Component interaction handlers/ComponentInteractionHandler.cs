@@ -20,6 +20,9 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// </summary>
 public abstract class ComponentInteractionHandler : IDisposable
 {
+    protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";
+    protected const string NotOnATeamMessage = "You are not on a team.";
+
     private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new();
     private static readonly List<ComponentInteractionHandler> Instances = new();
     private static readonly ComponentInteractionDEH componentInteractionDEH = null!;
@@ -359,8 +362,8 @@ public abstract class ComponentInteractionHandler : IDisposable
 
         string content = (user, shouldBeOnATeam) switch
         {
-            (null, true) => "You are not on a team.",
-            (not null, false) => "You are already on a team. Contact an admin if you would like to be removed from it.",
+            (null, true) => NotOnATeamMessage,
+            (not null, false) => AlreadyOnATeamMessage,
             _ => string.Empty,
         };
 
@@ -377,11 +380,6 @@ public abstract class ComponentInteractionHandler : IDisposable
         return true;
     }
 
-    protected async Task NotifyAdmins(string message)
-    {
-        // TODO: notify admins
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Cleans up messages and unsubscribes all subscribed callbacks from
