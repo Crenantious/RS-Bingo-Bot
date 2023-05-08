@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 
 internal static class InteractionMessageUtilities
 {
-    public static async Task Respond(ComponentInteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task Respond(InteractionCreateEventArgs args, string content, bool isEphemeral)
     {
         var builder = new DiscordInteractionResponseBuilder()
             .WithContent(content)
@@ -19,7 +19,7 @@ internal static class InteractionMessageUtilities
         await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
     }
 
-    public static async Task EditResponse(ComponentInteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task EditResponse(InteractionCreateEventArgs args, string content, bool isEphemeral)
     {
         var builder = new DiscordWebhookBuilder()
             .WithContent(content);
@@ -27,7 +27,7 @@ internal static class InteractionMessageUtilities
         await args.Interaction.EditOriginalResponseAsync(builder);
     }
 
-    public static async Task Followup(ComponentInteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task Followup(InteractionCreateEventArgs args, string content, bool isEphemeral)
     {
         var builder = new DiscordFollowupMessageBuilder()
             .WithContent(content)
@@ -36,7 +36,7 @@ internal static class InteractionMessageUtilities
         await args.Interaction.CreateFollowupMessageAsync(builder);
     }
 
-    public static async Task EditFollowup(ComponentInteractionCreateEventArgs args, ulong messageId, string content, bool isEphemeral)
+    public static async Task EditFollowup(InteractionCreateEventArgs args, ulong messageId, string content, bool isEphemeral)
     {
         var builder = new DiscordWebhookBuilder()
             .WithContent(content);

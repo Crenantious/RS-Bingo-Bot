@@ -15,6 +15,9 @@ using static RSBingoBot.InteractionMessageUtilities;
 /// </summary>
 internal class CreateTeamButtonHandler : ComponentInteractionHandler
 {
+    private const string InvalidNameCharactersMessage = "A team name must only contain letters and/or numbers.";
+    private const string NameTooLongMessage = "A team name cannot exceed {0} characters.";
+
     private readonly string modalId = Guid.NewGuid().ToString();
     private readonly string teamNameInputId = Guid.NewGuid().ToString();
 
@@ -56,49 +59,50 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
     private async Task TeamNameSubmitted(DiscordClient discordClient, ModalSubmitEventArgs args)
     {
-        User = DataWorker.Users.GetByDiscordId(args.Interaction.User.Id);
-        await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+        await ProcessRequest(discordClient, args);
+        await ConcludeInteraction();
+    }
 
+    private async Task ProcessRequest(DiscordClient discordClient, ModalSubmitEventArgs args)
+    {
         string teamName = args.Values[teamNameInputId];
-        var builder = new DiscordFollowupMessageBuilder()
-            .AsEphemeral();
+        string errorMessage = GetNameErrorMessage(teamName);
+
+        if (string.IsNullOrEmpty(errorMessage) is false)
+        {
+            await Respond(args, errorMessage, true);
+            return;
+        }
 
         if (DataWorker.Teams.DoesTeamExist(teamName))
         {
-            builder.WithContent("A team with this name already exists.");
-            await args.Interaction.CreateFollowupMessageAsync(builder);
-        }
-        else
-        {
-            builder.WithContent("Creating team...");
-            DiscordMessage? followupMessage = await args.Interaction.CreateFollowupMessageAsync(builder);
-
-            RSBingoBot.DiscordTeam team = new(discordClient, teamName);
-            await team.InitialiseAsync();
-
-            User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
-            DataWorker.SaveChanges();
-
-            await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(team.Role);
-
-            string content = $"The team '{teamName}' has been created successfully.";
-
-            if (args.Interaction.GetFollowupMessageAsync(followupMessage.Id).Result != null)
-            {
-                var editBuilder = new DiscordWebhookBuilder()
-                    .WithContent(content);
-                await args.Interaction.EditFollowupMessageAsync(followupMessage.Id, editBuilder);
-            }
-            else
-            {
-                // TODO: Figure out why this doesn't do anything.
-                var newBuilder = new DiscordFollowupMessageBuilder()
-                    .WithContent(content)
-                    .AsEphemeral();
-                await args.Interaction.CreateFollowupMessageAsync(newBuilder);
-            }
+            await Respond(args, "A team with this name already exists.", true);
+            return;
         }
 
-        await ConcludeInteraction();
+        await CreateTeam(discordClient, args, teamName);
+    }
+
+    private async Task CreateTeam(DiscordClient discordClient, ModalSubmitEventArgs args, string teamName)
+    {
+        await Respond(args, "Creating team...", true);
+
+        RSBingoBot.DiscordTeam team = new(discordClient, teamName);
+        await team.InitialiseAsync();
+
+        User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
+        DataWorker.SaveChanges();
+
+        await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(team.Role);
+
+        await EditResponse(args, $"The team '{teamName}' has been created successfully.", true);
+    }
+
+    private string GetNameErrorMessage(string name)
+    {
+        string errorMessage = "";
+        if (name.Any(ch => char.IsLetterOrDigit(ch) is false)) { errorMessage += InvalidNameCharactersMessage + Environment.NewLine; }
+        if (name.Length > General.TeamNameMaxLength) { errorMessage += NameTooLongMessage.FormatConst(General.TeamNameMaxLength); }
+        return errorMessage;
     }
 }
