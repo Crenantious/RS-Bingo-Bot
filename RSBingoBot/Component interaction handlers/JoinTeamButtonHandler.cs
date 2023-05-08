@@ -52,9 +52,10 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
         var builder = new DiscordInteractionResponseBuilder();
         IEnumerable<Team> teams = DataWorker.Teams.GetTeams();
 
-        if (await TrySendUserTeamStatusErrorMessage(OriginalInteractionArgs.User.Id, false, OriginalInteractionArgs) is false)
+        if (await TrySendUserTeamStatusErrorMessage(OriginalInteractionArgs.User.Id, false, OriginalInteractionArgs))
         {
             await ConcludeInteraction();
+            return;
         }
 
         if (!teams.Any())

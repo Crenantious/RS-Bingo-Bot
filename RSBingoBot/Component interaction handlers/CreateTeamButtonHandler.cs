@@ -27,9 +27,9 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
     public static string CreateTeamButtonId { get; } = "create-team-button";
 
     /// <inheritdoc/>
-    protected override bool ContinueWithNullUser { get { return true; } }
-
-    protected override bool CreateAutoResponse { get { return false; } }
+    protected override bool ContinueWithNullUser => true;
+    protected override bool CreateAutoResponse => false;
+    protected override bool OneInstancePerUser => false;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
@@ -40,8 +40,10 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
         {
             await Respond(args, AlreadyOnATeamMessage, true);
             await ConcludeInteraction();
+            return;
         }
-        else { await ModalResponse(); }
+
+        await ModalResponse();
     }
 
     private async Task ModalResponse()
@@ -59,6 +61,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
     private async Task TeamNameSubmitted(DiscordClient discordClient, ModalSubmitEventArgs args)
     {
+        RegisterUserInstance();
         await ProcessRequest(discordClient, args);
         await ConcludeInteraction();
     }

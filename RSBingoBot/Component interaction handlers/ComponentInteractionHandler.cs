@@ -13,17 +13,20 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot;
 using RSBingoBot.Discord_event_handlers;
+using static RSBingoBot.InteractionMessageUtilities;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>
 /// Handles the callback when a component is interacted with.
 /// </summary>
+//TODO: refactor. This is horrible.
 public abstract class ComponentInteractionHandler : IDisposable
 {
     protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";
     protected const string NotOnATeamMessage = "You are not on a team.";
 
     private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new();
+    private static readonly Dictionary<DiscordUser, HashSet<Type>> UserActiveInstances = new();
     private static readonly List<ComponentInteractionHandler> Instances = new();
     private static readonly ComponentInteractionDEH componentInteractionDEH = null!;
     private static readonly MessageCreatedDEH messageCreatedDEH = null!;
@@ -64,7 +67,10 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// if the user that interacted with the component is not found in the database.
     /// </summary>
     protected abstract bool ContinueWithNullUser { get; }
+
     protected abstract bool CreateAutoResponse { get; }
+
+    protected virtual bool OneInstancePerUser { get; } = true;
 
     /// <summary>
     /// Gets a value indicating whether or not the interaction should continue
@@ -141,6 +147,13 @@ public abstract class ComponentInteractionHandler : IDisposable
     public static async Task RegisteredComponentInteracted(DiscordClient discordClient, ComponentInteractionCreateEventArgs args)
     {
         (Type, InitialisationInfo) info = RegisteredComponentIds[args.Interaction.Data.CustomId];
+
+        if (UserActiveInstances.ContainsKey(args.User) && UserActiveInstances[args.User].Contains(info.Item1))
+        {
+            await Respond(args, "You already have an instance of this active.", true);
+            return;
+        }
+
         ComponentInteractionHandler? instance = (ComponentInteractionHandler?)Activator.CreateInstance(info.Item1);
 
         if (instance != null)
@@ -181,10 +194,15 @@ public abstract class ComponentInteractionHandler : IDisposable
             }
 
             Instances.Add(instance);
+
             instance.Client = discordClient;
             instance.CustomId = args.Interaction.Data.CustomId;
             instance.User = user;
             instance.Team = team;
+            instance.OriginalInteractionArgs = args;
+            instance.Info = info.Item2;
+
+            if (instance.OneInstancePerUser) { instance.RegisterUserInstance(); }
             await ComponentInteracted(instance, discordClient, args,
                 (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
         }
@@ -200,11 +218,7 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// <param name="args">Event args of the component that was interacted with.</param>
     /// <param name="info">Info relating to the handler and the component it is registered to.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-    public async virtual Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
-    {
-        OriginalInteractionArgs = args;
-        Info = info;
-    }
+    public async virtual Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info) { }
 
     #region DEH subscription wrappers
 
@@ -342,6 +356,17 @@ public abstract class ComponentInteractionHandler : IDisposable
         await ComponentInteracted(this, Client, args, callback, ephemeralResponse, responseContent);
     }
 
+    protected void RegisterUserInstance()
+    {
+        DiscordUser user = OriginalInteractionArgs.User;
+        if (UserActiveInstances.ContainsKey(user) is false)
+        {
+            UserActiveInstances[user] = new();
+        }
+        var a = GetType();
+        UserActiveInstances[user].Add(GetType());
+    }
+
     /// <summary>
     /// Checks if a user is on a team in the database. Then possibly post a response should that
     /// fail to meet the <paramref name="shouldBeOnATeam"/> requirement.
@@ -414,6 +439,12 @@ public abstract class ComponentInteractionHandler : IDisposable
         foreach (var modalSubscriptionInfo in subscribedModalInfo)
         {
             modalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
+        }
+
+        if (UserActiveInstances.ContainsKey(OriginalInteractionArgs.User))
+        {
+            var a = GetType();
+            UserActiveInstances[OriginalInteractionArgs.User].Remove(GetType());
         }
     }
 
