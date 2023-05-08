@@ -1,8 +1,12 @@
 CREATE TABLE Team (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL UNIQUE,
+    CategoryChannelID bigint UNSIGNED NOT NULL,
     BoardChannelID bigint UNSIGNED NOT NULL,
-    BoardMessageID bigint UNSIGNED NOT NULL
+    GeneralChannelID bigint UNSIGNED NOT NULL,
+    VoiceChannelID bigint UNSIGNED NOT NULL,
+    BoardMessageID bigint UNSIGNED NOT NULL,
+    RoleID bigint UNSIGNED NOT NULL
 );
 
 CREATE TABLE `User` (
@@ -39,8 +43,9 @@ CREATE TABLE Tile (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TeamID int NOT NULL,
 	TaskID int NOT NULL,
-    Verified tinyint NOT NULL,
+    IsVerified tinyint NOT NULL,
     BoardIndex int NOT NULL,
+    IsComplete tinyint NOT NULL,
     FOREIGN KEY (TeamID) REFERENCES Team(RowID)
 		ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (TaskID) REFERENCES Task(RowID)

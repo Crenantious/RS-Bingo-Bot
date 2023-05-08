@@ -57,12 +57,8 @@ public abstract class RequestBase
 
     private protected abstract bool ValidateSpecificRequest();
 
-    private protected DiscordRole? GetTeamRole(Team team)
-    {
-        KeyValuePair<ulong, DiscordRole> pair = Ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Key == team.RoleId);
-        if (pair.Equals(default)) { return null; }
-        return pair.Value;
-    }
+    private protected DiscordRole? GetTeamRole(Team team) =>
+        DiscordTeam.GetInstance(team).Role;
 
     private async Task<IEnumerable<Permissions>> GetMissingPermissions()
     {

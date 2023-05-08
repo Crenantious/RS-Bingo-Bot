@@ -49,6 +49,7 @@ public class DiscordTeam
     private DiscordMessage boardMessage;
 
     public string Name { get; private set; } = null!;
+    public DiscordRole Role { get; private set; } = null!;
 
     public DiscordChannel BoardChannel { get; private set; } = null!;
 
@@ -71,15 +72,20 @@ public class DiscordTeam
         }
     }
 
+    public static DiscordTeam GetInstance(Team team) =>
+        instances[team.RowId];
+
     /// <summary>
     /// Creates and initializes the team's channel.
     /// Sets up references and component interactions.
     /// </summary>
     public async Task InitialiseAsync()
     {
-        List<ulong> channelAndMessageIds = await CreateChannels();
-        await InitialiseBoardChannel();
-        channelAndMessageIds.Add(boardMessage.Id);
+        List<ulong> channelAndMessageIds = new(await CreateChannels())
+        {
+            await InitialiseBoardChannel(),
+            await CreateRole()
+        };
 
         CreateTeamEntry(channelAndMessageIds);
         await UpdateBoardMessage(BoardImage.CreateBoard(team));
@@ -96,6 +102,7 @@ public class DiscordTeam
         team = existingTeam;
         BoardChannel = await discordClient.GetChannelAsync(team.BoardChannelId);
         boardMessage = await BoardChannel.GetMessageAsync(team.BoardMessageId);
+        Role = Guild.GetRole(team.RoleId);
 
         CommonInitialisation();
     }
@@ -104,15 +111,6 @@ public class DiscordTeam
     {
         instances[team.RowId] = this;
         RegisterBoardChannelComponentInteractions();
-    }
-
-    private string GetId(string stringToFormat) =>
-        stringToFormat.FormatConst(Name);
-
-    private void CreateTeamEntry(List<ulong> ids)
-    {
-        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]);
-        dataWorker.SaveChanges();
     }
 
     private async Task<List<ulong>> CreateChannels()
@@ -128,6 +126,21 @@ public class DiscordTeam
         ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category)).Id);
         return ids;
     }
+
+    private async Task<ulong> CreateRole()
+    {
+        Role = await Guild.CreateRoleAsync(Name);
+        return Role.Id;
+    }
+
+    private void CreateTeamEntry(List<ulong> ids)
+    {
+        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]);
+        dataWorker.SaveChanges();
+    }
+
+    private string GetId(string stringToFormat) =>
+        stringToFormat.FormatConst(Name);
 
     private async Task UpdateBoardMessage(Image boardImage)
     {
@@ -189,22 +202,23 @@ public class DiscordTeam
         await imageMessage.DeleteAsync();
     }
 
-    private async Task InitialiseBoardChannel()
+    private async Task<ulong> InitialiseBoardChannel()
     {
         var builder = new DiscordMessageBuilder()
             .WithContent("Loading...");
         boardMessage = await BoardChannel.SendMessageAsync(builder);
+        return boardMessage.Id;
     }
 
     private void RegisterBoardChannelComponentInteractions()
     {
-        ComponentInteractionHandler.InitialisationInfo info = new ()
+        ComponentInteractionHandler.InitialisationInfo info = new()
         {
             Team = this,
         };
-        
+
         ComponentInteractionHandler.Register<ChangeTileButtonHandler>(GetId(changeTileButtonId), info);
-        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(GetId(submitEvidenceButtonId), info); 
+        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(GetId(submitEvidenceButtonId), info);
         ComponentInteractionHandler.Register<SubmitDropButtonHandler>(GetId(submitDropButtonId), info);
         ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(GetId(viewEvidenceButtonId), info);
         ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(GetId(clearEvidenceButtonId), info);

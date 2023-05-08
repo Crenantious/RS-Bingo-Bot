@@ -73,8 +73,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
             User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);
             DataWorker.SaveChanges();
 
-            DiscordRole? role = await args.Interaction.Guild.CreateRoleAsync(teamName);
-            await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(role);
+            await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(team.Role);
 
             string content = $"The team '{teamName}' has been created successfully.";
 

@@ -4,13 +4,11 @@
 
 namespace RSBingoBot.BingoCommands;
 
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingoBot.Discord_event_handlers;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 
 /// <summary>
 /// Request for deleting a team.
@@ -46,7 +44,7 @@ public class RequestDeleteTeam : RequestBase
         
         // TODO: find out if this throws and exception
         DataWorker.Teams.Remove(team);
-        DiscordTeam.TeamDeleted(team);
+        RSBingoBot.DiscordTeam.TeamDeleted(team);
 
         return ProcessSuccess("Team deleted.");
     }
