@@ -15,6 +15,7 @@ using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.DAL.DataFactory;
+using static RSBingoBot.InteractionMessageUtilities;
 
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.
@@ -37,12 +38,20 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
     /// <inheritdoc/>
     protected override bool ContinueWithNullUser { get; } = false;
-    protected override bool CreateAutoResponse { get; } = true;
+    protected override bool CreateAutoResponse { get; } = false;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
     {
         await base.InitialiseAsync(args, info);
+
+        if (Team!.Tiles.Any() is false)
+        {
+            //MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
+            await Followup(args, "There are no tiles to submit evidence for.", true);
+            await ConcludeInteraction();
+            return;
+        }
 
         CreateTileSelect();
         submitButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Submit");

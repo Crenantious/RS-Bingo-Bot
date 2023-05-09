@@ -6,6 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using System.Text;
 
 namespace RSBingoBot.BingoCommands;
@@ -56,12 +57,8 @@ public abstract class RequestBase
 
     private protected abstract bool ValidateSpecificRequest();
 
-    private protected DiscordRole? GetTeamRole(string teamName)
-    {
-        KeyValuePair<ulong, DiscordRole> pair = Ctx.Interaction.Guild.Roles.FirstOrDefault(r => r.Value.Name == teamName);
-        if (pair.Equals(default)) { return null; }
-        return pair.Value;
-    }
+    private protected DiscordRole? GetTeamRole(Team team) =>
+        DiscordTeam.GetInstance(team).Role;
 
     private async Task<IEnumerable<Permissions>> GetMissingPermissions()
     {

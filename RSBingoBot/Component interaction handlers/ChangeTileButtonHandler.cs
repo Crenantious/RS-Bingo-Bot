@@ -4,9 +4,6 @@
 
 namespace RSBingoBot.Component_interaction_handlers;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -17,10 +14,8 @@ using RSBingo_Framework.Records;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Imaging;
 using Select_Component;
-using SixLabors.ImageSharp;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
-using static RSBingo_Framework.Records.TileRecord;
 
 // TODO: JR - make it so when someone is interacting with the button, no-one else can. This prevents conflicts.
 
@@ -32,8 +27,8 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
     private const string PageOptionPrefix = "Page ";
     private const string NoTaskName = "No task";
 
-    private TileInfo fromTileInfo;
-    private TileInfo toTileInfo;
+    private TileInfo fromTileInfo = null!;
+    private TileInfo toTileInfo = null!;
 
     private string submitButtonId = string.Empty;
     private DiscordButtonComponent submitButton = null!;
@@ -235,8 +230,8 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
 
         if (!selectComponent.SelectOptions.Any())
         {
-            throw new ComponentInteractionHandlerException("No tasks were found.", OriginalInteractionArgs, true,
-                    ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse);
+            throw new ComponentInteractionHandlerException("No tasks were found to be put on the board.", OriginalInteractionArgs, true,
+                    ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
         }
         
         selectComponent.Build();

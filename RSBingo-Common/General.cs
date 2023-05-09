@@ -78,6 +78,8 @@ namespace RSBingo_Common
         /// </summary>
         public const int MaxTilesOnABoard = 25;
 
+        public const int TeamNameMaxLength = 50;
+
         // TODO: make sure this is false for production.
         /// <summary>
         /// Gets or sets weather or not the competition has started.

@@ -1,14 +1,19 @@
 CREATE TABLE Team (
     RowID int PRIMARY KEY AUTO_INCREMENT,
     Name varchar(50) NOT NULL UNIQUE,
+    CategoryChannelID bigint UNSIGNED NOT NULL,
     BoardChannelID bigint UNSIGNED NOT NULL,
-    BoardMessageID bigint UNSIGNED NOT NULL
+    GeneralChannelID bigint UNSIGNED NOT NULL,
+    VoiceChannelID bigint UNSIGNED NOT NULL,
+    BoardMessageID bigint UNSIGNED NOT NULL,
+    RoleID bigint UNSIGNED NOT NULL
 );
 
 CREATE TABLE `User` (
     DiscordUserID bigint UNSIGNED PRIMARY KEY,
     TeamID int NOT NULL,
 	FOREIGN KEY (TeamID) REFERENCES Team(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE Task (
@@ -38,10 +43,13 @@ CREATE TABLE Tile (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TeamID int NOT NULL,
 	TaskID int NOT NULL,
-    Verified tinyint NOT NULL,
+    IsVerified tinyint NOT NULL,
     BoardIndex int NOT NULL,
-    FOREIGN KEY (TeamID) REFERENCES Team(RowID),
-    FOREIGN KEY (TaskID) REFERENCES Task(RowID),
+    IsComplete tinyint NOT NULL,
+    FOREIGN KEY (TeamID) REFERENCES Team(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (TaskID) REFERENCES Task(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT team_task_relationship UNIQUE KEY (TeamID, TaskID),
 	CONSTRAINT task_team_relationship UNIQUE KEY (TaskID, TeamID),
 	CONSTRAINT team_boardIndex_relationship UNIQUE KEY (TeamID, BoardIndex),
@@ -55,6 +63,8 @@ CREATE TABLE Evidence (
     URL varchar(255) NOT NULL,
 	`Status` tinyint NOT NULL,
     `Type` tinyint NOT NULL,
-    FOREIGN KEY (TileID) REFERENCES Tile(RowID),
+    FOREIGN KEY (TileID) REFERENCES Tile(RowID)
+		ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (DiscordUserID) REFERENCES `User`(DiscordUserID)
+		ON DELETE CASCADE ON UPDATE CASCADE
 );

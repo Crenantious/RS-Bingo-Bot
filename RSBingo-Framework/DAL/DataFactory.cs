@@ -13,7 +13,6 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
 
-
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
 /// </summary>
@@ -29,7 +28,8 @@ public static class DataFactory
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
-
+    private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
+    
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
@@ -41,6 +41,8 @@ public static class DataFactory
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
     private static DiscordChannel leaderboardEvidenceChannel = null!;
+
+    private static bool enableBoardCustomisation;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -70,9 +72,14 @@ public static class DataFactory
     public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;
 
     /// <summary>
-    /// Gets the "rejected-evidence" channel.
+    /// Gets the "leaderboard" channel.
     /// </summary>
     public static DiscordChannel LeaderboardChannel => leaderboardEvidenceChannel;
+
+    /// <summary>
+    /// Gets whether or not team boards should be customisable.
+    /// </summary>
+    public static bool EnableBoardCustomisation => enableBoardCustomisation;
 
     /// <summary>
     /// Setup the data factory ready to process requests for data connections.
@@ -99,6 +106,8 @@ public static class DataFactory
             verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
             rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
             leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
+
+            enableBoardCustomisation = bool.Parse(Config_Get("EnableBoardCustomisation"));
         }
     }
 

@@ -27,13 +27,18 @@ public class TeamRepository : RepositoryBase<Team>, ITeamRepository
     public override Team Create() =>
         Add(new Team());
 
-        public Team Create(string name, ulong boardChannelId, ulong boardMessageId) =>
-            Add(new Team()
-            {
-                Name = name,
-                BoardChannelId = boardChannelId,
-                BoardMessageId = boardMessageId
-            });
+    public Team Create(string name, ulong categoryChannelId, ulong boardChannelId,
+        ulong generalChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId) =>
+        Add(new Team()
+        {
+            Name = name,
+            CategoryChannelId = categoryChannelId,
+            BoardChannelId = boardChannelId,
+            GeneralChannelId = generalChannelId,
+            VoiceChannelId = voiceChannelId,
+            BoardMessageId = boardMessageId,
+            RoleId = roleId
+        });
 
     public bool DoesTeamExist(string name) =>
         GetByName(name) != null;
