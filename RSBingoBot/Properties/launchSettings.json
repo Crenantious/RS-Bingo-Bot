@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RSBingoBot": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
