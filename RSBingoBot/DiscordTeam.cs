@@ -18,6 +18,7 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <summary>
 /// Creates and sets up channels, roles and messages for the team.
 /// </summary>
+//TODO: JR - refactor
 public class DiscordTeam
 {
     private readonly DiscordClient discordClient;
@@ -193,9 +194,21 @@ public class DiscordTeam
         .Build();
 
         var builder = new DiscordMessageBuilder()
-            .WithEmbed(boardImageEmbed)
-            .AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton)
-            .AddComponents(clearEvidenceButton, completeNextTileButton);
+            .WithEmbed(boardImageEmbed);
+
+        if (EnableBoardCustomisation)
+        {
+            builder.AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton);
+        }
+        else
+        {
+            builder.AddComponents(submitDropButton, viewEvidenceButton);
+        }
+
+#if DEBUG
+        builder.AddComponents(clearEvidenceButton, completeNextTileButton);
+#endif
+
         // TODO: JR - get this to work with a file upload instead of an embed since it will look nicer.
         //.WithFile("Team board.png", fs, true);
         await boardMessage.ModifyAsync(builder);
