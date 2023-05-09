@@ -146,32 +146,32 @@ public class DiscordTeam
     {
         var changeTileButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            changeTileButtonId,
+            GetId(changeTileButtonId),
             "Change tile");
 
         var submitEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            submitEvidenceButtonId,
+            GetId(submitEvidenceButtonId),
             "Submit evidence");
 
         var submitDropButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            submitDropButtonId,
+            GetId(submitDropButtonId),
             "Submit drop");
 
         var viewEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            viewEvidenceButtonId,
+            GetId(viewEvidenceButtonId),
             "View evidence");
 #if DEBUG
         var clearEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            clearEvidenceButtonId,
+            GetId(clearEvidenceButtonId),
             "Clear evidence");
 
         var completeNextTileButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            completeNextTileEvidenceButtonId,
+            GetId(completeNextTileEvidenceButtonId),
             "Complete next tile");
 #endif
 
