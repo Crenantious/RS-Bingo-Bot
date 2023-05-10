@@ -90,34 +90,9 @@ public static class DataFactory
     /// </summary>
     public static bool UseNpgsql => useNpgsql;
 
-    /// <summary>
-    /// Setup the data factory ready to process requests for data connections.
-    /// </summary>
-    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
-    public static void SetupDataFactory(bool asMockDB = false)
-    {
-        dataIsMock = asMockDB;
-        connectionString = Config_GetConnection(DBKey) !;
-
     // HACK: Remove this.
     private static string mockName = string.Empty;
 
-
-        if (!asMockDB)
-        {
-            // Not needed in tests.
-            discordToken = Config_Get(DiscordTokenKey) !;
-            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
-            pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
-            verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
-            rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
-            leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
-
-            enableBoardCustomisation = bool.Parse(Config_Get("EnableBoardCustomisation"));
-
-            useNpgsql = bool.Parse(Config_Get(UseNpgsqlKey));
-        }
-    }
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
@@ -163,12 +138,14 @@ public static class DataFactory
 
         InitializeWhitelistedDomains();
 
-        if (!asMockDB) { InitializeDiscordComponents(); }
+        if (asMockDB is false) { InitializeDiscordComponents(); }
     }
 
     private static void InitializeDB(bool asMockDB)
     {
         dataIsMock = asMockDB;
+
+        useNpgsql = Config_Get<bool>(UseNpgsqlKey);
 
         connectionString = Config_GetConnection(DBKey)!;
 
@@ -195,5 +172,7 @@ public static class DataFactory
         verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
         leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
+
+        enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
     }
 }
