@@ -18,7 +18,8 @@ using RSBingo_Common;
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
-    private const string DownloadImageExceptionMessage = "The given URL: {0} is not a part of a white listed domain.";
+    private const string UnpermittedURLExceptionMessage = "The given URL: {0} is not a part of a white listed domain.";
+    private const string UnableToReachWebstieExceptionMessage = "Unable to reach the given website: {0}.";
 
     public AddTasksCSVOperator(IDataWorker dataWorker)
         : base(dataWorker)
@@ -59,17 +60,18 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
     {
         try
         {
-            if (!WhitelistChecker.IsUrlWhitelisted(line.TaskUrl.Value))
+            if (WhitelistChecker.IsUrlWhitelisted(line.TaskUrl.Value) is false)
             {
-                throw new UnpermittedURLException(DownloadImageExceptionMessage.FormatConst(line.TaskUrl.Value));
+                throw new UnpermittedURLException(UnableToReachWebstieExceptionMessage.FormatConst(line.TaskUrl.Value));
             }
 
+            // TODO: Make this a subroutine to attempt to download multiple times should it fail. Throw after a given number of failures.
             WebClient client = new();
             client.DownloadFile(line.TaskUrl.Value, imagePath);
         }
         catch (WebException)
         {
-            return new UnableToReachWebsiteWarning(line.TaskUrl.ValueIndex, line.LineNumber);
+            throw new UnableToReachWebsiteException(UnableToReachWebstieExceptionMessage);
         }
 
         return null;

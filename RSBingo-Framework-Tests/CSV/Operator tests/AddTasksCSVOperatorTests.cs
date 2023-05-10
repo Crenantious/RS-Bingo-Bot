@@ -12,10 +12,15 @@ using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.LocalServer;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
+using Microsoft.AspNetCore.Server.HttpSys;
+using RSBingo_Framework.Exceptions;
 
 [TestClass]
 public class AddTasksCSVOperatorTests : MockDBBaseTestClass
 {
+    private const string InvalidURL = LocalTestServer.UriPrefix + "This is an invalid url/";
+    private const string UnpermittedURL = "http://google.com/";
+
     private IDataWorker dataWorkerBefore = null!;
     private IDataWorker dataWorkerAfter = null!;
     private AddTasksCSVOperator csvOperator = null!;
@@ -24,7 +29,6 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
     private string ValidImageURL = LocalTestServer.GetUrl<ValidImagePage>();
     private string CorruptImageURL = LocalTestServer.GetUrl<CorruptImagePage>();
     private string InvalidImageFormatURL = LocalTestServer.GetUrl<InvalidImageFormatPage>();
-    private string InvalidURL = LocalTestServer.InvalidURL;
 
     [TestInitialize]
     public override void TestInitialize()
@@ -132,9 +136,19 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
         TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, InvalidURL);
         CreateAndParseTasksInCSVFile(taskInfo);
 
-        Operate();
+        Assert.ThrowsException<UnableToReachWebsiteException>(Operate);
 
-        AssertOperatorWarnings(typeof(UnableToReachWebsiteWarning));
+        AssertTasks();
+    }
+
+    [TestMethod]
+    public void AddTasksWithAUnpermittedURLToFile_ParseAndOperate_NotAddedToDBWithAWarning()
+    {
+        TaskInfo taskInfo = new TaskInfo("Task 1", Difficulty.Easy, MinNumberOfTasks, UnpermittedURL);
+        CreateAndParseTasksInCSVFile(taskInfo);
+
+        Assert.ThrowsException<UnpermittedURLException>(Operate);
+
         AssertTasks();
     }
 

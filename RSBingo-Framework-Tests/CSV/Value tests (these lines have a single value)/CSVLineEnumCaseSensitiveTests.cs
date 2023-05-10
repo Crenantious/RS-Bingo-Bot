@@ -30,45 +30,18 @@ public class CSVLineEnumCaseSensitiveTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    public void AddLowercasedEnumValueToCSVFile_Parse_GetException()
+    [DataRow("testvalue")]
+    [DataRow("TESTVALUE")]
+    [DataRow("Invalid value")]
+    public void AddInvalidValuesWithMixedCasesToCSVFile_Parse_GetException(string testValue)
     {
-        CreateCSVFile(TestEnum.TestValue.ToString().ToLower());
-
-        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
-    }
-
-    [TestMethod]
-    public void AddUppercasedEnumValueToCSVFile_Parse_GetException()
-    {
-        CreateCSVFile(TestEnum.TestValue.ToString().ToUpper());
-
-        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
-    }
-
-    [TestMethod]
-    public void AddCaseInvertedEnumValueToCSVFile_Parse_GetException()
-    {
-        string caseInvertedValue = InvertCase(TestEnum.TestValue.ToString());
-        CreateCSVFile(caseInvertedValue);
-
-        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
-    }
-
-    [TestMethod]
-    public void AddNonEnumValueToCSVFile_Parse_GetException()
-    {
-        CreateCSVFile("Invalid value");
+        CreateCSVFile(testValue);
 
         Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     private void ParseCSVFile() =>
         csvData = ParseCSVFile<CSVTestLineEnumCaseSensitive>();
-
-    private static string InvertCase(string value) =>
-        new string(value.Select(c =>
-            char.IsUpper(c) ? char.ToLower(c) : char.ToUpper(c))
-        .ToArray());
 
     private void AssertCSVValue(TestEnum value) =>
         Assert.AreEqual(value, csvData.Lines.ElementAt(0).Value.Value);

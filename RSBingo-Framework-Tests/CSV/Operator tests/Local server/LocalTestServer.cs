@@ -8,10 +8,8 @@ using System.Net;
 
 public class LocalTestServer
 {
-    private const string UriPrefix = "http://localhost:8000/";
-
-    public const string InvalidURL = UriPrefix + "This is an invalid url/";
-
+    public const string UriPrefix = "http://localhost:8000/";
+    
     private static Dictionary<string, ILocalServerPage> URLToPage = new();
     private static Dictionary<Type, ILocalServerPage> Pages = new();
     private static Task serverTask = null!;

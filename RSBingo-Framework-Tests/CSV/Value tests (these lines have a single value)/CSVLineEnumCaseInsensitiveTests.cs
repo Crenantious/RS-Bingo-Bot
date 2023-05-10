@@ -20,29 +20,12 @@ public class CSVLineEnumCaseInsensitiveTests : MockDBBaseTestClass
         CSVReaderTestHelper.TestCleanup();
 
     [TestMethod]
-    public void AddEnumValueToCSVFile_Parse_CorrectValueParsed()
+    [DataRow("TestValue")]
+    [DataRow("testvalue")]
+    [DataRow("TESTVALUE")]
+    public void AddValidEnumValuesWithMixedCasesToCSVFile_Parse_CorrectValueParsed(string testValue)
     {
-        CreateCSVFile(TestEnum.TestValue.ToString());
-
-        ParseCSVFile();
-
-        AssertCSVValue(TestEnum.TestValue);
-    }
-
-    [TestMethod]
-    public void AddLowercasedEnumValueToCSVFile_Parse_CorrectValueParsed()
-    {
-        CreateCSVFile(TestEnum.TestValue.ToString().ToLower());
-
-        ParseCSVFile();
-
-        AssertCSVValue(TestEnum.TestValue);
-    }
-
-    [TestMethod]
-    public void AddUppercasedEnumValueToCSVFile_Parse_CorrectValueParsed()
-    {
-        CreateCSVFile(TestEnum.TestValue.ToString().ToUpper());
+        CreateCSVFile(testValue);
 
         ParseCSVFile();
 
@@ -52,7 +35,7 @@ public class CSVLineEnumCaseInsensitiveTests : MockDBBaseTestClass
     [TestMethod]
     public void AddNonEnumValueToCSVFile_Parse_GetException()
     {
-        CreateCSVFile("Invalid value".ToString());
+        CreateCSVFile("Invalid value");
 
         Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
