@@ -24,12 +24,12 @@ public static class General
 
     private static string resourcesFolderPath;
 
-        static General()
+    static General()
+    {
+        try
         {
-            try
-            {
-                AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
-                AppName = Assembly.GetEntryAssembly().GetName().Name;
+            AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+            AppName = Assembly.GetEntryAssembly().GetName().Name;
 
 #if DEBUG
             AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
@@ -39,12 +39,12 @@ public static class General
 #if RELEASE
                 AppRootPath = AppPath;
 #endif
-            }
-            catch (Exception)
-            {
-                if (string.IsNullOrEmpty(AppName)) { AppName = "Unspecified"; }
-            }
         }
+        catch (Exception)
+        {
+            if (string.IsNullOrEmpty(AppName)) { AppName = "Unspecified"; }
+        }
+    }
 
     /// <summary>
     /// Gets or sets dependency Injection object built during app startup.
@@ -120,13 +120,13 @@ public static class General
         string netCoreVer = System.Environment.Version.ToString();
         string runtimeVer = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 
-            LoggingLog(
-                $"Logging Startup{Environment.NewLine}" +
-                $"Application: {AppName}{Environment.NewLine}" +
-                $"Path: {AppPath}{Environment.NewLine}" +
-                $"Root path: {AppRootPath}{Environment.NewLine}" +
-                $"CoreVer: {netCoreVer}{Environment.NewLine}" +
-                $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
+        LoggingLog(
+            $"Logging Startup{Environment.NewLine}" +
+            $"Application: {AppName}{Environment.NewLine}" +
+            $"Path: {AppPath}{Environment.NewLine}" +
+            $"Root path: {AppRootPath}{Environment.NewLine}" +
+            $"CoreVer: {netCoreVer}{Environment.NewLine}" +
+            $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
 
         LoggingLog("Logging Startup");
     }
@@ -197,7 +197,7 @@ public static class General
     /// <returns>The static instance.</returns>
     public static ILogger<T> LoggingInstance<T>()
     {
-        return DI.GetService<ILogger<T>>() !;
+        return DI.GetService<ILogger<T>>()!;
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ public static class General
     {
         if (key == null) { return null; }
 
-        IConfiguration config = DI.GetService<IConfiguration>() !;
+        IConfiguration config = DI.GetService<IConfiguration>()!;
 
         // We don't check for the a missing service, its a design failure
         return config.GetConnectionString(key);
@@ -221,23 +221,38 @@ public static class General
     /// <param name="key">The key of the value being read.</param>
     /// <param name="defaultValue">The default value to return if not found within the config.</param>
     /// <returns>The value found.</returns>
-    public static string Config_Get(string key, string defaultValue = null)
+    public static T? Config_Get<T>(string key, T? defaultValue = default)
     {
         if (key == null)
         {
             return defaultValue;
         }
 
-        IConfiguration config = DI.GetService<IConfiguration>() !;
+        IConfiguration config = DI.GetService<IConfiguration>()!;
 
         // We don't check for the a missing service, its a design failure
-        string value = config.GetValue<string>(key);
+        T value = config.GetValue<T>(key);
         if (value == null)
         {
             return defaultValue;
         }
 
         return value;
+    }
+
+    public static List<T> Config_GetList<T>(string key)
+    {
+        if (key == null)
+        {
+            return Enumerable.Empty<T>().ToList();
+        }
+
+        IConfiguration config = DI.GetService<IConfiguration>()!;
+
+        // We don't check for the a missing service, its a design failure
+        List<T> values = config.GetSection(key).Get<List<T>>();
+
+        return values;
     }
 
     /// <summary>
@@ -263,14 +278,23 @@ public static class General
     public static string GetBaseBoardImagePath() =>
         GetPath(resourcesFolderPath, BaseBoardPath + ImageExtension);
 
-    private static void TryCreateDirectory(string folderPath)
+    public static bool ValidateImage(string imagePath)
     {
-        if (Directory.Exists(folderPath) is false) { Directory.CreateDirectory(folderPath); }
+        if (!File.Exists(imagePath)) { return false; }
+
+        try
+        {
+            return Image.Identify(File.ReadAllBytes(imagePath)) is not null;
+        }
+        catch (Exception ex)
+        {
+            General.LoggingLog(ex, ex.Message);
+            return false;
+        }
     }
 
     private static string GetPath(string folderPath, string fileName)
     {
-        TryCreateDirectory(folderPath);
         return Path.Combine(folderPath, fileName);
     }
 }

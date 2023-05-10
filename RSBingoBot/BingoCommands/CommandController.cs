@@ -26,6 +26,7 @@ public class CommandController : ApplicationCommandModule
     private const string TestTeamName = "Test";
     private const string ProcessingRequest = "Processing request.";
     private const string UnknownError = "An unknown error occurred.";
+    private const string CannotRunCammandAfterCompetitionStartMessage = "This command cannot be run after the competition has started.";
 
     private readonly ILogger<CommandController> logger;
     private readonly IDataWorker dataWorker = CreateDataWorker();
@@ -139,7 +140,9 @@ public class CommandController : ApplicationCommandModule
         throw new NotImplementedException();
     }
 
+    // TODO: JR - change to @ commands for the bot so non-admins can't see them
     // TODO: JR - allow only in given channels
+    // TODO: JR - disable these when the competition starts for integrity.
     [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
                               //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
@@ -153,12 +156,18 @@ public class CommandController : ApplicationCommandModule
         throw new NotImplementedException();
     }
 
-    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
+    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request, bool allowDuringCompeition = true)
     {
         DiscordWebhookBuilder editBuilder = new DiscordWebhookBuilder();
 
         try
         {
+            if (allowDuringCompeition is false && General.HasCompetitionStarted)
+            {
+                editBuilder.WithContent(CannotRunCammandAfterCompetitionStartMessage);
+                return;
+            }
+
             if (await SendKeepAliveMessage(ctx) is false)
             {
                 // Could not establish a connection to the discord channel. So we do not attempt to set a message for a response. 
@@ -200,7 +209,7 @@ public class CommandController : ApplicationCommandModule
         }
         finally
         {
-            if (!string.IsNullOrEmpty(editBuilder.Content))
+            if (string.IsNullOrEmpty(editBuilder.Content) is false)
             {
                 await ctx.EditResponseAsync(editBuilder);
             }

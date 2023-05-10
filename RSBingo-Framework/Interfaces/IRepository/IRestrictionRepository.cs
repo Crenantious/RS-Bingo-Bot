@@ -2,15 +2,16 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Interfaces.IRepository
-{
-    using RSBingo_Framework.Models;
+namespace RSBingo_Framework.Interfaces.IRepository;
 
-    /// <summary>
-    /// Interface detailing use of <see cref="Restriction"/>as a repository.
-    /// </summary>
-    public interface IRestrictionRepository : IRepository<Restriction>
-    {
-        public Restriction Create(string description);
-    }
+using RSBingo_Framework.Models;
+
+/// <summary>
+/// Interface detailing use of <see cref="Restriction"/>as a repository.
+/// </summary>
+public interface IRestrictionRepository : IRepository<Restriction>
+{
+    public Restriction Create(string name, string description);
+
+    public Restriction? GetByName(string name);
 }

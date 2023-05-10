@@ -30,6 +30,7 @@ public static class DataFactory
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
     private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
     private const string UseNpgsqlKey = "UseNpgsql";
+    private const string WhitelistedDomains = "WhitelistedDomains";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -41,7 +42,7 @@ public static class DataFactory
     private static DiscordChannel pendingEvidenceChannel = null!;
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
-    private static DiscordChannel leaderboardEvidenceChannel = null!;
+    private static DiscordChannel leaderboardChannel = null!;
 
     private static bool enableBoardCustomisation;
 
@@ -77,7 +78,7 @@ public static class DataFactory
     /// <summary>
     /// Gets the "leaderboard" channel.
     /// </summary>
-    public static DiscordChannel LeaderboardChannel => leaderboardEvidenceChannel;
+    public static DiscordChannel LeaderboardChannel => leaderboardChannel;
 
     /// <summary>
     /// Gets whether or not team boards should be customisable.
@@ -89,37 +90,9 @@ public static class DataFactory
     /// </summary>
     public static bool UseNpgsql => useNpgsql;
 
-    /// <summary>
-    /// Setup the data factory ready to process requests for data connections.
-    /// </summary>
-    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
-    public static void SetupDataFactory(bool asMockDB = false)
-    {
-        dataIsMock = asMockDB;
-        connectionString = Config_GetConnection(DBKey) !;
+    // HACK: Remove this.
+    private static string mockName = string.Empty;
 
-        schemaName = Config_GetConnection(SchemaKey) !;
-
-        if (string.IsNullOrEmpty(schemaName))
-        {
-            schemaName = DefaultSchema;
-        }
-
-        if (!asMockDB)
-        {
-            // Not needed in tests.
-            discordToken = Config_Get(DiscordTokenKey) !;
-            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
-            pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
-            verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
-            rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
-            leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
-
-            enableBoardCustomisation = bool.Parse(Config_Get("EnableBoardCustomisation"));
-
-            useNpgsql = bool.Parse(Config_Get(UseNpgsqlKey));
-        }
-    }
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
@@ -147,10 +120,59 @@ public static class DataFactory
         if (dataIsMock)
         {
             imdRoot ??= new InMemoryDatabaseRoot();
-            builder.UseInMemoryDatabase(mockName, imdRoot);
+            DataFactory.mockName = mockName ?? DataFactory.mockName;
+            builder.UseInMemoryDatabase(DataFactory.mockName, imdRoot);
         }
 
         RSBingoContext dbContext = new (builder.Options);
         return new DataWorker(dbContext, LoggingInstance<DataWorker>());
+    }
+
+    /// <summary>
+    /// Setup the data factory ready to process requests for data connections.
+    /// </summary>
+    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
+    public static void SetupDataFactory(bool asMockDB = false)
+    {
+        InitializeDB(asMockDB);
+
+        InitializeWhitelistedDomains();
+
+        if (asMockDB is false) { InitializeDiscordComponents(); }
+    }
+
+    private static void InitializeDB(bool asMockDB)
+    {
+        dataIsMock = asMockDB;
+
+        useNpgsql = Config_Get<bool>(UseNpgsqlKey);
+
+        connectionString = Config_GetConnection(DBKey)!;
+
+        schemaName = Config_GetConnection(SchemaKey)!;
+
+        if (string.IsNullOrEmpty(schemaName))
+        {
+            schemaName = DefaultSchema;
+        }
+    }
+
+    private static void InitializeWhitelistedDomains()
+    {
+        List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomains);
+        WhitelistChecker.Initialize(whitelistedDomains);
+    }
+
+    private static void InitializeDiscordComponents()
+    {
+        // Not needed in tests.
+        discordToken = Config_Get<string>(DiscordTokenKey)!;
+        guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))!).GetGuildAsync(Config_Get<ulong>(GuildIdKey)).Result;
+        pendingEvidenceChannel = guild.GetChannel(Config_Get<ulong>(PendingEvidenceChannelIdKey));
+        verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
+        rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
+        leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
+
+        enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
     }
 }

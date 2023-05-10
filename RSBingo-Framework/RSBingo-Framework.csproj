@@ -44,4 +44,8 @@
     <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Imaging\" />
+  </ItemGroup>
+
 </Project>

@@ -26,6 +26,7 @@ public static class AssemblyInitializer
 
         ConfigurationBuilder configuration = new ();
         configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), false);
+        configuration.AddUserSecrets(typeof(AssemblyInitializer).Assembly, false);
 
         builder.RegisterInstance(configuration.Build()).As<IConfiguration>();
 
