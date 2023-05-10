@@ -33,12 +33,12 @@ public static class General
 
 #if DEBUG
             AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
-            resourcesFolderPath = Path.Combine(AppRootPath, "Resources");
 #endif
 
 #if RELEASE
-                AppRootPath = AppPath;
+            AppRootPath = AppPath;
 #endif
+            resourcesFolderPath = Path.Combine(AppRootPath, "Resources");
         }
         catch (Exception)
         {
@@ -261,7 +261,7 @@ public static class General
     /// <param name="taskName">The name of the task to get the path for.</param>
     /// <returns>The image path.</returns>
     public static string GetTaskImagePath(string taskName) =>
-        GetPath(Path.Combine(AppRootPath, TaskImageFolder), taskName + ImageExtension);
+        Path.Combine(resourcesFolderPath, TaskImageFolder, taskName + ImageExtension);
 
     /// <summary>
     /// Gets the image path of the board. Creates the directory where they are stored if it does not exist.
@@ -269,14 +269,14 @@ public static class General
     /// <param name="teamName">The name of the team to get the path for.</param>
     /// <returns>The image path.</returns>
     public static string GetBoardImagePath(string teamName) =>
-        GetPath(Path.Combine(resourcesFolderPath, TeamBoardFolder), teamName + ImageExtension);
+        Path.Combine(resourcesFolderPath, TeamBoardFolder, teamName + ImageExtension);
 
     /// <summary>
     /// Gets the image path of the base board. Creates the directory where it are stored if it does not exist.
     /// </summary>
     /// <returns>The image path.</returns>
     public static string GetBaseBoardImagePath() =>
-        GetPath(resourcesFolderPath, BaseBoardPath + ImageExtension);
+        Path.Combine(resourcesFolderPath, BaseBoardPath + ImageExtension);
 
     public static bool ValidateImage(string imagePath)
     {
@@ -291,10 +291,5 @@ public static class General
             General.LoggingLog(ex, ex.Message);
             return false;
         }
-    }
-
-    private static string GetPath(string folderPath, string fileName)
-    {
-        return Path.Combine(folderPath, fileName);
     }
 }
