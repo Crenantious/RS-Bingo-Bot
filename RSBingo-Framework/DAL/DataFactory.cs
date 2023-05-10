@@ -29,7 +29,8 @@ public static class DataFactory
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
     private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
-    
+    private const string UseNpgsqlKey = "UseNpgsql";
+
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
     private static string connectionString = string.Empty;
@@ -43,6 +44,8 @@ public static class DataFactory
     private static DiscordChannel leaderboardEvidenceChannel = null!;
 
     private static bool enableBoardCustomisation;
+
+    private static bool useNpgsql;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -82,6 +85,11 @@ public static class DataFactory
     public static bool EnableBoardCustomisation => enableBoardCustomisation;
 
     /// <summary>
+    /// Gets whether or not PostGreSQL should be used. MySQL will be used if not.
+    /// </summary>
+    public static bool UseNpgsql => useNpgsql;
+
+    /// <summary>
     /// Setup the data factory ready to process requests for data connections.
     /// </summary>
     /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
@@ -108,6 +116,8 @@ public static class DataFactory
             leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
 
             enableBoardCustomisation = bool.Parse(Config_Get("EnableBoardCustomisation"));
+
+            useNpgsql = bool.Parse(Config_Get(UseNpgsqlKey));
         }
     }
 
@@ -118,12 +128,20 @@ public static class DataFactory
     /// <returns>The data worker object defined as an interface.</returns>
     public static IDataWorker CreateDataWorker(string? mockName = null)
     {
-            DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
+        DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
-                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            if (UseNpgsql)
+            {
+                builder.UseNpgsql(connectionString,
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            }
+            else
+            {
+                builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            }
         }
 
         if (dataIsMock)

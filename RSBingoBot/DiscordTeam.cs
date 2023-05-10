@@ -183,7 +183,7 @@ public class DiscordTeam
         using (var fs = new FileStream(imageName, FileMode.Open, FileAccess.Read))
         {
             imageMessage = await BoardChannel.SendMessageAsync(new DiscordMessageBuilder()
-                .WithFile("Team board.png", fs));
+                .AddFile("Team board.png", fs));
         }
 
         var boardImageEmbed = new DiscordEmbedBuilder()
@@ -234,7 +234,12 @@ public class DiscordTeam
         ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(GetId(submitEvidenceButtonId), info);
         ComponentInteractionHandler.Register<SubmitDropButtonHandler>(GetId(submitDropButtonId), info);
         ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(GetId(viewEvidenceButtonId), info);
+
+#if DEBUG
+
         ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(GetId(clearEvidenceButtonId), info);
         ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(GetId(completeNextTileEvidenceButtonId), info);
+
+#endif
     }
 }

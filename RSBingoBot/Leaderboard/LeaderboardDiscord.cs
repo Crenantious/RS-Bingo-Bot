@@ -46,6 +46,6 @@ public class LeaderboardDiscord
         FileStream fs = new(leaderboardImageFileName, FileMode.Open);
 
         imageMessage = await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .WithFile(fs));
+            .AddFile(fs));
     }
 }

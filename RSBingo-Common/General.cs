@@ -24,24 +24,27 @@ public static class General
 
     private static string resourcesFolderPath;
 
-    static General()
-    {
-        try
+        static General()
         {
-            AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly() !.Location) !;
-            AppName = Assembly.GetEntryAssembly().GetName().Name;
+            try
+            {
+                AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+                AppName = Assembly.GetEntryAssembly().GetName().Name;
 
-            // TODO: add the path for release version.
 #if DEBUG
             AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
             resourcesFolderPath = Path.Combine(AppRootPath, "Resources");
 #endif
+
+#if RELEASE
+                AppRootPath = AppPath;
+#endif
+            }
+            catch (Exception)
+            {
+                if (string.IsNullOrEmpty(AppName)) { AppName = "Unspecified"; }
+            }
         }
-        catch (Exception)
-        {
-            AppName = "Unspecified";
-        }
-    }
 
     /// <summary>
     /// Gets or sets dependency Injection object built during app startup.
@@ -117,12 +120,13 @@ public static class General
         string netCoreVer = System.Environment.Version.ToString();
         string runtimeVer = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 
-        LoggingLog(
-            $"Logging Startup{Environment.NewLine}" +
-            $"Application: {AppName}{Environment.NewLine}" +
-            $"Path: {AppPath}{Environment.NewLine}" +
-            $"CoreVer: {netCoreVer}{Environment.NewLine}" +
-            $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
+            LoggingLog(
+                $"Logging Startup{Environment.NewLine}" +
+                $"Application: {AppName}{Environment.NewLine}" +
+                $"Path: {AppPath}{Environment.NewLine}" +
+                $"Root path: {AppRootPath}{Environment.NewLine}" +
+                $"CoreVer: {netCoreVer}{Environment.NewLine}" +
+                $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
 
         LoggingLog("Logging Startup");
     }
