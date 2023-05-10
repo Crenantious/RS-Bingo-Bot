@@ -38,6 +38,6 @@ namespace RSBingo_Framework
             Path.Combine(AppRootPath, fileName);
 
         private static string GetImagePath(string name) =>
-            GetFilePath("Tile images\\" + name);
+            GetFilePath("Resources/Task images/" + name);
     }
 }

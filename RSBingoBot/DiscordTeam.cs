@@ -89,7 +89,7 @@ public class DiscordTeam
         };
 
         CreateTeamEntry(channelAndMessageIds);
-        await UpdateBoardMessage(BoardImage.CreateBoard(team));
+        await UpdateBoardMessage(BoardImage.Create(team));
 
         CommonInitialisation();
     }

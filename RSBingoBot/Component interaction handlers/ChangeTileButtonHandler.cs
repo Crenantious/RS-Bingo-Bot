@@ -14,6 +14,7 @@ using RSBingo_Framework.Records;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Imaging;
 using Select_Component;
+using SixLabors.ImageSharp;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 
@@ -256,14 +257,14 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
 
     private async Task UpdateBoard()
     {
-        BoardImage.UpdateTile(Team!, (int)fromTileInfo.BoardIndexAtSelection!, toTileInfo.TaskAtSelection!);
+        Image teamBoard = BoardImage.UpdateTile(fromTileInfo.Tile!);
 
-        if (toTileInfo.BoardIndexAtSelection != null)
+        if (toTileInfo.Tile != null)
         {
-            BoardImage.UpdateTile(Team!, (int)toTileInfo.BoardIndexAtSelection, fromTileInfo.TaskAtSelection);
+            BoardImage.UpdateTile(fromTileInfo.Tile!);
         }
 
-        await RSBingoBot.DiscordTeam.UpdateBoard(Team!, BoardImage.GetTeamBoard(Team!));
+        await RSBingoBot.DiscordTeam.UpdateBoard(Team!, teamBoard);
     }
 
     private async Task SubmitButtonInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
