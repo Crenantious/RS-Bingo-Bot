@@ -26,9 +26,9 @@ public class MockDBSetup
 
     public static void TestInitializeDB(TestContext testContext) { TestInitializeDB(testContext.FullTestName()); }
 
-    public static Team Add_Team(IDataWorker dataWorker, string name = "Test", ulong channelID = 0, ulong boardMessageID = 0)
+    public static Team Add_Team(IDataWorker dataWorker, string name = "Test")
     {
-        Team team = dataWorker.Teams.Create(name, channelID, boardMessageID);
+        Team team = dataWorker.Teams.Create(name, 0, 0, 0, 0, 0, 0);
 
         dataWorker.SaveChanges();
         return team;
@@ -67,14 +67,6 @@ public class MockDBSetup
 
         dataWorker.SaveChanges();
         return bingoTask;
-    }
-
-    public static Team Add_Team(IDataWorker dataWorker, string name)
-    {
-        Team team = dataWorker.Teams.Create(name, 0, 0);
-
-        dataWorker.SaveChanges();
-        return team;
     }
 
     private static void TestInitializeDB(string name)

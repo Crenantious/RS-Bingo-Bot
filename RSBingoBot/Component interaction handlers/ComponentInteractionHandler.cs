@@ -13,14 +13,21 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot;
 using RSBingoBot.Discord_event_handlers;
+using static RSBingoBot.InteractionMessageUtilities;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>
 /// Handles the callback when a component is interacted with.
 /// </summary>
+//TODO: refactor. This is horrible.
 public abstract class ComponentInteractionHandler : IDisposable
 {
+    protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";
+    protected const string NotOnATeamMessage = "You are not on a team.";
+    protected const string AlreadyInteractingMessage = "You are already interacting with another component.";
+
     private static readonly Dictionary<string, (Type, InitialisationInfo)> RegisteredComponentIds = new();
+    private static readonly Dictionary<DiscordUser, HashSet<Type>> UserActiveInstances = new();
     private static readonly List<ComponentInteractionHandler> Instances = new();
     private static readonly ComponentInteractionDEH componentInteractionDEH = null!;
     private static readonly MessageCreatedDEH messageCreatedDEH = null!;
@@ -61,7 +68,22 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// if the user that interacted with the component is not found in the database.
     /// </summary>
     protected abstract bool ContinueWithNullUser { get; }
+
+    /// <summary>
+    /// Automatically creates a response to the interaction so that it does not time out.
+    /// </summary>
     protected abstract bool CreateAutoResponse { get; }
+
+    /// <summary>
+    /// If false and the user has a active instance with another component,
+    /// a response will be generated notifying them and this interaction will be concluded.
+    /// </summary>
+    protected virtual bool AllowInteractionWithAnotherComponent { get; } = false;
+
+    /// <summary>
+    /// Automatically registers the interaction for use with <see cref="AllowInteractionWithAnotherComponent"/>.
+    /// </summary>
+    protected virtual bool AutoRegisterInteraction { get; } = true;
 
     /// <summary>
     /// Gets a value indicating whether or not the interaction should continue
@@ -140,55 +162,67 @@ public abstract class ComponentInteractionHandler : IDisposable
         (Type, InitialisationInfo) info = RegisteredComponentIds[args.Interaction.Data.CustomId];
         ComponentInteractionHandler? instance = (ComponentInteractionHandler?)Activator.CreateInstance(info.Item1);
 
-        if (instance != null)
-        {
-            User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
-            Team? team = info.Item2.Team != null ?
-                instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
-                null;
-
-            if (user == null)
-            {
-                if (!instance.ContinueWithNullUser)
-                {
-                    // TODO: notify admins of this and tell the user they have been notified
-                    throw new NullReferenceException("User is not in the database.");
-                }
-            }
-
-            if (info.Item2.Team != null)
-            {
-                if (instance.TeamMustExist && team == null)
-                {
-                    // TODO: notify admins of this and tell the user they have been notified
-                    throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
-                }
-
-                if (instance.UserMustBeInTeam)
-                {
-                    if (team == null || user.Team != team)
-                    {
-                        var builder = new DiscordInteractionResponseBuilder()
-                            .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
-                            .AsEphemeral();
-                        await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-                        return;
-                    }
-                }
-            }
-
-            Instances.Add(instance);
-            instance.Client = discordClient;
-            instance.CustomId = args.Interaction.Data.CustomId;
-            instance.User = user;
-            instance.Team = team;
-            await ComponentInteracted(instance, discordClient, args,
-                (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
-        }
-        else
+        if (instance == null)
         {
             // Log error
+            return;
         }
+
+        if (instance.AllowInteractionWithAnotherComponent is false &&
+            UserActiveInstances.ContainsKey(args.User) &&
+            UserActiveInstances[args.User].Any())
+        {
+            await Respond(args, AlreadyInteractingMessage, true);
+            return;
+        }
+
+        User? user = instance.DataWorker.Users.GetByDiscordId(args.User.Id);
+        Team? team = info.Item2.Team != null ?
+            instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
+            null;
+
+        if (user == null)
+        {
+            if (!instance.ContinueWithNullUser)
+            {
+                // TODO: notify admins of this and tell the user they have been notified
+                throw new NullReferenceException("User is not in the database.");
+            }
+        }
+
+        if (info.Item2.Team != null)
+        {
+            if (instance.TeamMustExist && team == null)
+            {
+                // TODO: notify admins of this and tell the user they have been notified
+                throw new NullReferenceException($"The team with name {instance.Info.Team.Name} does not exist in the database.");
+            }
+
+            if (instance.UserMustBeInTeam)
+            {
+                if (team == null || user.Team != team)
+                {
+                    var builder = new DiscordInteractionResponseBuilder()
+                        .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")
+                        .AsEphemeral();
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                    return;
+                }
+            }
+        }
+
+        Instances.Add(instance);
+
+        instance.Client = discordClient;
+        instance.CustomId = args.Interaction.Data.CustomId;
+        instance.User = user;
+        instance.Team = team;
+        instance.OriginalInteractionArgs = args;
+        instance.Info = info.Item2;
+        if (instance.AutoRegisterInteraction) { instance.RegisterUserInstance(); }
+
+        await ComponentInteracted(instance, discordClient, args,
+            (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
     }
 
     /// <summary>
@@ -197,11 +231,7 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// <param name="args">Event args of the component that was interacted with.</param>
     /// <param name="info">Info relating to the handler and the component it is registered to.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-    public async virtual Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
-    {
-        OriginalInteractionArgs = args;
-        Info = info;
-    }
+    public async virtual Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info) { }
 
     #region DEH subscription wrappers
 
@@ -339,6 +369,16 @@ public abstract class ComponentInteractionHandler : IDisposable
         await ComponentInteracted(this, Client, args, callback, ephemeralResponse, responseContent);
     }
 
+    protected void RegisterUserInstance()
+    {
+        DiscordUser user = OriginalInteractionArgs.User;
+        if (UserActiveInstances.ContainsKey(user) is false)
+        {
+            UserActiveInstances[user] = new();
+        }
+        UserActiveInstances[user].Add(GetType());
+    }
+
     /// <summary>
     /// Checks if a user is on a team in the database. Then possibly post a response should that
     /// fail to meet the <paramref name="shouldBeOnATeam"/> requirement.
@@ -359,8 +399,8 @@ public abstract class ComponentInteractionHandler : IDisposable
 
         string content = (user, shouldBeOnATeam) switch
         {
-            (null, true) => "You are not on a team.",
-            (not null, false) => "You are already on a team. Contact an admin if you would like to be removed from it.",
+            (null, true) => NotOnATeamMessage,
+            (not null, false) => AlreadyOnATeamMessage,
             _ => string.Empty,
         };
 
@@ -377,11 +417,6 @@ public abstract class ComponentInteractionHandler : IDisposable
         return true;
     }
 
-    protected async Task NotifyAdmins(string message)
-    {
-        // TODO: notify admins
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Cleans up messages and unsubscribes all subscribed callbacks from
@@ -416,6 +451,11 @@ public abstract class ComponentInteractionHandler : IDisposable
         foreach (var modalSubscriptionInfo in subscribedModalInfo)
         {
             modalSubmittedDEH.UnSubscribe(modalSubscriptionInfo.Item1, modalSubscriptionInfo.Item2);
+        }
+
+        if (UserActiveInstances.ContainsKey(OriginalInteractionArgs.User))
+        {
+            UserActiveInstances[OriginalInteractionArgs.User].Remove(GetType());
         }
     }
 

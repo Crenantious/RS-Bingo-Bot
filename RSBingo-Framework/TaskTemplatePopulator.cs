@@ -2,42 +2,43 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework
+// TODO: Use resources folder from General.
+
+namespace RSBingo_Framework;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static RSBingo_Common.General;
+
+public class TaskTemplatePopulator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using static RSBingo_Common.General;
-
-    public class TaskTemplatePopulator
+    public static void Run()
     {
-        public static void Run()
+        Dictionary<string, string[]> difficultyToTask = new() {
+            { "Easy", Array.Empty<string>() },
+            { "Medium", Array.Empty<string>() },
+            { "Hard", Array.Empty<string>() } };
+
+        string text = string.Empty;
+
+        foreach (string difficulty in difficultyToTask.Keys)
         {
-            Dictionary<string, string[]> difficultyToTask = new() {
-                { "Easy", Array.Empty<string>() },
-                { "Medium", Array.Empty<string>() },
-                { "Hard", Array.Empty<string>() } };
+            IEnumerable<string?>? files = Directory.GetFiles(GetImagePath(difficulty), "*.png")
+                .Select(Path.GetFileNameWithoutExtension);
 
-            string text = string.Empty;
-
-            foreach (string difficulty in difficultyToTask.Keys)
+            foreach (string? fileName in files)
             {
-                IEnumerable<string?>? files = Directory.GetFiles(GetImagePath(difficulty), "*.png")
-                    .Select(Path.GetFileNameWithoutExtension);
-
-                foreach (string? fileName in files)
-                {
-                    if (fileName == null) { continue; }
-                    text += $"{fileName}, {difficulty.ToLower()}, 1{Environment.NewLine}";
-                }
+                if (fileName == null) { continue; }
+                text += $"{fileName}, {difficulty.ToLower()}, 1{Environment.NewLine}";
             }
-            File.WriteAllText(GetFilePath("Tasks template.csv"), text);
         }
-
-        public static string GetFilePath(string fileName) =>
-            Path.Combine(AppRootPath, fileName);
-
-        private static string GetImagePath(string name) =>
-            GetFilePath("Tile images\\" + name);
+        File.WriteAllText(GetFilePath("Tasks template.csv"), text);
     }
+
+    public static string GetFilePath(string fileName) =>
+        Path.Combine(AppRootPath, fileName);
+
+    private static string GetImagePath(string name) =>
+        GetFilePath("Resources/Task images/" + name);
 }

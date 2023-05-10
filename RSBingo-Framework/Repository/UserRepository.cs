@@ -52,7 +52,7 @@ namespace RSBingo_Framework.Repository
             GetAll();
 
         public bool Exists(ulong discordId) =>
-            GetByDiscordId(discordId) == null;
+            GetByDiscordId(discordId) != null;
 
         public int ChangeTeam(User user, string newTeam)
         {

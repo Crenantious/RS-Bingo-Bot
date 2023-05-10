@@ -24,7 +24,7 @@ using static RSBingo_Framework.DAL.DataFactory;
 public class CommandController : ApplicationCommandModule
 {
     private const string TestTeamName = "Test";
-    private const string ProcessingResponse = "Processing response.";
+    private const string ProcessingRequest = "Processing request.";
     private const string UnknownError = "An unknown error occurred.";
     private const string CannotRunCammandAfterCompetitionStartMessage = "This command cannot be run after the competition has started.";
 
@@ -222,7 +222,7 @@ public class CommandController : ApplicationCommandModule
         {
             var builder = new DiscordInteractionResponseBuilder()
                 .AsEphemeral()
-                .WithContent(ProcessingResponse);
+                .WithContent(ProcessingRequest);
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
 

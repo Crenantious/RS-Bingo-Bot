@@ -73,8 +73,8 @@ namespace RSBingoBot
             {
                 DiscordTeam discordTeam = new (discordClient, team.Name);
                 await discordTeam.InitialiseAsync(team);
+                await DiscordTeam.UpdateBoard(team, BoardImage.GetBoard(team));
             }
-            await BoardImage.CreateAndUpdateAllTeamBoards();
         }
     }
 }

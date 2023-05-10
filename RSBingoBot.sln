@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingo-Framework", "RSBing
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA49AD74-CEDE-45FC-B372-144D37BBDC80}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
+		RSBingoBot\Dockerfile = RSBingoBot\Dockerfile
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingo-Common", "RSBingo-Common\RSBingo-Common.csproj", "{4ACFB456-EB3E-4661-BE42-1EEA165407DE}"

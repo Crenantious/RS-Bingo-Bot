@@ -25,11 +25,17 @@ public class LeaderboardDiscord
 
     private static async Task UpdateLeaderboard(TeamScore teamScore)
     {
-        await semaphore.WaitAsync();
+        try
+        {
+            await semaphore.WaitAsync();
 
-        // Recreating the board each time is very inefficient but the system does not need to be fast.
-        await PostLeaderboard(Create());
-        semaphore.Release();
+            // Recreating the board each time is very inefficient but the system does not need to be fast.
+            await PostLeaderboard(Create());
+        }
+        finally
+        {
+            semaphore.Release();
+        }
     }
 
     private static async Task PostLeaderboard(Image leaderboard)
@@ -37,9 +43,9 @@ public class LeaderboardDiscord
         DiscordMessage imageMessage;
         leaderboard.SaveAsPng(leaderboardImageFileName);
 
-        using (var fs = new FileStream(leaderboardImageFileName, FileMode.Open))
+        FileStream fs = new(leaderboardImageFileName, FileMode.Open);
 
         imageMessage = await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .WithFile(fs));
+            .AddFile(fs));
     }
 }

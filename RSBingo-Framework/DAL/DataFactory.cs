@@ -13,7 +13,6 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
 
-
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
 /// </summary>
@@ -29,6 +28,8 @@ public static class DataFactory
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
+    private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
+    private const string UseNpgsqlKey = "UseNpgsql";
     private const string WhitelistedDomains = "WhitelistedDomains";
 
     // Static vars for holding connection info
@@ -42,6 +43,10 @@ public static class DataFactory
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
     private static DiscordChannel leaderboardChannel = null!;
+
+    private static bool enableBoardCustomisation;
+
+    private static bool useNpgsql;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -71,14 +76,48 @@ public static class DataFactory
     public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;
 
     /// <summary>
-    /// Gets the "rejected-evidence" channel.
+    /// Gets the "leaderboard" channel.
     /// </summary>
     public static DiscordChannel LeaderboardChannel => leaderboardChannel;
 
+    /// <summary>
+    /// Gets whether or not team boards should be customisable.
+    /// </summary>
+    public static bool EnableBoardCustomisation => enableBoardCustomisation;
+
+    /// <summary>
+    /// Gets whether or not PostGreSQL should be used. MySQL will be used if not.
+    /// </summary>
+    public static bool UseNpgsql => useNpgsql;
+
+    /// <summary>
+    /// Setup the data factory ready to process requests for data connections.
+    /// </summary>
+    /// <param name="asMockDB">Flag if this factory should act as a MockDB.</param>
+    public static void SetupDataFactory(bool asMockDB = false)
+    {
+        dataIsMock = asMockDB;
+        connectionString = Config_GetConnection(DBKey) !;
 
     // HACK: Remove this.
     private static string mockName = string.Empty;
 
+
+        if (!asMockDB)
+        {
+            // Not needed in tests.
+            discordToken = Config_Get(DiscordTokenKey) !;
+            guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))).GetGuildAsync(ulong.Parse(Config_Get(GuildIdKey))).Result;
+            pendingEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(PendingEvidenceChannelIdKey)));
+            verifiedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(VerifiedEvidenceChannelIdKey)));
+            rejectedEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(RejectedEvidenceChannelIdKey)));
+            leaderboardEvidenceChannel = guild.GetChannel(ulong.Parse(Config_Get(LeaderboardChannelIdKey)));
+
+            enableBoardCustomisation = bool.Parse(Config_Get("EnableBoardCustomisation"));
+
+            useNpgsql = bool.Parse(Config_Get(UseNpgsqlKey));
+        }
+    }
 
     /// <summary>
     /// Creates a new instance of a DataWorker.
@@ -91,8 +130,16 @@ public static class DataFactory
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
-                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            if (UseNpgsql)
+            {
+                builder.UseNpgsql(connectionString,
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            }
+            else
+            {
+                builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            }
         }
 
         if (dataIsMock)

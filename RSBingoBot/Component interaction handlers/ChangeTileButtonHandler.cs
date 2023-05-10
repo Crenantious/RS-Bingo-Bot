@@ -4,9 +4,6 @@
 
 namespace RSBingoBot.Component_interaction_handlers;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -20,7 +17,6 @@ using Select_Component;
 using SixLabors.ImageSharp;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
-using static RSBingo_Framework.Records.TileRecord;
 
 // TODO: JR - make it so when someone is interacting with the button, no-one else can. This prevents conflicts.
 
@@ -32,8 +28,8 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
     private const string PageOptionPrefix = "Page ";
     private const string NoTaskName = "No task";
 
-    private TileInfo fromTileInfo;
-    private TileInfo toTileInfo;
+    private TileInfo fromTileInfo = null!;
+    private TileInfo toTileInfo = null!;
 
     private string submitButtonId = string.Empty;
     private DiscordButtonComponent submitButton = null!;
@@ -235,8 +231,8 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
 
         if (!selectComponent.SelectOptions.Any())
         {
-            throw new ComponentInteractionHandlerException("No tasks were found.", OriginalInteractionArgs, true,
-                    ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse);
+            throw new ComponentInteractionHandlerException("No tasks were found to be put on the board.", OriginalInteractionArgs, true,
+                    ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
         }
         
         selectComponent.Build();
@@ -261,14 +257,14 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
 
     private async Task UpdateBoard()
     {
-        BoardImage.UpdateTile(Team!, (int)fromTileInfo.BoardIndexAtSelection!, toTileInfo.TaskAtSelection!);
+        Image teamBoard = BoardImage.UpdateTile(fromTileInfo.Tile!);
 
-        if (toTileInfo.BoardIndexAtSelection != null)
+        if (toTileInfo.Tile != null)
         {
-            BoardImage.UpdateTile(Team!, (int)toTileInfo.BoardIndexAtSelection, fromTileInfo.TaskAtSelection);
+            BoardImage.UpdateTile(fromTileInfo.Tile!);
         }
 
-        await RSBingoBot.DiscordTeam.UpdateBoard(Team!, BoardImage.GetTeamBoard(Team!));
+        await RSBingoBot.DiscordTeam.UpdateBoard(Team!, teamBoard);
     }
 
     private async Task SubmitButtonInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)
