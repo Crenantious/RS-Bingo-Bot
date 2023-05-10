@@ -74,21 +74,21 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("evidence");
 
-            entity.HasIndex(e => e.DiscordUserId, "DiscordUserID");
+            entity.HasIndex(e => e.DiscordUserId, "discorduserid");
 
-            entity.HasIndex(e => e.TileId, "TileID");
+            entity.HasIndex(e => e.TileId, "tileid");
 
-            entity.Property(e => e.RowId).HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("rowid");
 
-            entity.Property(e => e.DiscordUserId).HasColumnName("DiscordUserID");
+            entity.Property(e => e.DiscordUserId).HasColumnName("discorduserid");
 
-            entity.Property(e => e.TileId).HasColumnName("TileID");
+            entity.Property(e => e.TileId).HasColumnName("tileid");
 
-            entity.Property(e => e.EvidenceType).HasColumnName("Type");
+            entity.Property(e => e.EvidenceType).HasColumnName("type");
 
             entity.Property(e => e.Url)
                 .HasMaxLength(255)
-                .HasColumnName("URL");
+                .HasColumnName("url");
 
             entity.HasOne(d => d.DiscordUser)
                 .WithMany(p => p.Evidence)
@@ -110,10 +110,10 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.HasIndex(e => e.Description, "Name")
+            entity.HasIndex(e => e.Description, "name")
                 .IsUnique();
 
-            entity.Property(e => e.RowId).HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("rowid");
 
             entity.Property(e => e.Description).HasMaxLength(50);
         });
@@ -125,7 +125,7 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("task");
 
-            entity.Property(e => e.RowId).HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("rowid");
 
             entity.Property(e => e.Name).HasMaxLength(50);
 
@@ -143,9 +143,9 @@ public partial class RSBingoContext : DbContext
 
                         j.HasIndex(new[] { "RestrictionId" }, "Constr_TaskRestriction_Restriction_fk");
 
-                        j.IndexerProperty<int>("TaskId").HasColumnName("TaskID");
+                        j.IndexerProperty<int>("TaskId").HasColumnName("taskid");
 
-                        j.IndexerProperty<int>("RestrictionId").HasColumnName("RestrictionID");
+                        j.IndexerProperty<int>("RestrictionId").HasColumnName("restrictionid");
                     });
         });
 
@@ -156,19 +156,21 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("team");
 
-            entity.Property(e => e.RowId).HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("rowid");
 
-            entity.Property(e => e.CategoryChannelId).HasColumnName("CategoryChannelID");
+            entity.Property(e => e.Name).HasColumnName("name");
 
-            entity.Property(e => e.BoardChannelId).HasColumnName("BoardChannelID");
+            entity.Property(e => e.CategoryChannelId).HasColumnName("categorychannelid");
 
-            entity.Property(e => e.GeneralChannelId).HasColumnName("GeneralChannelID");
+            entity.Property(e => e.BoardChannelId).HasColumnName("boardchannelid");
 
-            entity.Property(e => e.VoiceChannelId).HasColumnName("VoiceChannelID");
+            entity.Property(e => e.GeneralChannelId).HasColumnName("generalchannelid");
 
-            entity.Property(e => e.RoleId).HasColumnName("RoleID");
+            entity.Property(e => e.VoiceChannelId).HasColumnName("voicechannelid");
 
-            entity.Property(e => e.BoardMessageId).HasColumnName("BoardMessageID");
+            entity.Property(e => e.RoleId).HasColumnName("roleid");
+
+            entity.Property(e => e.BoardMessageId).HasColumnName("boardmessageid");
 
             entity.Property(e => e.Name).HasMaxLength(50);
         });
@@ -186,13 +188,17 @@ public partial class RSBingoContext : DbContext
             entity.HasIndex(e => new { e.BoardIndex, e.TeamId }, "BoardIndex_team_relationship")
                 .IsUnique();
 
-            entity.Property(e => e.RowId).HasColumnName("RowID");
+            entity.Property(e => e.RowId).HasColumnName("rowid");
 
-            entity.Property(e => e.TaskId).HasColumnName("TaskID");
+            entity.Property(e => e.TaskId).HasColumnName("taskid");
 
-            entity.Property(e => e.TeamId).HasColumnName("TeamID");
+            entity.Property(e => e.TeamId).HasColumnName("teamid");
 
-            entity.Property(e => e.BoardIndex).HasColumnName("BoardIndex");
+            entity.Property(e => e.BoardIndex).HasColumnName("boardindex");
+
+            entity.Property(e => e.IsVerified).HasColumnName("isverified");
+
+            entity.Property(e => e.IsComplete).HasColumnName("iscomplete");
 
             entity.HasOne(d => d.Task)
                 .WithMany(p => p.Tiles)
@@ -214,13 +220,13 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("user");
 
-            entity.HasIndex(e => e.TeamId, "TeamID");
+            entity.HasIndex(e => e.TeamId, "teamid");
 
             entity.Property(e => e.DiscordUserId)
                 .ValueGeneratedNever()
-                .HasColumnName("DiscordUserID");
+                .HasColumnName("discorduserid");
 
-            entity.Property(e => e.TeamId).HasColumnName("TeamID");
+            entity.Property(e => e.TeamId).HasColumnName("teamid");
 
             entity.HasOne(d => d.Team)
                 .WithMany(p => p.Users)

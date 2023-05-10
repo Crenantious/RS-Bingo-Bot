@@ -183,7 +183,7 @@ public class DiscordTeam
         using (var fs = new FileStream(imageName, FileMode.Open, FileAccess.Read))
         {
             imageMessage = await BoardChannel.SendMessageAsync(new DiscordMessageBuilder()
-                .WithFile("Team board.png", fs));
+                .AddFile("Team board.png", fs));
         }
 
         var boardImageEmbed = new DiscordEmbedBuilder()

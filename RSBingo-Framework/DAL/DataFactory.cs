@@ -118,11 +118,11 @@ public static class DataFactory
     /// <returns>The data worker object defined as an interface.</returns>
     public static IDataWorker CreateDataWorker(string? mockName = null)
     {
-            DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
+        DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
         if (!dataIsMock && !builder.IsConfigured)
         {
-            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+            builder.UseNpgsql(connectionString,
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
 

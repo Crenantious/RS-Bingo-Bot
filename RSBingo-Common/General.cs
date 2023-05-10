@@ -27,14 +27,13 @@ namespace RSBingo_Common
                 AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly() !.Location) !;
                 AppName = Assembly.GetEntryAssembly().GetName().Name;
 
-                // TODO: add the path for release version.
 #if DEBUG
                 AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
 #endif
             }
             catch (Exception)
             {
-                AppName = "Unspecified";
+                AppName = AppName ?? "Unspecified";
             }
         }
 
@@ -120,6 +119,11 @@ namespace RSBingo_Common
                 $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
 
             LoggingLog("Logging Startup");
+
+            LoggingLog((Assembly.GetEntryAssembly() == null).ToString());
+            LoggingLog(Assembly.GetEntryAssembly().FullName);
+            LoggingLog(Assembly.GetEntryAssembly().GetName().FullName);
+            LoggingLog(Assembly.GetEntryAssembly().GetName().Name);
         }
 
         /// <summary>
