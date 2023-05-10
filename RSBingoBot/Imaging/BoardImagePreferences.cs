@@ -79,7 +79,7 @@ internal static class BoardPreferences
     /// <summary>
     /// The path of the font.
     /// </summary>
-    public static string FontPath => Path.Combine(AppPath, "Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
+    public static string FontPath => Path.Combine(AppRootPath, "Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
 
     /// <summary>
     /// Gets the size of the font.

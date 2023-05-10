@@ -24,16 +24,20 @@ namespace RSBingo_Common
         {
             try
             {
-                AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly() !.Location) !;
+                AppPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
                 AppName = Assembly.GetEntryAssembly().GetName().Name;
 
 #if DEBUG
                 AppRootPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName;
 #endif
+
+#if RELEASE
+                AppRootPath = AppPath;
+#endif
             }
             catch (Exception)
             {
-                AppName = AppName ?? "Unspecified";
+                if (string.IsNullOrEmpty(AppName)) { AppName = "Unspecified"; }
             }
         }
 
@@ -115,15 +119,11 @@ namespace RSBingo_Common
                 $"Logging Startup{Environment.NewLine}" +
                 $"Application: {AppName}{Environment.NewLine}" +
                 $"Path: {AppPath}{Environment.NewLine}" +
+                $"Root path: {AppRootPath}{Environment.NewLine}" +
                 $"CoreVer: {netCoreVer}{Environment.NewLine}" +
                 $"RuntimeVer: {runtimeVer}{Environment.NewLine}");
 
             LoggingLog("Logging Startup");
-
-            LoggingLog((Assembly.GetEntryAssembly() == null).ToString());
-            LoggingLog(Assembly.GetEntryAssembly().FullName);
-            LoggingLog(Assembly.GetEntryAssembly().GetName().FullName);
-            LoggingLog(Assembly.GetEntryAssembly().GetName().Name);
         }
 
         /// <summary>

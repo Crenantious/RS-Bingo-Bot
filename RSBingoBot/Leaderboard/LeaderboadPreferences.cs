@@ -21,7 +21,7 @@ internal static class LeaderboadPreferences
     public static int TextPaddingWidth => 10;
     public static int TextPaddingHeight => 5;
 
-    private static string FontPath = Path.Combine(AppPath, "Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
+    private static string FontPath = Path.Combine(AppRootPath, "Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
     private static int FontSize = 18;
     private static FontStyle Style = FontStyle.Bold;
 
