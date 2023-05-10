@@ -9,6 +9,7 @@ WORKDIR /src
 COPY ["RSBingoBot/RSBingoBot.csproj", "RSBingoBot/"]
 COPY ["RSBingo-Common/RSBingo-Common.csproj", "RSBingo-Common/"]
 COPY ["RSBingo-Framework/RSBingo-Framework.csproj", "RSBingo-Framework/"]
+ADD  Resources /app/Resources
 RUN dotnet restore "RSBingoBot/RSBingoBot.csproj"
 COPY . .
 WORKDIR "/src/RSBingoBot"
@@ -20,4 +21,5 @@ RUN dotnet publish "RSBingoBot.csproj" -c Release -o /app/publish /p:UseAppHost=
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=build /src/Resources ./Resources
 ENTRYPOINT ["dotnet", "RSBingoBot.dll"]
