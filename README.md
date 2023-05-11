@@ -22,7 +22,9 @@ Before proceeding, ensure you have the following software installed:
 Follow these steps to build the Docker image for RSBingoBot:
 
 1. Open a terminal (Command Prompt, PowerShell, or a Unix-based terminal).
+
 2. Navigate to the root folder of the RSBingoBot repository where the `Dockerfile` is located.
+
 3. Run the following command to build the Docker image:
 
 ```bash
@@ -51,9 +53,9 @@ services:
 
 Note: Replace YourTimeZone and HostPath with appropriate values. As well as 1.X.X with the correct version.
 
-the appsettings.Production.json file should not be in the repositoy. It should held elsewhere.
+The appsettings.Production.json file should not be in the repositoy; it should held elsewhere.
 
-The appsettings.Production.json should look like the following
+The appsettings.Production.json should look like the following:
 
 ```json
 
@@ -110,7 +112,7 @@ The appsettings.Production.json should look like the following
 
 ```
 
-note: GuildId, PendingEvidenceChannelId, VerifiedEvidenceChannelId, RejectedEvidenceChannelId, LeaderboardChannelId are ulongs. so should not be wrapped as a string.
+Note: GuildId, PendingEvidenceChannelId, VerifiedEvidenceChannelId, RejectedEvidenceChannelId, LeaderboardChannelId are ulongs; these should not be wrapped as a string.
 
 This docker-compose.yml should not be in the repository, it should be saved elsewhere.
 

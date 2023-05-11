@@ -13,11 +13,11 @@ We use the OpenCover format to enable usage of tools like SonarQube.
 
 ## SonarQube
 
-### Rrerequisites
+### Prerequisites
 
 1. Install Java 17 
 
-2. Install sonarscanner, which can be done using the following command
+2. Install sonarscanner, which can be done using the following command:
 
 ```bash
 dotnet tool install --global dotnet-sonarscanner 
@@ -25,24 +25,24 @@ dotnet tool install --global dotnet-sonarscanner
 
 ### Installing 
 
-Donwload the link from the following https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.0.0.68432.zip
+Download the following: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.0.0.68432.zip
 
-Execute your OS spesific StartSonar with bin/OS/StartSonar.xyz
+Execute your OS specific StartSonar with bin/OS/StartSonar.xyz
 
-i.e /bin/windows-x86-64/StartSonar.bat on windows
+I.e `/bin/windows-x86-64/StartSonar.bat on Windows`
 
 
 ### Setting up the project for the first time
 
-Go to: Go to: http://localhost:9000/
+1. Go to: `http://localhost:9000/`.
 
-Login with the default credentials, you will then be prompted to enter a new password.
+2. Login with the default credentials, you will then be prompted to enter a new password.
 
-Add a new manual project
+3. Add a new manual project.
 
-Generate your Key and secret token. Keep these in a scret place.
+4. Generate your key and secret token. Keep these in a secret place.
 
-Run in the terminal
+5. Run the following:
 
 ```bash
 dotnet sonarscanner begin /k:"<YourKey>" /d:sonar.host.url="http://localhost:9000"  /d:sonar.token="<YourToken>"
@@ -56,13 +56,15 @@ dotnet sonarscanner end /d:sonar.login="<YourToken>"
 This will be your inital import.
 
 
-### Adding coverage report and code changes
+### Adding coverage reports and code changes
 
-Every time you SonarQube to run a report, do the following.
+Every time you want to generate a new SonarQube report, do the following:
 
-1. Make sure the project compiles and all unit tests pass. Use the "[Ignore]" attribute on failing tests if you cannot get it to pass.
-2. Run a coverage report as descirbed in: Generating a Coverage Report
-3. Run the following scripts
+1. Make sure the project compiles and all unit tests pass. Use the "[Ignore]" attribute on failing tests if you cannot get them to pass.
+
+2. Run a coverage report as described in: Generating a Coverage Report.
+
+3. Run the following scripts:
 
 ```bash
 
