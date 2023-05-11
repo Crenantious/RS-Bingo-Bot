@@ -2,7 +2,14 @@
 
 ## About This Project
 
-RSBingoBot is a containerized application designed to provide (TODO: provide a brief description of what the bot does). This repository contains the application's source code, Dockerfile for containerization, and instructions for building and running the application.
+This is a bot that is designed to help automate bingo-styled events.
+
+Features:
+- Create, update and delete teams both on Discord and for a database.
+- A customisable board for each team. Team's can choose from tiles specified in the database, and bonus points can be configured for completed sections.
+- Evidence submission and viewing (tile eligibility and completion).
+- Evidence verification and rejection.
+- Automatic leader board updates. 
 
 ## Prerequisites
 
@@ -42,7 +49,9 @@ services:
       - "<HostPath>/appsettings.Production.json:/app/appsettings.Production.json"
 ```
 
-Note: Replace <YourTimeZone> and <HostPath> with appropriate values. As well as 1.X.X with the correct version.
+Note: Replace YourTimeZone and HostPath with appropriate values. As well as 1.X.X with the correct version.
+
+the appsettings.Production.json file should not be in the repositoy. It should held elsewhere.
 
 The appsettings.Production.json should look like the following
 
@@ -66,6 +75,7 @@ The appsettings.Production.json should look like the following
     "Schema": "xxx"
   },
 
+  // This is the recommended 
   "Serilog": {
     "MinimumLevel": "Debug",
     "WriteTo": [
@@ -87,31 +97,25 @@ The appsettings.Production.json should look like the following
     ]
   },
 
-  "BotToken": YourBotToken,
-  "GuildId": ID,
+  "BotToken": "YourBotToken",
+  "GuildId": "YourGuildId",
 
   "UseNpgsql" : false, // Defaults to mySQL when false, uses postgresql when true.
 
-  "PendingEvidenceChannelId": ID,
-  "VerifiedEvidenceChannelId": ID,
-  "RejectedEvidenceChannelId": ID,
-  "LeaderboardChannelId": ID,
+  "PendingEvidenceChannelId": "YourPendingEvidenceChannelId",
+  "VerifiedEvidenceChannelId": "YourVerifiedEvidenceChannelId",
+  "RejectedEvidenceChannelId": "YourRejectedEvidenceChannelId",
+  "LeaderboardChannelId": "YourLeaderboardChannelId",
 }
 
 ```
 
-After creating and configuring the docker-compose.yml file, run the following command to deploy the container:
+note: GuildId, PendingEvidenceChannelId, VerifiedEvidenceChannelId, RejectedEvidenceChannelId, LeaderboardChannelId are ulongs. so should not be wrapped as a string.
+
+This docker-compose.yml should not be in the repository, it should be saved elsewhere.
+
+After creating and configuring the docker-compose.yml file, run the following command, in the directory of the docker-compose.yml file to deploy the container:
 
 ```bash
 docker-compose up -d
 ```
-
-## Generating a Coverage Report
-
-To generate a coverage report, navigate to the /RS-Bingo-Bot/RSBingo-Framework-Tests directory and run the following command:
-
-```bash
-dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='./Coverage/coverage'
-```
-
-We use the OpenCover format to enable usage of tools like SonarQube.
