@@ -38,3 +38,6 @@ Doc-*.xml
 
 # Ignore coverage reports for the RSBingo-Framework-Tests
 /RSBingo-Framework-Tests/Coverage/*
+
+# Ignore sonarqube config
+/.sonarqube/*
