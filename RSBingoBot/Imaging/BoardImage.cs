@@ -8,16 +8,18 @@ using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using static RSBingo_Common.General;
+using static RSBingo_Common.Paths;
 using static RSBingoBot.Imaging.BoardPreferences;
 
 internal static class BoardImage
 {
     private static Image baseBoard;
+    private static Image tileCompletedMarker;
 
     static BoardImage()
     {
-        baseBoard = Image.Load(GetBaseBoardImagePath());
+        baseBoard = Image.Load(BaseBoardPath);
+        tileCompletedMarker = Image.Load(TileCompletedMarkerPath);
     }
 
     public static Image Create(Team team)
@@ -48,7 +50,7 @@ internal static class BoardImage
 
     public static Image UpdateTile(Tile tile)
     {
-        string teamBoardPath = GetBoardImagePath(tile.Team.Name);
+        string teamBoardPath = GetTeamBoardPath(tile.Team.Name);
         Image teamBoard = Image<Rgba32>.Load(teamBoardPath);
         return UpdateTile(teamBoard, tile);
     }
@@ -60,9 +62,16 @@ internal static class BoardImage
         board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
     }
 
+    public static void MarkTileComplete(Image board, Tile tile)
+    {
+        Rectangle tileRect = GetTileRect(tile.BoardIndex);
+        Point markerPosition = new(tileRect.X + tileRect.Width / 2, tileRect.Y + tileRect.Height / 2);
+        board.Mutate(b => b.DrawImage(tileCompletedMarker, markerPosition, 1));
+    }
+
     public static Image GetBoard(Team team)
     {
-        string teamBoardPath = GetBoardImagePath(team.Name);
+        string teamBoardPath = GetTeamBoardPath(team.Name);
         return File.Exists(teamBoardPath) ? Image<Rgba32>.Load(teamBoardPath) : baseBoard.Clone(b => { });
     }
 

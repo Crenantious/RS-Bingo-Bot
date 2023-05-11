@@ -17,13 +17,6 @@ using Serilog.Events;
 /// </summary>
 public static class General
 {
-    private const string TaskImageFolder = "Task images";
-    private const string TeamBoardFolder = "Team boards";
-    private const string BaseBoardPath = "Base board";
-    private const string ImageExtension = ".png";
-
-    private static string resourcesFolderPath;
-
     static General()
     {
         try
@@ -38,7 +31,6 @@ public static class General
 #if RELEASE
             AppRootPath = AppPath;
 #endif
-            resourcesFolderPath = Path.Combine(AppRootPath, "Resources");
         }
         catch (Exception)
         {
@@ -185,20 +177,16 @@ public static class General
     /// </summary>
     /// <param name="logdata">The data being checked.</param>
     /// <returns>The escaped version of the given log entry.</returns>
-    public static string LoggingEscape(string logdata)
-    {
-        return System.Security.SecurityElement.Escape(logdata);
-    }
+    public static string LoggingEscape(string logdata) =>
+        System.Security.SecurityElement.Escape(logdata);
 
     /// <summary>
     /// Manual creation of the logging instance.
     /// </summary>
     /// <typeparam name="T">The type of logger to create.</typeparam>
     /// <returns>The static instance.</returns>
-    public static ILogger<T> LoggingInstance<T>()
-    {
-        return DI.GetService<ILogger<T>>()!;
-    }
+    public static ILogger<T> LoggingInstance<T>() =>
+        DI.GetService<ILogger<T>>()!;
 
     /// <summary>
     /// Read a value from the configuration system from the connection key.
@@ -254,29 +242,6 @@ public static class General
 
         return values;
     }
-
-    /// <summary>
-    /// Gets the image path of the task. Creates the directory where they are stored if it does not exist.
-    /// </summary>
-    /// <param name="taskName">The name of the task to get the path for.</param>
-    /// <returns>The image path.</returns>
-    public static string GetTaskImagePath(string taskName) =>
-        Path.Combine(resourcesFolderPath, TaskImageFolder, taskName + ImageExtension);
-
-    /// <summary>
-    /// Gets the image path of the board. Creates the directory where they are stored if it does not exist.
-    /// </summary>
-    /// <param name="teamName">The name of the team to get the path for.</param>
-    /// <returns>The image path.</returns>
-    public static string GetBoardImagePath(string teamName) =>
-        Path.Combine(resourcesFolderPath, TeamBoardFolder, teamName + ImageExtension);
-
-    /// <summary>
-    /// Gets the image path of the base board. Creates the directory where it are stored if it does not exist.
-    /// </summary>
-    /// <returns>The image path.</returns>
-    public static string GetBaseBoardImagePath() =>
-        Path.Combine(resourcesFolderPath, BaseBoardPath + ImageExtension);
 
     public static bool ValidateImage(string imagePath)
     {
