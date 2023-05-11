@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework_Tests;
 
+using RSBingo_Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,7 @@ using static RSBingo_Common.General;
 public static class AssemblyInitializer
 {
     [AssemblyInitialize]
-    public static void AssemblyinItialize(TestContext context)
+    public static void AssemblyInitialize(TestContext context)
     {
         context.WriteLine("Building DI/DB");
         ServiceCollection services = new ();
@@ -33,5 +34,7 @@ public static class AssemblyInitializer
         DI = new AutofacServiceProvider(builder.Build());
 
         MockDBSetup.SetupDataFactory();
+
+        Paths.Initialise(true);
     }
 }

@@ -8,12 +8,11 @@ using RSBingo_Framework.CSV;
 using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Exceptions;
 using RSBingo_Framework_Tests.DTO;
 using RSBingo_Framework_Tests.CSV.LocalServer;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.CSV.Lines.AddOrRemoveTasksCSVLine;
-using Microsoft.AspNetCore.Server.HttpSys;
-using RSBingo_Framework.Exceptions;
 
 [TestClass]
 public class AddTasksCSVOperatorTests : MockDBBaseTestClass
@@ -178,9 +177,13 @@ public class AddTasksCSVOperatorTests : MockDBBaseTestClass
 
     #region Private
 
-    private void CreateAndParseTasksInCSVFile(params TaskInfo[] tasks) =>
+    private void CreateAndParseTasksInCSVFile(params TaskInfo[] tasks)
+    {
+
         parsedCSVData = CSVReaderTestHelper.CreateAndParseCSVFile<AddTasksCSVLine>(tasks.Select(t =>
             $"{t.Name}, {t.Difficulty}, {t.Amount}, {t.ImageURL}").ToArray());
+        BingoTasksCSVOperatorTestHelper.TasksToCleanUp = tasks.Select(t => t.Name);
+    }
 
     private void Operate() =>
         csvOperator.Operate(parsedCSVData);

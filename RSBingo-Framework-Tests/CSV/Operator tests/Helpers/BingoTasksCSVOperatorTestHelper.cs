@@ -7,10 +7,12 @@ namespace RSBingo_Framework_Tests.CSV;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework_Tests.DTO;
-using static RSBingo_Common.General;
+using static RSBingo_Common.Paths;
 
 public static class BingoTasksCSVOperatorTestHelper
 {
+    public static IEnumerable<string> TasksToCleanUp { get; set; } = Enumerable.Empty<string>();
+
     public static void CreateTasksInDB(IDataWorker dataWorker, params TaskInfo[] tasks)
     {
         foreach (TaskInfo task in tasks)
@@ -36,13 +38,10 @@ public static class BingoTasksCSVOperatorTestHelper
 
     public static void TestCleanup(params TaskInfo[] tasks)
     {
-        foreach (TaskInfo task in tasks)
+        foreach (string task in TasksToCleanUp)
         {
-            if (task.ImageURL is not null)
-            {
-                try { File.Delete(GetTaskImagePath(task.Name)); }
-                catch { }
-            }
+            try { File.Delete(GetTaskImagePath(task)); }
+            catch { }
         }
     }
 }
