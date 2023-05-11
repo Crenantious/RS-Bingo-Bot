@@ -22,6 +22,10 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0-preview.3.23174.8" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />

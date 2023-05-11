@@ -6,7 +6,7 @@ namespace RSBingo_Common;
 
 using static General;
 
-public class Paths
+public static class Paths
 {
     private const string ImageExtension = ".png";
 

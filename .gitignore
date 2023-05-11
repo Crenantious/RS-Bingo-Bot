@@ -1,13 +1,40 @@
+# Ignore Visual Basic project cache files
 *.vbproj.CoreCompileInputs.cache
+
+# Ignore SQLite database files
 *.sqlite
+
+# Ignore the binary output folder
 bin/
+
+# Ignore the object files (intermediate build files)
 obj/
+
+# Ignore Visual Studio user specific files like user options and server-side metadata
 .vs/
 *.vbproj.user
 *.csproj.user
+
+# Ignore Visual Studio binary user options file
 *.suo
+
+# Ignore Visual Basic Workspaces (VBW files are used to save the current state of the IDE)
 *.vbw
+
+# Ignore Visual Studio version control cache file
 *.vspscc
+
+# Ignore Windows image thumbnail caches
 Thumbs.db
+
+# Ignore StyleCop cache file
 Stylecop.Cache
+
+# Ignore XML documentation output
 Doc-*.xml
+
+# Ignore specific test resources in the RS-Bingo-Bot project
+/RS-Bingo-Bot/Resources/Test/*
+
+# Ignore coverage reports for the RSBingo-Framework-Tests
+/RS-Bingo-Bot/RSBingo-Framework-Tests/Coverage/*
