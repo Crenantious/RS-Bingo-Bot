@@ -15,7 +15,7 @@ We use the OpenCover format to enable usage of tools like SonarQube.
 
 ### Prerequisites
 
-1. Install Java 17 
+1. Install Java 17 .
 
 2. Install sonarscanner, which can be done using the following command:
 
@@ -64,7 +64,7 @@ Every time you want to generate a new SonarQube report, do the following:
 
 2. Run a coverage report as described in: Generating a Coverage Report.
 
-3. Run the following scripts:
+3. Run the following:
 
 ```bash
 
