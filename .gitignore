@@ -34,7 +34,7 @@ Stylecop.Cache
 Doc-*.xml
 
 # Ignore specific test resources in the RS-Bingo-Bot project
-/RS-Bingo-Bot/Resources/Test/*
+/Resources/Test/*
 
 # Ignore coverage reports for the RSBingo-Framework-Tests
-/RS-Bingo-Bot/RSBingo-Framework-Tests/Coverage/*
+/RSBingo-Framework-Tests/Coverage/*
