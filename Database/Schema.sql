@@ -24,6 +24,7 @@ CREATE TABLE Task (
 
 CREATE TABLE Restriction (
     RowID int PRIMARY KEY AUTO_INCREMENT,
+    Name varchar(50) NOT NULL,
     Description varchar(50) NOT NULL UNIQUE
 );
 

@@ -16,7 +16,7 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
-    private const string UnpermittedURLExceptionMessage = "The given URL: {0} is not a part of a white listed domain.";
+    private const string UnpermittedURLExceptionMessage = "The given URL is not from a white-listed domain: {0}.";
     private const string UnableToReachWebstieExceptionMessage = "Unable to reach the given website: {0}.";
 
     public AddTasksCSVOperator(IDataWorker dataWorker)
@@ -60,7 +60,7 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
         {
             if (WhitelistChecker.IsUrlWhitelisted(line.TaskUrl.Value) is false)
             {
-                throw new UnpermittedURLException(UnableToReachWebstieExceptionMessage.FormatConst(line.TaskUrl.Value));
+                throw new UnpermittedURLException(UnpermittedURLExceptionMessage.FormatConst(line.TaskUrl.Value));
             }
 
             // TODO: Make this a subroutine to attempt to download multiple times should it fail. Throw after a given number of failures.
@@ -69,7 +69,7 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
         }
         catch (WebException)
         {
-            throw new UnableToReachWebsiteException(UnableToReachWebstieExceptionMessage);
+            throw new UnableToReachWebsiteException(UnableToReachWebstieExceptionMessage.FormatConst(line.TaskUrl.Value));
         }
 
         return null;

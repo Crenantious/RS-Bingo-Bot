@@ -9,7 +9,7 @@ using RSBingo_Framework.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using static RSBingoBot.InteractionMessageUtilities;
+using static RSBingoBot.MessageUtilities;
 
 /// <summary>
 /// Handles the interaction with the "Join team" button.

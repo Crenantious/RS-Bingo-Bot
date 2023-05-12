@@ -110,12 +110,12 @@ public partial class RSBingoContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.HasIndex(e => e.Description, "name")
+            entity.HasIndex(e => e.Name, "name")
                 .IsUnique();
 
             entity.Property(e => e.RowId).HasColumnName("rowid");
 
-            entity.Property(e => e.Description).HasMaxLength(50);
+            entity.Property(e => e.Description).HasColumnName("description").HasMaxLength(50);
         });
 
         modelBuilder.Entity<BingoTask>(entity =>

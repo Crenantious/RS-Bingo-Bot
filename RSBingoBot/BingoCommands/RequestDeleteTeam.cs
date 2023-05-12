@@ -57,7 +57,7 @@ public class RequestDeleteTeam : RequestBase
             return true;
         }
 
-        ResponseMessage = CouldNotFindTeamError.FormatConst(teamName);
+        SetResponseMessage(CouldNotFindTeamError.FormatConst(teamName));
         return false;
     }
 

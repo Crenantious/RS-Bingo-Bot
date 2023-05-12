@@ -15,7 +15,7 @@ using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.DAL.DataFactory;
-using static RSBingoBot.InteractionMessageUtilities;
+using static RSBingoBot.MessageUtilities;
 
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.

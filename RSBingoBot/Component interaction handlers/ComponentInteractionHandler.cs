@@ -13,7 +13,7 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot;
 using RSBingoBot.Discord_event_handlers;
-using static RSBingoBot.InteractionMessageUtilities;
+using static RSBingoBot.MessageUtilities;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>

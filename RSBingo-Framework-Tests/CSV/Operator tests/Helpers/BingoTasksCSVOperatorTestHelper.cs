@@ -8,6 +8,7 @@ using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework_Tests.DTO;
 using static RSBingo_Common.General;
+using static RSBingo_Common.Paths;
 
 public static class BingoTasksCSVOperatorTestHelper
 {

@@ -25,7 +25,7 @@ public abstract class RequestBase
     private protected InteractionContext Ctx;
     private protected IDataWorker DataWorker;
 
-    public string ResponseMessage { get; private protected set; }
+    public IEnumerable<string> ResponseMessage { get; private set; } = Enumerable.Empty<string>();
 
     /// <summary>
     /// Constructor.
@@ -78,19 +78,37 @@ public abstract class RequestBase
             errorString.AppendLine($"{permission}");
         }
 
-        ResponseMessage = errorString.ToString();
+        SetResponseMessage(errorString.ToString());
         return false;
+    }
+
+    private protected bool ProcessFailure(IEnumerable<string> failureMessages)
+    {
+        SetResponseMessage(failureMessages);
+        return false;
+    }
+
+    private protected bool ProcessSuccess(IEnumerable<string> successMessages)
+    {
+        SetResponseMessage(successMessages);
+        return true;
     }
 
     private protected bool ProcessFailure(string failureMessage)
     {
-        ResponseMessage = failureMessage;
+        SetResponseMessage(failureMessage);
         return false;
     }
 
     private protected bool ProcessSuccess(string successMessage)
     {
-        ResponseMessage = successMessage;
+        SetResponseMessage(successMessage);
         return true;
     }
+
+    protected void SetResponseMessage(string responseMessage) =>
+        ResponseMessage = new string[] { responseMessage };
+
+    protected void SetResponseMessage(IEnumerable<string> responseMessage) =>
+        ResponseMessage = responseMessage;
 }

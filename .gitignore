@@ -3,6 +3,9 @@
 bin/
 obj/
 .vs/
+Resources/Task images
+Resources/Team boards
+Resources/Test
 *.vbproj.user
 *.csproj.user
 *.suo

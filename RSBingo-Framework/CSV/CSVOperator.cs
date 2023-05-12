@@ -20,43 +20,16 @@ public abstract class CSVOperator<LineType>
     private protected readonly List<string> warningMessages = new();
     private protected IDataWorker DataWorker;
 
-
     public CSVOperator(IDataWorker dataWorker)
     {
         DataWorker = dataWorker;
     }
 
-    /// <summary>
-    /// Gets messages compiled with warnings that occurred while operating on the <see cref="CSVData{LineType}"/>.
-    /// Each message can contain multiple warnings, up to the amount allowed by <paramref name="maxMessageChars"/>.
-    /// </summary>
-    /// <param name="maxMessageChars">The maximum amount of characters each message can contain.
-    /// If adding a warning to a message would exceed this value, warnings will stop being added to that message and a new one will begin.</param>
-    /// <returns>The compiled warning messages.</returns>
-    public IEnumerable<string> GetCompiledWarningMessages(int maxMessageChars)
-    {
-        List<string> compiledMessages = new();
-        if (warnings.Any() is false) { return compiledMessages; }
-
-        IEnumerable<string> remainingWarnings = new List<string>() { WarningMessagesPrefix };
-        remainingWarnings.Concat(warningMessages);
-
-        while (remainingWarnings.Any())
-        {
-            (string compiledMessage, remainingWarnings) = GetFirstCompiledWarningMessage(remainingWarnings, maxMessageChars);
-
-            // This means maxMessageChars is less than the length of the first warning thus none can be added to the message.
-            // Not breaking would cause an infinite loop.
-            if (string.IsNullOrEmpty(compiledMessage)) { break; }
-
-            compiledMessages.Add(compiledMessage);
-        }
-
-        return compiledMessages;
-    }
-
     public IEnumerable<Warning> GetRawWarnings() =>
         new List<Warning>(warnings);
+
+    public IEnumerable<string> GetWarningMessages() =>
+        warningMessages.ToList();
 
     /// <summary>
     /// Performs operations based on the data provided.
@@ -95,7 +68,7 @@ public abstract class CSVOperator<LineType>
     protected void AddWarning<WarningType>(WarningType warning) where WarningType : Warning
     {
         warnings.Add(warning);
-        warningMessages.Add($"{warning.Message} for value {warning.ValueIndex} on line {warning.LineNumber}");
+        warningMessages.Add($"{warning.Message} on line {warning.LineNumber}.");
     }
 
     private void OperateOnLines(CSVData<LineType> data)
@@ -104,19 +77,5 @@ public abstract class CSVOperator<LineType>
         {
             OperateOnLine(line);
         }
-    }
-
-    private (string message, IEnumerable<string> reminingWarnings) GetFirstCompiledWarningMessage(IEnumerable<string> warnings, int maxMessageSize)
-    {
-        StringBuilder warningMessage = new StringBuilder();
-        int warningIndex = -1;
-
-        foreach (string warning in warnings)
-        {
-            if (warningMessage.Length + Environment.NewLine.Length + warning.Length > maxMessageSize) { break; }
-            warningIndex++;
-            warningMessage.AppendLine(warning);
-        }
-        return (warningMessage.ToString(), warnings.Skip(warningIndex));
     }
 }

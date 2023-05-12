@@ -6,6 +6,7 @@ namespace RSBingo_Common;
 
 using System.Collections;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -80,11 +81,14 @@ public static class General
 
     public const int TeamNameMaxLength = 50;
 
+    public const int MaxCharsPerDiscordMessage = 2000;
+
     // TODO: make sure this is false for production.
     /// <summary>
     /// Gets or sets weather or not the competition has started.
     /// </summary>
     public static bool HasCompetitionStarted { get; set; } = true;
+
 
     /// <summary>
     /// Startup logging.

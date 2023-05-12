@@ -8,7 +8,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using RSBingoBot.Discord_event_handlers;
-using static RSBingoBot.InteractionMessageUtilities;
+using static RSBingoBot.MessageUtilities;
 
 /// <summary>
 /// Handles the interaction with the "Create team" button in the team-registration channel.

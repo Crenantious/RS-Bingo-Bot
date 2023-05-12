@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework.Exceptions.CSV;
 
-public class CSVReaderException : Exception
+public class CSVReaderException : RSBingoException
 {
     public CSVReaderException? innerException { get; init; }
 

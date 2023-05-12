@@ -160,7 +160,7 @@ public static class DataFactory
     private static void InitializeWhitelistedDomains()
     {
         List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomains);
-        WhitelistChecker.Initialize(whitelistedDomains);
+        WhitelistChecker.Initialise(whitelistedDomains);
     }
 
     private static void InitializeDiscordComponents()

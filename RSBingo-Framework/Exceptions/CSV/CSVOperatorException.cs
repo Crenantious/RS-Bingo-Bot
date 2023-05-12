@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework.Exceptions.CSV;
 
-public class CSVOperatorException : Exception
+public class CSVOperatorException : RSBingoException
 {
     public CSVOperatorException(string? message) : base(message) { }
 }

@@ -18,7 +18,8 @@ public abstract class CSVLine
 
         if (CSVValues.Count != values.Length)
         {
-            throw new IncorrectNumberOfCSVValuesException($"Expected {CSVValues.Count} values but got {values.Length}");
+            string valuePlural = CSVValues.Count == 1 ? "" : "s";
+            throw new IncorrectNumberOfCSVValuesException($"Expected {CSVValues.Count} value{valuePlural} but got {values.Length}");
         }
 
         LineNumber = lineNumber;
