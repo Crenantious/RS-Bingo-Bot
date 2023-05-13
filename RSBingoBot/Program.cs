@@ -44,6 +44,7 @@ public class Program
             DI = host.Services;
 
             InitaliseScoring();
+            Paths.Initialise();
 
             // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
