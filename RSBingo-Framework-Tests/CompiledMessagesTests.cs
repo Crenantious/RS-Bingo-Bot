@@ -26,7 +26,7 @@ public class CompiledMessagesTests : MockDBBaseTestClass
     [DataRow(new int[] { MaxCharsNoLine, 1 }, new int[] { MaxCharsNoLine, 1 })]
     [DataRow(new int[] { MaxCharsNoLineMinusOne, 1 }, new int[] { MaxChars })]
     [DataRow(new int[] { MaxCharsNoLineMinusOne, 2 }, new int[] { MaxCharsNoLineMinusOne, 2 })]
-    public void CreateNonCSVFile_Parse_GetException(int[] inputMessagesChars, int[] outputMessagesChars)
+    public void CreateMessages_Compile_ValidateResult(int[] inputMessagesChars, int[] outputMessagesChars)
     {
         IEnumerable<string> inputMessages = inputMessagesChars.Select(i => new string('c', i));
 
