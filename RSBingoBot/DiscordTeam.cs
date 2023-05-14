@@ -149,6 +149,8 @@ public class DiscordTeam
 
     private async Task UpdateBoardMessage(Image boardImage)
     {
+        #region buttons
+
         var changeTileButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
             GetId(changeTileButtonId),
@@ -180,25 +182,14 @@ public class DiscordTeam
             "Complete next tile");
 #endif
 
-        string imageName = "Team board.png";
-        boardImage.SaveAsPng(imageName);
+        #endregion
 
-        DiscordMessage imageMessage;
-        using (var fs = new FileStream(imageName, FileMode.Open, FileAccess.Read))
-        {
-            imageMessage = await BoardChannel.SendMessageAsync(new DiscordMessageBuilder()
-                .AddFile("Team board.png", fs));
-        }
-
-        var boardImageEmbed = new DiscordEmbedBuilder()
-        {
-            Title = "Board",
-            ImageUrl = imageMessage.Attachments[0].Url
-        }
-        .Build();
+        string imagePath = Paths.GetTeamBoardPath(Name);
+        boardImage.Save(imagePath);
+        FileStream fs = new(imagePath, FileMode.Open);
 
         var builder = new DiscordMessageBuilder()
-            .WithEmbed(boardImageEmbed);
+            .AddFile(fs);
 
         if (EnableBoardCustomisation)
         {
@@ -213,10 +204,8 @@ public class DiscordTeam
         builder.AddComponents(clearEvidenceButton, completeNextTileButton);
 #endif
 
-        // TODO: JR - get this to work with a file upload instead of an embed since it will look nicer.
-        //.WithFile("Team board.png", fs, true);
         await boardMessage.ModifyAsync(builder);
-        await imageMessage.DeleteAsync();
+        fs.Dispose();
     }
 
     private async Task<ulong> InitialiseBoardChannel()

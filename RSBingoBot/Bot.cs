@@ -2,79 +2,76 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot
+namespace RSBingoBot;
+
+using DSharpPlus;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
+using RSBingoBot.BingoCommands;
+using RSBingoBot.Component_interaction_handlers;
+using RSBingoBot.Leaderboard;
+using static RSBingo_Framework.DAL.DataFactory;
+
+/// <summary>
+/// Class for storing code related to the long running discord bot service.
+/// </summary>
+public class Bot : BackgroundService
 {
-    using DSharpPlus;
-    using DSharpPlus.Interactivity.Extensions;
-    using DSharpPlus.SlashCommands;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using RSBingo_Framework.Interfaces;
-    using RSBingo_Framework.Models;
-    using RSBingoBot.BingoCommands;
-    using RSBingoBot.Component_interaction_handlers;
-    using RSBingoBot.Imaging;
-    using RSBingoBot.Leaderboard;
-    using static RSBingo_Framework.DAL.DataFactory;
+    private readonly ILogger logger;
+    private readonly DiscordClient discordClient;
+    private readonly DiscordTeam.Factory teamFactory;
+    private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
-    /// Class for storing code related to the long running discord bot service.
+    /// Initializes a new instance of the <see cref="Bot"/> class.
     /// </summary>
-    public class Bot : BackgroundService
+    /// <param name="logger">The logger the instance will log to.</param>
+    /// <param name="client">The client the bot will connect to.</param>
+    /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
+    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory)
     {
-        private readonly ILogger logger;
-        private readonly DiscordClient discordClient;
-        private readonly DiscordTeam.Factory teamFactory;
-        private readonly IDataWorker dataWorker = CreateDataWorker();
+        this.logger = logger;
+        this.discordClient = client;
+        this.teamFactory = teamFactory;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Bot"/> class.
-        /// </summary>
-        /// <param name="logger">The logger the instance will log to.</param>
-        /// <param name="client">The client the bot will connect to.</param>
-        /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-        public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory)
+    /// <inheritdoc/>
+    public override async Task StartAsync(CancellationToken stoppingToken)
+    {
+        discordClient.UseInteractivity();
+
+        SlashCommandsExtension slash = discordClient.UseSlashCommands(new SlashCommandsConfiguration()
         {
-            this.logger = logger;
-            this.discordClient = client;
-            this.teamFactory = teamFactory;
-        }
+            Services = General.DI,
+        });
+        slash.RegisterCommands<CommandController>(Guild.Id);
 
-        /// <inheritdoc/>
-        public override async Task StartAsync(CancellationToken stoppingToken)
+        ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
+        ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
+
+        await discordClient.ConnectAsync();
+        await CreateExistingTeams();
+        await LeaderboardDiscord.SetUp();
+    }
+
+    /// <inheritdoc/>
+    public override async Task StopAsync(CancellationToken stoppingToken) =>
+        await discordClient.DisconnectAsync();
+
+    /// <inheritdoc/>
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        => Task.CompletedTask;
+
+    private async Task CreateExistingTeams()
+    {
+        foreach (Team team in dataWorker.Teams.GetTeams())
         {
-            discordClient.UseInteractivity();
-
-            SlashCommandsExtension slash = discordClient.UseSlashCommands(new SlashCommandsConfiguration()
-            {
-                Services = General.DI,
-            });
-            slash.RegisterCommands<CommandController>(Guild.Id);
-
-            ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
-            ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
-
-            await discordClient.ConnectAsync();
-            await CreateExistingTeams();
-            await LeaderboardDiscord.SetUp();
-        }
-
-        /// <inheritdoc/>
-        public override async Task StopAsync(CancellationToken stoppingToken) =>
-            await discordClient.DisconnectAsync();
-
-        /// <inheritdoc/>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
-            => Task.CompletedTask;
-
-        private async Task CreateExistingTeams()
-        {
-            foreach (Team team in dataWorker.Teams.GetTeams())
-            {
-                DiscordTeam discordTeam = new (discordClient, team.Name);
-                await discordTeam.InitialiseAsync(team);
-                await DiscordTeam.UpdateBoard(team, BoardImage.GetBoard(team));
-            }
+            DiscordTeam discordTeam = new (discordClient, team.Name);
+            await discordTeam.InitialiseAsync(team);
         }
     }
 }

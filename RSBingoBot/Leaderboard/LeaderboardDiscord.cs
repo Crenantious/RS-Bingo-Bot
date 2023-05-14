@@ -22,27 +22,23 @@ public class LeaderboardDiscord
 
     private static async Task UpdateLeaderboard(TeamScore teamScore, Tile _)
     {
+        await semaphore.WaitAsync();
 
+        // Recreating the board each time is very inefficient but the system does not need to be fast.
+        Create().Save(leaderboardImageFileName);
+
+        // The file stream is created here so it can be disposed of in the finally block.
+        FileStream fs = new(leaderboardImageFileName, FileMode.Open);
+        
         try
         {
-            await semaphore.WaitAsync();
-
-            // Recreating the board each time is very inefficient but the system does not need to be fast.
-            await PostLeaderboard(Create());
+            await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()
+            .AddFile(fs));
         }
         finally
         {
+            fs.Dispose();
             semaphore.Release();
         }
-    }
-
-    private static async Task PostLeaderboard(Image leaderboard)
-    {
-        DiscordMessage imageMessage;
-        leaderboard.Save(leaderboardImageFileName);
-        FileStream fs = new(leaderboardImageFileName, FileMode.Open);
-
-        imageMessage = await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .AddFile(fs));
     }
 }
