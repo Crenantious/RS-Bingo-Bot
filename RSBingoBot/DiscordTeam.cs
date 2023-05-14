@@ -137,6 +137,7 @@ public class DiscordTeam
     private void CreateTeamEntry(List<ulong> ids)
     {
         team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]);
+        if (EnableBoardCustomisation is false) { team.CreateDefaultTiles(dataWorker); }
         dataWorker.SaveChanges();
     }
 

@@ -2,6 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
+namespace RSBingoBot.BingoCommands;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -9,11 +11,10 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using System.Text;
 
-namespace RSBingoBot.BingoCommands;
-
 /// <summary>
 /// Base class for requests.
 /// </summary>
+// TODO: JR - since this can take a while, make sure each request posts progress messages.
 public abstract class RequestBase
 {
     /// <summary>
@@ -58,7 +59,7 @@ public abstract class RequestBase
     private protected abstract bool ValidateSpecificRequest();
 
     private protected DiscordRole? GetTeamRole(Team team) =>
-        DiscordTeam.GetInstance(team).Role;
+        RSBingoBot.DiscordTeam.GetInstance(team).Role;
 
     private async Task<IEnumerable<Permissions>> GetMissingPermissions()
     {

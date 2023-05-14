@@ -4,8 +4,6 @@
 
 namespace RSBingo_Common;
 
-using static General;
-
 public class Paths
 {
     private const string ImageExtension = ".png";
@@ -16,13 +14,19 @@ public class Paths
         { PathType.Image, ImageExtension }
     };
 
-    private static string resourcesFolder;
-    private static string resourcesTestFolder;
-    private static string taskImageFolder;
-    private static string teamBoardFolder;
+    private static bool isMock;
 
-    public static string BaseBoardPath { get; private set; }
-    public static string TileCompletedMarkerPath { get; private set; }
+    #region PATHS
+
+    public static string ResourcesFolder { get; private set; } = null!;
+    public static string ResourcesTestInputFolder { get; private set; } = null!;
+    public static string ResourcesTestOutputFolder { get; private set; } = null!;
+    public static string TaskImageFolder { get; private set; } = null!;
+    public static string TeamBoardFolder { get; private set; } = null!;
+    public static string BoardBackgroundPath { get; private set; } = null!;
+    public static string TileCompletedMarkerPath { get; private set; } = null!;
+
+#endregion
 
     private enum PathType
     {
@@ -32,25 +36,37 @@ public class Paths
 
     public static void Initialise(bool asMock = false)
     {
-        resourcesFolder = Path.Combine(AppRootPath, "Resources");
-        resourcesTestFolder = GetPath("Test", PathType.Folder);
+        isMock = asMock;
 
-        taskImageFolder = GetPath("Task images", PathType.Folder, asMock);
-        teamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
+        ResourcesFolder = Path.Combine(General.AppRootPath, "Resources");
+        ResourcesTestInputFolder = GetPath("Test input", PathType.Folder);
+        ResourcesTestOutputFolder = GetPath("Test output", PathType.Folder);
 
-        BaseBoardPath = GetPath("Base board", PathType.Image);
+        TaskImageFolder = GetPath("Task images", PathType.Folder, asMock);
+        TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
+
+        BoardBackgroundPath = GetPath("Board background", PathType.Image);
         TileCompletedMarkerPath = GetPath("Tile completed marker", PathType.Image);
     }
 
     public static string GetTaskImagePath(string taskName) =>
-        GetPath(taskImageFolder, taskName, PathType.Image);
+        GetPath(TaskImageFolder, taskName, PathType.Image);
 
     public static string GetTeamBoardPath(string teamName) =>
-        GetPath(teamBoardFolder, teamName, PathType.Image);
+        GetPath(TeamBoardFolder, teamName, PathType.Image);
+
+    /// <summary>
+    /// Gets a path with <see cref="ResourcesFolder"/> as the root,
+    /// or <see cref="ResourcesTestFolder"/> if <see cref="Paths"/> was initialised as a mock.
+    /// </summary>
+    /// <param name="path">The path suffix.</param>
+    /// <returns>The combined path.</returns>
+    public static string FromResources(string path) =>
+        GetPath(path, PathType.Folder, isMock);
 
     private static string GetPath(string pathEnding, PathType pathType, bool isInMockResources = false)
     {
-        string root = isInMockResources ? resourcesTestFolder : resourcesFolder;
+        string root = isInMockResources ? ResourcesTestInputFolder : ResourcesFolder;
         string extension = pathExtension[pathType];
         return Path.Combine(root, pathEnding + extension);
     }

@@ -179,8 +179,12 @@ public class CommandController : ApplicationCommandModule
 
     private static async Task SetResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
     {
-        // Delete the original response as it was just a keep alive message.
-        await ctx.DeleteResponseAsync();
+        try
+        {
+            // Delete the original response as it was just a keep alive message.
+            await ctx.DeleteResponseAsync();
+        }
+        catch { }
 
         DiscordFollowupMessageBuilder builder = new() { IsEphemeral = true };
 

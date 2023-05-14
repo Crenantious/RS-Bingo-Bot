@@ -20,6 +20,7 @@ using static RSBingoBot.MessageUtilities;
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.
 /// </summary>
+// TODO: - refactor. Split into helper classes most likely.
 public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHandler
 {
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
@@ -38,17 +39,18 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
     /// <inheritdoc/>
     protected override bool ContinueWithNullUser { get; } = false;
-    protected override bool CreateAutoResponse { get; } = false;
+    protected override bool CreateAutoResponse { get; } = true;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
     {
         await base.InitialiseAsync(args, info);
 
+        MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
+
         if (Team!.Tiles.Any() is false)
         {
-            //MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
-            await Respond(args, "There are no tiles to submit evidence for.", true);
+            await Followup(args, "There are no tiles to submit evidence for.", true);
             await ConcludeInteraction();
             return;
         }

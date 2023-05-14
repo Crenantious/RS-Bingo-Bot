@@ -5,12 +5,8 @@
 namespace RSBingoBot.Imaging;
 
 using SixLabors.Fonts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static RSBingo_Common.General;
+using static RSBingo_Common.Paths;
 
 internal static class BoardPreferences
 {
@@ -54,23 +50,23 @@ internal static class BoardPreferences
     /// Gets the amount of pixels to move task images inside a tile from the centre, in the x direction.</br>
     /// Negative values moves the image left, positive moves right.
     /// </summary>
-    public static int TaskXOffsetPixels => 0;
+    public const int TaskXOffsetPixels = 0;
 
     /// <summary>
     /// Gets the amount of pixels to move task images inside a tile from the centre, in the y direction.</br>
     /// Negative values moves the image up, positive moves down.
     /// </summary>
-    public static int TaskYOffsetPixels => 40;
+    public const int TaskYOffsetPixels = 30;
 
     /// <summary>
     /// Gets the amount of pixels to pad task images inside a tile, in the x direction, on both sides.
     /// </summary>
-    public static int TaskXPaddingPixels => 5;
+    public const int TaskXPaddingPixels = 5;
 
     /// <summary>
     /// Gets the amount of pixels to pad task images inside a tile, in the y direction, on both sides.
     /// </summary>
-    public static int TaskYPaddingPixels => 5;
+    public const int TaskYPaddingPixels = 5;
 
     #endregion
 
@@ -79,32 +75,32 @@ internal static class BoardPreferences
     /// <summary>
     /// The path of the font.
     /// </summary>
-    public static string FontPath => Path.Combine(AppRootPath, "Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
+    public static string FontPath { get; } = FromResources("Fonts/Champagne & Limousines/Champagne & Limousines Bold.ttf");
 
     /// <summary>
     /// Gets the size of the font.
     /// </summary>
-    public static int FontSize => 18;
+    public const int FontSize = 18;
 
     /// <summary>
     /// Gets the style of the font.
     /// </summary>
-    public static FontStyle Style => FontStyle.Bold;
+    public const FontStyle Style = FontStyle.Bold;
 
     /// <summary>
     /// Gets the amount of pixels to move the text from the top of the tile (additive with <see cref="TextYPaddingPixels"/>).
     /// </summary>
-    public static int TextTopOffsetPixels => 5;
+    public const int TextTopOffsetPixels = 5;
 
     /// <summary>
     /// Gets the amount of pixels to pad text inside a tile in the x direction.
     /// </summary>
-    public static int TextXPaddingPixels => 3;
+    public const int TextXPaddingPixels = 3;
 
     /// <summary>
     /// Gets the amount of pixels to pad text inside a tile in the y direction (additive with <see cref="TextTopOffsetPixels"/>).
     /// </summary>
-    public static int TextYPaddingPixels => 3;
+    public const int TextYPaddingPixels = 3;
 
     #endregion
 }

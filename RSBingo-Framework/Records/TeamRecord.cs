@@ -4,6 +4,8 @@
 
 namespace RSBingo_Framework.Records;
 
+using RSBingo_Common;
+using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
@@ -17,4 +19,19 @@ public static class TeamRecord
     public static bool IsBoardVerfied(this Team team) =>
         team.Tiles.Count == MaxTilesOnABoard &&
         team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
+
+    /// <summary>
+    /// Creates tiles for the team equal to Max(<see cref="General.MaxTilesOnABoard"/>, tasks.Count()). The tasks are ordered by their row id.
+    /// </summary>
+    public static void CreateDefaultTiles(this Team team, IDataWorker dataWorker)
+    {
+        IEnumerable<BingoTask> tasks = dataWorker.BingoTasks.GetAll()
+            .Take(General.MaxTilesOnABoard)
+            .OrderBy(t => t.RowId);
+
+        for (int i = 0; i < tasks.Count(); i++)
+        {
+            dataWorker.Tiles.Create(team, tasks.ElementAt(i), i);
+        }
+    }
 }
