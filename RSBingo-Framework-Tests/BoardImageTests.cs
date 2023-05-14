@@ -49,7 +49,7 @@ public class BoardImageTests : MockDBBaseTestClass
 
     private void CreateTasks()
     {
-        foreach(string imagePath in Directory.GetFiles(Paths.TaskImageFolder))
+        foreach(string imagePath in Directory.GetFiles(Paths.TaskImagesFolder))
         {
             string taskName = imagePath.Split("\\")[^1].Split(".")[^2];
             dataWorker.BingoTasks.Create(taskName, BingoTaskRecord.Difficulty.Easy);

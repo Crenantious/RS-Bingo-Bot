@@ -4,6 +4,7 @@ bin/
 obj/
 .vs/
 Resources/Task images
+Resources/Task images resized
 Resources/Team boards
 Resources/Test output
 *.vbproj.user

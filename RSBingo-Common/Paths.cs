@@ -16,17 +16,18 @@ public class Paths
 
     private static bool isMock;
 
-    #region PATHS
+    #region Paths
 
     public static string ResourcesFolder { get; private set; } = null!;
     public static string ResourcesTestInputFolder { get; private set; } = null!;
     public static string ResourcesTestOutputFolder { get; private set; } = null!;
-    public static string TaskImageFolder { get; private set; } = null!;
+    public static string TaskImagesResizedFolder { get; private set; } = null!;
+    public static string TaskImagesFolder { get; private set; } = null!;
     public static string TeamBoardFolder { get; private set; } = null!;
     public static string BoardBackgroundPath { get; private set; } = null!;
     public static string TileCompletedMarkerPath { get; private set; } = null!;
 
-#endregion
+    #endregion
 
     private enum PathType
     {
@@ -41,16 +42,20 @@ public class Paths
         ResourcesFolder = Path.Combine(General.AppRootPath, "Resources");
         ResourcesTestInputFolder = GetPath("Test input", PathType.Folder);
         ResourcesTestOutputFolder = GetPath("Test output", PathType.Folder);
-
-        TaskImageFolder = GetPath("Task images", PathType.Folder, asMock);
+        
+        TaskImagesFolder = GetPath("Task images", PathType.Folder, asMock);
+        TaskImagesResizedFolder = GetPath("Task images resized", PathType.Folder, asMock);
         TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
 
         BoardBackgroundPath = GetPath("Board background", PathType.Image);
         TileCompletedMarkerPath = GetPath("Tile completed marker", PathType.Image);
     }
 
-    public static string GetTaskImagePath(string taskName) =>
-        GetPath(TaskImageFolder, taskName, PathType.Image);
+    public static string GetTaskImagesPath(string taskName) =>
+        GetPath(TaskImagesFolder, taskName, PathType.Image);
+
+    public static string GetTaskImagesResizedPath(string taskName) =>
+        GetPath(TaskImagesResizedFolder, taskName, PathType.Image);
 
     public static string GetTeamBoardPath(string teamName) =>
         GetPath(TeamBoardFolder, teamName, PathType.Image);

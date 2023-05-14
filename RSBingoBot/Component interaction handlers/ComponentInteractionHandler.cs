@@ -75,6 +75,8 @@ public abstract class ComponentInteractionHandler : IDisposable
     /// </summary>
     protected abstract bool CreateAutoResponse { get; }
 
+    protected virtual bool IsAutoResponseEphemeral { get; } = true;
+
     /// <summary>
     /// If false and the user has a active instance with another component,
     /// a response will be generated notifying them and this interaction will be concluded.
@@ -223,7 +225,7 @@ public abstract class ComponentInteractionHandler : IDisposable
         if (instance.AutoRegisterInteraction) { instance.RegisterUserInstance(); }
 
         await ComponentInteracted(instance, discordClient, args,
-            (client, args) => instance.InitialiseAsync(args, info.Item2), false, "Loading...", instance.CreateAutoResponse);
+            (client, args) => instance.InitialiseAsync(args, info.Item2), instance.IsAutoResponseEphemeral, "Loading...", instance.CreateAutoResponse);
     }
 
     /// <summary>

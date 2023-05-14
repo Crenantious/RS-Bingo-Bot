@@ -103,4 +103,18 @@ internal static class BoardPreferences
     public const int TextYPaddingPixels = 3;
 
     #endregion
+
+    #region completion marker
+
+    /// <summary>
+    /// Gets the amount of pixels to pad the completion marker image inside a tile, in the x direction, on both sides.
+    /// </summary>
+    public const int MarkerXPaddingPixels = 20;
+
+    /// <summary>
+    /// Gets the amount of pixels to pad the completion marker image inside a tile, in the y direction, on both sides.
+    /// </summary>
+    public const int MarkerYPaddingPixels = 20;
+
+    #endregion
 }
