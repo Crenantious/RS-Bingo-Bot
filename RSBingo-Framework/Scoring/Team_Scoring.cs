@@ -15,6 +15,6 @@ public partial class Team : IHasScore
 
     public TeamScore TeamScore => teamScore ??= new();
 
-    public void UpdateScore(Tile tile) =>
+    public void UpdateScore(Tile tile, IDataWorker dataWorker) =>
         TeamScore.Update(tile);
 }

@@ -19,7 +19,8 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <summary>
 /// Handles the callback when a component is interacted with.
 /// </summary>
-//TODO: refactor. This is horrible.
+// TODO: refactor. This is horrible.
+// TODO: release the handler instance if there is an exception that cause the interaction to fail.
 public abstract class ComponentInteractionHandler : IDisposable
 {
     protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";

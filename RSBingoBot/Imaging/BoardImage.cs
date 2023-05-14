@@ -65,11 +65,16 @@ public static class BoardImage
         board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
     }
 
-    public static void MarkTileComplete(Image board, Tile tile)
+    public static Image MarkTileComplete(Tile tile)
     {
+        Image board = GetBoard(tile.Team);
         Rectangle tileRect = GetTileRect(tile.BoardIndex);
-        Point markerPosition = new(tileRect.X + tileRect.Width / 2, tileRect.Y + tileRect.Height / 2);
+        Point markerPosition = new(tileRect.X + (tileRect.Width - tileCompletedMarker.Width) / 2,
+            tileRect.Y + (tileRect.Height - tileCompletedMarker.Height) / 2);
+
         board.Mutate(b => b.DrawImage(tileCompletedMarker, markerPosition, 1));
+
+        return board;
     }
 
     public static Image GetBoard(Team team)

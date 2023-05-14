@@ -47,6 +47,6 @@ public static class EvidenceRecord
         e.DiscordUser == user &&
         e.EvidenceType == EvidenceTypeLookup.Get(evidenceType));
 
-    public static IEnumerable<Evidence> GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
-        dataWorker.Evidence.Where(e => e.DiscordMessageId == messageId);
+    public static Evidence? GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
+        dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == messageId);
 }

@@ -6,6 +6,7 @@ namespace RSBingoBot.Leaderboard;
 
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.Models;
 using RSBingo_Framework.Scoring;
 using SixLabors.ImageSharp;
 using static LeaderboardImage;
@@ -16,15 +17,12 @@ public class LeaderboardDiscord
 
     private static SemaphoreSlim semaphore = new(1, 1);
 
-    public static async Task SetUp()
-    {
-        //TODO: JR - remove startup posing when finished with tests
-        await PostLeaderboard(Create());
+    public static async Task SetUp() =>
         TeamScore.ScoreUpdatedEventAsync += UpdateLeaderboard;
-    }
 
-    private static async Task UpdateLeaderboard(TeamScore teamScore)
+    private static async Task UpdateLeaderboard(TeamScore teamScore, Tile _)
     {
+
         try
         {
             await semaphore.WaitAsync();
@@ -41,8 +39,7 @@ public class LeaderboardDiscord
     private static async Task PostLeaderboard(Image leaderboard)
     {
         DiscordMessage imageMessage;
-        leaderboard.SaveAsPng(leaderboardImageFileName);
-
+        leaderboard.Save(leaderboardImageFileName);
         FileStream fs = new(leaderboardImageFileName, FileMode.Open);
 
         imageMessage = await DataFactory.LeaderboardChannel.SendMessageAsync(new DiscordMessageBuilder()

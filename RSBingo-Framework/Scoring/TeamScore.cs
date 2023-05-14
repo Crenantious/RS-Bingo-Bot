@@ -13,7 +13,7 @@ public class TeamScore
 {
     public int Score { get; private set; } = 0;
 
-    public delegate Task AsyncEventData(TeamScore teamScore);
+    public delegate Task AsyncEventData(TeamScore teamScore, Tile tile);
 
     public static event AsyncEventData? ScoreUpdatedEventAsync;
 
@@ -29,7 +29,7 @@ public class TeamScore
 
         if (BoardIndexToBonusPoints.ContainsKey(tile.BoardIndex)) { UpdateBonusPointsAndScore(tile); }
 
-        ScoreUpdatedEventAsync?.Invoke(this);
+        ScoreUpdatedEventAsync?.Invoke(this, tile);
     }
 
     private void UpdateScoreFromDifficulty(Tile tile)

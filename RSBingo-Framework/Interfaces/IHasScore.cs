@@ -14,5 +14,5 @@ public interface IHasScore
 
     public TeamScore TeamScore { get; }
 
-    public void UpdateScore(Tile tile);
+    public void UpdateScore(Tile tile, IDataWorker dataWorker);
 }

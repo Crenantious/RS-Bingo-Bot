@@ -50,9 +50,10 @@ internal class AdminEvidenceReaction
     {
         if (await UserHasAdminPermission(args) is false) { return; }
 
-        IEnumerable<Evidence> evidence = GetByMessageId(dataWorker, args.Message.Id);
+        Evidence? evidence = GetByMessageId(dataWorker, args.Message.Id);
+
         // This means there is no evidence associated with the message that was reacted to.
-        if (evidence.Any() is false) { return; }
+        if (evidence is null) { return; }
 
         ulong newMessageId = await MoveMessageAndAddReaction(args, channel, emoji);
         UpdateEvidenceDB(args, evidence, evidenceStatus, newMessageId);
@@ -75,16 +76,11 @@ internal class AdminEvidenceReaction
         return newMessage.Id;
     }
 
-    private static bool UpdateEvidenceDB(MessageReactionAddEventArgs args, IEnumerable<Evidence> evidence,
+    private static void UpdateEvidenceDB(MessageReactionAddEventArgs args, Evidence evidence,
         EvidenceStatus evidenceStatus, ulong newMessageId)
     {
-        foreach (Evidence e in evidence)
-        {
-            e.Status = (sbyte)evidenceStatus;
-            e.DiscordMessageId = newMessageId;
-        }
+        evidence.Status = (sbyte)evidenceStatus;
+        evidence.DiscordMessageId = newMessageId;
         dataWorker.SaveChanges();
-
-        return true;
     }
 }

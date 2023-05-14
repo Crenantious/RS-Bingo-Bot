@@ -14,6 +14,8 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using SixLabors.ImageSharp;
 using static RSBingo_Framework.DAL.DataFactory;
+using static RSBingoBot.Imaging.BoardImage;
+using RSBingo_Framework.Scoring;
 
 /// <summary>
 /// Creates and sets up channels, roles and messages for the team.
@@ -60,6 +62,7 @@ public class DiscordTeam
     {
         Name = name;
         this.discordClient = discordClient;
+        TeamScore.ScoreUpdatedEventAsync += MarkTileCompleted;
     }
 
     public static async Task UpdateBoard(Team team, Image boardImage) =>
@@ -243,4 +246,7 @@ public class DiscordTeam
 
 #endif
     }
+
+    private static async Task MarkTileCompleted(TeamScore _, Tile tile) =>
+        await UpdateBoard(tile.Team, BoardImage.MarkTileComplete(tile));
 }
