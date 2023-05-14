@@ -5,7 +5,7 @@ obj/
 .vs/
 Resources/Task images
 Resources/Team boards
-Resources/Test input
+Resources/Test output
 *.vbproj.user
 *.csproj.user
 *.suo

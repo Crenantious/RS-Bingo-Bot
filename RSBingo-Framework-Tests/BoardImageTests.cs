@@ -31,7 +31,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    [Ignore]
+    //[Ignore]
     // This test is intended to be used for visual inspection only; make sure it is ignored when committed.
     public void CreateTasks_CreateTeamBoard_DisplayImageForInspection()
     {
