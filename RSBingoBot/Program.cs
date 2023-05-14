@@ -49,9 +49,12 @@ public class Program
             // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
             AdminEvidenceReaction.SetUp();
+
+            BoardImage.Initialise();
 #if DEBUG
             TaskTemplatePopulator.Run();
 #endif
+
             host.Run();
         }
         catch (Exception ex)
