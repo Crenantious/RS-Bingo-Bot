@@ -6,6 +6,5 @@ namespace RSBingo_Framework.Exceptions.CSV;
 
 public class CannotReadCSVLineException : CSVReaderException
 {
-    public CannotReadCSVLineException(string? message)
-        : base(message) { }
+    public CannotReadCSVLineException(string? message) : base(message) { }
 }

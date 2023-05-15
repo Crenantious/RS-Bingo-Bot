@@ -8,12 +8,8 @@ public class CSVReaderException : RSBingoException
 {
     public CSVReaderException? innerException { get; init; }
 
-    public CSVReaderException(string? message)
-        : base(message) { }
+    public CSVReaderException(string? message) : base(message) { }
 
-    public CSVReaderException(string? message, CSVReaderException innerException)
-        : base(message)
-    {
+    public CSVReaderException(string? message, CSVReaderException innerException) : base(message) =>
         this.innerException = innerException;
-    }
 }

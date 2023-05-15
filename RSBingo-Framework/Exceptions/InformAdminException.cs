@@ -4,9 +4,7 @@
 
 namespace RSBingo_Framework.Exceptions;
 
-public abstract class InformAdminException : RSBingoException
+public class InformAdminException : RSBingoException
 {
-    public InformAdminException(string? message) : base(message)
-    {
-    }
+    public InformAdminException(string? message) : base(message) { }
 }
