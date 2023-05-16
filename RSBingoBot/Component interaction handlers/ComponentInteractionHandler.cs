@@ -352,6 +352,8 @@ public abstract class ComponentInteractionHandler : IDisposable
                 .AsEphemeral(true);
             await args.Interaction.CreateFollowupMessageAsync(exceptionBuilder);
 
+            await instance.ConcludeInteraction();
+
             throw e;
         }
     }

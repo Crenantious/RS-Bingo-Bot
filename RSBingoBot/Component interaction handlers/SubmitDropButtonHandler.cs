@@ -14,6 +14,7 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 public class SubmitDropButtonHandler : SubmitImageForTileButtonHandler
 {
     protected override int TileSelectMaxOptions => 1;
+    protected override bool IsAutoResponseEphemeral => false;
 
     protected override EvidenceType EvidenceType => EvidenceType.Drop;
 
