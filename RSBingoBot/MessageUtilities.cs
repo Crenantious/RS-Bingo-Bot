@@ -12,38 +12,72 @@ using static RSBingo_Common.General;
 
 public static class MessageUtilities
 {
-    public static async Task Respond(InteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task<bool> Respond(InteractionCreateEventArgs args, string content, bool isEphemeral)
     {
         var builder = new DiscordInteractionResponseBuilder()
-            .WithContent(content)
-            .AsEphemeral();
+        {
+            Content = content,
+            IsEphemeral = isEphemeral
+        };
 
-        await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        return await Respond(args, builder);
     }
 
-    public static async Task EditResponse(InteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task<bool> Respond(InteractionCreateEventArgs args, DiscordInteractionResponseBuilder builder)
     {
-        var builder = new DiscordWebhookBuilder()
-            .WithContent(content);
-
-        await args.Interaction.EditOriginalResponseAsync(builder);
+        try
+        {
+            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            return true;
+        }
+        catch { return false; }
     }
 
-    public static async Task Followup(InteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task<bool> EditResponse(InteractionCreateEventArgs args, string content) =>
+        await EditResponse(args, new DiscordWebhookBuilder().WithContent(content));
+
+    public static async Task<bool> EditResponse(InteractionCreateEventArgs args, DiscordWebhookBuilder builder)
+    {
+        try
+        {
+            await args.Interaction.EditOriginalResponseAsync(builder);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Followup(InteractionCreateEventArgs args, string content, bool isEphemeral)
     {
         var builder = new DiscordFollowupMessageBuilder()
-            .WithContent(content)
-            .AsEphemeral();
+        {
+            Content = content,
+            IsEphemeral = isEphemeral
+        };
 
-        await args.Interaction.CreateFollowupMessageAsync(builder);
+        return await Followup(args, builder);
     }
 
-    public static async Task EditFollowup(InteractionCreateEventArgs args, ulong messageId, string content, bool isEphemeral)
+    public static async Task<bool> Followup(InteractionCreateEventArgs args, DiscordFollowupMessageBuilder builder)
     {
-        var builder = new DiscordWebhookBuilder()
-            .WithContent(content);
+        try
+        {
+            await args.Interaction.CreateFollowupMessageAsync(builder);
+            return true;
+        }
+        catch { return false; }
+    }
 
-        await args.Interaction.EditFollowupMessageAsync(messageId, builder);
+    public static async Task<bool> EditFollowup(InteractionCreateEventArgs args, ulong messageId, string content) =>
+       await EditFollowup(args, messageId, new DiscordWebhookBuilder().WithContent(content));
+
+    public static async Task<bool> EditFollowup(InteractionCreateEventArgs args, ulong messageId, DiscordWebhookBuilder builder)
+    {
+        try
+        {
+            await args.Interaction.EditFollowupMessageAsync(messageId, builder);
+            return true;
+        }
+        catch { return false; }
     }
 
     /// <summary>

@@ -36,10 +36,12 @@ public class LeaderboardDiscord
 
             Create().Save(leaderboardImageFileName);
             fs = new(leaderboardImageFileName, FileMode.Open);
+            Console.WriteLine("Leaderboard updating...");
 
             // TODO: this gets posted as a 0KB file if the bot is rate limited. Keep trying to send or find out when the rate limit is over.
             await leaderboardMessage.ModifyAsync(new DiscordMessageBuilder()
                 .AddFile(fs));
+            Console.WriteLine("Leaderboard updated.");
         }
         catch (Exception e)
         {

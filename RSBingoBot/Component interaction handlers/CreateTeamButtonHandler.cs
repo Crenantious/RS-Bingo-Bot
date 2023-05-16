@@ -98,7 +98,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
         await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(team.Role);
 
-        await EditResponse(args, $"The team '{teamName}' has been created successfully.", true);
+        await EditResponse(args, $"The team '{teamName}' has been created successfully.");
     }
 
     private string GetNameErrorMessage(string name)

@@ -306,14 +306,9 @@ public abstract class ComponentInteractionHandler : IDisposable
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             }
-            else
+            else if (await Respond(args, responseContent, ephemeralResponse) is false)
             {
-                var builder = new DiscordInteractionResponseBuilder()
-                {
-                    IsEphemeral = ephemeralResponse,
-                    Content = responseContent
-                };
-                await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                await instance.ConcludeInteraction();
             }
         }
 
