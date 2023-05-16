@@ -28,6 +28,7 @@ public static class DataFactory
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
     private const string LeaderboardChannelIdKey = "LeaderboardChannelId";
+    private const string LeaderboardMessageIdKey = "LeaderboardMessageId";
     private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
     private const string UseNpgsqlKey = "UseNpgsql";
     private const string WhitelistedDomains = "WhitelistedDomains";
@@ -43,6 +44,7 @@ public static class DataFactory
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
     private static DiscordChannel leaderboardChannel = null!;
+    private static ulong leaderboardMessageId;
 
     private static bool enableBoardCustomisation;
 
@@ -81,6 +83,11 @@ public static class DataFactory
     public static DiscordChannel LeaderboardChannel => leaderboardChannel;
 
     /// <summary>
+    /// Gets the message in the "leaderboard" channel that was initialised using the a slash command.
+    /// </summary>
+    public static ulong LeaderboardMessageId => leaderboardMessageId;
+
+    /// <summary>
     /// Gets whether or not team boards should be customisable.
     /// </summary>
     public static bool EnableBoardCustomisation => enableBoardCustomisation;
@@ -93,7 +100,6 @@ public static class DataFactory
     // HACK: Remove this.
     private static string mockName = string.Empty;
 
-
     /// <summary>
     /// Creates a new instance of a DataWorker.
     /// </summary>
@@ -103,19 +109,7 @@ public static class DataFactory
     {
         DbContextOptionsBuilder builder = new DbContextOptionsBuilder<RSBingoContext>();
 
-        if (!dataIsMock && !builder.IsConfigured)
-        {
-            if (UseNpgsql)
-            {
-                builder.UseNpgsql(connectionString,
-                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-            }
-            else
-            {
-                builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
-                    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
-            }
-        }
+        if (dataIsMock is false && builder.IsConfigured is false) { ConfigureBuilder(builder); }
 
         if (dataIsMock)
         {
@@ -126,6 +120,20 @@ public static class DataFactory
 
         RSBingoContext dbContext = new (builder.Options);
         return new DataWorker(dbContext, LoggingInstance<DataWorker>());
+    }
+
+    private static void ConfigureBuilder(DbContextOptionsBuilder builder)
+    {
+        if (UseNpgsql)
+        {
+            builder.UseNpgsql(connectionString,
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+        }
+        else
+        {
+            builder.UseMySql(connectionString, ServerVersion.Parse(DefaultDBVersion),
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+        }
     }
 
     /// <summary>
@@ -172,6 +180,7 @@ public static class DataFactory
         verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
         leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
+        leaderboardMessageId = Config_Get<ulong>(LeaderboardMessageIdKey);
 
         enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
     }

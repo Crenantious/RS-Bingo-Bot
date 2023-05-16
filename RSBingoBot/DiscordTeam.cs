@@ -57,6 +57,9 @@ public class DiscordTeam
     public DiscordChannel BoardChannel { get; private set; } = null!;
 
     public delegate DiscordTeam Factory(string name);
+    public delegate Task TeamCreatedEventData(DiscordTeam team);
+
+    public static event TeamCreatedEventData? TeamCreatedEvent;
 
     public DiscordTeam(DiscordClient discordClient, string name)
     {
@@ -115,6 +118,7 @@ public class DiscordTeam
     {
         instances[team.RowId] = this;
         RegisterBoardChannelComponentInteractions();
+        TeamCreatedEvent?.Invoke(this);
     }
 
     private async Task<List<ulong>> CreateChannels()

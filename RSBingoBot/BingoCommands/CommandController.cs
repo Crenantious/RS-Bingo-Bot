@@ -73,6 +73,15 @@ public class CommandController : ApplicationCommandModule
         ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
     }
 
+    [SlashCommand("CreateInitialLeaderboard", $"Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
+    public async Task CreateInitialLeaderboard(InteractionContext ctx)
+    {
+        var builder = new DiscordMessageBuilder()
+            .WithContent("The leaderboard will be updated here.");
+
+        await ctx.Channel.SendMessageAsync(builder);
+    }
+
     [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
     public async Task DeleteTeam(InteractionContext ctx, [Option("Name", "Team name")] string teamName)
     {
@@ -81,8 +90,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
-    public async Task RemoveFromTeam(InteractionContext ctx,
-        [Option("User", "User")] DiscordUser discordUser)
+    public async Task RemoveFromTeam(InteractionContext ctx, [Option("User", "User")] DiscordUser discordUser)
     {
         throw new NotImplementedException();
     }
@@ -219,14 +227,5 @@ public class CommandController : ApplicationCommandModule
             logger.LogInformation(e, e.Message);
             return false;
         }
-    }
-
-    private async void EditOriginalResponse(InteractionContext ctx, DiscordWebhookBuilder builder)
-    {
-        try
-        {
-            await ctx.EditResponseAsync(builder);
-        }
-        catch { }
     }
 }
