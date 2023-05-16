@@ -172,6 +172,8 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.BoardMessageId).HasColumnName("boardmessageid");
 
+            entity.Property(e => e.Score).HasColumnName("score");
+
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 

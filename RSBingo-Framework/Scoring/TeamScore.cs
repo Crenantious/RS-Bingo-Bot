@@ -7,39 +7,39 @@ namespace RSBingo_Framework.Scoring;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using static RSBingo_Framework.Scoring.Scoring;
 
 public class TeamScore
 {
-    public int Score { get; private set; } = 0;
-
-    public delegate Task AsyncEventData(TeamScore teamScore, Tile tile);
-
-    public static event AsyncEventData? ScoreUpdatedEventAsync;
+    // TODO: JR - fire an event when a score gets updated to reduce coupling with endpoints and the leaderboard.
+    // This needs to be done in a way that does not conflict with EF Core:
+    // Updating the score on the Team record will not work as data workers will need to be created after the change and that is not guaranteed.
+    // Also, it would require a data worker to be passed in here to be saved before the event is fired, which is not desirable.
 
     /// <summary>
     /// Updates the team's score.
     /// </summary>
     /// <param name="tile">The tile who's completion status changed, triggering the need to recalculate the team's score.</param>
     /// <exception cref="TileDifficultyPointValueNotSetException"/>
-    public void Update(Tile tile)
+    public static void Update(Tile tile)
     {
         ValidateTileDifficulty(tile);
         UpdateScoreFromDifficulty(tile);
 
-        if (BoardIndexToBonusPoints.ContainsKey(tile.BoardIndex)) { UpdateBonusPointsAndScore(tile); }
-
-        ScoreUpdatedEventAsync?.Invoke(this, tile);
+        // TODO: fix. Does not seem to give any bonus points.
+        //if (BoardIndexToBonusPoints.ContainsKey(tile.BoardIndex)) { UpdateBonusPointsAndScore(tile); }
     }
 
-    private void UpdateScoreFromDifficulty(Tile tile)
+    private static void UpdateScoreFromDifficulty(Tile tile)
     {
         // This assumes the tile's complete status has changed
         int sign = tile.IsCompleteAsBool() ? 1 : -1;
-        Score += sign * PointsForDifficulty[tile.Task.GetDifficutyAsDifficulty()];
+        tile.Team.Score += sign * PointsForDifficulty[tile.Task.GetDifficutyAsDifficulty()];
     }
 
-    private void UpdateBonusPointsAndScore(Tile tile)
+    private static void UpdateBonusPointsAndScore(Tile tile)
     {
         foreach (BonusPoints bonusPoints in BoardIndexToBonusPoints[tile.BoardIndex])
         {
@@ -49,8 +49,8 @@ public class TeamScore
 
             if (bonusAchievedCurrently != bonusAchievedPreviously)
             {
-                if (bonusAchievedCurrently) { Score += bonusPoints.BonusValue; }
-                else { Score -= bonusPoints.BonusValue; }
+                if (bonusAchievedCurrently) { tile.Team.Score += bonusPoints.BonusValue; }
+                else { tile.Team.Score -= bonusPoints.BonusValue; }
             }
         }
     }

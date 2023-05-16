@@ -11,6 +11,7 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Scoring;
+using RSBingoBot.Leaderboard;
 using static RSBingoBot.MessageUtilities;
 
 /// <summary>
@@ -37,9 +38,9 @@ public class CompleteNextTileButtonHandler : ComponentInteractionHandler
         if (Team!.Tiles.FirstOrDefault(t => t.IsCompleteAsBool() is false) is Tile tile)
         {
             tile.SetCompleteStatus(TileRecord.CompleteStatus.Yes);
-            Team.UpdateScore(tile, DataWorker);
+            TeamScore.Update(tile);
             DataWorker.SaveChanges();
-
+            await LeaderboardDiscord.Update();
             await EditResponse(args, "The next tile as been marked as completed.", true);
             return;
         }

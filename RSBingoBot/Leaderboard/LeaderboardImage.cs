@@ -20,11 +20,11 @@ public static class LeaderboardImage
 {
     private static IDataWorker dataWorker;
 
-    static LeaderboardImage() =>
-        dataWorker = CreateDataWorker();
-
     public static Image Create()
     {
+        // TODO: find out why this is.
+        // Must be recreated each time to get the updated scores for each team; a single instance on initialisation does not work.
+        dataWorker = CreateDataWorker();
         Grid cellValues = GetCellValues(dataWorker);
         return CreateImage(GetGridImageDimensions(cellValues), cellValues);
     }

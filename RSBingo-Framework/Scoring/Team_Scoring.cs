@@ -4,6 +4,7 @@
 
 namespace RSBingo_Framework.Models;
 
+using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Scoring;
 
@@ -11,10 +12,7 @@ public partial class Team : IHasScore
 {
     private TeamScore? teamScore;
 
-    public int Score => TeamScore.Score;
+    public int Score { get; set; }
 
     public TeamScore TeamScore => teamScore ??= new();
-
-    public void UpdateScore(Tile tile, IDataWorker dataWorker) =>
-        TeamScore.Update(tile);
 }

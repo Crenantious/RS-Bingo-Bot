@@ -6,7 +6,8 @@ CREATE TABLE Team (
     GeneralChannelID bigint UNSIGNED NOT NULL,
     VoiceChannelID bigint UNSIGNED NOT NULL,
     BoardMessageID bigint UNSIGNED NOT NULL,
-    RoleID bigint UNSIGNED NOT NULL
+    RoleID bigint UNSIGNED NOT NULL,
+    Score int NOT NULL
 );
 
 CREATE TABLE `User` (

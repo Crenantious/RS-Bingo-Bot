@@ -4,12 +4,8 @@
 
 namespace RSBingo_Framework.Scoring;
 
-using RSBingo_Framework.Models;
-using RSBingo_Framework.Interfaces;
-using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingo_Common.General;
 using static RSBingo_Framework.Records.BingoTaskRecord;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public static class Scoring
 {

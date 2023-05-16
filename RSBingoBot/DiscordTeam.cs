@@ -65,7 +65,6 @@ public class DiscordTeam
     {
         Name = name;
         this.discordClient = discordClient;
-        TeamScore.ScoreUpdatedEventAsync += MarkTileCompleted;
     }
 
     public static async Task UpdateBoard(Team team, Image boardImage) =>
@@ -240,6 +239,6 @@ public class DiscordTeam
 #endif
     }
 
-    private static async Task MarkTileCompleted(TeamScore _, Tile tile) =>
-        await UpdateBoard(tile.Team, BoardImage.MarkTileComplete(tile));
+    public async Task MarkTileCompleted(Tile tile) =>
+        await UpdateBoardMessage(BoardImage.MarkTileComplete(tile));
 }

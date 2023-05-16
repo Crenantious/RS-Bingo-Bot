@@ -24,32 +24,20 @@ public class LeaderboardDiscord
     {
         try { leaderboardMessage = await DataFactory.LeaderboardChannel.GetMessageAsync(DataFactory.LeaderboardMessageId); }
         catch { General.LoggingLog(new NullReferenceException(noMessageExceptionMessage), ""); }
-
-        TeamScore.ScoreUpdatedEventAsync += UpdateLeaderboard;
-        RSBingoBot.DiscordTeam.TeamCreatedEvent += AddTeam;
     }
 
-    private static async Task AddTeam(RSBingoBot.DiscordTeam team)
+    public static async Task Update()
     {
-        // Recreating the board each time is very inefficient but the system does not need to be fast.
-        await UpdateLeaderboard(() => Create().Save(leaderboardImageFileName));
-    }
-
-    private static async Task UpdateLeaderboard(TeamScore teamScore, Tile _)
-    {
-        // Recreating the board each time is very inefficient but the system does not need to be fast.
-        await UpdateLeaderboard(() => Create().Save(leaderboardImageFileName));
-    }
-
-    private static async Task UpdateLeaderboard(Action createImage)
-    {
-        await semaphore.WaitAsync();
         FileStream? fs = null;
 
         try
         {
-            createImage();
+            await semaphore.WaitAsync();
+
+            Create().Save(leaderboardImageFileName);
             fs = new(leaderboardImageFileName, FileMode.Open);
+
+            // TODO: this gets posted as a 0KB file if the bot is rate limited. Keep trying to send or find out when the rate limit is over.
             await leaderboardMessage.ModifyAsync(new DiscordMessageBuilder()
                 .AddFile(fs));
         }
