@@ -82,6 +82,8 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.DiscordUserId).HasColumnName("discorduserid");
 
+            entity.Property(e => e.DiscordMessageId).HasColumnName("discordmessageid");
+
             entity.Property(e => e.TileId).HasColumnName("tileid");
 
             entity.Property(e => e.EvidenceType).HasColumnName("type");

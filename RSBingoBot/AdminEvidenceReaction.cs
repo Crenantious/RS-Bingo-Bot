@@ -35,12 +35,12 @@ internal class AdminEvidenceReaction
             new MessageReactionAddedDEH.Constraints(RejectedEvidenceChannel, emojiName: EvidenceVerifiedEmoji.Name),
             EvidenceVerified);
         messageReactionAddedDEH.Subscribe(
-            new MessageReactionAddedDEH.Constraints(VerfiedEvidenceChannel, emojiName: EvidenceRejectedEmoji.Name),
+            new MessageReactionAddedDEH.Constraints(VerifiedEvidenceChannel, emojiName: EvidenceRejectedEmoji.Name),
             EvidenceRejected);
     }
 
     private static async Task EvidenceVerified(DiscordClient client, MessageReactionAddEventArgs args) =>
-        await HandleMessageReaction(args, VerfiedEvidenceChannel, EvidenceVerifiedEmoji, EvidenceStatus.Verified);
+        await HandleMessageReaction(args, VerifiedEvidenceChannel, EvidenceVerifiedEmoji, EvidenceStatus.Verified);
 
     private static async Task EvidenceRejected(DiscordClient client, MessageReactionAddEventArgs args) =>
         await HandleMessageReaction(args, RejectedEvidenceChannel, EvidenceRejectedEmoji, EvidenceStatus.Rejected);

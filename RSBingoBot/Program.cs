@@ -125,7 +125,7 @@ public class Program
                     {
                         Token = DataFactory.DiscordToken,
                         TokenType = TokenType.Bot,
-                        Intents = DiscordIntents.AllUnprivileged
+                        Intents = DiscordIntents.All
                     });
 
                     return discordClient;

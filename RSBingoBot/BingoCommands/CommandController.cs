@@ -8,21 +8,15 @@ using RSBingoBot;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.BingoCommands.Attributes;
 using RSBingoBot.Component_interaction_handlers;
-using RSBingo_Framework;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Models;
 using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
 using Microsoft.Extensions.Logging;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.SlashCommands.EventArgs;
-using DSharpPlus.SlashCommands.Attributes;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
-using System.Text;
 
 /// <summary>
 /// Controller class for discoed bot commands.
@@ -72,7 +66,7 @@ public class CommandController : ApplicationCommandModule
     /// </summary>
     /// <param name="ctx">The context under which the command was executed.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-    [SlashCommand("InitializeCreateTeamChannel", $"Posts a message in the current channel with buttons to create and join a team.")]
+    [SlashCommand("InitializeCreateTeamChannel", "Posts a message in the current channel with buttons to create and join a team.")]
     [RequireRole("Host")]
     public async Task InitializeCreateTeamChannel(InteractionContext ctx)
     {
@@ -89,7 +83,7 @@ public class CommandController : ApplicationCommandModule
         ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
     }
 
-    [SlashCommand("CreateInitialLeaderboard", $"Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
+    [SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
     public async Task CreateInitialLeaderboard(InteractionContext ctx)
     {
         var builder = new DiscordMessageBuilder()
@@ -102,7 +96,7 @@ public class CommandController : ApplicationCommandModule
 
     #region Teams
 
-    [SlashCommand("CreateTeam", $"Creates a team (in the database), its role, and channels.")]
+    [SlashCommand("CreateTeam", "Creates a team (in the database), its role, and channels.")]
     [RequireRole("Host")]
     public async Task CreateTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
@@ -110,8 +104,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestCreateTeam(ctx, dataWorker, teamName));
     }
 
-    [SlashCommand("RenameTeam",$"Renames a team (in the database), its role, and channels." +
-        $"This can only be ran once every 5 minutes, so be cautious.")]
+    [SlashCommand("RenameTeam", "Renames a team, its role, and channels. Should only be ran once every 5 minutes.")]
     [RequireRole("Host")]
     public async Task RenameTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("NewName", "New name")] string newName)
@@ -120,7 +113,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestRenameTeam(ctx, dataWorker, teamName, newName));
     }
 
-    [SlashCommand("AddToTeam", $"Adds a user to a team if they are not already in one.")]
+    [SlashCommand("AddToTeam", "Adds a user to a team if they are not already in one.")]
     [RequireRole("Host")]
     public async Task AddToTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("User", "User")] DiscordUser user)
@@ -129,7 +122,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestAddToTeam(ctx, dataWorker, teamName, user));
     }
 
-    [SlashCommand("RemoveFromTeam", $"Removes a user from the database, and the team's role from them.")]
+    [SlashCommand("RemoveFromTeam", "Removes a user from the database, and the team's role from them.")]
     [RequireRole("Host")]
     public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("User", "User")] DiscordUser user)
@@ -138,7 +131,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestRemoveFromTeam(ctx, dataWorker, teamName, user));
     }
 
-    [SlashCommand("DeleteTeam", $"Deletes a team (from the database), its role, and channels.")]
+    [SlashCommand("DeleteTeam", "Deletes a team (from the database), its role, and channels.")]
     [RequireRole("Host")]
     public async Task DeleteTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
@@ -151,7 +144,7 @@ public class CommandController : ApplicationCommandModule
     #region CSV commands
 
     // TODO: JR - change to @ commands for the bot so non-admins can't see them
-    [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
+    [SlashCommand("AddTasks", "Adds tasks to the database based on the uploaded csv file.")]
     [RequireRole("Host")]
     [DisableDuringCompetition]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
@@ -160,7 +153,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestOperateCSVAddTasks(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
+    [SlashCommand("DeleteTasks", "Deletes tasks from the database based on the uploaded csv file.")]
     [RequireRole("Host")]
     [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
@@ -169,7 +162,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestOperateCSVRemoveTasks(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("AddTaskRestrictions", $"Adds task restrictions to the database based on the uploaded csv file.")]
+    [SlashCommand("AddTaskRestrictions", "Adds task restrictions to the database based on the uploaded csv file.")]
     [RequireRole("Host")]
     [DisableDuringCompetition]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
@@ -178,7 +171,7 @@ public class CommandController : ApplicationCommandModule
         await RunRequest(dataWorker, ctx, new RequestOperateCSVAddTaskRestrictions(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("DeleteTaskRestrictions", $"Deletes task restrictions from the database based on the uploaded csv file.")]
+    [SlashCommand("DeleteTaskRestrictions", "Deletes task restrictions from the database based on the uploaded csv file.")]
     [RequireRole("Host")]
     [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)

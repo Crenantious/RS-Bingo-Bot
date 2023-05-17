@@ -62,6 +62,7 @@ CREATE TABLE Evidence (
     RowID int PRIMARY KEY AUTO_INCREMENT,
 	TileID int NOT NULL,
 	DiscordUserID bigint UNSIGNED NOT NULL,
+    DiscordMessageID bigint UNSIGNED NOT NULL,
     URL varchar(255) NOT NULL,
 	`Status` tinyint NOT NULL,
     `Type` tinyint NOT NULL,

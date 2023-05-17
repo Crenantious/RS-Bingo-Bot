@@ -70,7 +70,7 @@ public static class DataFactory
     /// <summary>
     /// Gets the "verified-evidence" channel.
     /// </summary>
-    public static DiscordChannel VerfiedEvidenceChannel => verifiedEvidenceChannel;
+    public static DiscordChannel VerifiedEvidenceChannel => verifiedEvidenceChannel;
 
     /// <summary>
     /// Gets the "rejected-evidence" channel.
