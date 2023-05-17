@@ -175,7 +175,7 @@ public abstract class ComponentInteractionHandler : IDisposable
             UserActiveInstances.ContainsKey(args.User) &&
             UserActiveInstances[args.User].Any())
         {
-            await Respond(args, AlreadyInteractingMessage, true);
+            await Respond(args.Interaction, AlreadyInteractingMessage, true);
             return;
         }
 
@@ -306,7 +306,7 @@ public abstract class ComponentInteractionHandler : IDisposable
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             }
-            else if (await Respond(args, responseContent, ephemeralResponse) is false)
+            else if (await Respond(args.Interaction, responseContent, ephemeralResponse) is false)
             {
                 await instance.ConcludeInteraction();
             }

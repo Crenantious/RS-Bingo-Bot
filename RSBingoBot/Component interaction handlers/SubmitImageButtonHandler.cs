@@ -50,7 +50,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
         if (Team!.Tiles.Any() is false)
         {
-            await Followup(args, "There are no tiles to submit evidence for.", true);
+            await Followup(args.Interaction, "There are no tiles to submit evidence for.", true);
             await ConcludeInteraction();
             return;
         }

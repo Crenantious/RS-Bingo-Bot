@@ -41,10 +41,10 @@ public class CompleteNextTileButtonHandler : ComponentInteractionHandler
             TeamScore.Update(tile);
             DataWorker.SaveChanges();
             await LeaderboardDiscord.Update();
-            await EditResponse(args, "The next tile as been marked as completed.");
+            await EditResponse(args.Interaction, "The next tile as been marked as completed.");
             return;
         }
 
-        await EditResponse(args, "There are no incomplete tiles.");
+        await EditResponse(args.Interaction, "There are no incomplete tiles.");
     }
 }

@@ -12,7 +12,7 @@ using static RSBingo_Common.General;
 
 public static class MessageUtilities
 {
-    public static async Task<bool> Respond(InteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task<bool> Respond(DiscordInteraction args, string content, bool isEphemeral)
     {
         var builder = new DiscordInteractionResponseBuilder()
         {
@@ -23,30 +23,40 @@ public static class MessageUtilities
         return await Respond(args, builder);
     }
 
-    public static async Task<bool> Respond(InteractionCreateEventArgs args, DiscordInteractionResponseBuilder builder)
+    public static async Task<bool> Respond(DiscordInteraction args, DiscordInteractionResponseBuilder builder)
     {
         try
         {
-            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            await args.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
             return true;
         }
         catch { return false; }
     }
 
-    public static async Task<bool> EditResponse(InteractionCreateEventArgs args, string content) =>
+    public static async Task<bool> EditResponse(DiscordInteraction args, string content) =>
         await EditResponse(args, new DiscordWebhookBuilder().WithContent(content));
 
-    public static async Task<bool> EditResponse(InteractionCreateEventArgs args, DiscordWebhookBuilder builder)
+    public static async Task<bool> EditResponse(DiscordInteraction args, DiscordWebhookBuilder builder)
     {
         try
         {
-            await args.Interaction.EditOriginalResponseAsync(builder);
+            await args.EditOriginalResponseAsync(builder);
             return true;
         }
         catch { return false; }
     }
 
-    public static async Task<bool> Followup(InteractionCreateEventArgs args, string content, bool isEphemeral)
+    public static async Task<bool> DeleteResponse(DiscordInteraction args)
+    {
+        try
+        {
+            await args.DeleteOriginalResponseAsync();
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Followup(DiscordInteraction args, string content, bool isEphemeral)
     {
         var builder = new DiscordFollowupMessageBuilder()
         {
@@ -57,24 +67,24 @@ public static class MessageUtilities
         return await Followup(args, builder);
     }
 
-    public static async Task<bool> Followup(InteractionCreateEventArgs args, DiscordFollowupMessageBuilder builder)
+    public static async Task<bool> Followup(DiscordInteraction args, DiscordFollowupMessageBuilder builder)
     {
         try
         {
-            await args.Interaction.CreateFollowupMessageAsync(builder);
+            await args.CreateFollowupMessageAsync(builder);
             return true;
         }
         catch { return false; }
     }
 
-    public static async Task<bool> EditFollowup(InteractionCreateEventArgs args, ulong messageId, string content) =>
+    public static async Task<bool> EditFollowup(DiscordInteraction args, ulong messageId, string content) =>
        await EditFollowup(args, messageId, new DiscordWebhookBuilder().WithContent(content));
 
-    public static async Task<bool> EditFollowup(InteractionCreateEventArgs args, ulong messageId, DiscordWebhookBuilder builder)
+    public static async Task<bool> EditFollowup(DiscordInteraction args, ulong messageId, DiscordWebhookBuilder builder)
     {
         try
         {
-            await args.Interaction.EditFollowupMessageAsync(messageId, builder);
+            await args.EditFollowupMessageAsync(messageId, builder);
             return true;
         }
         catch { return false; }

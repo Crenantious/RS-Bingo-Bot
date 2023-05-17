@@ -21,7 +21,8 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.SlashCommands.Attributes;
 using static RSBingo_Framework.DAL.DataFactory;
-
+using static RSBingoBot.MessageUtilities;
+using System.Text;
 
 /// <summary>
 /// Controller class for discoed bot commands.
@@ -31,7 +32,7 @@ public class CommandController : ApplicationCommandModule
     private const string TestTeamName = "Test";
     private const string ProcessingRequest = "Processing request.";
     private const string UnknownError = "An unknown error occurred.";
-    private const string CannotRunCammandAfterCompetitionStartMessage = "This command cannot be run after the competition has started.";
+    private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
 
     private readonly ILogger<CommandController> logger;
     private readonly IDataWorker dataWorker = CreateDataWorker();
@@ -62,20 +63,6 @@ public class CommandController : ApplicationCommandModule
         SlashCommandsExtension slashCommands = discordClient.UseSlashCommands(new() { Services = General.DI });
         slashCommands.RegisterCommands<CommandController>(Guild.Id);
         slashCommands.SlashCommandErrored += SlashCommandErrored;
-    }
-
-    private static async Task SlashCommandErrored(SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
-    {
-        if (args.Exception is SlashExecutionChecksFailedException executionCheckException)
-        {
-            foreach (var check in executionCheckException.FailedChecks)
-            {
-                if (check is RequireRoleAttribute attr)
-                {
-                    await args.Context.CreateResponseAsync("You do not have permission to run this command.", true);
-                }
-            }
-        }
     }
 
     /// <summary>
@@ -125,11 +112,9 @@ public class CommandController : ApplicationCommandModule
     }
 
     // TODO: JR - change to @ commands for the bot so non-admins can't see them
-    // TODO: JR - allow only in given channels
-    // TODO: JR - disable these when the competition starts for integrity.
     [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
-    //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
     [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -138,6 +123,7 @@ public class CommandController : ApplicationCommandModule
 
     [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
     [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -146,6 +132,7 @@ public class CommandController : ApplicationCommandModule
 
     [SlashCommand("AddTaskRestrictions", $"Adds task restrictions to the database based on the uploaded csv file.")]
     [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -154,24 +141,19 @@ public class CommandController : ApplicationCommandModule
 
     [SlashCommand("DeleteTaskRestrictions", $"Deletes task restrictions from the database based on the uploaded csv file.")]
     [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVRemoveTaskRestrictions(ctx, dataWorker, attachment));
     }
 
-    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request, bool allowDuringCompeition = true)
+    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
     {
         IEnumerable<string> responseMessages = new List<string>();
 
         try
         {
-            if (allowDuringCompeition is false && General.HasCompetitionStarted)
-            {
-                responseMessages = new List<string> { CannotRunCammandAfterCompetitionStartMessage };
-                return;
-            }
-
             if (await SendKeepAliveMessage(ctx) is false)
             {
                 // Could not establish a connection to the discord channel. So we do not attempt to set a message for a response. 
@@ -220,26 +202,15 @@ public class CommandController : ApplicationCommandModule
 
     private static async Task SetResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
     {
-        try
-        {
-            // Delete the original response as it was just a keep alive message.
-            await ctx.DeleteResponseAsync();
-        }
-        catch { }
+        // Delete the original response as it was just a keep alive message.
+        DeleteResponse(ctx.Interaction);
 
         DiscordFollowupMessageBuilder builder = new() { IsEphemeral = true };
 
-        try
+        foreach (string message in responseMessages)
         {
-            foreach (string message in responseMessages)
-            {
-                builder.WithContent(message);
-                await ctx.FollowUpAsync(builder);
-            }
-        }
-        catch
-        {
-            // This can possibly throw if the interaction has timed-out.
+            builder.WithContent(message);
+            await Followup(ctx.Interaction, builder);
         }
     }
 
@@ -260,5 +231,55 @@ public class CommandController : ApplicationCommandModule
             logger.LogInformation(e, e.Message);
             return false;
         }
+    }
+
+    private static async Task SlashCommandErrored(SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
+    {
+        if (args.Exception is not SlashExecutionChecksFailedException executionCheckException) { return; }
+
+        List<string> errorMessages = GetExecutionCheckErrorMessages(executionCheckException);
+
+        if (errorMessages.Any())
+        {
+            await RespondWithExecutionCheckErrors(args, errorMessages);
+            return;
+        }
+
+        await args.Context.CreateResponseAsync(UnknownExecutionCheckErrorMessage, true);
+    }
+
+    private static async Task RespondWithExecutionCheckErrors(SlashCommandErrorEventArgs args, List<string> errorMessages)
+    {
+        IEnumerable<string> compiledMessages = GetCompiledMessages(errorMessages);
+        string firstMessage = compiledMessages.ElementAt(0);
+
+        if (string.IsNullOrWhiteSpace(firstMessage))
+        {
+            await Respond(args.Context.Interaction, UnknownExecutionCheckErrorMessage, true);
+            return;
+        }
+
+        await Respond(args.Context.Interaction, firstMessage, true);
+
+        // TODO: test this works.
+        foreach (string message in compiledMessages.Skip(1))
+        {
+            await Followup(args.Context.Interaction, message, true);
+        }
+    }
+
+    private static List<string> GetExecutionCheckErrorMessages(SlashExecutionChecksFailedException executionCheckException)
+    {
+        List<string> errorMessages = new(executionCheckException.FailedChecks.Count());
+
+        foreach (var check in executionCheckException.FailedChecks)
+        {
+            if (check is BingoBotSlashCheckAttribute attr)
+            {
+                errorMessages.Add(attr.GetErrorMessage());
+            }
+        }
+
+        return errorMessages;
     }
 }
