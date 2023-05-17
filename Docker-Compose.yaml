@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  rsbingobot:
+    image: rsbingobot:1.0.0
+    container_name: rsbingobot_container
+    environment:
+      - TZ=Europe/London
+    restart: on-failure

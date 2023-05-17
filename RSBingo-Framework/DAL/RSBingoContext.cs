@@ -129,6 +129,10 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.RowId).HasColumnName("rowid");
 
+            entity.Property(e => e.Name).HasColumnName("name");
+
+            entity.Property(e => e.Difficulty).HasColumnName("difficulty");
+
             entity.Property(e => e.Name).HasMaxLength(50);
 
             entity.HasMany(d => d.Restrictions)
