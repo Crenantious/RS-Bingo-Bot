@@ -4,19 +4,24 @@
 
 namespace RSBingoBot.BingoCommands;
 
+using RSBingoBot;
+using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.BingoCommands.Attributes;
+using RSBingoBot.Component_interaction_handlers;
+using RSBingo_Framework;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Models;
+using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.Interfaces;
+using Microsoft.Extensions.Logging;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.Logging;
-using RSBingo_Framework;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Exceptions;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using RSBingoBot;
-using RSBingoBot.Component_interaction_handlers;
-using RSBingoBot.Discord_event_handlers;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.SlashCommands.EventArgs;
+using DSharpPlus.SlashCommands.Attributes;
 using static RSBingo_Framework.DAL.DataFactory;
+
 
 /// <summary>
 /// Controller class for discoed bot commands.
@@ -52,12 +57,34 @@ public class CommandController : ApplicationCommandModule
         this.modalSubmittedDEH = modalSubmittedDEH;
     }
 
+    public static void RegisterSlashCommands(DiscordClient discordClient)
+    {
+        SlashCommandsExtension slashCommands = discordClient.UseSlashCommands(new() { Services = General.DI });
+        slashCommands.RegisterCommands<CommandController>(Guild.Id);
+        slashCommands.SlashCommandErrored += SlashCommandErrored;
+    }
+
+    private static async Task SlashCommandErrored(SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
+    {
+        if (args.Exception is SlashExecutionChecksFailedException executionCheckException)
+        {
+            foreach (var check in executionCheckException.FailedChecks)
+            {
+                if (check is RequireRoleAttribute attr)
+                {
+                    await args.Context.CreateResponseAsync("You do not have permission to run this command.", true);
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Posts a message in the channel the command was run in with buttons to create and join a team.
     /// </summary>
     /// <param name="ctx">The context under which the command was executed.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
     [SlashCommand("InitializeCreateTeamChannel", $"Posts a message in the current channel with buttons to create and join a team.")]
+    [RequireRole("Host")]
     public async Task InitializeCreateTeamChannel(InteractionContext ctx)
     {
         var createTeamButton = new DiscordButtonComponent(ButtonStyle.Primary, CreateTeamButtonHandler.CreateTeamButtonId, "Create team");
@@ -82,7 +109,8 @@ public class CommandController : ApplicationCommandModule
         await ctx.Channel.SendMessageAsync(builder);
     }
 
-    [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
+    [SlashCommand("DeleteTeam", $"Deletes a team (from the database), its role, and channels.")]
+    [RequireRole("Host")]
     public async Task DeleteTeam(InteractionContext ctx, [Option("Name", "Team name")] string teamName)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -90,6 +118,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
+    [RequireRole("Host")]
     public async Task RemoveFromTeam(InteractionContext ctx, [Option("User", "User")] DiscordUser discordUser)
     {
         throw new NotImplementedException();
@@ -100,6 +129,7 @@ public class CommandController : ApplicationCommandModule
     // TODO: JR - disable these when the competition starts for integrity.
     [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
     //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
+    [RequireRole("Host")]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -107,6 +137,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -114,6 +145,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("AddTaskRestrictions", $"Adds task restrictions to the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
@@ -121,6 +153,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("DeleteTaskRestrictions", $"Deletes task restrictions from the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();

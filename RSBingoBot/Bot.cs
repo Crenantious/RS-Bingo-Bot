@@ -44,11 +44,7 @@ public class Bot : BackgroundService
     {
         discordClient.UseInteractivity();
 
-        SlashCommandsExtension slash = discordClient.UseSlashCommands(new SlashCommandsConfiguration()
-        {
-            Services = General.DI,
-        });
-        slash.RegisterCommands<CommandController>(Guild.Id);
+        CommandController.RegisterSlashCommands(discordClient);
 
         ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
         ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
