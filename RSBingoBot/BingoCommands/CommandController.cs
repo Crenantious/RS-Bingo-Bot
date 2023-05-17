@@ -31,7 +31,7 @@ public class CommandController : ApplicationCommandModule
 {
     private const string TestTeamName = "Test";
     private const string ProcessingRequest = "Processing request.";
-    private const string UnknownError = "An unknown error occurred.";
+    private const string UnknownError = "An unknown error occurred while processing this command.";
     private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
 
     private readonly ILogger<CommandController> logger;
@@ -65,6 +65,8 @@ public class CommandController : ApplicationCommandModule
         slashCommands.SlashCommandErrored += SlashCommandErrored;
     }
 
+    #region Channel initialisation
+
     /// <summary>
     /// Posts a message in the channel the command was run in with buttons to create and join a team.
     /// </summary>
@@ -96,20 +98,57 @@ public class CommandController : ApplicationCommandModule
         await ctx.Channel.SendMessageAsync(builder);
     }
 
+    #endregion
+
+    #region Teams
+
+    [SlashCommand("CreateTeam", $"Creates a team (in the database), its role, and channels.")]
+    [RequireRole("Host")]
+    public async Task CreateTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestCreateTeam(ctx, dataWorker, teamName));
+    }
+
+    [SlashCommand("RenameTeam",$"Renames a team (in the database), its role, and channels." +
+        $"This can only be ran once every 5 minutes, so be cautious.")]
+    [RequireRole("Host")]
+    public async Task RenameTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("NewName", "New name")] string newName)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestRenameTeam(ctx, dataWorker, teamName, newName));
+    }
+
+    [SlashCommand("AddToTeam", $"Adds a user to a team if they are not already in one.")]
+    [RequireRole("Host")]
+    public async Task AddToTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("User", "User")] DiscordUser user)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestAddToTeam(ctx, dataWorker, teamName, user));
+    }
+
+    [SlashCommand("RemoveFromTeam", $"Removes a user from the database, and the team's role from them.")]
+    [RequireRole("Host")]
+    public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("User", "User")] DiscordUser user)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestRemoveFromTeam(ctx, dataWorker, teamName, user));
+    }
+
     [SlashCommand("DeleteTeam", $"Deletes a team (from the database), its role, and channels.")]
     [RequireRole("Host")]
-    public async Task DeleteTeam(InteractionContext ctx, [Option("Name", "Team name")] string teamName)
+    public async Task DeleteTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestDeleteTeam(ctx, dataWorker, teamName));
     }
 
-    [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
-    [RequireRole("Host")]
-    public async Task RemoveFromTeam(InteractionContext ctx, [Option("User", "User")] DiscordUser discordUser)
-    {
-        throw new NotImplementedException();
-    }
+    #endregion
+
+    #region CSV commands
 
     // TODO: JR - change to @ commands for the bot so non-admins can't see them
     [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
@@ -147,6 +186,10 @@ public class CommandController : ApplicationCommandModule
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVRemoveTaskRestrictions(ctx, dataWorker, attachment));
     }
+
+    #endregion
+
+    #region Requests and responses
 
     private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
     {
@@ -196,11 +239,11 @@ public class CommandController : ApplicationCommandModule
         }
         finally
         {
-            if (responseMessages.Any()) { await SetResponseMessages(ctx, responseMessages); }
+            if (responseMessages.Any()) { await SendResponseMessages(ctx, responseMessages); }
         }
     }
 
-    private static async Task SetResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
+    private static async Task SendResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
     {
         // Delete the original response as it was just a keep alive message.
         DeleteResponse(ctx.Interaction);
@@ -282,4 +325,6 @@ public class CommandController : ApplicationCommandModule
 
         return errorMessages;
     }
+
+    #endregion
 }
