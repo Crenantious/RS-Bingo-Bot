@@ -14,6 +14,11 @@ using RSBingo_Framework.Interfaces;
 using static RSBingo_Framework.Records.EvidenceRecord;
 using static RSBingo_Framework.DAL.DataFactory;
 using static BingoBotCommon;
+using RSBingoBot.Imaging;
+using RSBingo_Framework.Records;
+using RSBingoBot.Leaderboard;
+using RSBingo_Framework.Scoring;
+using RSBingo_Framework.DAL;
 
 internal class AdminEvidenceReaction
 {
@@ -56,7 +61,21 @@ internal class AdminEvidenceReaction
         if (evidence is null) { return; }
 
         ulong newMessageId = await MoveMessageAndAddReaction(args, channel, emoji);
-        UpdateEvidenceDB(args, evidence, evidenceStatus, newMessageId);
+        UpdateDB(args, evidence, evidenceStatus, newMessageId);
+        
+        TeamScore.Update(evidence.Tile);
+        dataWorker.SaveChanges();
+        await UpdateDiscord(evidence);
+    }
+
+    private static async Task UpdateDiscord(Evidence evidence)
+    {
+        await RSBingoBot.DiscordTeam.UpdateBoard(evidence.Tile.Team, BoardImage.UpdateTile(evidence.Tile));
+            //evidence.IsVerified() ?
+            //BoardImage.MarkTileComplete(evidence.Tile) :
+            //BoardImage.UpdateTile(evidence.Tile));
+
+        await LeaderboardDiscord.Update();
     }
 
     private static async Task<bool> UserHasAdminPermission(MessageReactionAddEventArgs args)
@@ -76,11 +95,11 @@ internal class AdminEvidenceReaction
         return newMessage.Id;
     }
 
-    private static void UpdateEvidenceDB(MessageReactionAddEventArgs args, Evidence evidence,
+    private static void UpdateDB(MessageReactionAddEventArgs args, Evidence evidence,
         EvidenceStatus evidenceStatus, ulong newMessageId)
     {
         evidence.Status = (sbyte)evidenceStatus;
         evidence.DiscordMessageId = newMessageId;
-        dataWorker.SaveChanges();
+        evidence.Tile.SetCompleteStatus(evidence.IsVerified() ? TileRecord.CompleteStatus.Yes : TileRecord.CompleteStatus.No);
     }
 }

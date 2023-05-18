@@ -3,6 +3,7 @@
 bin/
 obj/
 .vs/
+Resources/Board images
 Resources/Task images
 Resources/Task images resized
 Resources/Team boards

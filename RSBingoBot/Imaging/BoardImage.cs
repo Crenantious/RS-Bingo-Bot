@@ -13,6 +13,7 @@ using SixLabors.ImageSharp.Processing;
 using static RSBingo_Common.Paths;
 using static RSBingo_Common.General;
 using static RSBingoBot.Imaging.BoardPreferences;
+using RSBingo_Framework.Records;
 
 public static class BoardImage
 {
@@ -58,6 +59,8 @@ public static class BoardImage
 
         board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
 
+        if (tile.IsCompleteAsBool()) { MarkTileComplete(board, tile); }
+
         return board;
     }
 
@@ -80,15 +83,19 @@ public static class BoardImage
     /// <summary>
     /// Places a marker over the <paramref name="tile"/> on the team's board.
     /// </summary>
-    public static Image MarkTileComplete(Tile tile)
+    public static Image MarkTileComplete(Tile tile) =>
+        MarkTileComplete(GetBoard(tile.Team), tile);
+
+    /// <summary>
+    /// Places a marker over the <paramref name="tile"/> on the team's board.
+    /// </summary>
+    public static Image MarkTileComplete(Image board, Tile tile)
     {
-        Image board = GetBoard(tile.Team);
         Rectangle tileRect = GetTileRect(tile.BoardIndex);
         Point markerPosition = new(tileRect.X + (tileRect.Width - tileCompletedMarker.Width) / 2,
             tileRect.Y + (tileRect.Height - tileCompletedMarker.Height) / 2);
 
         board.Mutate(b => b.DrawImage(tileCompletedMarker, markerPosition, 1));
-
         return board;
     }
 

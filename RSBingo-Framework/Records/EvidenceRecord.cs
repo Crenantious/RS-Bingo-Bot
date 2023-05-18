@@ -49,4 +49,7 @@ public static class EvidenceRecord
 
     public static Evidence? GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
         dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == messageId);
+
+    public static bool IsVerified(this Evidence evidence) =>
+        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Verified;
 }

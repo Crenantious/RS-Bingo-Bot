@@ -15,12 +15,12 @@ internal static class BoardPreferences
     /// <summary>
     /// Gets the width of each tile in pixels.
     /// </summary>
-    public static int TilePixelWidth => 136;
+    public static int TilePixelWidth => 140;
 
     /// <summary>
     /// Gets the height of each tile in pixels.
     /// </summary>
-    public static int TilePixelHeight => 136;
+    public static int TilePixelHeight => 140;
 
     /// <summary>
     /// Gets the width of the border between tiles.
@@ -35,12 +35,12 @@ internal static class BoardPreferences
     /// <summary>
     /// Gets the width of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelWidth => 4;
+    public static int BoardBorderPixelWidth => 8;
 
     /// <summary>
     /// Gets the height of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelHeight => 4;
+    public static int BoardBorderPixelHeight => 8;
 
     #endregion
 

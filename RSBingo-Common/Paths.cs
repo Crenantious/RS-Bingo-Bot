@@ -42,13 +42,13 @@ public class Paths
         ResourcesFolder = Path.Combine(General.AppRootPath, "Resources");
         ResourcesTestInputFolder = GetPath("Test input", PathType.Folder);
         ResourcesTestOutputFolder = GetPath("Test output", PathType.Folder);
-        
-        TaskImagesFolder = GetPath("Task images/Bronze reaper", PathType.Folder, asMock);
+
+        TaskImagesFolder = GetPath(Path.Combine("Task images", "Bronze reaper"), PathType.Folder, asMock);
         TaskImagesResizedFolder = GetPath("Task images resized", PathType.Folder, asMock);
         TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
 
-        BoardBackgroundPath = GetPath("Board background bronze reaper", PathType.Image);
-        TileCompletedMarkerPath = GetPath("Tile completed marker", PathType.Image);
+        BoardBackgroundPath = GetPath(Path.Combine("Board images", "Board background bronze reaper"), PathType.Image);
+        TileCompletedMarkerPath = GetPath(Path.Combine("Board images", "Tile completed marker"), PathType.Image);
     }
 
     public static string GetTaskImagePath(string taskName) =>
