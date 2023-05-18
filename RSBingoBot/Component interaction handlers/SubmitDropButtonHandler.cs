@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitEvidenceButtonHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitDropButtonHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -15,6 +15,7 @@ public class SubmitDropButtonHandler : SubmitImageForTileButtonHandler
 {
     protected override int TileSelectMaxOptions => 1;
     protected override bool IsAutoResponseEphemeral => false;
+    protected override bool AllowInteractionWithAnotherComponent => true;
 
     protected override EvidenceType EvidenceType => EvidenceType.Drop;
 

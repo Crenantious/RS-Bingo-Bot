@@ -87,8 +87,7 @@ public static class General
     /// <summary>
     /// Gets or sets weather or not the competition has started.
     /// </summary>
-    public static bool HasCompetitionStarted { get; set; } = true;
-
+    public static bool HasCompetitionStarted { get; set; } = false;
 
     /// <summary>
     /// Startup logging.

@@ -41,7 +41,7 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
     {
         if (DataWorker.Users.Exists(OriginalInteractionArgs.Interaction.User.Id))
         {
-            await Respond(OriginalInteractionArgs, AlreadyOnATeamMessage, true);
+            await Respond(OriginalInteractionArgs.Interaction, AlreadyOnATeamMessage, true);
             await ConcludeInteraction();
             return false;
         }
@@ -60,7 +60,7 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
 
         if (teams.Any() is false)
         {
-            await Respond(OriginalInteractionArgs, "No teams created.", true);
+            await Respond(OriginalInteractionArgs.Interaction, "No teams created.", true);
             await ConcludeInteraction();
             return;
         }
@@ -93,7 +93,7 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
     {
         if (teamSelected == string.Empty)
         {
-            await Followup(args, "You must select a team to join.", true);
+            await Followup(args.Interaction, "You must select a team to join.", true);
             return;
         }
 
@@ -122,7 +122,7 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
             content += $"{Environment.NewLine}The team's role does not exist; please tell a host.";
         }
 
-        await Followup(args, content, true);
+        await Followup(args.Interaction, content, true);
         await ConcludeInteraction();
     }
 }

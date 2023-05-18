@@ -15,6 +15,7 @@ using System.Text;
 /// Base class for requests.
 /// </summary>
 // TODO: JR - since this can take a while, make sure each request posts progress messages.
+// TODO: make this take a more generic context than InteractionContext, so other things (like buttons) can use this.
 public abstract class RequestBase
 {
     /// <summary>

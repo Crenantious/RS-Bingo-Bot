@@ -23,7 +23,7 @@ using static RSBingo_Framework.DAL.DataFactory;
 // TODO: release the handler instance if there is an exception that cause the interaction to fail.
 public abstract class ComponentInteractionHandler : IDisposable
 {
-    protected const string AlreadyOnATeamMessage = "You are already on a team. Contact an admin if you would like to be removed from it.";
+    protected const string AlreadyOnATeamMessage = "You are already on a team. Contact a host if you would like to be removed from it.";
     protected const string NotOnATeamMessage = "You are not on a team.";
     protected const string AlreadyInteractingMessage = "You are already interacting with another component.";
 
@@ -175,7 +175,7 @@ public abstract class ComponentInteractionHandler : IDisposable
             UserActiveInstances.ContainsKey(args.User) &&
             UserActiveInstances[args.User].Any())
         {
-            await Respond(args, AlreadyInteractingMessage, true);
+            await Respond(args.Interaction, AlreadyInteractingMessage, true);
             return;
         }
 
@@ -298,7 +298,7 @@ public abstract class ComponentInteractionHandler : IDisposable
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             }
-            else if (await Respond(args, responseContent, ephemeralResponse) is false)
+            else if (await Respond(args.Interaction, responseContent, ephemeralResponse) is false)
             {
                 await instance.ConcludeInteraction();
             }

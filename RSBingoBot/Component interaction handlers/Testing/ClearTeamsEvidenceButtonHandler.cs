@@ -32,7 +32,7 @@ public class ClearTeamsEvidenceButtonHandler : ComponentInteractionHandler
             }
         }
 
-        await Respond(args, "All evidence for this team has been successfully deleted.", true);
+        await Respond(args.Interaction, "All evidence for this team has been successfully deleted.", true);
         await ConcludeInteraction();
     }
 }

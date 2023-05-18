@@ -82,6 +82,8 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.DiscordUserId).HasColumnName("discorduserid");
 
+            entity.Property(e => e.DiscordMessageId).HasColumnName("discordmessageid");
+
             entity.Property(e => e.TileId).HasColumnName("tileid");
 
             entity.Property(e => e.EvidenceType).HasColumnName("type");
@@ -126,6 +128,10 @@ public partial class RSBingoContext : DbContext
             entity.ToTable("task");
 
             entity.Property(e => e.RowId).HasColumnName("rowid");
+
+            entity.Property(e => e.Name).HasColumnName("name");
+
+            entity.Property(e => e.Difficulty).HasColumnName("difficulty");
 
             entity.Property(e => e.Name).HasMaxLength(50);
 

@@ -4,24 +4,22 @@
 
 namespace RSBingoBot.Component_interaction_handlers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingo_Framework.Exceptions;
 using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.Component_interaction_handlers.Select_Component;
 
 /// <summary>
 /// Handles the interaction with the "View evidence" button in a team's board channel.
 /// </summary>
 public class ViewEvidenceButtonHandler : ComponentInteractionHandler
 {
+    protected override bool AllowInteractionWithAnotherComponent => true;
+
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
     private const string initialResponseMessagePrefix = $"Select a tile to view its evidence.";

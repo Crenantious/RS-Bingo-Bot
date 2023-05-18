@@ -26,12 +26,14 @@ public class DiscordTeam
     private readonly DiscordClient discordClient;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
+    public const string RoleName = "Team {0}";
+
     #region channelNames
 
-    private const string categoryChannelName = "{0}";
-    private const string boardChannelName = "{0}-board";
-    private const string generalChannelName = "{0}-general";
-    private const string voiceChannelName = "{0}-voice";
+    public const string categoryChannelName = "{0}";
+    public const string boardChannelName = "{0}-board";
+    public const string generalChannelName = "{0}-general";
+    public const string voiceChannelName = "{0}-voice";
 
     #endregion
 
@@ -136,7 +138,7 @@ public class DiscordTeam
 
     private async Task<ulong> CreateRole()
     {
-        Role = await Guild.CreateRoleAsync(Name);
+        Role = await Guild.CreateRoleAsync(RoleName.FormatConst(Name));
         return Role.Id;
     }
 

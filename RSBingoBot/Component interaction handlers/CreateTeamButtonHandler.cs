@@ -38,7 +38,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
         if (DataWorker.Users.Exists(args.Interaction.User.Id))
         {
-            await Respond(args, AlreadyOnATeamMessage, true);
+            await Respond(args.Interaction, AlreadyOnATeamMessage, true);
             await ConcludeInteraction();
             return;
         }
@@ -73,13 +73,13 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
         if (string.IsNullOrEmpty(errorMessage) is false)
         {
-            await Respond(args, errorMessage, true);
+            await Respond(args.Interaction, errorMessage, true);
             return;
         }
 
         if (DataWorker.Teams.DoesTeamExist(teamName))
         {
-            await Respond(args, "A team with this name already exists.", true);
+            await Respond(args.Interaction, "A team with this name already exists.", true);
             return;
         }
 
@@ -88,7 +88,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
     private async Task CreateTeam(DiscordClient discordClient, ModalSubmitEventArgs args, string teamName)
     {
-        await Respond(args, "Creating team...", true);
+        await Respond(args.Interaction, "Creating team...", true);
 
         RSBingoBot.DiscordTeam team = new(discordClient, teamName);
         await team.InitialiseAsync();
@@ -98,7 +98,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
 
         await args.Interaction.Guild.GetMemberAsync(args.Interaction.User.Id).Result.GrantRoleAsync(team.Role);
 
-        await EditResponse(args, $"The team '{teamName}' has been created successfully.");
+        await EditResponse(args.Interaction, $"The team '{teamName}' has been created successfully.");
     }
 
     private string GetNameErrorMessage(string name)

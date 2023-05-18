@@ -4,19 +4,19 @@
 
 namespace RSBingoBot.BingoCommands;
 
+using RSBingoBot;
+using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.BingoCommands.Attributes;
+using RSBingoBot.Component_interaction_handlers;
+using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.Interfaces;
+using Microsoft.Extensions.Logging;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.Logging;
-using RSBingo_Framework;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Exceptions;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using RSBingoBot;
-using RSBingoBot.Component_interaction_handlers;
-using RSBingoBot.Discord_event_handlers;
+using DSharpPlus.SlashCommands.EventArgs;
 using static RSBingo_Framework.DAL.DataFactory;
+using static RSBingoBot.MessageUtilities;
 
 /// <summary>
 /// Controller class for Discord bot commands.
@@ -25,8 +25,8 @@ public class CommandController : ApplicationCommandModule
 {
     private const string TestTeamName = "Test";
     private const string ProcessingRequest = "Processing request.";
-    private const string UnknownError = "An unknown error occurred.";
-    private const string CannotRunCammandAfterCompetitionStartMessage = "This command cannot be run after the competition has started.";
+    private const string UnknownError = "An unknown error occurred while processing this command.";
+    private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
 
     private readonly ILogger<CommandController> logger;
     private readonly IDataWorker dataWorker = CreateDataWorker();
@@ -52,12 +52,22 @@ public class CommandController : ApplicationCommandModule
         this.modalSubmittedDEH = modalSubmittedDEH;
     }
 
+    public static void RegisterSlashCommands(DiscordClient discordClient)
+    {
+        SlashCommandsExtension slashCommands = discordClient.UseSlashCommands(new() { Services = General.DI });
+        slashCommands.RegisterCommands<CommandController>(Guild.Id);
+        slashCommands.SlashCommandErrored += SlashCommandErrored;
+    }
+
+    #region Channel initialisation
+
     /// <summary>
     /// Posts a message in the channel the command was run in with buttons to create and join a team.
     /// </summary>
     /// <param name="ctx">The context under which the command was executed.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-    [SlashCommand("InitializeCreateTeamChannel", $"Posts a message in the current channel with buttons to create and join a team.")]
+    [SlashCommand("InitializeCreateTeamChannel", "Posts a message in the current channel with buttons to create and join a team.")]
+    [RequireRole("Host")]
     public async Task InitializeCreateTeamChannel(InteractionContext ctx)
     {
         var createTeamButton = new DiscordButtonComponent(ButtonStyle.Primary, CreateTeamButtonHandler.CreateTeamButtonId, "Create team");
@@ -73,7 +83,7 @@ public class CommandController : ApplicationCommandModule
         ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
     }
 
-    [SlashCommand("CreateInitialLeaderboard", $"Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
+    [SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
     public async Task CreateInitialLeaderboard(InteractionContext ctx)
     {
         var builder = new DiscordMessageBuilder()
@@ -82,63 +92,104 @@ public class CommandController : ApplicationCommandModule
         await ctx.Channel.SendMessageAsync(builder);
     }
 
-    [SlashCommand("DeleteTeam", $"Deletes a team from the database, it's role; users; and channels.")]
-    public async Task DeleteTeam(InteractionContext ctx, [Option("Name", "Team name")] string teamName)
+    #endregion
+
+    #region Teams
+
+    [SlashCommand("CreateTeam", "Creates a team (in the database), its role, and channels.")]
+    [RequireRole("Host")]
+    public async Task CreateTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestCreateTeam(ctx, dataWorker, teamName));
+    }
+
+    [SlashCommand("RenameTeam", "Renames a team, its role, and channels. Should only be ran once every 5 minutes.")]
+    [RequireRole("Host")]
+    public async Task RenameTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("NewName", "New name")] string newName)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestRenameTeam(ctx, dataWorker, teamName, newName));
+    }
+
+    [SlashCommand("AddToTeam", "Adds a user to a team if they are not already in one.")]
+    [RequireRole("Host")]
+    public async Task AddToTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("User", "User")] DiscordUser user)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestAddToTeam(ctx, dataWorker, teamName, user));
+    }
+
+    [SlashCommand("RemoveFromTeam", "Removes a user from the database, and the team's role from them.")]
+    [RequireRole("Host")]
+    public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
+        [Option("User", "User")] DiscordUser user)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestRemoveFromTeam(ctx, dataWorker, teamName, user));
+    }
+
+    [SlashCommand("DeleteTeam", "Deletes a team (from the database), its role, and channels.")]
+    [RequireRole("Host")]
+    public async Task DeleteTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestDeleteTeam(ctx, dataWorker, teamName));
     }
 
-    [SlashCommand("RemoveFromTeam", $"Removes a user from a team in the database, and removes the team's role from them.")]
-    public async Task RemoveFromTeam(InteractionContext ctx, [Option("User", "User")] DiscordUser discordUser)
-    {
-        throw new NotImplementedException();
-    }
+    #endregion
+
+    #region CSV commands
 
     // TODO: JR - change to @ commands for the bot so non-admins can't see them
-    // TODO: JR - allow only in given channels
-    // TODO: JR - disable these when the competition starts for integrity.
-    [SlashCommand("AddTasks", $"Adds tasks to the database based on the uploaded csv file.")]
-    //$"The csv must have the format: name, difficulty, number of tiles, restriction name.")]
+    [SlashCommand("AddTasks", "Adds tasks to the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVAddTasks(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("DeleteTasks", $"Deletes tasks from the database based on the uploaded csv file.")]
+    [SlashCommand("DeleteTasks", "Deletes tasks from the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVRemoveTasks(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("AddTaskRestrictions", $"Adds task restrictions to the database based on the uploaded csv file.")]
+    [SlashCommand("AddTaskRestrictions", "Adds task restrictions to the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVAddTaskRestrictions(ctx, dataWorker, attachment));
     }
 
-    [SlashCommand("DeleteTaskRestrictions", $"Deletes task restrictions from the database based on the uploaded csv file.")]
+    [SlashCommand("DeleteTaskRestrictions", "Deletes task restrictions from the database based on the uploaded csv file.")]
+    [RequireRole("Host")]
+    [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
         IDataWorker dataWorker = CreateDataWorker();
         await RunRequest(dataWorker, ctx, new RequestOperateCSVRemoveTaskRestrictions(ctx, dataWorker, attachment));
     }
 
-    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request, bool allowDuringCompeition = true)
+    #endregion
+
+    #region Requests and responses
+
+    private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
     {
         IEnumerable<string> responseMessages = new List<string>();
 
         try
         {
-            if (allowDuringCompeition is false && General.HasCompetitionStarted)
-            {
-                responseMessages = new List<string> { CannotRunCammandAfterCompetitionStartMessage };
-                return;
-            }
-
             if (await SendKeepAliveMessage(ctx) is false)
             {
                 // Could not establish a connection to the discord channel. So we do not attempt to set a message for a response. 
@@ -181,32 +232,21 @@ public class CommandController : ApplicationCommandModule
         }
         finally
         {
-            if (responseMessages.Any()) { await SetResponseMessages(ctx, responseMessages); }
+            if (responseMessages.Any()) { await SendResponseMessages(ctx, responseMessages); }
         }
     }
 
-    private static async Task SetResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
+    private static async Task SendResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
     {
-        try
-        {
-            // Delete the original response as it was just a keep alive message.
-            await ctx.DeleteResponseAsync();
-        }
-        catch { }
+        // Delete the original response as it was just a keep alive message.
+        DeleteResponse(ctx.Interaction);
 
         DiscordFollowupMessageBuilder builder = new() { IsEphemeral = true };
 
-        try
+        foreach (string message in responseMessages)
         {
-            foreach (string message in responseMessages)
-            {
-                builder.WithContent(message);
-                await ctx.FollowUpAsync(builder);
-            }
-        }
-        catch
-        {
-            // This can possibly throw if the interaction has timed-out.
+            builder.WithContent(message);
+            await Followup(ctx.Interaction, builder);
         }
     }
 
@@ -228,4 +268,56 @@ public class CommandController : ApplicationCommandModule
             return false;
         }
     }
+
+    private static async Task SlashCommandErrored(SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
+    {
+        if (args.Exception is not SlashExecutionChecksFailedException executionCheckException) { return; }
+
+        List<string> errorMessages = GetExecutionCheckErrorMessages(executionCheckException);
+
+        if (errorMessages.Any())
+        {
+            await RespondWithExecutionCheckErrors(args, errorMessages);
+            return;
+        }
+
+        await args.Context.CreateResponseAsync(UnknownExecutionCheckErrorMessage, true);
+    }
+
+    private static async Task RespondWithExecutionCheckErrors(SlashCommandErrorEventArgs args, List<string> errorMessages)
+    {
+        IEnumerable<string> compiledMessages = GetCompiledMessages(errorMessages);
+        string firstMessage = compiledMessages.ElementAt(0);
+
+        if (string.IsNullOrWhiteSpace(firstMessage))
+        {
+            await Respond(args.Context.Interaction, UnknownExecutionCheckErrorMessage, true);
+            return;
+        }
+
+        await Respond(args.Context.Interaction, firstMessage, true);
+
+        // TODO: test this works.
+        foreach (string message in compiledMessages.Skip(1))
+        {
+            await Followup(args.Context.Interaction, message, true);
+        }
+    }
+
+    private static List<string> GetExecutionCheckErrorMessages(SlashExecutionChecksFailedException executionCheckException)
+    {
+        List<string> errorMessages = new(executionCheckException.FailedChecks.Count());
+
+        foreach (var check in executionCheckException.FailedChecks)
+        {
+            if (check is BingoBotSlashCheckAttribute attr)
+            {
+                errorMessages.Add(attr.GetErrorMessage());
+            }
+        }
+
+        return errorMessages;
+    }
+
+    #endregion
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitEvidenceButtonHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitImageForTileButtonHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,6 @@ using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
-using static RSBingo_Common.General;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
 
@@ -50,7 +49,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
         if (Team!.Tiles.Any() is false)
         {
-            await Followup(args, "There are no tiles to submit evidence for.", true);
+            await Followup(args.Interaction, "There are no tiles to submit evidence for.", true);
             await ConcludeInteraction();
             return;
         }
@@ -131,7 +130,9 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
         (SubmissionError error, string errorMessage) = GetSubmissionErrorAndMessage();
         await HandleSubmissionError(error, errorMessage);
 
-        string submittedTiles = await SubmitEvidence(TileSelect.SelectedItems.Select(i => (Tile)i.value!));
+        IEnumerable<Tile> tiles = TileSelect.SelectedItems.Select(i => (Tile)i.value!);
+        await DeleteCurrentEvidenceMessages(tiles);
+        string submittedTiles = await SubmitEvidence(tiles);
 
         await ConcludeInteraction();
 
@@ -139,6 +140,27 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
             new DiscordFollowupMessageBuilder()
             .WithContent($"Evidence has been submitted successfully for the following tiles:{Environment.NewLine}{submittedTiles}")
             .AsEphemeral());
+    }
+
+    private async Task DeleteCurrentEvidenceMessages(IEnumerable<Tile> tiles)
+    {
+        foreach (Tile tile in tiles)
+        {
+            Evidence? evidence = EvidenceRecord.GetByTileUserAndType(DataWorker, tile, User!, EvidenceType);
+            if (evidence is null) { continue; }
+
+            await DeletePendingEvidenceMessage(evidence.DiscordMessageId);
+        }
+    }
+
+    private async Task DeletePendingEvidenceMessage(ulong messageId)
+    {
+        try
+        {
+            DiscordMessage message = await PendingReviewEvidenceChannel.GetMessageAsync(messageId);
+            await message.DeleteAsync();
+        }
+        catch { return; }
     }
 
     private async Task<string> SubmitEvidence(IEnumerable<Tile> tiles)

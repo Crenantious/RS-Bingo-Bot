@@ -15,7 +15,8 @@ using DSharpPlus.SlashCommands;
 /// </summary>
 public class RequestDeleteTeam : RequestBase
 {
-    private const string CouldNotFindTeamError = "Could not find team with name {0}.";
+    private const string CouldNotFindTeamError = "Could not find a team with name '{0}'.";
+    private const string TeamSuccessfullyDeletedMessage = "Team deleted successfully.";
 
     private readonly string teamName;
 
@@ -46,7 +47,7 @@ public class RequestDeleteTeam : RequestBase
         DataWorker.Teams.Remove(team);
         RSBingoBot.DiscordTeam.TeamDeleted(team);
 
-        return ProcessSuccess("Team deleted.");
+        return ProcessSuccess(TeamSuccessfullyDeletedMessage);
     }
 
     private protected override bool ValidateSpecificRequest()
