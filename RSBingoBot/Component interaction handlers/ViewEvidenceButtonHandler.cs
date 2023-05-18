@@ -18,7 +18,8 @@ using RSBingoBot.Component_interaction_handlers.Select_Component;
 /// </summary>
 public class ViewEvidenceButtonHandler : ComponentInteractionHandler
 {
-    private const string initialResponseMessagePrefix = "Select a tile to view its evidence.";
+    private const string InitialResponseMessagePrefix = "Select a tile to view its evidence.";
+    private const string NoTilesFoundError = "There are no tiles with evidence for you to view.";
 
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
@@ -43,12 +44,12 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
     {
         await base.InitialiseAsync(args, info);
 
-        initialResponseMessagePrefix.FormatConst(args.User.Mention, initialResponseMessagePrefix);
+        InitialResponseMessagePrefix.FormatConst(args.User.Mention, InitialResponseMessagePrefix);
         closeButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Close");
         CreateTileSelect();
 
         var builder = new DiscordWebhookBuilder()
-            .WithContent(initialResponseMessagePrefix)
+            .WithContent(InitialResponseMessagePrefix)
             .AddComponents(tileSelect.DiscordComponent)
             .AddComponents(closeButton);
 
@@ -72,6 +73,12 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
             DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
             DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
             tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, selectedTile == tile, emoji));
+        }
+
+        if (tileSelectOptions.Any() is false)
+        {
+            throw new ComponentInteractionHandlerException(NoTilesFoundError, OriginalInteractionArgs, true,
+                ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
         }
 
         tileSelect = new SelectComponent(tileSelectCustomId, "Select tiles", TileSelectItemSelected);

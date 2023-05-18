@@ -60,7 +60,6 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
         initialResponseMessagePrefix = $"{args.User.Mention} " + initialResponseMessagePrefix;
 
-        MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
         await UpdateOriginalResponse();
 
         InitialDEHSubscriptions(args);
