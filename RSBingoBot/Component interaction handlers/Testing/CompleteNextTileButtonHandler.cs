@@ -20,10 +20,13 @@ using static RSBingoBot.MessageUtilities;
 public class CompleteNextTileButtonHandler : ComponentInteractionHandler
 {
     /// <inheritdoc/>
-    protected override bool ContinueWithNullUser { get { return false; } }
+    protected override bool ContinueWithNullUser => true;
 
     /// <inheritdoc/>
-    protected override bool CreateAutoResponse { get { return true; } }
+    protected override bool CreateAutoResponse => true;
+
+    /// <inheritdoc/>
+    protected override bool UserMustBeInTeam => false;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)

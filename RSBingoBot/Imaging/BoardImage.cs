@@ -32,7 +32,7 @@ public static class BoardImage
     /// </summary>
     public static Image Create(Team team)
     {
-        Image teamBoard = GetBoard(team);
+        Image teamBoard = boardBackground.Clone(x => { });
 
         foreach (Tile tile in team.Tiles.OrderBy(t => t.BoardIndex))
         {
@@ -115,7 +115,7 @@ public static class BoardImage
     {
         foreach (BingoTask task in dataWorker.BingoTasks.GetAll())
         {
-            Image taskImage = Image<Rgba32>.Load(GetTaskImagesPath(task.Name));
+            Image taskImage = Image<Rgba32>.Load(GetTaskImagePath(task.Name));
             int width = TilePixelWidth - (TaskXPaddingPixels + (int)MathF.Abs(TaskXOffsetPixels)) * 2;
             int height = TilePixelHeight - (TaskYPaddingPixels + (int)MathF.Abs(TaskYOffsetPixels)) * 2;
             ResizeImageForTile(taskImage, width, height);

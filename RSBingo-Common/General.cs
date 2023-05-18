@@ -62,12 +62,12 @@ public static class General
     /// <summary>
     /// Gets the amount of tiles each row of the bingo board has.
     /// </summary>
-    public const int TilesPerRow = 5;
+    public const int TilesPerRow = 6;
 
     /// <summary>
     /// Gets the amount of tiles each column of the bingo board has.
     /// </summary>
-    public const int TilesPerColumn = 5;
+    public const int TilesPerColumn = 6;
 
     /// <summary>
     /// Gets the maximum number of options a <see cref="DiscordSelectComponent"/> can have.
@@ -77,7 +77,7 @@ public static class General
     /// <summary>
     /// Gets the maximum number of tiles a team's board can have.
     /// </summary>
-    public const int MaxTilesOnABoard = 25;
+    public const int MaxTilesOnABoard = 36;
 
     public const int TeamNameMaxLength = 50;
 

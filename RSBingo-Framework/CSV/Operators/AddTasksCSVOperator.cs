@@ -30,7 +30,7 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
     /// <inheritdoc/>
     protected override void OperateOnLine(AddTasksCSVLine line)
     {
-        string imagePath = GetTaskImagesPath(line.TaskName.Value);
+        string imagePath = GetTaskImagePath(line.TaskName.Value);
 
         // The image will be used elsewhere.
         if (DownloadTaskImage(line, imagePath) is Warning warning)

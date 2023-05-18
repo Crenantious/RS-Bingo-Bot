@@ -184,14 +184,6 @@ public abstract class ComponentInteractionHandler : IDisposable
             instance.DataWorker.Teams.GetByName(info.Item2.Team.Name) :
             null;
 
-        if (user == null)
-        {
-            if (!instance.ContinueWithNullUser)
-            {
-                // TODO: notify admins of this and tell the user they have been notified
-                throw new NullReferenceException("User is not in the database.");
-            }
-        }
 
         if (info.Item2.Team != null)
         {
@@ -203,7 +195,7 @@ public abstract class ComponentInteractionHandler : IDisposable
 
             if (instance.UserMustBeInTeam)
             {
-                if (team == null || user.Team != team)
+                if (team == null || user is null || user.Team != team)
                 {
                     var builder = new DiscordInteractionResponseBuilder()
                         .WithContent($"You are required to be in the team '{info.Item2.Team.Name}' to interact with this.")

@@ -40,7 +40,7 @@ public static class BingoTasksCSVOperatorTestHelper
     {
         foreach (string task in TasksToCleanUp)
         {
-            try { File.Delete(GetTaskImagesPath(task)); }
+            try { File.Delete(GetTaskImagePath(task)); }
             catch { }
         }
     }

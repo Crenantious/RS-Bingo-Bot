@@ -15,32 +15,32 @@ internal static class BoardPreferences
     /// <summary>
     /// Gets the width of each tile in pixels.
     /// </summary>
-    public static int TilePixelWidth => 149;
+    public static int TilePixelWidth => 136;
 
     /// <summary>
     /// Gets the height of each tile in pixels.
     /// </summary>
-    public static int TilePixelHeight => 149;
+    public static int TilePixelHeight => 136;
 
     /// <summary>
     /// Gets the width of the border between tiles.
     /// </summary>
-    public static int TileBorderPixelWidth => 6;
+    public static int TileBorderPixelWidth => 8;
 
     /// <summary>
     /// Gets the height of the border between tiles.
     /// </summary>
-    public static int TileBorderPixelHeight => 6;
+    public static int TileBorderPixelHeight => 8;
 
     /// <summary>
     /// Gets the width of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelWidth => 3;
+    public static int BoardBorderPixelWidth => 4;
 
     /// <summary>
     /// Gets the height of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelHeight => 3;
+    public static int BoardBorderPixelHeight => 4;
 
     #endregion
 
@@ -56,7 +56,7 @@ internal static class BoardPreferences
     /// Gets the amount of pixels to move task images inside a tile from the centre, in the y direction.</br>
     /// Negative values moves the image up, positive moves down.
     /// </summary>
-    public const int TaskYOffsetPixels = 30;
+    public const int TaskYOffsetPixels = 0;
 
     /// <summary>
     /// Gets the amount of pixels to pad task images inside a tile, in the x direction, on both sides.

@@ -94,9 +94,8 @@ public class DiscordTeam
         };
 
         CreateTeamEntry(channelAndMessageIds);
-        await UpdateBoardMessage(BoardImage.Create(team));
 
-        CommonInitialisation();
+        await CommonInitialisation();
     }
 
     /// <summary>
@@ -110,12 +109,13 @@ public class DiscordTeam
         boardMessage = await BoardChannel.GetMessageAsync(team.BoardMessageId);
         Role = Guild.GetRole(team.RoleId);
 
-        CommonInitialisation();
+        await CommonInitialisation();
     }
 
-    private void CommonInitialisation()
+    private async Task CommonInitialisation()
     {
         instances[team.RowId] = this;
+        await UpdateBoardMessage(BoardImage.Create(team));
         RegisterBoardChannelComponentInteractions();
         TeamCreatedEvent?.Invoke(this);
     }

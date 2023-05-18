@@ -6,6 +6,7 @@
 
 namespace RSBingo_Framework;
 
+using RSBingo_Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,15 +31,15 @@ public class TaskTemplatePopulator
             foreach (string? fileName in files)
             {
                 if (fileName == null) { continue; }
-                text += $"{fileName}, {difficulty.ToLower()}, 1{Environment.NewLine}";
+                text += $"{fileName}, {difficulty.ToLower()}, 1, {Environment.NewLine}";
             }
         }
-        File.WriteAllText(GetFilePath("Tasks template.csv"), text);
+        File.WriteAllText(GetFilePath("Bronze reaper tasks template.csv"), text);
     }
 
     public static string GetFilePath(string fileName) =>
         Path.Combine(AppRootPath, fileName);
 
-    private static string GetImagePath(string name) =>
-        GetFilePath("Resources/Task images/" + name);
+    private static string GetImagePath(string difficulty) =>
+        Path.Combine(Paths.TaskImagesFolder, difficulty);
 }

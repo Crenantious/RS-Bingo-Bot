@@ -19,7 +19,7 @@ using RSBingoBot.Discord_event_handlers;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>
-/// Controller class for discoed bot commands.
+/// Controller class for Discord bot commands.
 /// </summary>
 public class CommandController : ApplicationCommandModule
 {
