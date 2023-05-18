@@ -16,6 +16,7 @@ using SixLabors.ImageSharp;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.Imaging.BoardImage;
 using RSBingo_Framework.Scoring;
+using RSBingoBot.DTO;
 
 /// <summary>
 /// Creates and sets up channels, roles and messages for the team.
@@ -89,12 +90,10 @@ public class DiscordTeam
     /// </summary>
     public async Task InitialiseAsync()
     {
-        List<ulong> channelAndMessageIds = new(await CreateChannels())
-        {
-            await InitialiseBoardChannel(),
-            await CreateRole()
-        };
-
+        ulong roleId = await CreateRole();
+        List<ulong> channelAndMessageIds = await CreateChannels(Role);
+        channelAndMessageIds.Add(await InitialiseBoardChannel());
+        channelAndMessageIds.Add(roleId);
         CreateTeamEntry(channelAndMessageIds);
 
         await CommonInitialisation();
@@ -122,17 +121,18 @@ public class DiscordTeam
         TeamCreatedEvent?.Invoke(this);
     }
 
-    private async Task<List<ulong>> CreateChannels()
+    private async Task<List<ulong>> CreateChannels(DiscordRole teamRole)
     {
         List<ulong> ids = new(4);
+        DiscordTeamChannelOverwrites overwrites = new(Guild, teamRole);
 
-        DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category);
-        BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category);
+        DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category, overwrites: overwrites.Category);
+        BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category, overwrites: overwrites.Board);
 
         ids.Add(category.Id);
         ids.Add(BoardChannel.Id);
-        ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category)).Id);
-        ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category)).Id);
+        ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category, overwrites: overwrites.General)).Id);
+        ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category, overwrites: overwrites.Voice)).Id);
         return ids;
     }
 

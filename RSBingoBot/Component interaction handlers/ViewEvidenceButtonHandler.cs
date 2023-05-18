@@ -18,19 +18,25 @@ using RSBingoBot.Component_interaction_handlers.Select_Component;
 /// </summary>
 public class ViewEvidenceButtonHandler : ComponentInteractionHandler
 {
-    protected override bool AllowInteractionWithAnotherComponent => true;
+    private const string initialResponseMessagePrefix = "Select a tile to view its evidence.";
 
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
-    private const string initialResponseMessagePrefix = $"Select a tile to view its evidence.";
+    private Tile? selectedTile = null;
     private SelectComponent tileSelect = null!;
     private DiscordButtonComponent closeButton = null!;
-    private Tile? selectedTile = null;
 
     /// <inheritdoc/>
-    protected override bool ContinueWithNullUser { get { return false; } }
-    protected override bool CreateAutoResponse { get { return true; } }
+    protected override bool ContinueWithNullUser => false;
 
+    /// <inheritdoc/>
+    protected override bool CreateAutoResponse => true;
+
+    /// <inheritdoc/>
+    protected override bool IsAutoResponseEphemeral => false;
+
+    /// <inheritdoc/>
+    protected override bool AllowInteractionWithAnotherComponent => true;
 
     /// <inheritdoc/>
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
