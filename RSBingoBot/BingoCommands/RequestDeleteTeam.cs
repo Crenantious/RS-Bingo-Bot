@@ -93,6 +93,7 @@ public class RequestDeleteTeam : RequestBase
         bool allChannelsDeleted = await TryDeleteChannel(team.CategoryChannelId);
         allChannelsDeleted = await TryDeleteChannel(team.BoardChannelId) && allChannelsDeleted;
         allChannelsDeleted = await TryDeleteChannel(team.GeneralChannelId) && allChannelsDeleted;
+        allChannelsDeleted = await TryDeleteChannel(team.EvidencelChannelId) && allChannelsDeleted;
         allChannelsDeleted = await TryDeleteChannel(team.VoiceChannelId) && allChannelsDeleted;
 
         channelSemaphore.Release();

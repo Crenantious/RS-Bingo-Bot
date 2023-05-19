@@ -48,7 +48,7 @@ public class Program
 
             // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
-            AdminEvidenceReaction.SetUp();
+            EvidenceReaction.SetUp();
 
             BoardImage.Initialise();
 #if DEBUG

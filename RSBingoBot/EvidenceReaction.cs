@@ -1,4 +1,4 @@
-﻿// <copyright file="AdminEvidenceReaction.cs" company="PlaceholderCompany">
+﻿// <copyright file="EvidenceReaction.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -18,9 +18,8 @@ using DSharpPlus.EventArgs;
 using static BingoBotCommon;
 using static RSBingo_Framework.Records.EvidenceRecord;
 using static RSBingo_Framework.DAL.DataFactory;
-using RSBingo_Framework.DAL;
 
-internal class AdminEvidenceReaction
+internal class EvidenceReaction
 {
     private const string EvidenceSubmittedNotification = "The evidence submitted by {0} for the tile {1} has been {2}.{3}";
 

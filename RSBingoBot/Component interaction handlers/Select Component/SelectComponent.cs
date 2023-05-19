@@ -40,6 +40,7 @@ public class SelectComponent
         this.Disabled = disabled;
         this.MinOptions = minOptions;
         this.MaxOptions = maxOptions;
+        this.placeholder = placeholder;
         this.InitialPlaceholder = placeholder;
     }
 

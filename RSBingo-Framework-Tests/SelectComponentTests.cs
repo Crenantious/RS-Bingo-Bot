@@ -4,12 +4,10 @@
 
 namespace RSBingo_Framework_Tests;
 
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingo_Framework.Models;
+using RSBingo_Framework.Interfaces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static RSBingo_Common.General;
 
 [TestClass]
