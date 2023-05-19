@@ -8,15 +8,15 @@ using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
+using RSBingo_Framework.Interfaces;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.
@@ -24,10 +24,12 @@ using RSBingo_Framework.Interfaces;
 // TODO: - refactor. Split into helper classes most likely.
 public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHandler
 {
-    private const string TileIsAlreadyCompleteError = "{0} tile has been completed so evidence can no longer be submitted for it." +
-                        "The list has been updated.";
-
-    private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
+    // This is for when the bug related to re-creating the select component gets fixed.
+    //private const string TileIsAlreadyCompleteError = "A selected tile has already been completed so evidence can no longer be submitted for it. " +
+    //                    "The list has been updated.";
+    private const string TileIsAlreadyCompleteError = "A selected tile has already been completed; evidence can no longer be submitted for it. " +
+                        "Please press the button again to get a refreshed list.";
+    private string tileSelectCustomId = Guid.NewGuid().ToString();
 
     private DiscordButtonComponent cancelButton = null!;
     private DiscordButtonComponent submitButton = null!;
@@ -101,17 +103,20 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     private void CreateTileSelect()
     {
         IEnumerable<Tile> tiles = GetTileSelectTiles();
-
+        //tileSelectCustomId = new Guid().ToString();
         var options = new List<SelectComponentOption>();
         foreach (Tile tile in tiles)
         {
             options.Add(new SelectComponentItem(tile.Task.Name, tile));
         }
 
-        TileSelect = new(tileSelectCustomId, "Select tiles", maxOptions: TileSelectMaxOptions);
+        TileSelect = new(tileSelectCustomId, "Select tiles", SelectOptionSelected, SelectOptionSelected, maxOptions: TileSelectMaxOptions);
         TileSelect.SelectOptions = options;
         TileSelect.Build();
     }
+
+    private async Task SelectOptionSelected(InteractionCreateEventArgs args) =>
+        await UpdateOriginalResponse();
 
     private async Task ImagePosted(DiscordClient client, MessageCreateEventArgs args)
     {
@@ -137,8 +142,19 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
         IEnumerable<Tile> tiles = TileSelect.SelectedItems.Select(i => (Tile)i.value!);
         if (await ValidateSelection(args, tiles) is false)
         {
-            CreateTileSelect();
-            await UpdateOriginalResponse();
+            // HACK: - not sure why a new dw is required to refresh the team's tiles.
+            // TODO: JR - when re-creating the tile select, the selection is broken. It gets created correctly with all the tiles
+            // split into pages, but when selecting an option, it seems as though it's options are that of page 1.
+            // And so it tries to get the page as an index of those options. The placeholder stays as the default, not sure
+            // if an option is actually counted as being selected.
+            //DataWorker = CreateDataWorker();
+            //CreateTileSelect();
+            //await UpdateOriginalResponse();
+            //await Followup(args.Interaction, TileIsAlreadyCompleteError, true);
+
+            // TODO: replace this with the above code and fix it. This is just temporary so the competition can run on  time,
+            await ConcludeInteraction();
+            await Followup(args.Interaction, TileIsAlreadyCompleteError, true);
             return;
         }
 
@@ -168,13 +184,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
             }
         }
 
-        if (invalidTiles.Any())
-        {
-            string prefix = invalidTiles.Count() == 1 ? "This" : "A selected";
-            await Followup(args.Interaction, TileIsAlreadyCompleteError.FormatConst(prefix), true);
-            return false;
-        }
-        return true;
+        return invalidTiles.Any() is false;
     }
 
     private async Task DeleteCurrentEvidenceMessages(IEnumerable<Tile> tiles)

@@ -74,7 +74,7 @@ public class SelectComponent
     {
         if (DiscordComponent == null) { throw new NullReferenceException($"Component must not be null; make sure Build() has been called before this method."); }
 
-        (List<SelectComponentOption> options, OptionSelectionType pageSelected)  = GetOptionsFromInteractonArgs(args);
+        (List<SelectComponentOption> options, OptionSelectionType pageSelected) = GetOptionsFromInteractonArgs(args);
 
         if (pageSelected is OptionSelectionType.Page)
         {
@@ -172,5 +172,5 @@ public class SelectComponent
     private void UpdatePlaceholder(string pageLabel)
         => placeholder = IsFirstPage() ? pageLabel : $"{placeholder}, {pageLabel}";
 
-    private bool IsFirstPage() => placeholder == InitialPlaceholder; 
+    private bool IsFirstPage() => placeholder == InitialPlaceholder;
 }
