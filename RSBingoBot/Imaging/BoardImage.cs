@@ -6,6 +6,7 @@ namespace RSBingoBot.Imaging;
 
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
 using RSBingo_Framework.Interfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -13,18 +14,27 @@ using SixLabors.ImageSharp.Processing;
 using static RSBingo_Common.Paths;
 using static RSBingo_Common.General;
 using static RSBingoBot.Imaging.BoardPreferences;
-using RSBingo_Framework.Records;
+using static RSBingoBot.Imaging.BoardImage;
+using static RSBingo_Framework.Records.EvidenceRecord;
 
 public static class BoardImage
 {
     private static Image boardBackground = null!;
     private static Image tileCompletedMarker = null!;
+    private static Image evidencePendingMarker = null!;
+
+    public enum Marker
+    {
+        TileCompleted,
+        EvidencePending
+    }
 
     public static void Initialise()
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         boardBackground = Image.Load(BoardBackgroundPath);
-        tileCompletedMarker = GetResizedCompletionMarker();
+        tileCompletedMarker = GetResizedMarker(TileCompletedMarkerPath);
+        evidencePendingMarker = GetResizedMarker(EvidencePendingMarkerPath);
         ResizeTaskImages(dataWorker);
     }
 
@@ -46,6 +56,23 @@ public static class BoardImage
     /// <summary>
     /// Update the tile on the team's board based on it's board index and task name.
     /// </summary>
+    public static Image UpdateTile(Tile tile) =>
+        UpdateTile(GetBoard(tile.Team), tile);
+
+    public static Image UpdateTiles(Team team, IEnumerable<Tile> tiles)
+    {
+        Image board = GetBoard(team);
+
+        foreach(Tile tile in tiles)
+        {
+            board = UpdateTile(board, tile);
+        }
+        return board;
+    }
+
+    /// <summary>
+    /// Update the tile on the team's board based on it's board index and task name.
+    /// </summary>
     public static Image UpdateTile(Image board, Tile tile)
     {
         Rectangle tileRect = GetTileRect(tile.BoardIndex);
@@ -59,16 +86,10 @@ public static class BoardImage
 
         board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
 
-        if (tile.IsCompleteAsBool()) { MarkTileComplete(board, tile); }
+        MarkTile(board, tile);
 
         return board;
     }
-
-    /// <summary>
-    /// Update the tile on the team's board based on it's board index and task name.
-    /// </summary>
-    public static Image UpdateTile(Tile tile) =>
-        UpdateTile(GetBoard(tile.Team), tile);
 
     /// <summary>
     /// Removes the tile from the board, leaving just the background.
@@ -83,19 +104,21 @@ public static class BoardImage
     /// <summary>
     /// Places a marker over the <paramref name="tile"/> on the team's board.
     /// </summary>
-    public static Image MarkTileComplete(Tile tile) =>
-        MarkTileComplete(GetBoard(tile.Team), tile);
+    public static Image MarkTile(Tile tile, Marker marker) =>
+        MarkTile(GetBoard(tile.Team), tile, marker);
 
     /// <summary>
     /// Places a marker over the <paramref name="tile"/> on the team's board.
     /// </summary>
-    public static Image MarkTileComplete(Image board, Tile tile)
+    public static Image MarkTile(Image board, Tile tile, Marker marker)
     {
-        Rectangle tileRect = GetTileRect(tile.BoardIndex);
-        Point markerPosition = new(tileRect.X + (tileRect.Width - tileCompletedMarker.Width) / 2,
-            tileRect.Y + (tileRect.Height - tileCompletedMarker.Height) / 2);
+        Image markerImage = marker == Marker.TileCompleted ? tileCompletedMarker : evidencePendingMarker;
 
-        board.Mutate(b => b.DrawImage(tileCompletedMarker, markerPosition, 1));
+        Rectangle tileRect = GetTileRect(tile.BoardIndex);
+        Point markerPosition = new(tileRect.X + (tileRect.Width - markerImage.Width) / 2,
+            tileRect.Y + (tileRect.Height - markerImage.Height) / 2);
+
+        board.Mutate(b => b.DrawImage(markerImage, markerPosition, 1));
         return board;
     }
 
@@ -106,6 +129,15 @@ public static class BoardImage
     {
         string teamBoardPath = GetTeamBoardPath(team.Name);
         return File.Exists(teamBoardPath) ? Image<Rgba32>.Load(teamBoardPath) : boardBackground.Clone(b => { });
+    }
+
+    private static Image GetResizedMarker(string path)
+    {
+        Image marker = Image<Rgba32>.Load(path);
+        int width = TilePixelWidth - MarkerXPaddingPixels * 2;
+        int height = TilePixelHeight - MarkerYPaddingPixels * 2;
+        ResizeImageForTile(marker, width, height);
+        return marker;
     }
 
     private static void ResizeImageForTile(Image taskImage, int width, int height)
@@ -137,12 +169,13 @@ public static class BoardImage
         return new(x, y, TilePixelWidth, TilePixelHeight);
     }
 
-    private static Image GetResizedCompletionMarker()
+    private static void MarkTile(Image board, Tile tile)
     {
-        Image marker = Image<Rgba32>.Load(TileCompletedMarkerPath);
-        int width = TilePixelWidth - MarkerXPaddingPixels * 2;
-        int height = TilePixelHeight - MarkerYPaddingPixels * 2;
-        ResizeImageForTile(marker, width, height);
-        return marker;
+        if (tile.IsCompleteAsBool()) { MarkTile(board, tile, Marker.TileCompleted); }
+        else if (tile.Evidence.FirstOrDefault(e =>
+            EvidenceRecord.EvidenceStatusLookup.Get(e.Status) == EvidenceStatus.PendingReview) is Evidence evidence)
+        {
+            MarkTile(board, tile, Marker.EvidencePending);
+        }
     }
 }

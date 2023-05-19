@@ -17,6 +17,7 @@ using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
+using RSBingoBot.Imaging;
 
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.
@@ -103,7 +104,6 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     private void CreateTileSelect()
     {
         IEnumerable<Tile> tiles = GetTileSelectTiles();
-        //tileSelectCustomId = new Guid().ToString();
         var options = new List<SelectComponentOption>();
         foreach (Tile tile in tiles)
         {
@@ -160,6 +160,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
 
         await DeleteCurrentEvidenceMessages(tiles);
         string submittedTiles = await SubmitEvidence(tiles);
+        await UpdateBoard(tiles);
 
         await ConcludeInteraction();
 
@@ -168,6 +169,9 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
             .WithContent($"Evidence has been submitted successfully for the following tiles:{Environment.NewLine}{submittedTiles}")
             .AsEphemeral());
     }
+
+    private async Task UpdateBoard(IEnumerable<Tile> tiles) =>
+        await RSBingoBot.DiscordTeam.UpdateBoard(Team, BoardImage.UpdateTiles(Team, tiles));
 
     private async Task<bool> ValidateSelection(ComponentInteractionCreateEventArgs args, IEnumerable<Tile> tiles)
     {

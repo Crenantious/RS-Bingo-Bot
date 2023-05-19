@@ -146,7 +146,7 @@ public class DiscordTeam
 
     private void CreateTeamEntry(List<ulong> ids)
     {
-        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], ids[5]);
+        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], ids[6]);
         if (EnableBoardCustomisation is false) { team.CreateDefaultTiles(dataWorker); }
         dataWorker.SaveChanges();
     }
@@ -244,5 +244,5 @@ public class DiscordTeam
     }
 
     public async Task MarkTileCompleted(Tile tile) =>
-        await UpdateBoardMessage(BoardImage.MarkTileComplete(tile));
+        await UpdateBoardMessage(BoardImage.MarkTile(tile, Marker.TileCompleted));
 }
