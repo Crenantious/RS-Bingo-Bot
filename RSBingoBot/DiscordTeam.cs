@@ -198,18 +198,21 @@ public class DiscordTeam
         var builder = new DiscordMessageBuilder()
             .AddFile(fs);
 
-        if (EnableBoardCustomisation)
+        if (General.HasCompetitionStarted)
         {
-            builder.AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton);
-        }
-        else
-        {
-            builder.AddComponents(submitDropButton, viewEvidenceButton);
-        }
+            if (EnableBoardCustomisation)
+            {
+                builder.AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton);
+            }
+            else
+            {
+                builder.AddComponents(submitDropButton, viewEvidenceButton);
+            }
 
 #if DEBUG
-        builder.AddComponents(clearEvidenceButton, completeNextTileButton);
+            builder.AddComponents(clearEvidenceButton, completeNextTileButton);
 #endif
+        }
 
         await boardMessage.ModifyAsync(builder);
         fs.Dispose();
