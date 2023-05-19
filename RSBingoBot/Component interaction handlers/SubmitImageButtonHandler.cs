@@ -15,6 +15,8 @@ using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 
 /// <summary>
 /// Handles the interaction with a button that requires submitting an image for a tile in a team's board channel.
@@ -22,6 +24,9 @@ using static RSBingoBot.MessageUtilities;
 // TODO: - refactor. Split into helper classes most likely.
 public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHandler
 {
+    private const string TileIsAlreadyCompleteError = "{0} tile has been completed so evidence can no longer be submitted for it." +
+                        "The list has been updated.";
+
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
     private DiscordButtonComponent cancelButton = null!;
@@ -130,6 +135,13 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
         await HandleSubmissionError(error, errorMessage);
 
         IEnumerable<Tile> tiles = TileSelect.SelectedItems.Select(i => (Tile)i.value!);
+        if (await ValidateSelection(args, tiles) is false)
+        {
+            CreateTileSelect();
+            await UpdateOriginalResponse();
+            return;
+        }
+
         await DeleteCurrentEvidenceMessages(tiles);
         string submittedTiles = await SubmitEvidence(tiles);
 
@@ -139,6 +151,30 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
             new DiscordFollowupMessageBuilder()
             .WithContent($"Evidence has been submitted successfully for the following tiles:{Environment.NewLine}{submittedTiles}")
             .AsEphemeral());
+    }
+
+    private async Task<bool> ValidateSelection(ComponentInteractionCreateEventArgs args, IEnumerable<Tile> tiles)
+    {
+        // TODO: find a way to not require creating a new dw. Currently, the tile will not show as complete if the class' dw is used.
+        IDataWorker dw = CreateDataWorker();
+        List<Tile> invalidTiles = new(tiles.Count());
+
+        foreach (Tile tile in tiles)
+        {
+            Tile refreshedTile = dw.Tiles.GetById(tile.RowId)!;
+            if (refreshedTile.IsCompleteAsBool())
+            {
+                invalidTiles.Add(refreshedTile);
+            }
+        }
+
+        if (invalidTiles.Any())
+        {
+            string prefix = invalidTiles.Count() == 1 ? "This" : "A selected";
+            await Followup(args.Interaction, TileIsAlreadyCompleteError.FormatConst(prefix), true);
+            return false;
+        }
+        return true;
     }
 
     private async Task DeleteCurrentEvidenceMessages(IEnumerable<Tile> tiles)

@@ -62,7 +62,6 @@ internal class AdminEvidenceReaction
 
         ulong newMessageId = await MoveMessageAndAddReaction(args, channel, emoji);
         UpdateDB(args, evidence, evidenceStatus, newMessageId);
-        
         TeamScore.Update(evidence.Tile);
         dataWorker.SaveChanges();
         await UpdateDiscord(evidence);
@@ -71,10 +70,6 @@ internal class AdminEvidenceReaction
     private static async Task UpdateDiscord(Evidence evidence)
     {
         await RSBingoBot.DiscordTeam.UpdateBoard(evidence.Tile.Team, BoardImage.UpdateTile(evidence.Tile));
-            //evidence.IsVerified() ?
-            //BoardImage.MarkTileComplete(evidence.Tile) :
-            //BoardImage.UpdateTile(evidence.Tile));
-
         await LeaderboardDiscord.Update();
     }
 
