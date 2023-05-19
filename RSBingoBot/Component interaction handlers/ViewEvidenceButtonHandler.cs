@@ -19,7 +19,7 @@ using RSBingoBot.Component_interaction_handlers.Select_Component;
 public class ViewEvidenceButtonHandler : ComponentInteractionHandler
 {
     private const string InitialResponseMessagePrefix = "{0}Select a tile to view its evidence.";
-    private const string NoTilesFoundError = "There are no tiles with evidence for you to view.";
+    private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
 
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
@@ -44,6 +44,8 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
     {
         await base.InitialiseAsync(args, info);
 
+        MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
+
         closeButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Close");
         CreateTileSelect();
 
@@ -53,7 +55,6 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
             .AddComponents(closeButton);
 
         await args.Interaction.EditOriginalResponseAsync(builder);
-        MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
 
         SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
             tileSelect.OnInteraction, true);
