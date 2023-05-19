@@ -34,6 +34,7 @@ public class DiscordTeam
     public const string categoryChannelName = "{0}";
     public const string boardChannelName = "{0}-board";
     public const string generalChannelName = "{0}-general";
+    public const string evidenceChannelName = "{0}-evidence";
     public const string voiceChannelName = "{0}-voice";
 
     #endregion
@@ -128,10 +129,11 @@ public class DiscordTeam
 
         DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category, overwrites: overwrites.Category);
         BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category, overwrites: overwrites.Board);
-
+        
         ids.Add(category.Id);
         ids.Add(BoardChannel.Id);
         ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category, overwrites: overwrites.General)).Id);
+        ids.Add((await Guild.CreateChannelAsync(GetId(evidenceChannelName), ChannelType.Text, category, overwrites: overwrites.Evidence)).Id);
         ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category, overwrites: overwrites.Voice)).Id);
         return ids;
     }
@@ -144,7 +146,7 @@ public class DiscordTeam
 
     private void CreateTeamEntry(List<ulong> ids)
     {
-        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5]);
+        team = TeamRecord.CreateTeam(dataWorker, Name, ids[0], ids[1], ids[2], ids[3], ids[4], ids[5], ids[5]);
         if (EnableBoardCustomisation is false) { team.CreateDefaultTiles(dataWorker); }
         dataWorker.SaveChanges();
     }

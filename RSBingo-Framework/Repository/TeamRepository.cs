@@ -28,13 +28,14 @@ public class TeamRepository : RepositoryBase<Team>, ITeamRepository
         Add(new Team());
 
     public Team Create(string name, ulong categoryChannelId, ulong boardChannelId,
-        ulong generalChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId) =>
+        ulong generalChannelId, ulong evidenceChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId) =>
         Add(new Team()
         {
             Name = name,
             CategoryChannelId = categoryChannelId,
             BoardChannelId = boardChannelId,
             GeneralChannelId = generalChannelId,
+            EvidencelChannelId = evidenceChannelId,
             VoiceChannelId = voiceChannelId,
             BoardMessageId = boardMessageId,
             RoleId = roleId

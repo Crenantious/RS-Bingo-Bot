@@ -16,6 +16,7 @@ public class RequestAddToTeam : RequestBase
     private const string UserIsAlreadyOnATeam = "This user is already on a team.";
     private const string TeamDoesNotExistsMessage = "No team with this name was found.";
     private const string UserSuccessfullyAddedMessage = "The user '{0}' has been added to the team successfully.";
+    private const string TeamRoleDoesNotExistError = "The team's role does not exist.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
@@ -31,8 +32,13 @@ public class RequestAddToTeam : RequestBase
     public override async Task<bool> ProcessRequest()
     {
         await semaphore.WaitAsync();
-        await AddUser();
-        semaphore.Release();
+        try
+        {
+            if (await AddUser() is string error) { return ProcessFailure(error); }
+        }
+        catch (Exception ex) { throw; }
+        finally { semaphore.Release(); }
+
         return ProcessSuccess(UserSuccessfullyAddedMessage.FormatConst(user.Username));
     }
 
@@ -51,11 +57,15 @@ public class RequestAddToTeam : RequestBase
     private bool IsUserOnATeam() =>
         DataWorker.Users.FirstOrDefault(u => u.DiscordUserId == user.Id) is not null;
 
-    private async Task AddUser()
+    private async Task<string?> AddUser()
     {
         DataWorker.Users.Create(user.Id, teamName);
         DiscordMember member = await Ctx.Guild.GetMemberAsync(user.Id);
-        DiscordRole role = Ctx.Guild.GetRole(DataWorker.Teams.GetByName(teamName).RoleId);
+        DiscordRole? role = Ctx.Guild.GetRole(DataWorker.Teams.GetByName(teamName).RoleId);
+
+        if (role is null) { return TeamRoleDoesNotExistError; }
+
         await member.GrantRoleAsync(role);
+        return null;
     }
 }

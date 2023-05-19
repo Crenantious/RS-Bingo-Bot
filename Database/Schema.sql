@@ -4,6 +4,7 @@ CREATE TABLE Team (
     CategoryChannelID bigint UNSIGNED NOT NULL,
     BoardChannelID bigint UNSIGNED NOT NULL,
     GeneralChannelID bigint UNSIGNED NOT NULL,
+    EvidenceChannelID bigint UNSIGNED NOT NULL,
     VoiceChannelID bigint UNSIGNED NOT NULL,
     BoardMessageID bigint UNSIGNED NOT NULL,
     RoleID bigint UNSIGNED NOT NULL,

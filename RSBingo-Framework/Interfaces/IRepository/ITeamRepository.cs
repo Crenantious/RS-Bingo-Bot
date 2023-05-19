@@ -12,7 +12,7 @@ using RSBingo_Framework.Models;
 public interface ITeamRepository : IRepository<Team>
 {
     public Team Create(string name, ulong categoryChannelId, ulong boardChannelId,
-        ulong generalChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId);
+        ulong generalChannelId, ulong evidenceChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId);
 
     public bool DoesTeamExist(string name);
 

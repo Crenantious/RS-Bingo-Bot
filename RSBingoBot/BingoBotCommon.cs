@@ -28,7 +28,7 @@ namespace RSBingoBot
             evidence.Status switch
             {
                 (sbyte)EvidenceStatus.PendingReview => EvidencePendingReviewEmoji,
-                (sbyte)EvidenceStatus.Verified => EvidenceVerifiedEmoji,
+                (sbyte)EvidenceStatus.Accepted => EvidenceVerifiedEmoji,
                 (sbyte)EvidenceStatus.Rejected => EvidenceRejectedEmoji,
                 _ => null
             };

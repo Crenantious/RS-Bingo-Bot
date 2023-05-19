@@ -13,8 +13,8 @@ using static RSBingo_Common.General;
 public static class TeamRecord
 {
     public static Team CreateTeam(IDataWorker dataWorker, string name, ulong categoryChannelId,
-        ulong boardChannelId, ulong generalChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId) =>
-        dataWorker.Teams.Create(name, categoryChannelId, boardChannelId, generalChannelId, voiceChannelId, boardMessageId, roleId);
+        ulong boardChannelId, ulong generalChannelId, ulong evidenceChannelId, ulong voiceChannelId, ulong boardMessageId, ulong roleId) =>
+        dataWorker.Teams.Create(name, categoryChannelId, boardChannelId, generalChannelId, evidenceChannelId, voiceChannelId, boardMessageId, roleId);
 
     public static bool IsBoardVerfied(this Team team) =>
         team.Tiles.Count == MaxTilesOnABoard &&

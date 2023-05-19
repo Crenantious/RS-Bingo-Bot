@@ -22,17 +22,17 @@ public static class EvidenceRecord
     public enum EvidenceStatus
     {
         PendingReview,
-        Verified,
+        Accepted,
         Rejected,
     }
 
-    private static readonly EnumDict<EvidenceType> EvidenceTypeLookup = new EnumDict<EvidenceType>(EvidenceType.Undefined)
-     .Add(EvidenceType.TileVerification, 1)
-     .Add(EvidenceType.Drop, 2);
+    public static readonly EnumDict<EvidenceType> EvidenceTypeLookup = new EnumDict<EvidenceType>(EvidenceType.Undefined)
+        .Add(EvidenceType.TileVerification, 1)
+        .Add(EvidenceType.Drop, 2);
 
-    private static readonly EnumDict<EvidenceStatus> EvidenceStatusLookup = new EnumDict<EvidenceStatus>(
+    public static readonly EnumDict<EvidenceStatus> EvidenceStatusLookup = new EnumDict<EvidenceStatus>(
         EvidenceStatus.PendingReview)
-        .Add(EvidenceStatus.Verified, 1)
+        .Add(EvidenceStatus.Accepted, 1)
         .Add(EvidenceStatus.Rejected, 2);
 
     #endregion
@@ -51,5 +51,5 @@ public static class EvidenceRecord
         dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == messageId);
 
     public static bool IsVerified(this Evidence evidence) =>
-        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Verified;
+        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Accepted;
 }
