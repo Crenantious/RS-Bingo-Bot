@@ -14,7 +14,7 @@ using RSBingo_Framework.Models;
 /// </summary>
 public class RequestRemoveFromTeam : RequestBase
 {
-    private const string UserIsNotOnATeam = "This user is not a team.";
+    private const string UserIsNotOnATeam = "This user is not on a team.";
     private const string UserIsNotOnTheTeam = "This user is not on that team. They are on the team '{0}'.";
     private const string TeamDoesNotExistError = "No team with this name was found.";
     private const string UserSuccessfullyRemovedMessage = "The user '{0}' has been removed from the team.";
