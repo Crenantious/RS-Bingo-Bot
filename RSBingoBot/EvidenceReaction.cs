@@ -31,56 +31,70 @@ internal class EvidenceReaction
 
         messageReactionAddedDEH.Subscribe(
             new MessageReactionAddedDEH.Constraints(PendingReviewEvidenceChannel, emojiName: EvidenceVerifiedEmoji.Name),
-            EvidenceVerified);
+            (c, e) => EvidenceVerified(c, e, true));
         messageReactionAddedDEH.Subscribe(
             new MessageReactionAddedDEH.Constraints(PendingReviewEvidenceChannel, emojiName: EvidenceRejectedEmoji.Name),
-            EvidenceRejected);
+            (c, e) => EvidenceRejected(c, e, true));
 
         // These are needed in case the evidence was incorrectly reacted to and the status needs to be changed.
         messageReactionAddedDEH.Subscribe(
             new MessageReactionAddedDEH.Constraints(RejectedEvidenceChannel, emojiName: EvidenceVerifiedEmoji.Name),
-            EvidenceVerified);
+            (c, e) => EvidenceVerified(c, e, false));
         messageReactionAddedDEH.Subscribe(
             new MessageReactionAddedDEH.Constraints(VerifiedEvidenceChannel, emojiName: EvidenceRejectedEmoji.Name),
-            EvidenceRejected);
+            (c, e) => EvidenceRejected(c, e, false));
     }
 
-    private static async Task EvidenceVerified(DiscordClient client, MessageReactionAddEventArgs args) =>
-        await HandleMessageReaction(args, VerifiedEvidenceChannel, EvidenceVerifiedEmoji, EvidenceStatus.Accepted);
+    private static async Task EvidenceVerified(DiscordClient client, MessageReactionAddEventArgs args, bool wasPending) =>
+        await HandleMessageReaction(args, VerifiedEvidenceChannel, EvidenceVerifiedEmoji, EvidenceStatus.Accepted, wasPending);
 
-    private static async Task EvidenceRejected(DiscordClient client, MessageReactionAddEventArgs args) =>
-        await HandleMessageReaction(args, RejectedEvidenceChannel, EvidenceRejectedEmoji, EvidenceStatus.Rejected);
+    private static async Task EvidenceRejected(DiscordClient client, MessageReactionAddEventArgs args, bool wasPending) =>
+        await HandleMessageReaction(args, RejectedEvidenceChannel, EvidenceRejectedEmoji, EvidenceStatus.Rejected, wasPending);
 
     private static async Task HandleMessageReaction(MessageReactionAddEventArgs args, DiscordChannel channel,
-        DiscordEmoji emoji, EvidenceStatus evidenceStatus)
+        DiscordEmoji emoji, EvidenceStatus evidenceStatus, bool wasPending)
     {
-        if (await UserHasAdminPermission(args) is false) { return; }
+        if (await DoesNotHasPermission(args)) { return; }
 
         Evidence? evidence = GetByMessageId(dataWorker, args.Message.Id);
 
         // This means there is no evidence associated with the message that was reacted to.
         if (evidence is null) { return; }
 
+        DiscordMessage newMessage = await UpdatEvidenceMessage(args, channel, emoji);
+        UpdateDB(args, evidenceStatus, evidence, newMessage, wasPending);
+        await UpdateDiscord(args, evidence);
+    }
+
+    // This should be done in a common global method.
+    private static async Task<bool> DoesNotHasPermission(MessageReactionAddEventArgs args) =>
+        (await args.Guild.GetMemberAsync(args.User.Id))
+            .Roles.FirstOrDefault(r => r.Name == "Host") is null;
+
+    private static async Task<DiscordMessage> UpdatEvidenceMessage(MessageReactionAddEventArgs args, DiscordChannel channel, DiscordEmoji emoji)
+    {
         DiscordMessage newMessage = await MoveMessage(args, channel);
         await AddReaction(newMessage, emoji);
+        return newMessage;
+    }
 
-        UpdateDB(args, evidence, evidenceStatus, newMessage.Id);
-        TeamScore.Update(evidence.Tile);
-        dataWorker.SaveChanges();
-
+    private static async Task UpdateDiscord(MessageReactionAddEventArgs args, Evidence? evidence)
+    {
         await UpdateTeamBoard(evidence);
         await LeaderboardDiscord.Update(dataWorker);
         await PostInTeamEvidenceChannel(args, evidence);
     }
 
+    private static void UpdateDB(MessageReactionAddEventArgs args, EvidenceStatus evidenceStatus, Evidence? evidence,
+        DiscordMessage newMessage, bool wasPending)
+    {
+        UpdateDBEvidence(args, evidence, evidenceStatus, newMessage.Id);
+        if ((wasPending && evidenceStatus == EvidenceStatus.Rejected) is false) { TeamScore.Update(evidence.Tile); }
+        dataWorker.SaveChanges();
+    }
+
     private static async Task UpdateTeamBoard(Evidence evidence) =>
         await RSBingoBot.DiscordTeam.UpdateBoard(evidence.Tile.Team, BoardImage.UpdateTile(evidence.Tile));
-
-    private static async Task<bool> UserHasAdminPermission(MessageReactionAddEventArgs args)
-    {
-        DiscordMember member = await args.Guild.GetMemberAsync(args.User.Id);
-        return member.Permissions.HasPermission(Permissions.Administrator);
-    }
 
     private static async Task<DiscordMessage> MoveMessage(MessageReactionAddEventArgs args,
         DiscordChannel channel)
@@ -108,7 +122,7 @@ internal class EvidenceReaction
     private static async Task AddReaction(DiscordMessage message, DiscordEmoji emoji) =>
         await message.CreateReactionAsync(emoji);
 
-    private static void UpdateDB(MessageReactionAddEventArgs args, Evidence evidence,
+    private static void UpdateDBEvidence(MessageReactionAddEventArgs args, Evidence evidence,
         EvidenceStatus evidenceStatus, ulong newMessageId)
     {
         evidence.Status = (sbyte)evidenceStatus;
