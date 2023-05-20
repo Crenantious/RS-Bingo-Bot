@@ -6,6 +6,7 @@ namespace RSBingoBot.Leaderboard;
 
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.BingoCommands;
@@ -26,7 +27,7 @@ public class LeaderboardDiscord
         catch { General.LoggingLog(new NullReferenceException(noMessageExceptionMessage), ""); }
     }
 
-    public static async Task Update()
+    public static async Task Update(IDataWorker dataWorker)
     {
         FileStream? fs = null;
 
@@ -34,7 +35,7 @@ public class LeaderboardDiscord
         {
             await semaphore.WaitAsync();
 
-            Create().Save(leaderboardImageFileName);
+            Create(dataWorker).Save(leaderboardImageFileName);
             fs = new(leaderboardImageFileName, FileMode.Open);
             Console.WriteLine("Leaderboard updating...");
 

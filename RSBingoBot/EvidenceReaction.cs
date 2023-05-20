@@ -69,7 +69,7 @@ internal class EvidenceReaction
         dataWorker.SaveChanges();
 
         await UpdateTeamBoard(evidence);
-        await LeaderboardDiscord.Update();
+        await LeaderboardDiscord.Update(dataWorker);
         await PostInTeamEvidenceChannel(args, evidence);
     }
 

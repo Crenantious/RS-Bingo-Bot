@@ -18,9 +18,7 @@ using static RSBingo_Framework.DAL.DataFactory;
 
 public static class LeaderboardImage
 {
-    private static IDataWorker dataWorker;
-
-    public static Image Create()
+    public static Image Create(IDataWorker dataWorker)
     {
         // TODO: find out why this is.
         // Must be recreated each time to get the updated scores for each team; a single instance on initialisation does not work.

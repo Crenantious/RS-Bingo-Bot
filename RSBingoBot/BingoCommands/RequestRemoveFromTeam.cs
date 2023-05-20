@@ -18,6 +18,7 @@ public class RequestRemoveFromTeam : RequestBase
     private const string UserIsNotOnTheTeam = "This user is not on that team. They are on the team '{0}'.";
     private const string TeamDoesNotExistError = "No team with this name was found.";
     private const string UserSuccessfullyRemovedMessage = "The user '{0}' has been removed from the team.";
+    private const string TeamRoleDoesNotExistError = "The team's role does not exist.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
@@ -35,8 +36,14 @@ public class RequestRemoveFromTeam : RequestBase
     public override async Task<bool> ProcessRequest()
     {
         await semaphore.WaitAsync();
-        await RemoveUser();
-        semaphore.Release();
+
+        try
+        {
+            if (await RemoveUser() is string error) { return ProcessFailure(error); }
+        }
+        catch (Exception ex) { throw; }
+        finally { semaphore.Release(); }
+
         return ProcessSuccess(UserSuccessfullyRemovedMessage.FormatConst(user.Username));
     }
 
@@ -74,11 +81,15 @@ public class RequestRemoveFromTeam : RequestBase
         IsUserOnATeam() &&
         databaseUser!.Team.Name == teamName;
 
-    private async Task RemoveUser()
+    private async Task<string?> RemoveUser()
     {
         DiscordMember member = await Ctx.Guild.GetMemberAsync(user.Id);
-        DiscordRole role = Ctx.Guild.GetRole(DataWorker.Teams.GetByName(teamName).RoleId);
+        DiscordRole? role = Ctx.Guild.GetRole(DataWorker.Teams.GetByName(teamName).RoleId);
+
+        if (role is null) { return TeamRoleDoesNotExistError; }
+
         await member.RevokeRoleAsync(role);
         DataWorker.Users.Remove(databaseUser!);
+        return null;
     }
 }

@@ -9,6 +9,7 @@ using RSBingo_Framework.Interfaces;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using static RSBingoBot.DiscordTeam;
+using RSBingoBot.Leaderboard;
 
 /// <summary>
 /// Request for removing a user from a team.
@@ -34,8 +35,19 @@ public class RequestRenameTeam : RequestBase
     public override async Task<bool> ProcessRequest()
     {
         await semaphore.WaitAsync();
-        await RenameTeam();
-        semaphore.Release();
+
+        try
+        {
+            await RenameTeam();
+
+            // HACK: the dw is also saved when the request is finished. This will need to be handled properly.
+            // Probably don't auto save the dw after the request.
+            DataWorker.SaveChanges();
+            await LeaderboardDiscord.Update(DataWorker);
+        }
+        catch (Exception ex) { throw; }
+        finally { semaphore.Release(); }
+
         return ProcessSuccess(TeamSuccessfullyRenamed.FormatConst(newName));
     }
 
@@ -60,8 +72,9 @@ public class RequestRenameTeam : RequestBase
     private async Task RenameChannels()
     {
         await RenameChannel(team!.CategoryChannelId, boardChannelName);
-        await RenameChannel(team.GeneralChannelId, boardChannelName);
         await RenameChannel(team.BoardChannelId, boardChannelName);
+        await RenameChannel(team.GeneralChannelId, boardChannelName);
+        await RenameChannel(team.EvidencelChannelId, boardChannelName);
         await RenameChannel(team.VoiceChannelId, boardChannelName);
     }
 
@@ -74,6 +87,6 @@ public class RequestRenameTeam : RequestBase
     private async Task RenameRole()
     {
         await Ctx.Guild.GetRole(team!.RoleId)
-            .ModifyAsync(newName);
+            .ModifyAsync(RSBingoBot.DiscordTeam.RoleName.FormatConst(newName));
     }
 }

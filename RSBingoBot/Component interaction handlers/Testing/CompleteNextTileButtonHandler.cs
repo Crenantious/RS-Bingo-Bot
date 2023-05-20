@@ -32,23 +32,24 @@ public class CompleteNextTileButtonHandler : ComponentInteractionHandler
     public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
     {
         await base.InitialiseAsync(args, info);
-        await RunRequest(args);
+        await EditResponse(args.Interaction, await RunRequest(args));
         await ConcludeInteraction();
     }
 
-    private async Task RunRequest(ComponentInteractionCreateEventArgs args)
+    private async Task<string> RunRequest(ComponentInteractionCreateEventArgs args)
     {
         if (Team!.Tiles.FirstOrDefault(t => t.IsCompleteAsBool() is false) is Tile tile)
         {
             tile.SetCompleteStatus(TileRecord.CompleteStatus.Yes);
             TeamScore.Update(tile);
             DataWorker.SaveChanges();
+
             await RSBingoBot.DiscordTeam.GetInstance(Team).MarkTileCompleted(tile);
-            await LeaderboardDiscord.Update();
-            await EditResponse(args.Interaction, "The next tile as been marked as completed.");
-            return;
+            await LeaderboardDiscord.Update(DataWorker);
+
+            return "The next tile as been marked as completed.";
         }
 
-        await EditResponse(args.Interaction, "There are no incomplete tiles.");
+        return "There are no incomplete tiles.";
     }
 }

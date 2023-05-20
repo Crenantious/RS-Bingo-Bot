@@ -4,8 +4,9 @@
 
 namespace RSBingoBot.BingoCommands;
 
-using RSBingo_Framework.Interfaces;
+using RSBingoBot.Leaderboard;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Interfaces;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -42,10 +43,14 @@ public class RequestDeleteTeam : RequestBase
         {
             logger.LogInformation("Failed to delete one or more channels for {TeamName}", teamName);
         }
-        
-        // TODO: find out if this throws and exception
+
+        // TODO: find out if this throws an exception
         DataWorker.Teams.Remove(team);
+
+        // HACK: the dw is also saved when the request is finished. This will need to be handled properly.
+        DataWorker.SaveChanges();
         RSBingoBot.DiscordTeam.TeamDeleted(team);
+        await LeaderboardDiscord.Update(DataWorker);
 
         return ProcessSuccess(TeamSuccessfullyDeletedMessage);
     }

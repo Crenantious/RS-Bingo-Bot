@@ -6,6 +6,7 @@ namespace RSBingoBot.BingoCommands;
 
 using RSBingo_Framework.Interfaces;
 using DSharpPlus.SlashCommands;
+using RSBingoBot.Leaderboard;
 
 /// <summary>
 /// Request for creating a team.
@@ -24,8 +25,17 @@ public class RequestCreateTeam : RequestBase
     public override async Task<bool> ProcessRequest()
     {
         await semaphore.WaitAsync();
-        await CreateTeam();
-        semaphore.Release();
+
+        try
+        {
+            // TODO: the dw gets saved in CreateTeam and also when the request finishes.
+            // Probably make the dw not get auto saved after the request.
+            await CreateTeam();
+            await LeaderboardDiscord.Update(DataWorker);
+        }
+        catch (Exception ex) { throw; }
+        finally { semaphore.Release(); }
+
         return ProcessSuccess(TeamSuccessfullyCreatedMessage.FormatConst(teamName));
     }
 
