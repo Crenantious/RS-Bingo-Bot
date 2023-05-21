@@ -84,6 +84,7 @@ public class CommandController : ApplicationCommandModule
     }
 
     [SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
+    [RequireRole("Host")]
     public async Task CreateInitialLeaderboard(InteractionContext ctx)
     {
         var builder = new DiscordMessageBuilder()
