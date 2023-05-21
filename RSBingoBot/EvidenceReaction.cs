@@ -16,13 +16,13 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using static BingoBotCommon;
-using static RSBingo_Framework.Records.EvidenceRecord;
 using static RSBingo_Framework.DAL.DataFactory;
+using static RSBingo_Framework.Records.EvidenceRecord;
 
 internal class EvidenceReaction
 {
-    private const string EvidenceSubmittedNotification = "The evidence submitted by {0} for the tile {1} has been {2}.{3}";
-
+    private const string EvidenceCheckedTitle = "Evidence";
+    private const string EvidenceCheckedMessage = "[Evidence]({0}) for {1} has been {2}.";
     private static IDataWorker dataWorker = CreateDataWorker();
 
     public static void SetUp()
@@ -112,11 +112,11 @@ internal class EvidenceReaction
         DiscordChannel evidenceChannel = Guild.GetChannel(evidence.Tile.Team.EvidencelChannelId);
         string status = EvidenceStatusLookup.Get(evidence.Status).ToString().ToLower();
 
-        await evidenceChannel.SendMessageAsync(new DiscordMessageBuilder()
-        {
-            Content = EvidenceSubmittedNotification.FormatConst(args.User.Username, evidence.Tile.Task.Name,
-                status, Environment.NewLine + evidence.Url)
-        });
+        DiscordEmbedBuilder builder = new();
+        builder.AddField(EvidenceCheckedTitle, EvidenceCheckedMessage.FormatConst(evidence.Url, evidence.Tile.Task.Name,
+                status));
+
+        await evidenceChannel.SendMessageAsync(builder);
     }
 
     private static async Task AddReaction(DiscordMessage message, DiscordEmoji emoji) =>
