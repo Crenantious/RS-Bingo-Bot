@@ -83,7 +83,6 @@ public static class General
 
     public const int MaxCharsPerDiscordMessage = 2000;
 
-    // TODO: make sure this is false for production.
     /// <summary>
     /// Gets or sets weather or not the competition has started.
     /// </summary>

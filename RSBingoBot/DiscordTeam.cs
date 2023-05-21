@@ -120,6 +120,7 @@ public class DiscordTeam
         await UpdateBoardMessage(BoardImage.Create(team));
         RegisterBoardChannelComponentInteractions();
         TeamCreatedEvent?.Invoke(this);
+        CompetitionStart.CompetitionStartedAsync += async () => UpdateBoardMessage(BoardImage.GetBoard(team));
     }
 
     private async Task<List<ulong>> CreateChannels(DiscordRole teamRole)

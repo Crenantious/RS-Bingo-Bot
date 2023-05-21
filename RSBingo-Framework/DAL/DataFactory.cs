@@ -31,7 +31,8 @@ public static class DataFactory
     private const string LeaderboardMessageIdKey = "LeaderboardMessageId";
     private const string EnableBoardCustomisationKey = "EnableBoardCustomisation";
     private const string UseNpgsqlKey = "UseNpgsql";
-    private const string WhitelistedDomains = "WhitelistedDomains";
+    private const string WhitelistedDomainsKey = "WhitelistedDomains";
+    private const string CompetitionStartDateTimeKey = "CompetitionStartDateTime";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -49,6 +50,8 @@ public static class DataFactory
     private static bool enableBoardCustomisation;
 
     private static bool useNpgsql;
+
+    private static DateTime competitionStartDateTime;
 
     private static InMemoryDatabaseRoot imdRoot;
 
@@ -97,6 +100,8 @@ public static class DataFactory
     /// </summary>
     public static bool UseNpgsql => useNpgsql;
 
+    public static DateTime CompetitionStartDateTime => competitionStartDateTime;
+    
     // HACK: Remove this.
     private static string mockName = string.Empty;
 
@@ -143,10 +148,9 @@ public static class DataFactory
     public static void SetupDataFactory(bool asMockDB = false)
     {
         InitializeDB(asMockDB);
-
         InitializeWhitelistedDomains();
-
         if (asMockDB is false) { InitializeDiscordComponents(); }
+        competitionStartDateTime = DateTime.Parse(Config_Get<string>(CompetitionStartDateTimeKey));
     }
 
     private static void InitializeDB(bool asMockDB)
@@ -167,7 +171,7 @@ public static class DataFactory
 
     private static void InitializeWhitelistedDomains()
     {
-        List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomains);
+        List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomainsKey);
         WhitelistChecker.Initialise(whitelistedDomains);
     }
 

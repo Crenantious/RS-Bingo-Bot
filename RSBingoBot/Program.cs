@@ -49,8 +49,8 @@ public class Program
             // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
             EvidenceReaction.SetUp();
-
             BoardImage.Initialise();
+            CompetitionStart.Setup();
 #if DEBUG
             TaskTemplatePopulator.Run();
 #endif
