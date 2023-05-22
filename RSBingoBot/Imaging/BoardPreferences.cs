@@ -15,22 +15,22 @@ internal static class BoardPreferences
     /// <summary>
     /// Gets the width of each tile in pixels.
     /// </summary>
-    public static int TilePixelWidth => 140;
+    public static int TilePixelWidth => 134;
 
     /// <summary>
     /// Gets the height of each tile in pixels.
     /// </summary>
-    public static int TilePixelHeight => 140;
+    public static int TilePixelHeight => 134;
 
     /// <summary>
     /// Gets the width of the border between tiles.
     /// </summary>
-    public static int TileBorderPixelWidth => 8;
+    public static int TileBorderPixelWidth => 14;
 
     /// <summary>
     /// Gets the height of the border between tiles.
     /// </summary>
-    public static int TileBorderPixelHeight => 8;
+    public static int TileBorderPixelHeight => 14;
 
     /// <summary>
     /// Gets the width of the border surrounding the board.
