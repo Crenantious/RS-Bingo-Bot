@@ -25,6 +25,7 @@ public static class DataFactory
     private const string DiscordTokenKey = "BotToken";
     private const string DefaultDBVersion = "8.0.30-mysql";
     private const string GuildIdKey = "GuildId";
+    private const string HostRoleIdKey = "HostRoleId";
     private const string PendingEvidenceChannelIdKey = "PendingEvidenceChannelId";
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
@@ -41,8 +42,9 @@ public static class DataFactory
     private static string connectionString = string.Empty;
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
-
+    
     private static DiscordGuild guild = null!;
+    private static ulong hostRoleId;
     private static DiscordChannel pendingEvidenceChannel = null!;
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
@@ -67,6 +69,8 @@ public static class DataFactory
     /// </summary>
     public static DiscordGuild Guild => guild;
 
+    public static ulong HostRole => hostRoleId;
+    
     /// <summary>
     /// Gets the "pending-evidence" channel.
     /// </summary>
@@ -151,7 +155,7 @@ public static class DataFactory
     {
         InitializeDB(asMockDB);
         InitializeWhitelistedDomains();
-        if (asMockDB is false) { InitializeDiscordComponents(); }
+        if (asMockDB is false) { InitializeDiscord(); }
         competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
     }
 
@@ -177,17 +181,19 @@ public static class DataFactory
         WhitelistChecker.Initialise(whitelistedDomains);
     }
 
-    private static void InitializeDiscordComponents()
+    private static void InitializeDiscord()
     {
         // Not needed in tests.
         discordToken = Config_Get<string>(DiscordTokenKey)!;
         guild = ((DiscordClient)DI.GetService(typeof(DiscordClient))!).GetGuildAsync(Config_Get<ulong>(GuildIdKey)).Result;
+        hostRoleId = Config_Get<ulong>(HostRoleIdKey);
+
+        enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
         pendingEvidenceChannel = guild.GetChannel(Config_Get<ulong>(PendingEvidenceChannelIdKey));
         verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
         leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
         leaderboardMessageId = Config_Get<ulong>(LeaderboardMessageIdKey);
 
-        enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
     }
 }

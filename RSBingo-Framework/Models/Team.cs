@@ -14,7 +14,6 @@ public partial class Team : BingoRecord
 
     public int RowId { get; set; }
     public string Name { get; set; } = null!;
-
     public ulong CategoryChannelId { get; set; }
     public ulong BoardChannelId { get; set; }
     public ulong GeneralChannelId { get; set; }
