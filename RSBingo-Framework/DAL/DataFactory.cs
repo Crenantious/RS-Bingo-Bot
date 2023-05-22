@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
+using System.Globalization;
 
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
@@ -33,6 +34,7 @@ public static class DataFactory
     private const string UseNpgsqlKey = "UseNpgsql";
     private const string WhitelistedDomainsKey = "WhitelistedDomains";
     private const string CompetitionStartDateTimeKey = "CompetitionStartDateTime";
+    private const string CompetitionStartDateTimeFormat = "dd/MM/yyyy HH:mm:ss";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -150,7 +152,7 @@ public static class DataFactory
         InitializeDB(asMockDB);
         InitializeWhitelistedDomains();
         if (asMockDB is false) { InitializeDiscordComponents(); }
-        competitionStartDateTime = DateTime.Parse(Config_Get<string>(CompetitionStartDateTimeKey));
+        competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     private static void InitializeDB(bool asMockDB)

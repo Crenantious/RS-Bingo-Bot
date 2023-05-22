@@ -18,7 +18,7 @@ internal class DiscordTeamChannelOverwrites
     public DiscordTeamChannelOverwrites(DiscordGuild guild, DiscordRole teamRole)
     {
         Category = GetOverwrites(guild, teamRole, Permissions.None, Permissions.AccessChannels);
-        Board = GetOverwrites(guild, teamRole, Permissions.SendMessages | Permissions.SendMessagesInThreads, Permissions.AccessChannels);
+        Board = GetOverwrites(guild, teamRole, Permissions.SendMessages | Permissions.SendMessagesInThreads, Permissions.SendMessages);
         General = GetOverwrites(guild, teamRole, Permissions.AccessChannels, Permissions.AccessChannels);
         Evidence = GetOverwrites(guild, teamRole, Permissions.AccessChannels | Permissions.SendMessages | Permissions.SendMessagesInThreads,
             Permissions.AccessChannels);
