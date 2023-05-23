@@ -22,7 +22,7 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 internal class EvidenceReaction
 {
     private const string EvidenceCheckedTitle = "Evidence";
-    private const string EvidenceCheckedMessage = "[Evidence]({0}) for {1} has been {2}.";
+    private const string EvidenceCheckedMessage = "[Evidence]({0}) submitted by {1} for {2} has been {3}.";
     private static IDataWorker dataWorker = CreateDataWorker();
 
     public static void SetUp()
@@ -113,7 +113,7 @@ internal class EvidenceReaction
         string status = EvidenceStatusLookup.Get(evidence.Status).ToString().ToLower();
 
         DiscordEmbedBuilder builder = new();
-        builder.AddField(EvidenceCheckedTitle, EvidenceCheckedMessage.FormatConst(evidence.Url, evidence.Tile.Task.Name,
+        builder.AddField(EvidenceCheckedTitle, EvidenceCheckedMessage.FormatConst(evidence.Url, args.User.Username, evidence.Tile.Task.Name,
                 status));
 
         await evidenceChannel.SendMessageAsync(builder);

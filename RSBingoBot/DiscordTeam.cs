@@ -41,12 +41,12 @@ public class DiscordTeam
 
     #region buttonIds
 
-    private const string changeTileButtonId = "{0}_change_tile_button";
-    private const string submitEvidenceButtonId = "{0}_submit_evidence_button";
-    private const string submitDropButtonId = "{0}_submit_drop_button";
-    private const string viewEvidenceButtonId = "{0}_view_evidence_button";
-    private const string clearEvidenceButtonId = "{0}_clear_evidence_button";
-    private const string completeNextTileEvidenceButtonId = "{0}_complete_next_tile_button";
+    private readonly string changeTileButtonId = Guid.NewGuid().ToString();
+    private readonly string submitEvidenceButtonId = Guid.NewGuid().ToString();
+    private readonly string submitDropButtonId = Guid.NewGuid().ToString();
+    private readonly string viewEvidenceButtonId = Guid.NewGuid().ToString();
+    private readonly string clearEvidenceButtonId = Guid.NewGuid().ToString();
+    private readonly string completeNextTileEvidenceButtonId = Guid.NewGuid().ToString();
 
     #endregion
 
@@ -120,7 +120,7 @@ public class DiscordTeam
         await UpdateBoardMessage(BoardImage.Create(team));
         RegisterBoardChannelComponentInteractions();
         TeamCreatedEvent?.Invoke(this);
-        CompetitionStart.CompetitionStartedAsync += async () => UpdateBoardMessage(BoardImage.GetBoard(team));
+        CompetitionStart.CompetitionStartedAsync += async () => UpdateBoardMessage(BoardImage.GetBoard(team.Name));
     }
 
     private async Task<List<ulong>> CreateChannels(DiscordRole teamRole)
@@ -161,32 +161,32 @@ public class DiscordTeam
 
         var changeTileButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(changeTileButtonId),
+            changeTileButtonId,
             "Change tile");
 
         var submitEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(submitEvidenceButtonId),
+            submitEvidenceButtonId,
             "Submit evidence");
 
         var submitDropButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(submitDropButtonId),
+            submitDropButtonId,
             "Submit drop");
 
         var viewEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(viewEvidenceButtonId),
+            viewEvidenceButtonId,
             "View evidence");
 #if DEBUG
         var clearEvidenceButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(clearEvidenceButtonId),
+            clearEvidenceButtonId,
             "Clear evidence");
 
         var completeNextTileButton = new DiscordButtonComponent(
             ButtonStyle.Primary,
-            GetId(completeNextTileEvidenceButtonId),
+            completeNextTileEvidenceButtonId,
             "Complete next tile");
 #endif
 
@@ -201,6 +201,11 @@ public class DiscordTeam
 
         if (General.HasCompetitionStarted)
         {
+            if (string.IsNullOrEmpty(team.Code) is false)
+            {
+                builder.WithContent("Drop submission code: " + team.Code);
+            }
+
             if (EnableBoardCustomisation)
             {
                 builder.AddComponents(changeTileButton, submitEvidenceButton, submitDropButton, viewEvidenceButton);
@@ -234,19 +239,43 @@ public class DiscordTeam
             Team = this,
         };
 
-        ComponentInteractionHandler.Register<ChangeTileButtonHandler>(GetId(changeTileButtonId), info);
-        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(GetId(submitEvidenceButtonId), info);
-        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(GetId(submitDropButtonId), info);
-        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(GetId(viewEvidenceButtonId), info);
+        ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
+        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info);
+        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(submitDropButtonId, info);
+        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
 
 #if DEBUG
 
-        ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(GetId(clearEvidenceButtonId), info);
-        ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(GetId(completeNextTileEvidenceButtonId), info);
+        ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(clearEvidenceButtonId, info);
+        ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(completeNextTileEvidenceButtonId, info);
 
 #endif
     }
 
     public async Task MarkTileCompleted(Tile tile) =>
         await UpdateBoardMessage(BoardImage.MarkTile(tile, Marker.TileCompleted));
+
+    public async Task Rename(string newName)
+    {
+        Name = newName;
+        await UpdateBoardMessage(BoardImage.GetBoard(Name));
+        RegisterBoardChannelComponentInteractions();
+        await RenameChannels();
+        await Role.ModifyAsync(RoleName.FormatConst(newName));
+    }
+
+    private async Task RenameChannels()
+    {
+        await RenameChannel(team!.CategoryChannelId, categoryChannelName);
+        await RenameChannel(team.BoardChannelId, boardChannelName);
+        await RenameChannel(team.GeneralChannelId, generalChannelName);
+        await RenameChannel(team.EvidencelChannelId, evidenceChannelName);
+        await RenameChannel(team.VoiceChannelId, voiceChannelName);
+    }
+
+    private async Task RenameChannel(ulong channelId, string nameConst)
+    {
+        DiscordChannel channel = Guild.GetChannel(channelId);
+        await channel.ModifyAsync((model) => model.Name = nameConst.FormatConst(Name));
+    }
 }

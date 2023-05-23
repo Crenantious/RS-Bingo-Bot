@@ -57,11 +57,11 @@ public static class BoardImage
     /// Update the tile on the team's board based on it's board index and task name.
     /// </summary>
     public static Image UpdateTile(Tile tile) =>
-        UpdateTile(GetBoard(tile.Team), tile);
+        UpdateTile(GetBoard(tile.Team.Name), tile);
 
     public static Image UpdateTiles(Team team, IEnumerable<Tile> tiles)
     {
-        Image board = GetBoard(team);
+        Image board = GetBoard(team.Name);
 
         foreach(Tile tile in tiles)
         {
@@ -105,7 +105,7 @@ public static class BoardImage
     /// Places a marker over the <paramref name="tile"/> on the team's board.
     /// </summary>
     public static Image MarkTile(Tile tile, Marker marker) =>
-        MarkTile(GetBoard(tile.Team), tile, marker);
+        MarkTile(GetBoard(tile.Team.Name), tile, marker);
 
     /// <summary>
     /// Places a marker over the <paramref name="tile"/> on the team's board.
@@ -125,10 +125,19 @@ public static class BoardImage
     /// <summary>
     /// Gets the current board for the <paramref name="team"/>. Or a blank one if it cannot be found.
     /// </summary>
-    public static Image GetBoard(Team team)
+    public static Image GetBoard(string teamName)
     {
-        string teamBoardPath = GetTeamBoardPath(team.Name);
+        string teamBoardPath = GetTeamBoardPath(teamName);
         return File.Exists(teamBoardPath) ? Image<Rgba32>.Load(teamBoardPath) : boardBackground.Clone(b => { });
+    }
+
+    public static void RenameTeam(string oldName, string newName)
+    {
+        string teamBoardPath = GetTeamBoardPath(oldName);
+        if (File.Exists(teamBoardPath))
+        {
+            File.Move(teamBoardPath, GetTeamBoardPath(newName));
+        }
     }
 
     private static Image GetResizedMarker(string path)

@@ -21,6 +21,7 @@ public partial class Team : BingoRecord
     public ulong VoiceChannelId { get; set; }
     public ulong BoardMessageId { get; set; }
     public ulong RoleId { get; set; }
+    public string? Code { get; set; }
 
     public virtual ICollection<Tile> Tiles { get; set; }
     public virtual ICollection<User> Users { get; set; }

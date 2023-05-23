@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using static RSBingoBot.DiscordTeam;
 using RSBingoBot.Leaderboard;
+using RSBingoBot.Imaging;
 
 /// <summary>
 /// Request for removing a user from a team.
@@ -64,29 +65,8 @@ public class RequestRenameTeam : RequestBase
 
     private async Task RenameTeam()
     {
-        team!.Name = newName;
-        await RenameChannels();
-        await RenameRole();
-    }
-
-    private async Task RenameChannels()
-    {
-        await RenameChannel(team!.CategoryChannelId, boardChannelName);
-        await RenameChannel(team.BoardChannelId, boardChannelName);
-        await RenameChannel(team.GeneralChannelId, boardChannelName);
-        await RenameChannel(team.EvidencelChannelId, boardChannelName);
-        await RenameChannel(team.VoiceChannelId, boardChannelName);
-    }
-
-    private async Task RenameChannel(ulong channelId, string nameConst)
-    {
-        DiscordChannel channel = Ctx.Guild.GetChannel(channelId);
-        await channel.ModifyAsync((model) => model.Name = nameConst.FormatConst(newName));
-    }
-
-    private async Task RenameRole()
-    {
-        await Ctx.Guild.GetRole(team!.RoleId)
-            .ModifyAsync(RSBingoBot.DiscordTeam.RoleName.FormatConst(newName));
+        BoardImage.RenameTeam(team!.Name, newName);
+        team.Name = newName;
+        await RSBingoBot.DiscordTeam.GetInstance(team).Rename(newName);
     }
 }

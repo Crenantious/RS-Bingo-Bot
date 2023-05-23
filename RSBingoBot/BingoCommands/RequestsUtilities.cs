@@ -8,11 +8,12 @@ using RSBingo_Framework.Interfaces;
 
 internal static class RequestsUtilities
 {
-    private const string InvalidCharactersError = "A team name must only contain letters and/or numbers.";
+    private const string InvalidCharactersError = "A team name must only contain letters, numbers and/or spaces.";
     private const string TeamAlreadyExistsError = "A team with this name already exists.";
 
     private static readonly string NameTooLongError = $"A team name cannot exceed {General.TeamNameMaxLength} characters.";
 
+    // TODO: JR - don't allow only white space and convert white space to a "-".
     public static IEnumerable<string> GetNewTeamNameErrors(string name, IDataWorker dataWorker)
     {
         List<string> errors = new(2);
@@ -25,5 +26,5 @@ internal static class RequestsUtilities
     }
 
     private static bool ContainsSpecialCharacters(string name) =>
-        name.Any(ch => char.IsLetterOrDigit(ch) is false);
+        name.Any(ch => (char.IsLetterOrDigit(ch) || ch is ' ') is false);
 }
