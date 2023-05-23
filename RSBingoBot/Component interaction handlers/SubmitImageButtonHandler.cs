@@ -30,6 +30,8 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     //                    "The list has been updated.";
     private const string TileIsAlreadyCompleteError = "{0} selected tile has already been completed; evidence can no longer be submitted for it. " +
                         "Press the button again to get a refreshed list.";
+    private const string NoTilesFoundError = "There are no tiles to submit evidence for.";
+
     private string tileSelectCustomId = Guid.NewGuid().ToString();
 
     private DiscordButtonComponent cancelButton = null!;
@@ -108,6 +110,12 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
         foreach (Tile tile in tiles)
         {
             options.Add(new SelectComponentItem(tile.Task.Name, tile));
+        }
+
+        if (tiles.Any() is false)
+        {
+            throw new ComponentInteractionHandlerException(NoTilesFoundError, OriginalInteractionArgs, true,
+                ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
         }
 
         string label = TileSelectMaxOptions == 1 ? "Select a tile" : "Select tiles";
