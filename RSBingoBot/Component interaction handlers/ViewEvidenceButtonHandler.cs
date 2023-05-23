@@ -49,17 +49,24 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
         closeButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Close");
         CreateTileSelect();
 
+        await UpdateOriginalResponse(args);
+
+        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
+            tileSelect.OnInteraction, true);
+        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: closeButton.CustomId),
+            CancelButtonInteraction, true);
+
+    
+    }
+
+    private async Task UpdateOriginalResponse(ComponentInteractionCreateEventArgs args)
+    {
         var builder = new DiscordWebhookBuilder()
             .WithContent(InitialResponseMessagePrefix.FormatConst(args.User.Mention))
             .AddComponents(tileSelect.DiscordComponent)
             .AddComponents(closeButton);
 
         await args.Interaction.EditOriginalResponseAsync(builder);
-
-        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
-            tileSelect.OnInteraction, true);
-        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: closeButton.CustomId),
-            CancelButtonInteraction, true);
     }
 
     private void CreateTileSelect()
@@ -81,10 +88,16 @@ public class ViewEvidenceButtonHandler : ComponentInteractionHandler
                 ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
         }
 
-        tileSelect = new SelectComponent(tileSelectCustomId, "Select a tile", TileSelectItemSelected);
+        tileSelect = new SelectComponent(tileSelectCustomId, "Select a tile", TileSelectItemSelected, TileSelectPageSelected, GetPageName);
         tileSelect.SelectOptions = tileSelectOptions;
         tileSelect.Build();
     }
+
+    private string GetPageName(IEnumerable<SelectComponentOption> options) =>
+        $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
+
+    private async Task TileSelectPageSelected(InteractionCreateEventArgs args) =>
+        await UpdateOriginalResponse(OriginalInteractionArgs);
 
     private async Task TileSelectItemSelected(ComponentInteractionCreateEventArgs args)
     {

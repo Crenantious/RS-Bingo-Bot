@@ -26,17 +26,20 @@ public class SelectComponent
     private string? placeholder = null;
     private Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
     private Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
+    private Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback;
     private List<DiscordSelectComponentOption> discordOptions = new();
     private HashSet<SelectComponentItem> SelectedItemsHashSet = new();
 
     public SelectComponent(string customId, string placeholder,
         Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback = null,
         Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback = null,
+        Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback = null,
         bool disabled = false, int minOptions = 1, int maxOptions = 1)
     {
         this.CustomId = customId;
         this.itemSelectedCallback = itemSelectedCallback;
         this.pageSelectedCallback = pageSelectedCallback;
+        this.getPageNameCallback = getPageNameCallback;
         this.Disabled = disabled;
         this.MinOptions = minOptions;
         this.MaxOptions = maxOptions;
@@ -59,8 +62,22 @@ public class SelectComponent
     {
         // TODO: JR - add support for building multiple times.
         SelectOptions = SelectComponentCommon.FormatSelectComponentOptions(SelectOptions);
+        UpdatePageNames();
         BuildAllDiscordOptions();
         CreateDiscordSelectComponent();
+    }
+
+    private void UpdatePageNames()
+    {
+        if (getPageNameCallback is null) { return; }
+
+        foreach (SelectComponentOption option in SelectOptions)
+        {
+            if (option is SelectComponentPage)
+            {
+                option.label = getPageNameCallback(((SelectComponentPage)option).Options);
+            }
+        }
     }
 
     /// <summary>

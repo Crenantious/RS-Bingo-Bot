@@ -119,10 +119,13 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
         }
 
         string label = TileSelectMaxOptions == 1 ? "Select a tile" : "Select tiles";
-        TileSelect = new(tileSelectCustomId, label, SelectOptionSelected, SelectOptionSelected, maxOptions: TileSelectMaxOptions);
+        TileSelect = new(tileSelectCustomId, label, SelectOptionSelected, SelectOptionSelected, GetPageName, maxOptions: TileSelectMaxOptions);
         TileSelect.SelectOptions = options;
         TileSelect.Build();
     }
+
+    private string GetPageName(IEnumerable<SelectComponentOption> options) =>
+        $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
 
     private async Task SelectOptionSelected(InteractionCreateEventArgs args) =>
         await UpdateOriginalResponse();
