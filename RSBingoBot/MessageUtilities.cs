@@ -90,6 +90,19 @@ public static class MessageUtilities
         catch { return false; }
     }
 
+    public static string GetCompiledMessage(IEnumerable<string> messages)
+    {
+        if (messages.Any() is false) return string.Empty;
+
+        StringBuilder compiledMessage = new();
+        foreach (string message in messages)
+        {
+            compiledMessage.AppendLine(message);
+        }
+        return compiledMessage.ToString();
+    }
+
+    // TODO: Refactor.
     /// <summary>
     /// <paramref name="messages"/> are added in turn to a compiled message. If adding the message would cause the compiled message
     /// to exceed <paramref name="maxMessageChars"/> in length, a new compiled message is created with that message instead.

@@ -16,7 +16,7 @@ internal static class RequestsUtilities
     private static readonly string NameTooLongError = $"A team name cannot exceed {General.TeamNameMaxLength} characters.";
 
     // TODO: JR - don't allow only white space and convert white space to a "-".
-    public static Result<string> ValidateNewTeamName(string name, IDataWorker dataWorker)
+    public static RequestResult<string> ValidateNewTeamName(string name, IDataWorker dataWorker)
     {
         List<string> errors = new(3);
 
@@ -29,7 +29,7 @@ internal static class RequestsUtilities
             return new Result<string>(new TeamNameException(errors));
         }
 
-        return new Result<string>(name);
+        return new RequestResult<string>(name);
     }
 
     private static bool ContainsSpecialCharacters(string name) =>

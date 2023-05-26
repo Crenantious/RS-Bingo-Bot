@@ -7,6 +7,9 @@ namespace RSBingoBot.BingoCommands;
 using RSBingoBot.DTO;
 using RSBingoBot.Interfaces;
 using RSBingoBot.Exceptions;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
+using Microsoft.Extensions.Logging;
 
 internal abstract class RequestBase : IRequest
 {
@@ -14,36 +17,37 @@ internal abstract class RequestBase : IRequest
 
     private readonly SemaphoreSlim semaphore;
 
-    protected RequestBase(SemaphoreSlim semaphore) 
-    {
-        this.semaphore = semaphore;
-    }
+    protected ILogger<RequestDeleteTeam> Logger { get; private set; }
+    protected IDataWorker DataWorker { get; private set; }
 
-    public async Task<Result<string>> Run()
+    protected RequestBase(SemaphoreSlim semaphore) =>
+        this.semaphore = semaphore;
+
+    public async Task<RequestResult> Run()
     {
         await semaphore.WaitAsync();
-        Result<string> result;
+        DataWorker = DataFactory.CreateDataWorker();
+        Logger = General.LoggingInstance<RequestDeleteTeam>();
 
         try
         {
-            result = await Validate();
-            if (result.IsFaulted) return result;
-            result = await Process();
+            RequestResult validateResult = Validate();
+            if (validateResult.IsFaulted) return validateResult;
+            return await Process();
         }
         catch (Exception ex)
         {
-            // TODO: figure out what data to put here.
-            General.LoggingLog(ex, "");
+            // TOOO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
+            Logger.LogError(ex, null);
             return new(new RequestException(InternalError));
         }
         finally
-        { 
+        {
+            DataWorker.SaveChanges();
             semaphore.Release();
         }
-
-        return result;
     }
 
-    protected abstract Task<Result<string>> Validate();
-    protected abstract Task<Result<string>> Process();
+    protected abstract RequestResult Validate();
+    protected abstract Task<RequestResult<string>> Process();
 }

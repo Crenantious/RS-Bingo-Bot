@@ -8,5 +8,5 @@ using RSBingoBot.DTO;
 
 internal interface IRequest
 {
-    public Task<Result<string>> Run();
+    public Task<RequestResult> Run();
 }

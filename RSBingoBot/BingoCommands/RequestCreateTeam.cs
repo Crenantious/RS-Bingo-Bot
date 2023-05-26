@@ -6,7 +6,6 @@ namespace RSBingoBot.BingoCommands;
 
 using RSBingoBot.DTO;
 using RSBingoBot.Leaderboard;
-using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using DSharpPlus.Entities;
 
@@ -21,7 +20,6 @@ internal class RequestCreateTeam : RequestBase
 
     private readonly string teamName;
     private readonly DiscordInteraction interaction;
-    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
     public RequestCreateTeam(DiscordInteraction interaction, string teamName) : base(semaphore)
     {
@@ -29,12 +27,11 @@ internal class RequestCreateTeam : RequestBase
         this.teamName = teamName;
     }
 
-    protected override async Task<Result<string>> Validate() =>
-        RequestsUtilities.ValidateNewTeamName(teamName, dataWorker);
+    protected override async Task<RequestResult<string>> Validate() =>
+        RequestsUtilities.ValidateNewTeamName(teamName, DataWorker);
 
-    protected override async Task<Result<string>> Process()
+    protected override async Task<RequestResult<string>> Process()
     {
-        await new RSBingoBot.DiscordTeam(Ctx.Client, teamName).InitialiseAsync();
-        await LeaderboardDiscord.Update(dataWorker);
+        throw new NotImplementedException();
     }
 }
