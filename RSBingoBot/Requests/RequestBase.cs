@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.BingoCommands;
+namespace RSBingoBot.Requests;
 
 using RSBingoBot.DTO;
 using RSBingoBot.Interfaces;
@@ -18,7 +18,8 @@ internal abstract class RequestBase : IRequest
     private readonly SemaphoreSlim semaphore;
 
     protected ILogger<RequestDeleteTeam> Logger { get; private set; }
-    protected IDataWorker DataWorker { get; private set; }
+    protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
+    protected List<string> Responses { get; } = new();
 
     protected RequestBase(SemaphoreSlim semaphore) =>
         this.semaphore = semaphore;
@@ -26,14 +27,13 @@ internal abstract class RequestBase : IRequest
     public async Task<RequestResult> Run()
     {
         await semaphore.WaitAsync();
-        DataWorker = DataFactory.CreateDataWorker();
         Logger = General.LoggingInstance<RequestDeleteTeam>();
 
         try
         {
-            RequestResult validateResult = Validate();
-            if (validateResult.IsFaulted) return validateResult;
-            return await Process();
+            if (Validate() is false) return new(Responses, false);
+            await Process();
+            return new(Responses, true);
         }
         catch (Exception ex)
         {
@@ -48,6 +48,12 @@ internal abstract class RequestBase : IRequest
         }
     }
 
-    protected abstract RequestResult Validate();
-    protected abstract Task<RequestResult<string>> Process();
+    protected abstract bool Validate();
+    protected abstract Task Process();
+
+    protected void AddResponse(string response) =>
+        Responses.Add(response);
+
+    protected void AddResponses(IEnumerable<string> responses) =>
+        Responses.Concat(responses);
 }

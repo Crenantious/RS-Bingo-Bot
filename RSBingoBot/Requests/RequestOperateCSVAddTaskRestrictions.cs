@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.BingoCommands;
+namespace RSBingoBot.Requests;
 
 using RSBingo_Framework.CSV;
 using RSBingo_Framework.CSV.Lines;
@@ -22,7 +22,8 @@ public class RequestOperateCSVAddTaskRestrictions : RequestOperateCSVBase<AddTas
 
     /// <inheritdoc/>
     public RequestOperateCSVAddTaskRestrictions(InteractionContext ctx, IDataWorker dataWorker, DiscordAttachment attachment) :
-        base(ctx, dataWorker, attachment) { }
+        base(ctx, dataWorker, attachment)
+    { }
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

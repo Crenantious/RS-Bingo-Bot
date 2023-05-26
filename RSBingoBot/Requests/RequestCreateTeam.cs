@@ -2,11 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.BingoCommands;
+namespace RSBingoBot.Requests;
 
-using RSBingoBot.DTO;
-using RSBingoBot.Leaderboard;
-using RSBingo_Framework.Interfaces;
 using DSharpPlus.Entities;
 
 /// <summary>
@@ -27,10 +24,14 @@ internal class RequestCreateTeam : RequestBase
         this.teamName = teamName;
     }
 
-    protected override async Task<RequestResult<string>> Validate() =>
-        RequestsUtilities.ValidateNewTeamName(teamName, DataWorker);
+    protected override bool Validate()
+    {
+        var result = RequestsUtilities.ValidateNewTeamName(teamName, DataWorker);
+        AddResponses(result.Responses);
+        return result.IsFaulted is false;
+    }
 
-    protected override async Task<RequestResult<string>> Process()
+    protected override async Task Process()
     {
         throw new NotImplementedException();
     }

@@ -17,6 +17,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
+using RSBingoBot.Requests;
 
 /// <summary>
 /// Controller class for Discord bot commands.

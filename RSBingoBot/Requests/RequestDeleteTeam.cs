@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.BingoCommands;
+namespace RSBingoBot.Requests;
 
 using RSBingoBot.DTO;
 using RSBingoBot.Exceptions;
@@ -30,54 +30,38 @@ internal class RequestDeleteTeam : RequestBase
     public RequestDeleteTeam(DiscordInteraction interaction, string teamName) : base(semaphore) =>
         this.teamName = teamName;
 
-    protected override async Task<RequestResult<string>> Process()
+    protected override async Task Process()
     {
-        List<string> errors = new(2);
-        RequestResult<string> roleResult = await DeleteRole();
-        RequestResult<string> channelsResult = await DeleteChannels();
-
-        if (roleResult.IsFaulted)
-        {
-            errors.Concat(roleResult.Errors);
-            Logger.LogInformation(roleResult.exception, GetCompiledMessage(roleResult.Errors));
-        }
-
-        if (channelsResult.IsFaulted)
-        {
-            errors.Concat(roleResult.Errors);
-            Logger.LogInformation(roleResult.exception, GetCompiledMessage(roleResult.Errors));
-            Logger.LogInformation(ChannelDeletionError, teamName);
-        }
+        await DeleteRole();
+        await DeleteChannels();
 
         // TODO: find out if this throws an exception
         DataWorker.Teams.Remove(team);
         RSBingoBot.DiscordTeam.TeamDeleted(team);
-
-        return new(TeamSuccessfullyDeletedMessage.FormatConst(teamName));
     }
 
-    protected override RequestResult Validate()
+    protected override bool Validate()
     {
         if (DataWorker.Teams.GetByName(teamName) is Team team)
         {
             this.team = team;
-            return new();
+            return true;
         }
 
-        return new(new RequestException(TeamDoesNotExistError));
+        return false;
     }
 
-    private async Task<RequestResult<string>> DeleteRole()
+    private async Task DeleteRole()
     {
         throw new NotImplementedException();
     }
 
-    private async Task<RequestResult<string>> DeleteChannels()
+    private async Task DeleteChannels()
     {
         throw new NotImplementedException();
     }
 
-    private async Task<RequestResult<string>> TryDeleteChannel(ulong id)
+    private async Task DeleteChannel(ulong id)
     {
         throw new NotImplementedException();
     }

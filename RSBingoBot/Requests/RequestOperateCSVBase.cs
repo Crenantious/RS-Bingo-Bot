@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.BingoCommands;
+namespace RSBingoBot.Requests;
 
 using RSBingo_Framework;
 using RSBingo_Framework.Interfaces;
@@ -41,7 +41,7 @@ public abstract class RequestOperateCSVBase<LineType> : RequestBase
     protected CSVData<LineType> Data { get; private set; } = null!;
 
     public RequestOperateCSVBase(InteractionContext ctx, IDataWorker dataWorker, DiscordAttachment attachment) : base(ctx, dataWorker) =>
-        this.csvAttachment = attachment;
+        csvAttachment = attachment;
 
     public override async Task<bool> ProcessRequest()
     {
