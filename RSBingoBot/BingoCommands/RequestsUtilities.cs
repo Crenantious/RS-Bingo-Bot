@@ -4,7 +4,9 @@
 
 namespace RSBingoBot.BingoCommands;
 
+using RSBingoBot.DTO;
 using RSBingo_Framework.Interfaces;
+using RSBingoBot.Exceptions;
 
 internal static class RequestsUtilities
 {
@@ -14,15 +16,20 @@ internal static class RequestsUtilities
     private static readonly string NameTooLongError = $"A team name cannot exceed {General.TeamNameMaxLength} characters.";
 
     // TODO: JR - don't allow only white space and convert white space to a "-".
-    public static IEnumerable<string> GetNewTeamNameErrors(string name, IDataWorker dataWorker)
+    public static Result<string> ValidateNewTeamName(string name, IDataWorker dataWorker)
     {
-        List<string> errors = new(2);
+        List<string> errors = new(3);
 
         if (ContainsSpecialCharacters(name)) { errors.Add(InvalidCharactersError); }
         if (name.Length > General.TeamNameMaxLength) { errors.Add(NameTooLongError); }
         if (dataWorker.Teams.DoesTeamExist(name)) { errors.Add(TeamAlreadyExistsError); }
 
-        return errors;
+        if (errors.Any())
+        {
+            return new Result<string>(new TeamNameException(errors));
+        }
+
+        return new Result<string>(name);
     }
 
     private static bool ContainsSpecialCharacters(string name) =>

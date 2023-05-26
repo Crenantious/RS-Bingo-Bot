@@ -4,113 +4,46 @@
 
 namespace RSBingoBot.BingoCommands;
 
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using System.Text;
+using RSBingoBot.DTO;
+using RSBingoBot.Interfaces;
+using RSBingoBot.Exceptions;
 
-/// <summary>
-/// Base class for requests.
-/// </summary>
-// TODO: JR - since this can take a while, make sure each request posts progress messages.
-// TODO: make this take a more generic context than InteractionContext, so other things (like buttons) can use this.
-public abstract class RequestBase
+internal abstract class RequestBase : IRequest
 {
-    /// <summary>
-    /// Gets the permissions required to run the request.
-    /// </summary>
-    internal virtual List<Permissions> RequiredPermissions => new();
+    private const string InternalError = "An internal error has occurred.";
 
-    private const string MissingPermissionsErrorMessage = "You require the following permissions to run this command:";
-    private protected InteractionContext Ctx;
-    private protected IDataWorker DataWorker;
+    private readonly SemaphoreSlim semaphore;
 
-    public IEnumerable<string> ResponseMessage { get; private set; } = Enumerable.Empty<string>();
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    /// <param name="ctx">The <see cref="InteractionContext"/> for the request.</param>
-    /// <param name="dataWorker">Reference to the dataWorker.</param>
-    public RequestBase(InteractionContext ctx, IDataWorker dataWorker)
+    protected RequestBase(SemaphoreSlim semaphore) 
     {
-        Ctx = ctx;
-        DataWorker = dataWorker;
+        this.semaphore = semaphore;
     }
 
-    public async Task<bool> ValidateRequest()
+    public async Task<Result<string>> Run()
     {
-        IEnumerable<Permissions> missingPermissions = await GetMissingPermissions();
-        if (missingPermissions.Any())
+        await semaphore.WaitAsync();
+        Result<string> result;
+
+        try
         {
-            return InsufficientPermissionsResponse(missingPermissions);
+            result = await Validate();
+            if (result.IsFaulted) return result;
+            result = await Process();
+        }
+        catch (Exception ex)
+        {
+            // TODO: figure out what data to put here.
+            General.LoggingLog(ex, "");
+            return new(new RequestException(InternalError));
+        }
+        finally
+        { 
+            semaphore.Release();
         }
 
-        return ValidateSpecificRequest();
+        return result;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns><see langword="true"/> if successful; otherwise, <see langword="false"/>.</returns>
-    public abstract Task<bool> ProcessRequest();
-
-    private protected abstract bool ValidateSpecificRequest();
-
-    private protected DiscordRole? GetTeamRole(Team team) =>
-        RSBingoBot.DiscordTeam.GetInstance(team).Role;
-
-    private async Task<IEnumerable<Permissions>> GetMissingPermissions()
-    {
-        DiscordMember member = await Ctx.Guild.GetMemberAsync(Ctx.User.Id);
-        IEnumerable<Permissions> missingPermissions = RequiredPermissions.Where(p => !member.Permissions.HasPermission(p));
-        return missingPermissions;
-    }
-
-    private bool InsufficientPermissionsResponse(IEnumerable<Permissions> missingPermissions)
-    {
-        // TODO: JR - Change this to a pre-execution check
-
-        StringBuilder errorString = new(MissingPermissionsErrorMessage);
-
-        foreach (Permissions permission in missingPermissions)
-        {
-            errorString.AppendLine($"{permission}");
-        }
-
-        SetResponseMessage(errorString.ToString());
-        return false;
-    }
-
-    private protected bool ProcessFailure(IEnumerable<string> failureMessages)
-    {
-        SetResponseMessage(failureMessages);
-        return false;
-    }
-
-    private protected bool ProcessSuccess(IEnumerable<string> successMessages)
-    {
-        SetResponseMessage(successMessages);
-        return true;
-    }
-
-    private protected bool ProcessFailure(string failureMessage)
-    {
-        SetResponseMessage(failureMessage);
-        return false;
-    }
-
-    private protected bool ProcessSuccess(string successMessage)
-    {
-        SetResponseMessage(successMessage);
-        return true;
-    }
-
-    protected void SetResponseMessage(string responseMessage) =>
-        ResponseMessage = new string[] { responseMessage };
-
-    protected void SetResponseMessage(IEnumerable<string> responseMessage) =>
-        ResponseMessage = responseMessage;
+    protected abstract Task<Result<string>> Validate();
+    protected abstract Task<Result<string>> Process();
 }

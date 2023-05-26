@@ -4,48 +4,37 @@
 
 namespace RSBingoBot.BingoCommands;
 
-using RSBingo_Framework.Interfaces;
-using DSharpPlus.SlashCommands;
+using RSBingoBot.DTO;
 using RSBingoBot.Leaderboard;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
+using DSharpPlus.Entities;
 
 /// <summary>
 /// Request for creating a team.
 /// </summary>
-public class RequestCreateTeam : RequestBase
+internal class RequestCreateTeam : RequestBase
 {
     private const string TeamSuccessfullyCreatedMessage = "The team '{0}' has been created successfully.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
     private readonly string teamName;
+    private readonly DiscordInteraction interaction;
+    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
-    public RequestCreateTeam(InteractionContext ctx, IDataWorker dataWorker, string teamName) : base(ctx, dataWorker) =>
+    public RequestCreateTeam(DiscordInteraction interaction, string teamName) : base(semaphore)
+    {
+        this.interaction = interaction;
         this.teamName = teamName;
-
-    public override async Task<bool> ProcessRequest()
-    {
-        await semaphore.WaitAsync();
-
-        try
-        {
-            // TODO: the dw gets saved in CreateTeam and also when the request finishes.
-            // Probably make the dw not get auto saved after the request.
-            await CreateTeam();
-            await LeaderboardDiscord.Update(DataWorker);
-        }
-        catch (Exception ex) { throw; }
-        finally { semaphore.Release(); }
-
-        return ProcessSuccess(TeamSuccessfullyCreatedMessage.FormatConst(teamName));
     }
 
-    private protected override bool ValidateSpecificRequest()
-    {
-        IEnumerable<string> errors = RequestsUtilities.GetNewTeamNameErrors(teamName, DataWorker);
-        SetResponseMessage(MessageUtilities.GetCompiledMessages(errors));
-        return errors.Any() is false;
-    }
+    protected override async Task<Result<string>> Validate() =>
+        RequestsUtilities.ValidateNewTeamName(teamName, dataWorker);
 
-    private async Task CreateTeam() =>
-         await new RSBingoBot.DiscordTeam(Ctx.Client, teamName).InitialiseAsync();
+    protected override async Task<Result<string>> Process()
+    {
+        await new RSBingoBot.DiscordTeam(Ctx.Client, teamName).InitialiseAsync();
+        await LeaderboardDiscord.Update(dataWorker);
+    }
 }

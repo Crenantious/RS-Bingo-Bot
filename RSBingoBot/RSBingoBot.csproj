@@ -35,7 +35,6 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Discord.Net.WebSocket" Version="3.10.0" />
     <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01507" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01507" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-01507" />
@@ -68,6 +67,7 @@
 
   <ItemGroup>
     <Folder Include="Exceptions\" />
+    <Folder Include="Requests\" />
   </ItemGroup>
 
 </Project>

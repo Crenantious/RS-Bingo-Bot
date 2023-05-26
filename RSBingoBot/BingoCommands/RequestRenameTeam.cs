@@ -57,7 +57,7 @@ public class RequestRenameTeam : RequestBase
         IEnumerable<string> errors;
 
         if (team is null) { errors = new string[] { TeamDoesNotExistError }; }
-        else { errors = RequestsUtilities.GetNewTeamNameErrors(newName, DataWorker); }
+        else { errors = RequestsUtilities.ValidateNewTeamName(newName, DataWorker); }
 
         SetResponseMessage(MessageUtilities.GetCompiledMessages(errors));
         return errors.Any() is false;
