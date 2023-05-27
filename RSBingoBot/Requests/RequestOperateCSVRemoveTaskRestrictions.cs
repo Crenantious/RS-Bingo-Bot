@@ -15,15 +15,13 @@ using static RSBingo_Common.General;
 /// <summary>
 /// Request for removing <see cref="Restriction"/>s via a csv file.
 /// </summary>
-public class RequestOperateCSVRemoveTaskRestrictions : RequestOperateCSVBase<RemoveTaskRestrictionCSVLine>
+internal class RequestOperateCSVRemoveTaskRestrictions : RequestOperateCSVBase<RemoveTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
     protected override string ProcessSussessResponse => "The restrictions were successfully removed from the database";
 
     /// <inheritdoc/>
-    public RequestOperateCSVRemoveTaskRestrictions(InteractionContext ctx, IDataWorker dataWorker, DiscordAttachment attachment) :
-        base(ctx, dataWorker, attachment)
-    { }
+    public RequestOperateCSVRemoveTaskRestrictions(DiscordAttachment attachment) : base(attachment) { }
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

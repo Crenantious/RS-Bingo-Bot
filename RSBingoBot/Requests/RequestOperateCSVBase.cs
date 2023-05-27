@@ -4,90 +4,58 @@
 
 namespace RSBingoBot.Requests;
 
-using RSBingo_Framework;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using RSBingo_Framework.CSV.Operators.Warnings;
+using RSBingoBot.DTO;
 using RSBingo_Framework.CSV;
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.Exceptions;
-using RSBingo_Framework.Exceptions.CSV;
-using System.Net;
-using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using static RSBingoBot.MessageUtilities;
 
 /// <summary>
-/// Request for deleting a team.
+/// Request for operating on a csv file.
 /// </summary>
-public abstract class RequestOperateCSVBase<LineType> : RequestBase
+internal abstract class RequestOperateCSVBase<LineType> : RequestBase
     where LineType : CSVLine
 {
     private const string InvalidFileTypeResponse = "The uploaded file must be a .csv.";
-    private const string UnableToDownloadFileResponse = "Unable to download the file. Please try again shortly.";
-    private const string ProcessSuccessfulWithWarningsResponse = "{0} but had the following warnings:";
+    private const string ProcessSuccessfulWithWarnings = "{0} but had the following warnings:";
     private const string ProcessSuccessfulWithoutWarningsResponse = "{0}.";
     private const string CsvMediaType = "text/csv";
+    private const string NonCsvFileError = "The uploaded file must be a csv.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
     private readonly DiscordAttachment csvAttachment;
 
-    private ILogger<RequestDeleteTeam> logger = null!;
-
     protected abstract string ProcessSussessResponse { get; }
     protected string FileName { get; } = Guid.NewGuid().ToString() + ".csv";
     protected CSVData<LineType> Data { get; private set; } = null!;
 
-    public RequestOperateCSVBase(InteractionContext ctx, IDataWorker dataWorker, DiscordAttachment attachment) : base(ctx, dataWorker) =>
+    public RequestOperateCSVBase(DiscordAttachment attachment) : base(semaphore)
+    {
         csvAttachment = attachment;
-
-    public override async Task<bool> ProcessRequest()
-    {
-        await semaphore.WaitAsync();
-        logger = General.LoggingInstance<RequestDeleteTeam>();
-        IEnumerable<string> operatorWarnings;
-        WebClient webClient = new();
-
-        try
-        {
-            webClient.DownloadFile(new Uri(csvAttachment.Url), FileName);
-            ParseFile();
-            operatorWarnings = Operate();
-        }
-        catch (WebException e)
-        {
-            return ProcessFailure(UnableToDownloadFileResponse);
-        }
-        catch (UnpermittedURLException e)
-        {
-            return ProcessFailure(GetUnpermittedDomainExceptionMessage(e.Message));
-        }
-        catch
-        {
-            throw;
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-
-        return ProcessSuccess(GetResponseMessages(operatorWarnings));
     }
 
-    private IEnumerable<string> GetResponseMessages(IEnumerable<string> operatorWarnings)
+    protected override bool Validate()
     {
-        if (operatorWarnings.Any())
-        {
-            string messagePrefix = ProcessSuccessfulWithWarningsResponse.FormatConst(ProcessSussessResponse);
-            return GetCompiledMessages(operatorWarnings.Prepend(messagePrefix));
-        }
-        else
-        {
-            return new string[] { ProcessSuccessfulWithoutWarningsResponse.FormatConst(ProcessSussessResponse) };
-        }
+        if (IsCsvFile()) { return true; }
+        AddResponse(NonCsvFileError);
+        return false;
     }
+
+    protected override async Task Process()
+    {
+        Result result = RequestsUtilities.DownloadFile(new Uri(csvAttachment.Url), FileName);
+        if(result.IsFaulted)
+        {
+            AddResponse(result.Error);
+            return;
+        }
+
+        ParseFile();
+        IEnumerable<string> operatorWarnings = Operate();
+        SetSuccessResponses(operatorWarnings);
+    }
+
+    private bool IsCsvFile() =>
+        csvAttachment.MediaType.StartsWith(RequestOperateCSVBase<LineType>.CsvMediaType);
 
     private protected void ParseFile()
     {
@@ -97,16 +65,16 @@ public abstract class RequestOperateCSVBase<LineType> : RequestBase
 
     private protected abstract IEnumerable<string> Operate();
 
-    private protected override bool ValidateSpecificRequest()
+    private void SetSuccessResponses(IEnumerable<string> operatorWarnings)
     {
-        if (csvAttachment.MediaType.StartsWith(RequestOperateCSVBase<LineType>.CsvMediaType)) { return true; }
-        SetResponseMessage("The uploaded file must be a csv.");
-        return false;
-    }
-
-    private static IEnumerable<string> GetUnpermittedDomainExceptionMessage(string prefix)
-    {
-        IEnumerable<string> messages = WhitelistChecker.GetWhitelistedDomains();
-        return GetCompiledMessages(messages.Prepend(prefix));
+        if (operatorWarnings.Any())
+        {
+            AddResponse(ProcessSuccessfulWithWarnings.FormatConst(ProcessSussessResponse));
+            AddResponses(operatorWarnings);
+        }
+        else
+        {
+            AddResponse(ProcessSuccessfulWithoutWarningsResponse.FormatConst(ProcessSussessResponse));
+        }
     }
 }

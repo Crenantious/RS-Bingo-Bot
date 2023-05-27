@@ -5,25 +5,20 @@
 namespace RSBingoBot.Requests;
 
 using RSBingo_Framework.CSV;
-using RSBingo_Framework.CSV.Lines;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.CSV.Lines;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
-using static RSBingo_Common.General;
 
 /// <summary>
 /// Request for adding <see cref="Restriction"/>s via a csv file.
 /// </summary>
-public class RequestOperateCSVAddTaskRestrictions : RequestOperateCSVBase<AddTaskRestrictionCSVLine>
+internal class RequestOperateCSVAddTaskRestrictions : RequestOperateCSVBase<AddTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
     protected override string ProcessSussessResponse => "The restrictions were successfully added to the database";
 
     /// <inheritdoc/>
-    public RequestOperateCSVAddTaskRestrictions(InteractionContext ctx, IDataWorker dataWorker, DiscordAttachment attachment) :
-        base(ctx, dataWorker, attachment)
-    { }
+    public RequestOperateCSVAddTaskRestrictions(DiscordAttachment attachment) : base(attachment) { }
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

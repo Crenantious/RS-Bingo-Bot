@@ -4,15 +4,12 @@
 
 namespace RSBingoBot.BingoCommands;
 
-using RSBingoBot;
 using RSBingoBot.Requests;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.BingoCommands.Attributes;
 using RSBingoBot.Component_interaction_handlers;
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
-using Microsoft.Extensions.Logging;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -34,7 +31,7 @@ public class CommandController : ApplicationCommandModule
     private readonly ModalSubmittedDEH modalSubmittedDEH;
     private readonly DiscordRequestServices requestServices;
 
-    private static readonly DiscordInteractionServices interactionServices;
+    private static DiscordInteractionServices interactionServices = null!;
 
     public CommandController(DiscordClient discordClient, DiscordRequestServices requestServices,
         DiscordInteractionServices interactionServices, RSBingoBot.DiscordTeam.Factory teamFactory,
@@ -42,7 +39,7 @@ public class CommandController : ApplicationCommandModule
     {
         this.discordClient = discordClient;
         this.requestServices = requestServices;
-        this.interactionServices = interactionServices;
+        CommandController.interactionServices = interactionServices;
         this.teamFactory = teamFactory;
         this.messageCreatedDEH = messageCreatedDEH;
         this.modalSubmittedDEH = modalSubmittedDEH;
@@ -141,7 +138,7 @@ public class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTasks(ctx.Interaction, attachment));
+        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTasks(attachment));
     }
 
     [SlashCommand("DeleteTasks", "Deletes tasks from the database based on the uploaded csv file.")]
@@ -149,7 +146,7 @@ public class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTasks(ctx.Interaction, attachment));
+        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTasks(attachment));
     }
 
     [SlashCommand("AddTaskRestrictions", "Adds task restrictions to the database based on the uploaded csv file.")]
@@ -157,7 +154,7 @@ public class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTaskRestrictions(ctx.Interaction, attachment));
+        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTaskRestrictions(attachment));
     }
 
     [SlashCommand("DeleteTaskRestrictions", "Deletes task restrictions from the database based on the uploaded csv file.")]
@@ -165,7 +162,7 @@ public class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTaskRestrictions(ctx.Interaction, attachment));
+        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTaskRestrictions(attachment));
     }
 
     #endregion
