@@ -4,12 +4,11 @@
 
 namespace RSBingoBot.DiscordServices;
 
-using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
 
-public class DiscordRequestServices
+internal class DiscordRequestServices
 {
     private const string RequestCompletedSuccessfullyResponse = "Request completed successfully.";
     private const string ProcessingRequestResponse = "Processing request.";

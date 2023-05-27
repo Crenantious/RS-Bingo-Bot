@@ -2,11 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.DTO;
+namespace RSBingo_Framework.DTO;
 
-using RSBingoBot.Exceptions;
-
-internal class Result<T> : Result
+public class Result<T> : Result
 {
     public T Value { get; }
 

@@ -20,7 +20,7 @@ using static RSBingoBot.MessageUtilities;
 /// <summary>
 /// Controller class for Discord bot commands.
 /// </summary>
-public class CommandController : ApplicationCommandModule
+internal class CommandController : ApplicationCommandModule
 {
     private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
 

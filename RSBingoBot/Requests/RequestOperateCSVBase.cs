@@ -4,9 +4,10 @@
 
 namespace RSBingoBot.Requests;
 
-using RSBingoBot.DTO;
+using RSBingo_Framework.DTO;
 using RSBingo_Framework.CSV;
 using DSharpPlus.Entities;
+using System.Net;
 
 /// <summary>
 /// Request for operating on a csv file.
@@ -42,8 +43,8 @@ internal abstract class RequestOperateCSVBase<LineType> : RequestBase
 
     protected override async Task Process()
     {
-        Result result = RequestsUtilities.DownloadFile(new Uri(csvAttachment.Url), FileName);
-        if(result.IsFaulted)
+        Result result = WebRequests.DownloadFile(csvAttachment.Url, FileName);
+        if (result.IsFaulted)
         {
             AddResponse(result.Error);
             return;

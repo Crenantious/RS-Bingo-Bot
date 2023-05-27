@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.DTO;
+namespace RSBingo_Framework.DTO;
 
-internal class Result
+public class Result
 {
     public bool IsCompleted { get; }
     public bool IsFaulted { get; }
