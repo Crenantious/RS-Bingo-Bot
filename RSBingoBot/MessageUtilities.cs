@@ -5,91 +5,10 @@
 namespace RSBingoBot;
 
 using System.Text;
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using static RSBingo_Common.General;
 
 public static class MessageUtilities
 {
-    public static async Task<bool> Respond(DiscordInteraction args, string content, bool isEphemeral)
-    {
-        var builder = new DiscordInteractionResponseBuilder()
-        {
-            Content = content,
-            IsEphemeral = isEphemeral
-        };
-
-        return await Respond(args, builder);
-    }
-
-    public static async Task<bool> Respond(DiscordInteraction args, DiscordInteractionResponseBuilder builder)
-    {
-        try
-        {
-            await args.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-            return true;
-        }
-        catch { return false; }
-    }
-
-    public static async Task<bool> EditResponse(DiscordInteraction args, string content) =>
-        await EditResponse(args, new DiscordWebhookBuilder().WithContent(content));
-
-    public static async Task<bool> EditResponse(DiscordInteraction args, DiscordWebhookBuilder builder)
-    {
-        try
-        {
-            await args.EditOriginalResponseAsync(builder);
-            return true;
-        }
-        catch { return false; }
-    }
-
-    public static async Task<bool> DeleteResponse(DiscordInteraction args)
-    {
-        try
-        {
-            await args.DeleteOriginalResponseAsync();
-            return true;
-        }
-        catch { return false; }
-    }
-
-    public static async Task<bool> Followup(DiscordInteraction args, string content, bool isEphemeral)
-    {
-        var builder = new DiscordFollowupMessageBuilder()
-        {
-            Content = content,
-            IsEphemeral = isEphemeral
-        };
-
-        return await Followup(args, builder);
-    }
-
-    public static async Task<bool> Followup(DiscordInteraction args, DiscordFollowupMessageBuilder builder)
-    {
-        try
-        {
-            await args.CreateFollowupMessageAsync(builder);
-            return true;
-        }
-        catch { return false; }
-    }
-
-    public static async Task<bool> EditFollowup(DiscordInteraction args, ulong messageId, string content) =>
-       await EditFollowup(args, messageId, new DiscordWebhookBuilder().WithContent(content));
-
-    public static async Task<bool> EditFollowup(DiscordInteraction args, ulong messageId, DiscordWebhookBuilder builder)
-    {
-        try
-        {
-            await args.EditFollowupMessageAsync(messageId, builder);
-            return true;
-        }
-        catch { return false; }
-    }
-
     public static string GetCompiledMessage(IEnumerable<string> messages)
     {
         if (messages.Any() is false) return string.Empty;

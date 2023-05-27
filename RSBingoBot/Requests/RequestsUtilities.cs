@@ -5,8 +5,8 @@
 namespace RSBingoBot.Requests;
 
 using RSBingoBot.DTO;
-using RSBingo_Framework.Interfaces;
 using RSBingoBot.Exceptions;
+using RSBingo_Framework.Interfaces;
 
 internal static class RequestsUtilities
 {

@@ -16,6 +16,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.BingoCommands;
 using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordServices;
 using RSBingoBot.Imaging;
 using RSBingoBot.Leaderboard;
 using Serilog;
@@ -114,8 +115,6 @@ public class Program
                     option.ShutdownTimeout = TimeSpan.FromSeconds(60);
                 });
 
-                //services.AddImageSharp();
-
                 services.AddHostedService<Bot>();
 
                 // TODO: JCH - this could likely be simplified.
@@ -132,7 +131,8 @@ public class Program
                 });
 
                 services.AddScoped<CommandController>();
-                
+
+                services.AddSingleton<DiscordRequestServices>();
                 services.AddSingleton<ComponentInteractionDEH>();
                 services.AddSingleton<MessageReactionAddedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
