@@ -4,39 +4,28 @@
 
 namespace RSBingoBot.DTO;
 
-using RSBingoBot.Exceptions;
-
 internal class RequestResult
 {
-    public bool IsCompleted { get; }
+    public bool IsSuccessful { get; }
     public bool IsFaulted { get; }
     public IEnumerable<string> Responses { get; }
-    private RequestException? exception { get; }
 
-    public IEnumerable<string> Errors =>
-        exception is null ?
-        Enumerable.Empty<string>() :
-        exception.Errors;
-
-    public RequestResult(bool isCompleted)
-    {
-        Responses = Enumerable.Empty<string>();
-        IsCompleted = isCompleted;
-        IsFaulted = !isCompleted;
-    }
-
-    public RequestResult(IEnumerable<string> responses, bool isCompleted)
+    private RequestResult(IEnumerable<string> responses, bool isSuccessful)
     {
         Responses = responses;
-        IsCompleted = isCompleted;
-        IsFaulted = !isCompleted;
+        IsSuccessful = isSuccessful;
+        IsFaulted = !isSuccessful;
     }
 
-    public RequestResult(RequestException exception)
-    {
-        this.exception = exception;
-        Responses = exception.Errors;
-        IsCompleted = false;
-        IsFaulted = true;
-    }
+    public static RequestResult Success(IEnumerable<string> responses) =>
+        new(responses, false);
+
+    public static RequestResult Success(string response) =>
+        new(new string[] { response }, false);
+
+    public static RequestResult Failed(IEnumerable<string> responses) =>
+        new(responses, false);
+
+    public static RequestResult Failed(string response) =>
+        new(new string[] { response }, false);
 }

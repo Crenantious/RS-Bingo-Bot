@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.DTO;
 using RSBingoBot.Interfaces;
-using RSBingoBot.Exceptions;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -31,15 +30,19 @@ internal abstract class RequestBase : IRequest
 
         try
         {
-            if (Validate() is false) return new(Responses, false);
+            if (Validate() is false) 
+            { 
+                return RequestResult.Failed(Responses);
+            }
+
             await Process();
-            return new(Responses, true);
+            return RequestResult.Success(Responses);
         }
         catch (Exception ex)
         {
             // TOOO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
             Logger.LogError(ex, null);
-            return new(new RequestException(InternalError));
+            return RequestResult.Failed(InternalError);
         }
         finally
         {
