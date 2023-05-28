@@ -244,7 +244,8 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     private async Task<ulong> SubmitEvidenceToDiscord(Tile tile)
     {
         DiscordMessage message = await PendingReviewEvidenceChannel.SendMessageAsync(new DiscordMessageBuilder()
-            .WithContent($"{CurrentInteractionArgs.User.Mention} has submitted {EvidenceType} evidence for {tile.Task.Name}" +
+            .WithContent($"{CurrentInteractionArgs.User.Mention} has submitted {EvidenceType} evidence for {tile.Task.Name}." +
+            $"{Environment.NewLine}Team code: {tile.Team.Code}" +
             $"{Environment.NewLine}{SubmittedImageURL}"));
         return message.Id;
     }
