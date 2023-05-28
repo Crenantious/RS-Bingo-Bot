@@ -21,8 +21,13 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 internal class EvidenceReaction
 {
-    private const string EvidenceCheckedTitle = "Evidence";
-    private const string EvidenceCheckedMessage = "[Evidence]({0}) submitted by {1} for {2} has been {3}.";
+    private static readonly string EvidenceCheckedTitle = "Receipt";
+    private static readonly string EvidenceCheckedMessage = "[Evidence]({0})." + Environment.NewLine +
+                                                            "Submitted by: {1}." + Environment.NewLine +
+                                                            "Tile: {2}." + Environment.NewLine +
+                                                            "Status: {3}." + Environment.NewLine +
+                                                            "Checked by: {4}.";
+
     private static IDataWorker dataWorker = CreateDataWorker();
 
     public static void SetUp()
@@ -111,10 +116,11 @@ internal class EvidenceReaction
     {
         DiscordChannel evidenceChannel = Guild.GetChannel(evidence.Tile.Team.EvidencelChannelId);
         string status = EvidenceStatusLookup.Get(evidence.Status).ToString().ToLower();
+        string username = (await Guild.GetMemberAsync(evidence.DiscordUser.DiscordUserId)).DisplayName;
 
         DiscordEmbedBuilder builder = new();
-        builder.AddField(EvidenceCheckedTitle, EvidenceCheckedMessage.FormatConst(evidence.Url, args.User.Username, evidence.Tile.Task.Name,
-                status));
+        builder.AddField(EvidenceCheckedTitle, EvidenceCheckedMessage.FormatConst(evidence.Url, username, evidence.Tile.Task.Name,
+                status, args.User.Username));
 
         await evidenceChannel.SendMessageAsync(builder);
     }
