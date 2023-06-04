@@ -28,7 +28,7 @@ public class MockDBSetup
 
     public static Team Add_Team(IDataWorker dataWorker, string name = "Test")
     {
-        Team team = dataWorker.Teams.Create(name, 0, 0, 0, 0, 0, 0);
+        Team team = dataWorker.Teams.Create(name, 0, 0, 0, 0, 0, 0, 0);
 
         dataWorker.SaveChanges();
         return team;

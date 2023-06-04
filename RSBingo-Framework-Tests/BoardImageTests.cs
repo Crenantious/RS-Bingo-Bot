@@ -31,7 +31,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     // This test is intended to be used for visual inspection only; make sure it is ignored when committed.
     public void CreateTasks_CreateTeamBoard_DisplayImageForInspection()
     {
@@ -59,7 +59,7 @@ public class BoardImageTests : MockDBBaseTestClass
 
     private Team CreateTeam()
     {
-        Team team = TeamRecord.CreateTeam(dataWorker, "Test", 0, 0, 0, 0, 0, 0);
+        Team team = TeamRecord.CreateTeam(dataWorker, "Test", 0, 0, 0, 0, 0, 0, 0);
         team.CreateDefaultTiles(dataWorker); 
         dataWorker.SaveChanges();
         return team;

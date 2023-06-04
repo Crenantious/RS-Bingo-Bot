@@ -29,6 +29,8 @@ public abstract class RequestBase
 
     public IEnumerable<string> ResponseMessage { get; private set; } = Enumerable.Empty<string>();
 
+    public virtual bool IsResponseEphemeral => true;
+
     /// <summary>
     /// Constructor.
     /// </summary>

@@ -183,6 +183,18 @@ public class CommandController : ApplicationCommandModule
 
     #endregion
 
+    #region Other
+
+    [SlashCommand("GetStats", "Gets the scores of each team and their players.")]
+    [RequireRole("Host")]
+    public async Task GetStats(InteractionContext ctx)
+    {
+        IDataWorker dataWorker = CreateDataWorker();
+        await RunRequest(dataWorker, ctx, new RequestGetStats(ctx, dataWorker));
+    }
+
+    #endregion
+
     #region Requests and responses
 
     private async Task RunRequest(IDataWorker dataWorker, InteractionContext ctx, RequestBase request)
@@ -233,16 +245,16 @@ public class CommandController : ApplicationCommandModule
         }
         finally
         {
-            if (responseMessages.Any()) { await SendResponseMessages(ctx, responseMessages); }
+            if (responseMessages.Any()) { await SendResponseMessages(ctx, responseMessages, request.IsResponseEphemeral); }
         }
     }
 
-    private static async Task SendResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages)
+    private static async Task SendResponseMessages(InteractionContext ctx, IEnumerable<string> responseMessages, bool isEphemeral)
     {
         // Delete the original response as it was just a keep alive message.
         DeleteResponse(ctx.Interaction);
 
-        DiscordFollowupMessageBuilder builder = new() { IsEphemeral = true };
+        DiscordFollowupMessageBuilder builder = new() { IsEphemeral = isEphemeral };
 
         foreach (string message in responseMessages)
         {
