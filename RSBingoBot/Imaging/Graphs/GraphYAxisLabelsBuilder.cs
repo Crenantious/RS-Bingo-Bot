@@ -10,19 +10,23 @@ using System.Collections.Generic;
 public class GraphYAxisLabelsBuilder : GraphAxisLabelsBuilder
 {
     private IEnumerable<int> labelYPositions;
+    private int labelCount;
 
     protected override HorizontalAlignment horizontalAlignment => HorizontalAlignment.Left;
 
     protected override VerticalAlignment verticalAlignment => VerticalAlignment.Center;
 
-    public GraphYAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight, IEnumerable<int> labelYPositions)
-        : base(labels, axisWidth, axisHeight)
+    public GraphYAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight,
+        IEnumerable<int> labelYPositions, bool ignoreEndpoints = true)
+        : base(labels, axisWidth, axisHeight, ignoreEndpoints)
     {
         this.labelYPositions = labelYPositions;
+        labelCount = labelYPositions.Count();
     }
 
     protected override Point GetLabelPosition(int index) =>
-        new(0, labelYPositions.ElementAt(index));
+        // Gets drawn top down, but the values need to be ascending from bottom up.
+        new(0, labelYPositions.ElementAt(labelCount - 1 - index));
 
     protected override void IncreaseSizeFromNewLabel(FontRectangle labelRect)
     {

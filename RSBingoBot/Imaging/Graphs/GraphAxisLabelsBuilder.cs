@@ -15,7 +15,8 @@ public abstract class GraphAxisLabelsBuilder
     private Image image = null!;
 
     private IEnumerable<string> labels;
-    private Point[] labelPositions;
+    private List<Point> labelPositions;
+    private bool ignoreEndpoints;
 
     protected int LabelSpacing { get; }
     protected int LabelCount { get; }
@@ -25,11 +26,20 @@ public abstract class GraphAxisLabelsBuilder
     protected abstract HorizontalAlignment horizontalAlignment{get;}
     protected abstract VerticalAlignment verticalAlignment { get; }
 
-    public GraphAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight)
+    /// <param name="ignoreEndpoints">Ignore the outermost axis divisions.</param>
+    /// <exception cref="ArgumentException"></exception>
+    public GraphAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight, bool ignoreEndpoints)
     {
+        if (ignoreEndpoints && labels.Count() < 2)
+        {
+            throw new ArgumentException($"{nameof(labels)} must have a count of at least 2 if {nameof(ignoreEndpoints)} is true.");
+        }
+
         this.labels = labels;
+        this.ignoreEndpoints = ignoreEndpoints;
+
         LabelCount = labels.Count();
-        labelPositions = new Point[LabelCount];
+        labelPositions = new(LabelCount);
         Width = axisWidth;
         Height = axisHeight;
     }
@@ -41,7 +51,7 @@ public abstract class GraphAxisLabelsBuilder
     }
 
     protected abstract void IncreaseSizeFromNewLabel(FontRectangle labelRect);
-    protected abstract Point GetLabelPosition(int index);
+    protected abstract Point GetLabelPosition(int divisionIndex);
 
     private void Setup()
     {
@@ -52,7 +62,7 @@ public abstract class GraphAxisLabelsBuilder
             TextOptions textOptions = new(LeaderboadPreferences.Font);
             FontRectangle labelRect = TextMeasurer.Measure(labels.ElementAt(i), textOptions);
             IncreaseSizeFromNewLabel(labelRect);
-            labelPositions[i] = GetLabelPosition(i);
+            labelPositions.Add(GetLabelPosition(ignoreEndpoints ? i + 1 : i));
         }
 
         image = new Image<Rgba32>(Width, Height);

@@ -15,8 +15,9 @@ public class GraphXAxisLabelsBuilder : GraphAxisLabelsBuilder
 
     protected override VerticalAlignment verticalAlignment => VerticalAlignment.Top;
 
-    public GraphXAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight, IEnumerable<int> labelXPositions)
-        : base(labels, axisWidth, axisHeight)
+    public GraphXAxisLabelsBuilder(IEnumerable<string> labels, int axisWidth, int axisHeight,
+        IEnumerable<int> labelXPositions, bool ignoreEndpoints = true)
+        : base(labels, axisWidth, axisHeight, ignoreEndpoints)
     {
         this.labelXPositions = labelXPositions;
     }

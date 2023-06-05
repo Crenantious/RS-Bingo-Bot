@@ -17,34 +17,27 @@ public class ScoreStatsTests : MockDBBaseTestClass
     // This test is intended to be used for visual inspection only; make sure it is ignored when committed.
     public void CreateTestGraph()
     {
-        List<DataPoint> points = new();
+        List<LineGraphCategory> categories = new();
+        Color[] colours = new Color[] { Color.Red, Color.Green, Color.Blue };
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < colours.Length; i++)
         {
-            points.Add(new("Name " + i, i));
+            (float, float)[] dataPoints = new(float, float)[] 
+            {
+                (5 + i, 5 + i),
+                (7 + i, 16 + i),
+                (11 + i, 24 + i),
+                (3 + i, -2 + i),
+            };
+            categories.Add(new("Name " + i, dataPoints, colours[i]));
         }
 
-        GraphAxis axisX = new GraphXAxisBuilder(7).Build();
-        GraphAxis axisY = new GraphYAxisBuilder(7).Build();
+        (var xLabels, var yLabels) = GraphUtiilties.GetAxisLabelsFromData(categories, 15, 15);
+        GraphAxisInfo xAxisInfo = new("Date", 17, xLabels);
+        GraphAxisInfo yAxisInfo = new("Score", 17, yLabels);
 
-        axisX.Image.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "Score stats x.png"));
-        axisY.Image.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "Score stats y.png"));
-
-        Image imageXLabels = new GraphXAxisLabelsBuilder(points.Select(p => p.Name),
-            axisX.Image.Width,
-            axisX.Image.Height,
-            axisX.DivisionPositions.Where((p, i) => i != 0 && i != axisX.DivisionPositions.Length - 1)
-                .Select(p => p.X))
-            .Build();
-
-        Image imageYLabels = new GraphYAxisLabelsBuilder(points.Select(p => p.Name),
-            axisY.Image.Width,
-            axisY.Image.Height,
-            axisY.DivisionPositions.Where((p, i) => i != 0 && i != axisY.DivisionPositions.Length - 1)
-                .Select(p => p.Y))
-            .Build();
-
-        imageXLabels.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "Score stats x labels.png"));
-        imageYLabels.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "Score stats y labels.png"));
+        LineGraphBuilder graphBuilder = new("Test", xAxisInfo, yAxisInfo, categories, "Team name");
+        Image image = graphBuilder.Build();
+        image.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "Test graph.png"));
     }
 }
