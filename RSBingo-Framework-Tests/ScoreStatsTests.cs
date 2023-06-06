@@ -30,7 +30,7 @@ public class ScoreStatsTests : MockDBBaseTestClass
                 (new DateOnly(2023, 6, 3),3 + i),
             };
 
-            categories.Add(new("Name " + i, data, colours[i]));
+            categories.Add(new("Name " + i, colours[i], data));
         }
 
         IEnumerable<string> xLabels = GetXLabels(new DateOnly(2023, 5, 22), new DateOnly(2023, 6, 5), 8);
