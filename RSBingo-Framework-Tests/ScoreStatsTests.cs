@@ -28,6 +28,8 @@ public class ScoreStatsTests : MockDBBaseTestClass
                 (new DateOnly(2023, 5, 29),7 + i),
                 (new DateOnly(2023, 6, 1),11 + i),
                 (new DateOnly(2023, 6, 3),3 + i),
+                (new DateOnly(2023, 6, 3), 0),
+                (new DateOnly(2023, 6, 3), 30),
             };
 
             categories.Add(new("Name " + i, colours[i], data));

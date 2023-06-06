@@ -120,8 +120,8 @@ public class LineGraphBuilder<TXData, TYData> : GraphBuilder
             LineGraphDataPlotBuilder<TXData, TYData> plotBuilder = new(category.Data, getXMinMaxRatio, getYMinMaxRatio,
                 xMinValue, xMaxValue, yMinValue, yMaxValue,
                 xAxis.Image.Width, yAxis.Image.Height,
-                xAxis.DivisionPositions[0].X, xAxis.DivisionPositions[^1].X,
-                yAxis.DivisionPositions[0].Y, yAxis.DivisionPositions[^1].Y,
+                xAxis.DivisionPositions[1].X, xAxis.DivisionPositions[^2].X,
+                yAxis.DivisionPositions[1].Y, yAxis.DivisionPositions[^2].Y,
                 category.LegendInfo.LegendColour);
             Image plotImage = plotBuilder.Build();
             image.Mutate(x => x.DrawImage(plotImage, new Point(xAxisPos.X - AxisSpineThickness, yAxisPos.Y), 1));

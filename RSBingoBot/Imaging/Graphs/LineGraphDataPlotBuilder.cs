@@ -69,12 +69,12 @@ internal class LineGraphDataPlotBuilder<TXData, TYData>
 
         for (int i = 0; i < Data.Count(); i++)
         {
-            var x = Data.ElementAt(i).x;
-            var y = Data.ElementAt(i).y;
-            float xRatio = getXMinMaxRatio.Invoke(x, xMin, xMax);
+            var xValue = Data.ElementAt(i).x;
+            var yValue = Data.ElementAt(i).y;
+            float xRatio = getXMinMaxRatio.Invoke(xValue, xMin, xMax);
 
             // y pos is inverted compared to the axis labels.
-            float yRatio = 1 - getYMinMaxRatio.Invoke(y, yMin, yMax);
+            float yRatio = 1 - getYMinMaxRatio.Invoke(yValue, yMin, yMax);
             PointF point = new(xMinPos + xPosRange * xRatio, yMinPos + yPosRange * yRatio);
             RectangleF rect = new(point.X - DataMarkerWidth / 2,
                                   point.Y - DataMarkerHeight / 2,
