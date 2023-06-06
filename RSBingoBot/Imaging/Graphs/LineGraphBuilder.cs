@@ -7,9 +7,15 @@ namespace RSBingoBot.Imaging.Graphs;
 using RSBingoBot.DTO;
 using static GraphPreferences;
 
-public class LineGraphBuilder : GraphBuilder
+public class LineGraphBuilder<TXData, TYData> : GraphBuilder
 {
-    private IEnumerable<LineGraphCategory> categories;
+    private IEnumerable<LineGraphCategory<TXData, TYData>> categories;
+    private TXData xMinValue;
+    private TXData xMaxValue;
+    private TYData yMinValue;
+    private TYData yMaxValue;
+    private Func<TXData, TXData, TXData, float> getXMinMaxRatio;
+    private Func<TYData, TYData, TYData, float> getYMinMaxRatio;
     private string legendTitle;
 
     private Point yAxisLabelsPos = new();
@@ -17,10 +23,21 @@ public class LineGraphBuilder : GraphBuilder
     private Point xAxisPos = new();
     private Point xAxisLabelsPos = new();
 
+
     public LineGraphBuilder(string title, GraphAxisInfo xAxisInfo, GraphAxisInfo yAxisInfo,
-        IEnumerable<LineGraphCategory> categories, string legendTitle) : base(title, xAxisInfo, yAxisInfo)
+        IEnumerable<LineGraphCategory<TXData, TYData>> categories,
+        TXData xMinValue, TXData xMaxValue, TYData yMinValue, TYData yMaxValue,
+        Func<TXData, TXData, TXData, float> getXMinMaxRatio,
+        Func<TYData, TYData, TYData, float> getYMinMaxRatio,
+        string legendTitle) : base(title, xAxisInfo, yAxisInfo)
     {
         this.categories = categories;
+        this.xMinValue = xMinValue;
+        this.xMaxValue = xMaxValue;
+        this.yMinValue = yMinValue;
+        this.yMaxValue = yMaxValue;
+        this.getXMinMaxRatio = getXMinMaxRatio;
+        this.getYMinMaxRatio = getYMinMaxRatio;
         this.legendTitle = legendTitle;
     }
 
@@ -30,10 +47,6 @@ public class LineGraphBuilder : GraphBuilder
         GraphAxis yAxis = CreateYAxis();
         Image xAxisLabels = CreateXAxisLables(xAxis);
         Image yAxisLabels = CreateYAxisLables(yAxis);
-        xAxis.Image.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "xAxis.png"));
-        yAxis.Image.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "yAxis.png"));
-        xAxisLabels.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "xAxisLabels.png"));
-        yAxisLabels.Save(Path.Combine(Paths.ResourcesTestOutputFolder, "yAxisLabels.png"));
 
         SetXPositions(yAxis, yAxisLabels);
         SetYPositions(yAxis, xAxis);
@@ -46,6 +59,18 @@ public class LineGraphBuilder : GraphBuilder
         image.Mutate(x => x.DrawImage(yAxis.Image, yAxisPos, 1));
         image.Mutate(x => x.DrawImage(xAxisLabels, xAxisLabelsPos, 1));
         image.Mutate(x => x.DrawImage(yAxisLabels, yAxisLabelsPos, 1));
+
+        foreach (LineGraphCategory<TXData, TYData> category in categories)
+        {
+            LineGraphDataPlotBuilder<TXData, TYData> plotBuilder = new(category.Data, getXMinMaxRatio, getYMinMaxRatio,
+                xMinValue, xMaxValue, yMinValue, yMaxValue,
+                xAxis.Image.Width, yAxis.Image.Height,
+                xAxis.DivisionPositions[0].X, xAxis.DivisionPositions[^1].X,
+                yAxis.DivisionPositions[0].Y, yAxis.DivisionPositions[^1].Y,
+                category.LegendColour);
+            Image plotImage = plotBuilder.Build();
+            image.Mutate(x => x.DrawImage(plotImage, new Point(xAxisPos.X - AxisSpineThickness, yAxisPos.Y), 1));
+        }
 
         return image;
     }

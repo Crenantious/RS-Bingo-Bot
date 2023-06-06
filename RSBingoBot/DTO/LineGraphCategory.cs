@@ -4,4 +4,4 @@
 
 namespace RSBingoBot.DTO;
 
-public record LineGraphCategory(string CategoryName, IEnumerable<(float xValue, float yValue)> dataPoints, Color legendColour);
+public record LineGraphCategory<TXValue, TYValue>(string CategoryName, IEnumerable<(TXValue x, TYValue y)> Data, Color LegendColour);

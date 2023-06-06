@@ -19,4 +19,8 @@ internal class GraphPreferences
 
     public static Color TextColour => Color.Black;
     public static Color AxisColour => Color.Black;
+
+    public static int DataMarkerWidth = 10;
+    public static int DataMarkerHeight = 10;
+    public static int DataLineThickness = 5;
 }
