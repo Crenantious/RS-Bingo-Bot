@@ -4,6 +4,8 @@
 
 namespace RSBingoBot.Imaging.Graphs;
 
+using SixLabors.Fonts;
+
 internal class GraphPreferences
 {
     public const int XPadding = 20;
@@ -15,8 +17,11 @@ internal class GraphPreferences
     public const int AxisSpineThickness = 5;
 
     public const int TextSpacing = 5;
+    public const int TitleSpacing = 15;
     public const int ScaleWidth = 50;
 
+    public static Font LabelFont => Fonts.CreateChampagneAndLimousines(18);
+    public static Font TitleFont => Fonts.CreateChampagneAndLimousines(24);
     public static Color TextColour => Color.Black;
     public static Color AxisColour => Color.Black;
 
