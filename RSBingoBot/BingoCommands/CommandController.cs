@@ -29,12 +29,12 @@ internal class CommandController : ApplicationCommandModule
     private readonly RSBingoBot.DiscordTeam.Factory teamFactory;
     private readonly MessageCreatedDEH messageCreatedDEH;
     private readonly ModalSubmittedDEH modalSubmittedDEH;
-    private readonly DiscordRequestServices requestServices;
+    private readonly RequestServices requestServices;
 
-    private static DiscordInteractionServices interactionServices = null!;
+    private static DiscordRequestServices interactionServices = null!;
 
-    public CommandController(DiscordClient discordClient, DiscordRequestServices requestServices,
-        DiscordInteractionServices interactionServices, RSBingoBot.DiscordTeam.Factory teamFactory,
+    public CommandController(DiscordClient discordClient, RequestServices requestServices,
+        DiscordRequestServices interactionServices, RSBingoBot.DiscordTeam.Factory teamFactory,
         MessageCreatedDEH messageCreatedDEH, ModalSubmittedDEH modalSubmittedDEH)
     {
         this.discordClient = discordClient;

@@ -5,10 +5,10 @@
 namespace RSBingoBot.Requests;
 
 using RSBingoBot.DTO;
-using RSBingoBot.Interfaces;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using Microsoft.Extensions.Logging;
+using MediatR;
 
 internal abstract class RequestBase : IRequest
 {
@@ -30,11 +30,6 @@ internal abstract class RequestBase : IRequest
 
         try
         {
-            if (Validate() is false) 
-            { 
-                return RequestResult.Failed(Responses);
-            }
-
             await Process();
             return RequestResult.Success(Responses);
         }
@@ -51,7 +46,6 @@ internal abstract class RequestBase : IRequest
         }
     }
 
-    protected abstract bool Validate();
     protected abstract Task Process();
 
     protected void AddResponse(string response) =>

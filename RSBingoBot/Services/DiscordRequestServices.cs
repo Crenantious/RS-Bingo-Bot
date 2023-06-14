@@ -7,9 +7,9 @@ namespace RSBingoBot.DiscordServices;
 using RSBingoBot.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using static DiscordRequestServices;
+using static RequestServices;
 
-public class DiscordInteractionServices : IDiscordInteractionServices
+public class DiscordRequestServices : IDiscordRequestServices
 {
     public async Task<bool> Respond(DiscordInteraction interaction, string content, bool isEphemeral) =>
         await Respond(interaction, new()

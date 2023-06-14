@@ -24,13 +24,6 @@ internal class RequestCreateTeam : RequestBase
         this.teamName = teamName;
     }
 
-    protected override bool Validate()
-    {
-        var result = RequestsUtilities.ValidateNewTeamName(teamName, DataWorker);
-        AddResponses(result.Responses);
-        return result.IsFaulted is false;
-    }
-
     protected override async Task Process()
     {
         throw new NotImplementedException();

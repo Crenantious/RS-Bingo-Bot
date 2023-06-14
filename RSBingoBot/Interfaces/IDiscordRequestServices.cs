@@ -1,4 +1,4 @@
-﻿// <copyright file="IDiscordInteractionServices.cs" company="PlaceholderCompany">
+﻿// <copyright file="IDiscordRequestServices.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,7 +6,7 @@ namespace RSBingoBot.Interfaces;
 
 using DSharpPlus.Entities;
 
-public interface IDiscordInteractionServices
+public interface IDiscordRequestServices
 {
     public Task<bool> Respond(DiscordInteraction interaction, string content, bool isEphemeral);
     public Task<bool> Respond(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder);

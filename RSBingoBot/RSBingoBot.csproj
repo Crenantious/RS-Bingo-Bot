@@ -39,6 +39,9 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01507" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-01507" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-01507" />
+    <PackageReference Include="FluentResults" Version="3.15.2" />
+    <PackageReference Include="FluentValidation" Version="11.5.2" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0-preview.3.23174.8" />
     <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.4.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
@@ -63,6 +66,10 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interaction handlers\Command handlers\" />
   </ItemGroup>
 
 </Project>

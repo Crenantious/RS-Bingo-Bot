@@ -7,6 +7,7 @@ namespace RSBingoBot;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DSharpPlus;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,13 +15,14 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
+using RSBingoBot.Behaviours;
 using RSBingoBot.BingoCommands;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Imaging;
-using RSBingoBot.Leaderboard;
+using RSBingoBot.Requests;
+using RSBingoBot.Validation;
 using Serilog;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
 
@@ -103,10 +105,10 @@ public class Program
                 config.AddJsonFile("settings/appsettings.docker.json", optional: true); // JCH - we can remove this is we deploy to bare metal rather than docker.
                 config.AddUserSecrets(System.Reflection.Assembly.GetEntryAssembly(), true);
             })
-           .UseConsoleLifetime()
-           .UseSerilog()
+            .UseConsoleLifetime()
+            .UseSerilog()
 #if DEBUG
-           .UseEnvironment("Development")
+            .UseEnvironment("Development")
 #endif
             .ConfigureServices(services =>
             {
@@ -137,6 +139,12 @@ public class Program
                 services.AddSingleton<MessageReactionAddedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
+
+                services.AddMediatR(c =>
+                    c.RegisterServicesFromAssemblyContaining<Program>());
+
+                services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+                services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             })
 
             // Swap out the DI factory for Autofac as it has more features
