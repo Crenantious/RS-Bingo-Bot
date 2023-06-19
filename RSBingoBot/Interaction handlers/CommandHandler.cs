@@ -8,7 +8,7 @@ using RSBingoBot.DiscordComponents;
 using MediatR;
 
 internal abstract class CommandHandler<TRequest> : InteractionHandler<TRequest>
-    where TRequest : IRequest<DiscordMessage>
+    where TRequest : IRequest<Message>
 {
 
 }

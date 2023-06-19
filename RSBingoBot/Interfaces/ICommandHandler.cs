@@ -7,7 +7,7 @@ namespace RSBingoBot.Interfaces;
 using MediatR;
 
 public interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TCommand, TResponse>
-        where TCommand : IInteraction<TResponse>
+        where TCommand : IInteractionRequest<TResponse>
 {
 
 }

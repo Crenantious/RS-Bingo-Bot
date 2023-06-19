@@ -1,4 +1,4 @@
-﻿// <copyright file="DiscordMessage.cs" company="PlaceholderCompany">
+﻿// <copyright file="Message.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,14 +6,19 @@ namespace RSBingoBot.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-internal class DiscordMessage
+internal class Message
 {
-    public string Content { get; }
+    public DiscordMessageBuilder Builder { get; }
 
-    public DiscordMessage(string content)
+    public Message() { }
+
+    public Message(string content)
     {
-        Content = content;
+        Builder = new();
+        Builder.WithContent(content);
     }
+
+    public Message(DiscordMessageBuilder builder) => Builder = builder;
 
     public void AddComponents()
     {
@@ -36,7 +41,7 @@ internal class DiscordMessage
         throw new NotImplementedException();
     }
 
-    public static DiscordMessage operator +(DiscordMessage suffixMessage)
+    public static Message operator +(Message suffixMessage)
     {
         // Use this to append messages. Combines content, components etc.
         throw new NotImplementedException();

@@ -5,6 +5,7 @@
 namespace RSBingoBot.Services;
 
 using DSharpPlus.EventArgs;
+using FluentResults;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Interfaces;
@@ -18,12 +19,14 @@ internal class DiscordInteractionServices
         componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
     }
 
-    public static void RegisterInteractionHandler(IInteraction interaction, ComponentInteractionDEH.Constraints constraints)
+    public static void RegisterInteractionHandler<TResponse>(IInteractionRequest<TResponse> interaction, ComponentInteractionDEH.Constraints constraints)
+        where TResponse : Result
     {
         componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(interaction, args));
     }
 
-    private static async Task OnComponentInteraction(IInteraction interaction, ComponentInteractionCreateEventArgs args)
+    private static async Task OnComponentInteraction<TResponse>(IInteractionRequest<TResponse> interaction, ComponentInteractionCreateEventArgs args)
+        where TResponse : Result
     {
         await RequestServices.Run(interaction);
     }

@@ -70,6 +70,7 @@
 
   <ItemGroup>
     <Folder Include="Interaction handlers\Command handlers\" />
+    <Folder Include="Interactions\" />
   </ItemGroup>
 
 </Project>

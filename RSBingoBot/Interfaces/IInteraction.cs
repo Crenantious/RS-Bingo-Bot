@@ -6,13 +6,10 @@ namespace RSBingoBot.Interfaces;
 
 using MediatR;
 using FluentResults;
+using DSharpPlus.Entities;
 
-public interface IInteraction : IRequest<Result>, IValidatable
+public interface IInteractionRequest<TResponse> : IRequest<TResponse>, IValidatable
+    where TResponse : Result
 {
-
-}
-
-public interface IInteraction<TResult> : IRequest<Result<TResult>>, IValidatable
-{
-
+    public DiscordInteraction DiscordInteraction { get; set; }
 }

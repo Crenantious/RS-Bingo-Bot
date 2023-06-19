@@ -12,67 +12,54 @@ using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingoBot.Interaction_handlers;
+using RSBingoBot.Requests;
+using System.Threading;
+using FluentResults;
+using RSBingoBot.DiscordComponents;
+using RSBingoBot.Factories;
 
 /// <summary>
-/// Handles the interaction with the "View evidence" button in a team's board channel.
+/// Handles the Interaction with the "View evidence" button in a team's board channel.
 /// </summary>
-public class ViewEvidenceButtonHandler : ComponentInteractionHandler
+internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButtonRequest, Result>
 {
     private const string InitialResponseMessagePrefix = "{0} Select a tile to view its evidence.";
     private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
 
     private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
 
+    private Message response = null!;
     private Tile? selectedTile = null;
     private SelectComponent tileSelect = null!;
     private DiscordButtonComponent closeButton = null!;
+    private User User = null!;
 
     /// <inheritdoc/>
-    protected override bool ContinueWithNullUser => false;
-
-    /// <inheritdoc/>
-    protected override bool CreateAutoResponse => true;
-
-    /// <inheritdoc/>
-    protected override bool IsAutoResponseEphemeral => false;
-
-    /// <inheritdoc/>
-    protected override bool AllowInteractionWithAnotherComponent => true;
-
-    /// <inheritdoc/>
-    public async override Task InitialiseAsync(ComponentInteractionCreateEventArgs args, InitialisationInfo info)
+    public override async Task<Result> Handle(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
-        await base.InitialiseAsync(args, info);
+        await base.Handle(request, cancellationToken);
 
-        MessagesForCleanup.Add(await args.Interaction.GetOriginalResponseAsync());
+        User = request.User;
 
-        closeButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Close");
+        closeButton = ButtonFactory.GetClose(new(this));
         CreateTileSelect();
+        response = GetResponseMessage();
 
-        await UpdateOriginalResponse(args);
-
-        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: tileSelect.CustomId),
-            tileSelect.OnInteraction, true);
-        SubscribeComponent(new ComponentInteractionDEH.Constraints(user: args.User, customId: closeButton.CustomId),
-            CancelButtonInteraction, true);
-
-    
+        return Result.Ok();
     }
 
-    private async Task UpdateOriginalResponse(ComponentInteractionCreateEventArgs args)
-    {
-        var builder = new DiscordWebhookBuilder()
-            .WithContent(InitialResponseMessagePrefix.FormatConst(args.User.Mention))
-            .AddComponents(tileSelect.DiscordComponent)
-            .AddComponents(closeButton);
-
-        await args.Interaction.EditOriginalResponseAsync(builder);
-    }
+    private Message GetResponseMessage() =>
+        new(new DiscordMessageBuilder()
+            .WithContent(InitialResponseMessagePrefix
+                .FormatConst(Interaction.User.Mention))
+            .AddComponents(tileSelect.DiscordComponent!)
+            .AddComponents(closeButton));
 
     private void CreateTileSelect()
     {
         var tileSelectOptions = new List<SelectComponentOption>();
-        foreach (Tile tile in Team!.Tiles)
+        foreach (Tile tile in request Team!.Tiles)
         {
             Evidence? evidence = tile.GetEvidence(DataWorker, User!.DiscordUserId);
             if (evidence is null) { continue; }

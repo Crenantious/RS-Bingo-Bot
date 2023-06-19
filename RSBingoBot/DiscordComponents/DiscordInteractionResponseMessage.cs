@@ -6,7 +6,7 @@ namespace RSBingoBot.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-internal class DiscordInteractionResponseMessage : DiscordMessage
+internal class DiscordInteractionResponseMessage : Message
 {
     public bool IsEphemeral { get; }
 
