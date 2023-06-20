@@ -8,37 +8,51 @@ using DSharpPlus.Entities;
 
 internal class Message
 {
-    public DiscordMessageBuilder Builder { get; }
+    // Max capacity is based on Discord limitations.
+    // TODO: JR - Make the max capacity a constant somewhere.
+    private List<DiscordActionRowComponent> componentRows = new(5);
+
+    public DiscordMessageBuilder Builder { get; } = new();
+    public string Content { get; set; }
 
     public Message() { }
 
-    public Message(string content)
+    public Message(string content) => WithContent(content);
+
+    public Message WithContent(string content)
     {
-        Builder = new();
-        Builder.WithContent(content);
+        Content = content;
+        return this;
     }
 
-    public Message(DiscordMessageBuilder builder) => Builder = builder;
+    public Message AddComponents(params DiscordComponent[] components)
+    { 
+        componentRows.Add(new(components));  
+        return this;
+    }
 
-    public void AddComponents()
+    public Message AddFile()
     {
         throw new NotImplementedException();
     }
 
-    public void AddFile()
+    public Message AddImage(Image image)
     {
         throw new NotImplementedException();
     }
 
     // Probably make the GetBuilder methods extensions.
-    public DiscordMessageBuilder GetMessageBuilder()
-    {
-        throw new NotImplementedException(); 
-    }
+    public DiscordMessageBuilder GetMessageBuilder() =>
+        BuildBaseMessageBuilder(new DiscordMessageBuilder());
 
-    public DiscordWebhookBuilder GetWebhookBuilder()
+    public DiscordWebhookBuilder GetWebhookBuilder() =>
+        BuildBaseMessageBuilder(new DiscordWebhookBuilder());
+
+    protected T BuildBaseMessageBuilder<T>(T builder) where T : IDiscordMessageBuilder
     {
-        throw new NotImplementedException();
+        builder.Content = Content;
+        componentRows.ForEach(r => builder.AddComponents(r));
+        return builder;
     }
 
     public static Message operator +(Message suffixMessage)
