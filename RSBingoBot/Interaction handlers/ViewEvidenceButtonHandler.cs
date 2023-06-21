@@ -16,8 +16,9 @@ using RSBingoBot.Interaction_handlers;
 using RSBingoBot.Requests;
 using System.Threading;
 using FluentResults;
-using RSBingoBot.DiscordComponents;
+using RSBingoBot.DiscordEntities;
 using RSBingoBot.Factories;
+using RSBingoBot.DiscordEntities.Messages;
 
 /// <summary>
 /// Handles the Interaction with the "View evidence" button in a team's board channel.
@@ -39,7 +40,6 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
     public override async Task<Result> Handle(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
         await base.Handle(request, cancellationToken);
-
         User = request.User;
 
         closeButton = ButtonFactory.GetClose(new(this));
@@ -50,16 +50,22 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
     }
 
     private Message GetResponseMessage() =>
-        new(new DiscordMessageBuilder()
-            .WithContent(InitialResponseMessagePrefix
-                .FormatConst(Interaction.User.Mention))
+        new Message()
+            .WithContent(InitialResponseMessagePrefix.FormatConst(Interaction.User.Mention))
             .AddComponents(tileSelect.DiscordComponent!)
-            .AddComponents(closeButton));
+            .AddComponents(closeButton);
 
     private void CreateTileSelect()
     {
+        tileSelect = new SelectComponent("Select a tile", TileSelectItemSelected, TileSelectPageSelected, GetPageName);
+        tileSelect.SelectOptions = GetTileSelectOptions();
+        tileSelect.Build();
+    }
+
+    private List<SelectComponentOption> GetTileSelectOptions()
+    {
         var tileSelectOptions = new List<SelectComponentOption>();
-        foreach (Tile tile in request Team!.Tiles)
+        foreach (Tile tile in User.Team.Tiles)
         {
             Evidence? evidence = tile.GetEvidence(DataWorker, User!.DiscordUserId);
             if (evidence is null) { continue; }
@@ -69,22 +75,14 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
             tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, selectedTile == tile, emoji));
         }
 
-        if (tileSelectOptions.Any() is false)
-        {
-            throw new ComponentInteractionHandlerException(NoTilesFoundError, OriginalInteractionArgs, true,
-                ComponentInteractionHandlerException.ErrorResponseType.CreateFollowUpResponse, true);
-        }
-
-        tileSelect = new SelectComponent(tileSelectCustomId, "Select a tile", TileSelectItemSelected, TileSelectPageSelected, GetPageName);
-        tileSelect.SelectOptions = tileSelectOptions;
-        tileSelect.Build();
+        return tileSelectOptions;
     }
 
     private string GetPageName(IEnumerable<SelectComponentOption> options) =>
         $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
 
     private async Task TileSelectPageSelected(InteractionCreateEventArgs args) =>
-        await UpdateOriginalResponse(OriginalInteractionArgs);
+        await UpdateOriginalResponse(Interaction);
 
     private async Task TileSelectItemSelected(ComponentInteractionCreateEventArgs args)
     {
@@ -106,9 +104,9 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
         var builder = new DiscordFollowupMessageBuilder()
             .WithContent($"Evidence submitted for tile {evidence.Tile.Task.Name} {evidence.Url}")
             .AsEphemeral();
-        await CurrentInteractionArgs.Interaction.CreateFollowupMessageAsync(builder);
+        await Interaction.CreateFollowupMessageAsync(builder);
     }
 
     private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args) =>
-        await ConcludeInteraction();
+        await Conclude();
 }

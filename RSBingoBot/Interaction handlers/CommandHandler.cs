@@ -4,7 +4,7 @@
 
 namespace RSBingoBot.Interaction_handlers;
 
-using RSBingoBot.DiscordComponents;
+using RSBingoBot.DiscordEntities;
 using MediatR;
 
 internal abstract class CommandHandler<TRequest> : InteractionHandler<TRequest>

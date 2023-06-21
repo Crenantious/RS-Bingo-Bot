@@ -8,7 +8,7 @@ using MediatR;
 using FluentResults;
 using DSharpPlus.Entities;
 using RSBingoBot.Interfaces;
-using RSBingoBot.DiscordComponents;
+using RSBingoBot.DiscordEntities;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.DAL;
 

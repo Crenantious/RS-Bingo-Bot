@@ -17,7 +17,7 @@ public class SelectComponent
     public SelectComponentPage? SelectedPage { get; private set; } = null;
     public List<SelectComponentItem> SelectedItems { get; private set; } = new();
     public List<SelectComponentOption> SelectOptions { get; set; } = new();
-    public string CustomId { get; set; } = null!;
+    public string CustomId { get; set; } = Guid.NewGuid().ToString();
     public string InitialPlaceholder { get; set; } = null!;
     public bool Disabled { get; set; }
     public int MinOptions { get; set; }
@@ -30,13 +30,12 @@ public class SelectComponent
     private List<DiscordSelectComponentOption> discordOptions = new();
     private HashSet<SelectComponentItem> SelectedItemsHashSet = new();
 
-    public SelectComponent(string customId, string placeholder,
+    public SelectComponent(string placeholder,
         Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback = null,
         Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback = null,
         Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback = null,
         bool disabled = false, int minOptions = 1, int maxOptions = 1)
     {
-        this.CustomId = customId;
         this.itemSelectedCallback = itemSelectedCallback;
         this.pageSelectedCallback = pageSelectedCallback;
         this.getPageNameCallback = getPageNameCallback;

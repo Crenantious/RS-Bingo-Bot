@@ -8,9 +8,20 @@ using RSBingoBot.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using static RequestServices;
+using RSBingoBot.DiscordEntities;
 
 public class DiscordRequestServices : IDiscordRequestServices
 {
+    private async Task<bool> SendRequest(Func<Task> request)
+    {
+        try
+        {
+            await request();
+            return true;
+        }
+        catch { return false; }
+    }
+
     public async Task<bool> Respond(DiscordInteraction interaction, string content, bool isEphemeral) =>
         await Respond(interaction, new()
         {
@@ -19,7 +30,7 @@ public class DiscordRequestServices : IDiscordRequestServices
         });
 
     public async Task<bool> Respond(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder) =>
-        await SendDiscordRequest(async () => await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder));
+        await SendRequest(async () => await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder));
 
     public async Task<bool> EditOriginal(DiscordInteraction interaction, string content) =>
         await EditOriginal(interaction, new DiscordWebhookBuilder()
@@ -28,7 +39,7 @@ public class DiscordRequestServices : IDiscordRequestServices
         });
 
     public async Task<bool> EditOriginal(DiscordInteraction interaction, DiscordWebhookBuilder builder) =>
-        await SendDiscordRequest(async () => await interaction.EditOriginalResponseAsync(builder));
+        await SendRequest(async () => await interaction.EditOriginalResponseAsync(builder));
 
     public async Task<bool> Followup(DiscordInteraction interaction, string content, bool isEphemeral) =>
         await Followup(interaction, new()
@@ -38,11 +49,26 @@ public class DiscordRequestServices : IDiscordRequestServices
         });
 
     public async Task<bool> Followup(DiscordInteraction interaction, DiscordFollowupMessageBuilder builder) =>
-        await SendDiscordRequest(async () => await interaction.CreateFollowupMessageAsync(builder));
+        await SendRequest(async () => await interaction.CreateFollowupMessageAsync(builder));
 
     public async Task<bool> DeleteOriginalResponse(DiscordInteraction interaction) =>
-        await SendDiscordRequest(async () => await interaction.DeleteOriginalResponseAsync());
+        await SendRequest(async () => await interaction.DeleteOriginalResponseAsync());
 
     public async Task<bool> DeleteFollowup(DiscordInteraction interaction, ulong messageId) =>
-        await SendDiscordRequest(async () => await interaction.DeleteFollowupMessageAsync(messageId));
+        await SendRequest(async () => await interaction.DeleteFollowupMessageAsync(messageId));
+
+    /// <summary>
+    /// Sends a message to Discord in response to an interaction.
+    /// </summary>
+    /// <param name="hasBeenResponed">If <see langword="true"/>, the message will be send as a follow-up.
+    /// Otherwise it will be sent as an original response.</param>
+    /// <returns>If the message was sent successfully.</returns>
+    public async Task<bool> SendMessage(DiscordInteraction interaction, InteractionMessage message, bool hasBeenResponed = true)
+    {
+        if (hasBeenResponed)
+        {
+            return await Followup(interaction, message.GetFollowupMessageBuilder());
+        }
+        return await Respond(interaction, message.GetInteractionResponseBuilder());
+    }
 }
