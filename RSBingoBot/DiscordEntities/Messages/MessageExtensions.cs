@@ -5,6 +5,7 @@
 namespace RSBingoBot.DiscordEntities.Messages;
 
 using DSharpPlus.Entities;
+using RSBingoBot.DiscordComponents;
 using RSBingoBot.Interfaces;
 
 internal static class MessageExtensions
@@ -16,10 +17,11 @@ internal static class MessageExtensions
         return message;
     }
 
-    public static TMessage AddComponents<TMessage>(this TMessage message, params DiscordComponent[] components)
-    where TMessage : IMessage
+    public static TMessage AddComponents<TMessage>(this TMessage message, params IDiscordComponent[] components)
+        where TMessage : IMessage
     {
-        message.Components.Add(new(components));
+        components.ForEach(c => c.Message = message);
+        message.Components.Add(components);
         return message;
     }
 

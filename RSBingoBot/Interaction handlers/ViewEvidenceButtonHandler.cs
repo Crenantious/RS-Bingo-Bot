@@ -52,7 +52,7 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
     private Message GetResponseMessage() =>
         new Message()
             .WithContent(InitialResponseMessagePrefix.FormatConst(Interaction.User.Mention))
-            .AddComponents(tileSelect.DiscordComponent!)
+            .AddComponents(tileSelect.discordComponent!)
             .AddComponents(closeButton);
 
     private void CreateTileSelect()

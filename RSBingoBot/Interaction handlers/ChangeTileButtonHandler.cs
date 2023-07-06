@@ -248,8 +248,8 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
     {
         var builder = new DiscordMessageBuilder()
             .WithContent(args.User.Mention)
-            .AddComponents(fromTileInfo.SelectComponent.DiscordComponent)
-            .AddComponents(toTileInfo.SelectComponent.DiscordComponent)
+            .AddComponents(fromTileInfo.SelectComponent.discordComponent)
+            .AddComponents(toTileInfo.SelectComponent.discordComponent)
             .AddComponents(submitButton);
 
         await originalResponse.ModifyAsync(builder);

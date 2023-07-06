@@ -97,7 +97,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     {
         var builder = new DiscordWebhookBuilder()
             .WithContent($"{initialResponseMessagePrefix}{Environment.NewLine}{SubmittedImageURL}")
-            .AddComponents(TileSelect.DiscordComponent)
+            .AddComponents(TileSelect.discordComponent)
             .AddComponents(cancelButton, submitButton);
 
         await OriginalInteractionArgs.Interaction.EditOriginalResponseAsync(builder);

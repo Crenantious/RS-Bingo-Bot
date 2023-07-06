@@ -7,13 +7,19 @@ namespace RSBingoBot.Component_interaction_handlers.Select_Component;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using RSBingoBot.DiscordComponents;
+using RSBingoBot.Interfaces;
 
-public class SelectComponent
+public class SelectComponent : IDiscordComponent
 {
     /// <summary>
     /// Gets the discord version of the component. This is null if either <see cref="Build"/> has not been called, or it failed.
     /// </summary>
-    public DiscordSelectComponent? DiscordComponent { get; private set; }
+    public DiscordComponent DiscordComponent => discordComponent;
+
+    /// <inheritdoc/>
+    public IMessage Message { get; set; }
+
     public SelectComponentPage? SelectedPage { get; private set; } = null;
     public List<SelectComponentItem> SelectedItems { get; private set; } = new();
     public List<SelectComponentOption> SelectOptions { get; set; } = new();
@@ -23,6 +29,8 @@ public class SelectComponent
     public int MinOptions { get; set; }
     public int MaxOptions { get; set; }
 
+
+    private DiscordSelectComponent? discordComponent;
     private string? placeholder = null;
     private Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
     private Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
@@ -89,7 +97,7 @@ public class SelectComponent
     /// <exception cref="NullReferenceException"></exception>
     public async Task OnInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args)
     {
-        if (DiscordComponent == null) { throw new NullReferenceException($"Component must not be null; make sure Build() has been called before this method."); }
+        if (discordComponent == null) { throw new NullReferenceException($"Component must not be null; make sure Build() has been called before this method."); }
 
         (List<SelectComponentOption> options, OptionSelectionType pageSelected) = GetOptionsFromInteractonArgs(args);
 
@@ -100,6 +108,8 @@ public class SelectComponent
         }
 
         await ItemSelected(args, options.Cast<SelectComponentItem>());
+
+        //TODO: JR - dirty the message for it to be rebuilt. This should probably not be done in this class, however.
     }
 
     private (List<SelectComponentOption>, OptionSelectionType) GetOptionsFromInteractonArgs(ComponentInteractionCreateEventArgs args)
@@ -154,7 +164,7 @@ public class SelectComponent
         int maxOptions = (int)MathF.Min(MaxOptions, discordOptions.Count());
 
         // For maxOptions, the number cannot exceed the amount of discordOptions or there'll be an error
-        DiscordComponent = new DiscordSelectComponent(CustomId, placeholder ?? InitialPlaceholder, discordOptions, Disabled, MinOptions, maxOptions);
+        discordComponent = new DiscordSelectComponent(CustomId, placeholder ?? InitialPlaceholder, discordOptions, Disabled, MinOptions, maxOptions);
     }
 
     private async Task PageSlected(ComponentInteractionCreateEventArgs args, SelectComponentPage page)

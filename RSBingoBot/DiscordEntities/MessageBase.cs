@@ -5,6 +5,7 @@
 namespace RSBingoBot.DiscordEntities;
 
 using DSharpPlus.Entities;
+using RSBingoBot.DiscordComponents;
 using RSBingoBot.Interfaces;
 
 public abstract class MessageBase<T>
@@ -12,9 +13,10 @@ public abstract class MessageBase<T>
 {
     // Max capacity is based on Discord limitations.
     // TODO: JR - Make the max capacity a constant somewhere.
-    private List<DiscordActionRowComponent> componentRows = new(5);
+    //private List<DiscordActionRowComponent> componentRows = new(5);
+    private List<IEnumerable<IDiscordComponent>> discordComponents = new();
 
-    public IReadOnlyList<DiscordActionRowComponent> Components => componentRows.AsReadOnly();
+    public IReadOnlyList<IEnumerable<IDiscordComponent>> Components => discordComponents.AsReadOnly();
 
     public string Content { get; set; }
 
@@ -28,9 +30,9 @@ public abstract class MessageBase<T>
         return (T)this;
     }
 
-    public T AddComponents(params DiscordComponent[] components)
-    { 
-        componentRows.Add(new(components));  
+    public T AddComponents(params IDiscordComponent[] components)
+    {
+        discordComponents.Add(components);  
         return (T)this;
     }
 
@@ -59,7 +61,10 @@ public abstract class MessageBase<T>
     protected TBuilder GetBaseMessageBuilder<TBuilder>(TBuilder builder) where TBuilder : IDiscordMessageBuilder
     {
         builder.Content = Content;
-        componentRows.ForEach(r => builder.AddComponents(r));
+        discordComponents.ForEach(dc =>
+            builder.AddComponents(
+                dc.Select(c => c.DiscordComponent)
+            ));
         return builder;
     }
 

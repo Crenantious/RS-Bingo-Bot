@@ -13,8 +13,6 @@ public class InteractionMessage : Message
 
     public InteractionMessage() { }
 
-    public InteractionMessage(string content) : base(content) { }
-
     /// <summary>
     /// Sets <see cref="IsEphemeral"/> to <paramref name="status"/>.
     /// </summary>
