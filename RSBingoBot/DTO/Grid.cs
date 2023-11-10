@@ -1,4 +1,4 @@
-﻿// <copyright file="LeaderboardImage.cs" company="PlaceholderCompany">
+﻿// <copyright file="Grid.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -15,7 +15,7 @@ public class Grid
     {
         for (int i = 0; i < rowValues.Count(); i++)
         {
-            Cells[i, rowIndex] = rowValues.ElementAt(i);
+            Cells[i, rowIndex] = rowValues[i];
         }
     }
 
@@ -23,7 +23,7 @@ public class Grid
     {
         for (int i = 0; i < columnValues.Count(); i++)
         {
-            Cells[columnIndex, i] = columnValues.ElementAt(i);
+            Cells[columnIndex, i] = columnValues[i];
         }
     }
 }

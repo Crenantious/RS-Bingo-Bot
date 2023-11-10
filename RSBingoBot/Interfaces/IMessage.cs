@@ -6,11 +6,12 @@ namespace RSBingoBot.Interfaces;
 
 using DSharpPlus.Entities;
 using RSBingoBot.DiscordComponents;
+using RSBingoBot.DTO;
 
 public interface IMessage
 {
     public string Content { get; set; }
-    public List<IEnumerable<IDiscordComponent>> Components { get; set; }
+    public DynamicGrid<IDiscordComponent> Components { get; set; }
 
     public DiscordMessageBuilder GetMessageBuilder();
     public DiscordWebhookBuilder GetWebhookBuilder();

@@ -28,13 +28,13 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
 
         ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        if (validationResult.IsValid is false)
+        if (!validationResult.IsValid)
         {
             Result response = new();
 
-            foreach (var validationFailure in validationResult.Errors)
+            foreach (ValidationFailure error in validationResult.Errors)
             {
-                response.WithError(new ValidationError(validationFailure.ErrorMessage));
+                response.WithError(new ValidationError(error.ErrorMessage));
             }
 
             return response;

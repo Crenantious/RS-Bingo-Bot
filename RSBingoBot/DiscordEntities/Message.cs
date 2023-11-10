@@ -5,12 +5,15 @@
 namespace RSBingoBot.DiscordEntities;
 
 using DSharpPlus.Entities;
+using RSBingoBot.DiscordComponents;
+using RSBingoBot.DTO;
 using RSBingoBot.Interfaces;
+using System.Collections.Generic;
 
 public class Message : IMessage
 {
     public string Content { get; set; } = string.Empty;
-    public List<DiscordActionRowComponent> Components { get; set; } = new(5);
+    public DynamicGrid<IDiscordComponent> Components { get; set; } = new(5);
 
     public Message() { }
 
@@ -29,12 +32,18 @@ public class Message : IMessage
     protected T GetBaseMessageBuilder<T>(T builder) where T : IDiscordMessageBuilder
     {
         if (string.IsNullOrEmpty(Content) is false) { builder.Content = Content; }
-        Components.ForEach(r => builder.AddComponents(r));
+
+        Components.GetRows().ForEach(r =>
+            builder.AddComponents(
+                r.Select(c => c.DiscordComponent)
+                    .ToArray()));
+
         return builder;
     }
 
     public static Message operator +(Message suffixMessage)
     {
+        // TODO: JR - implement.
         // Use this to append messages. Combines content, components etc.
         throw new NotImplementedException();
     }

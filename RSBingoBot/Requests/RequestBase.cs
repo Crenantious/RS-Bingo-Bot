@@ -16,7 +16,7 @@ internal abstract class RequestBase : IRequest
 
     private readonly SemaphoreSlim semaphore;
 
-    protected ILogger<RequestDeleteTeam> Logger { get; private set; }
+    protected ILogger<RequestBase> Logger { get; private set; }
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
     protected List<string> Responses { get; } = new();
 
@@ -26,7 +26,7 @@ internal abstract class RequestBase : IRequest
     public async Task<RequestResult> Run()
     {
         await semaphore.WaitAsync();
-        Logger = General.LoggingInstance<RequestDeleteTeam>();
+        Logger = General.LoggingInstance<RequestBase>();
 
         try
         {

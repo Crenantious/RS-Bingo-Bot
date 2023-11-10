@@ -6,5 +6,5 @@ namespace RSBingoBot.Interaction_handlers;
 
 internal interface IInteractionHandler
 {
-    public void Conclude();
+    public Task Conclude();
 }
