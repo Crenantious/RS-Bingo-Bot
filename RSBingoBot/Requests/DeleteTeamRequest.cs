@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestDeleteTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="DeleteTeamRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -14,7 +14,7 @@ using static RSBingoBot.MessageUtilities;
 /// <summary>
 /// Request for deleting a team.
 /// </summary>
-internal class RequestDeleteTeam : RequestBase
+internal class DeleteTeamRequest : RequestBase
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string RoleDeletionError = "Failed to delete the role '{0}'.";
@@ -27,7 +27,7 @@ internal class RequestDeleteTeam : RequestBase
 
     private Team team;
 
-    public RequestDeleteTeam(DiscordInteraction interaction, string teamName) : base(semaphore) =>
+    public DeleteTeamRequest(DiscordInteraction interaction, string teamName) : base(semaphore) =>
         this.teamName = teamName;
 
     protected override async Task Process()

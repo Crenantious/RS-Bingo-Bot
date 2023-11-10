@@ -8,7 +8,7 @@ using FluentResults;
 using RSBingoBot.Interfaces;
 using RSBingoBot.Requests;
 
-internal class RequestCreateTeamValidator : IValidator<RequestCreateTeam>
+internal class RequestCreateTeamValidator : IValidator<CreateTeamRequest>
 {
     public Task<Result> Validate()
     {

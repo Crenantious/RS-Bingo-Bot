@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestRemoveFromTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="RemoveUserFromTeamRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -10,7 +10,7 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for removing a user from a team.
 /// </summary>
-internal class RequestRemoveFromTeam : RequestBase
+internal class RemoveUserFromTeamRequest : RequestBase
 {
     private const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     private const string UserIsNotOnTheTeam = "The user '{0}' is not on that team; they are on the team '{0}'.";
@@ -25,7 +25,7 @@ internal class RequestRemoveFromTeam : RequestBase
     private readonly User? databaseUser;
     private readonly DiscordInteraction interaction;
 
-    public RequestRemoveFromTeam(DiscordInteraction interaction, string teamName, DiscordUser user) : base(semaphore)
+    public RemoveUserFromTeamRequest(DiscordInteraction interaction, string teamName, DiscordUser user) : base(semaphore)
     {
         this.interaction = interaction;
         this.teamName = teamName;

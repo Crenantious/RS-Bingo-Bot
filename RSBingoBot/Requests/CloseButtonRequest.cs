@@ -9,6 +9,7 @@ using FluentResults;
 using RSBingoBot.Interaction_handlers;
 using RSBingoBot.Interfaces;
 
+// TODO: JR - consider running this through another request ConcludeInteractionRequest, possibly in conjunction.
 internal record CloseButtonRequest(IInteractionHandler InteractionHandler) : IInteractionRequest<Result>
 {
     public DiscordInteraction DiscordInteraction { get; set; }

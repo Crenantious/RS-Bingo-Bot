@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestOperateCSVBase.cs" company="PlaceholderCompany">
+﻿// <copyright file="OperateCSVBaseRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -12,7 +12,7 @@ using System.Net;
 /// <summary>
 /// Request for operating on a csv file.
 /// </summary>
-internal abstract class RequestOperateCSVBase<LineType> : RequestBase
+internal abstract class OperateCSVBaseRequest<LineType> : RequestBase
     where LineType : CSVLine
 {
     private const string InvalidFileTypeResponse = "The uploaded file must be a .csv.";
@@ -29,7 +29,7 @@ internal abstract class RequestOperateCSVBase<LineType> : RequestBase
     protected string FileName { get; } = Guid.NewGuid().ToString() + ".csv";
     protected CSVData<LineType> Data { get; private set; } = null!;
 
-    public RequestOperateCSVBase(DiscordAttachment attachment) : base(semaphore)
+    public OperateCSVBaseRequest(DiscordAttachment attachment) : base(semaphore)
     {
         csvAttachment = attachment;
     }
@@ -56,7 +56,7 @@ internal abstract class RequestOperateCSVBase<LineType> : RequestBase
     }
 
     private bool IsCsvFile() =>
-        csvAttachment.MediaType.StartsWith(RequestOperateCSVBase<LineType>.CsvMediaType);
+        csvAttachment.MediaType.StartsWith(OperateCSVBaseRequest<LineType>.CsvMediaType);
 
     private protected void ParseFile()
     {

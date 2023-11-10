@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestAddToTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="AddUserToTeamRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for adding a user to a team.
 /// </summary>
-internal class RequestAddToTeam : RequestBase
+internal class AddUserToTeamRequest : RequestBase
 {
     private const string UserIsAlreadyOnATeamResponse = "This user '{0}' is already on a team.";
     private const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
@@ -22,7 +22,7 @@ internal class RequestAddToTeam : RequestBase
     private readonly DiscordUser user;
     private readonly DiscordInteraction interaction;
 
-    public RequestAddToTeam(DiscordInteraction interaction, string teamName, DiscordUser user) : base(semaphore)
+    public AddUserToTeamRequest(DiscordInteraction interaction, string teamName, DiscordUser user) : base(semaphore)
     {
         this.interaction = interaction;
         this.teamName = teamName;

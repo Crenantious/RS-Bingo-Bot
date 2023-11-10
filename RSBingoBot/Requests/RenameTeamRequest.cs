@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestRenameTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="RenameTeamRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -12,7 +12,7 @@ using static RSBingoBot.DiscordTeam;
 /// <summary>
 /// Request for renaming a team.
 /// </summary>
-internal class RequestRenameTeam : RequestBase
+internal class RenameTeamRequest : RequestBase
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string TeamSuccessfullyRenamed = "The team has been renamed to '{0}'.";
@@ -24,7 +24,7 @@ internal class RequestRenameTeam : RequestBase
     private readonly Team? team;
     private readonly DiscordInteraction interaction;
 
-    public RequestRenameTeam(DiscordInteraction interaction, string currentName, string newName) : base(semaphore)
+    public RenameTeamRequest(DiscordInteraction interaction, string currentName, string newName) : base(semaphore)
     {
         this.interaction = interaction;
         this.currentName = currentName;

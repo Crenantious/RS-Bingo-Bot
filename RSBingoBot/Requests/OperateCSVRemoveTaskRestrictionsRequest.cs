@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestOperateCSVRemoveTaskRestrictions.cs" company="PlaceholderCompany">
+﻿// <copyright file="OperateCSVRemoveTaskRestrictionsRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -15,13 +15,13 @@ using static RSBingo_Common.General;
 /// <summary>
 /// Request for removing <see cref="Restriction"/>s via a csv file.
 /// </summary>
-internal class RequestOperateCSVRemoveTaskRestrictions : RequestOperateCSVBase<RemoveTaskRestrictionCSVLine>
+internal class OperateCSVRemoveTaskRestrictionsRequest : OperateCSVBaseRequest<RemoveTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
     protected override string ProcessSussessResponse => "The restrictions were successfully removed from the database";
 
     /// <inheritdoc/>
-    public RequestOperateCSVRemoveTaskRestrictions(DiscordAttachment attachment) : base(attachment) { }
+    public OperateCSVRemoveTaskRestrictionsRequest(DiscordAttachment attachment) : base(attachment) { }
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

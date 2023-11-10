@@ -94,7 +94,7 @@ internal class CommandController : ApplicationCommandModule
     [RequireRole("Host")]
     public async Task CreateTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestCreateTeam(ctx.Interaction, teamName));
+        await requestServices.RunRequest(ctx.Interaction, new CreateTeamRequest(ctx.Interaction, teamName));
     }
 
     [SlashCommand("RenameTeam", "Renames a team, its role, and channels. Should only be ran once every 5 minutes.")]
@@ -102,7 +102,7 @@ internal class CommandController : ApplicationCommandModule
     public async Task RenameTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("NewName", "New name")] string newName)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestRenameTeam(ctx.Interaction, teamName, newName));
+        await requestServices.RunRequest(ctx.Interaction, new RenameTeamRequest(ctx.Interaction, teamName, newName));
     }
 
     [SlashCommand("AddToTeam", "Adds a user to a team if they are not already in one.")]
@@ -110,7 +110,7 @@ internal class CommandController : ApplicationCommandModule
     public async Task AddToTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("User", "User")] DiscordUser user)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestAddToTeam(ctx.Interaction, teamName, user));
+        await requestServices.RunRequest(ctx.Interaction, new AddUserToTeamRequest(ctx.Interaction, teamName, user));
     }
 
     [SlashCommand("RemoveFromTeam", "Removes a user from the database, and the team's role from them.")]
@@ -118,14 +118,14 @@ internal class CommandController : ApplicationCommandModule
     public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("User", "User")] DiscordUser user)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestRemoveFromTeam(ctx.Interaction, teamName, user));
+        await requestServices.RunRequest(ctx.Interaction, new RemoveUserFromTeamRequest(ctx.Interaction, teamName, user));
     }
 
     [SlashCommand("DeleteTeam", "Deletes a team (from the database), its role, and channels.")]
     [RequireRole("Host")]
     public async Task DeleteTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestDeleteTeam(ctx.Interaction, teamName));
+        await requestServices.RunRequest(ctx.Interaction, new DeleteTeamRequest(ctx.Interaction, teamName));
     }
 
     #endregion
@@ -138,7 +138,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task AddTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTasks(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVAddTasksRequest(attachment));
     }
 
     [SlashCommand("DeleteTasks", "Deletes tasks from the database based on the uploaded csv file.")]
@@ -146,7 +146,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTasks(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTasksRequest(attachment));
     }
 
     [SlashCommand("AddTaskRestrictions", "Adds task restrictions to the database based on the uploaded csv file.")]
@@ -154,7 +154,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task AddTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVAddTaskRestrictions(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVAddTaskRestrictionsRequest(attachment));
     }
 
     [SlashCommand("DeleteTaskRestrictions", "Deletes task restrictions from the database based on the uploaded csv file.")]
@@ -162,7 +162,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RequestOperateCSVRemoveTaskRestrictions(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTaskRestrictionsRequest(attachment));
     }
 
     #endregion

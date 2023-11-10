@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestCreateTeam.cs" company="PlaceholderCompany">
+﻿// <copyright file="CreateTeamRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for creating a team.
 /// </summary>
-internal class RequestCreateTeam : RequestBase
+internal class CreateTeamRequest : RequestBase
 {
     private const string TeamSuccessfullyCreatedMessage = "The team '{0}' has been created successfully.";
 
@@ -18,7 +18,7 @@ internal class RequestCreateTeam : RequestBase
     private readonly string teamName;
     private readonly DiscordInteraction interaction;
 
-    public RequestCreateTeam(DiscordInteraction interaction, string teamName) : base(semaphore)
+    public CreateTeamRequest(DiscordInteraction interaction, string teamName) : base(semaphore)
     {
         this.interaction = interaction;
         this.teamName = teamName;

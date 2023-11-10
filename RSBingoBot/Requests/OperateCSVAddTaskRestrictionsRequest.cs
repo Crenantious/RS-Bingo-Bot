@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestOperateCSVAddTaskRestrictions.cs" company="PlaceholderCompany">
+﻿// <copyright file="OperateCSVAddTaskRestrictionsRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -12,13 +12,13 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for adding <see cref="Restriction"/>s via a csv file.
 /// </summary>
-internal class RequestOperateCSVAddTaskRestrictions : RequestOperateCSVBase<AddTaskRestrictionCSVLine>
+internal class OperateCSVAddTaskRestrictionsRequest : OperateCSVBaseRequest<AddTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
     protected override string ProcessSussessResponse => "The restrictions were successfully added to the database";
 
     /// <inheritdoc/>
-    public RequestOperateCSVAddTaskRestrictions(DiscordAttachment attachment) : base(attachment) { }
+    public OperateCSVAddTaskRestrictionsRequest(DiscordAttachment attachment) : base(attachment) { }
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()
