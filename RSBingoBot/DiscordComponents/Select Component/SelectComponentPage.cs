@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.Entities;
+﻿// <copyright file="SelectComponentPage.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers.Select_Component;
+namespace RSBingoBot.DiscordComponents;
+
+using DSharpPlus.Entities;
 
 public class SelectComponentPage : SelectComponentOption
 {

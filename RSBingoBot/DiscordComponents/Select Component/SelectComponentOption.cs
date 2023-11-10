@@ -1,12 +1,11 @@
-﻿using System;
-using DSharpPlus.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static RSBingo_Common.General;
+﻿// <copyright file="SelectComponentOption.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers.Select_Component;
+namespace RSBingoBot.DiscordComponents;
+
+using DSharpPlus.Entities;
+using static RSBingo_Common.General;
 
 public abstract class SelectComponentOption
 {

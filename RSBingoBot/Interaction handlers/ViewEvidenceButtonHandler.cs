@@ -10,8 +10,6 @@ using DSharpPlus.EventArgs;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
-using RSBingoBot.Discord_event_handlers;
-using RSBingoBot.Component_interaction_handlers.Select_Component;
 using RSBingoBot.Interaction_handlers;
 using RSBingoBot.Requests;
 using System.Threading;
@@ -19,6 +17,7 @@ using FluentResults;
 using RSBingoBot.DiscordEntities;
 using RSBingoBot.Factories;
 using RSBingoBot.DiscordEntities.Messages;
+using RSBingoBot.DiscordComponents;
 
 /// <summary>
 /// Handles the Interaction with the "View evidence" button in a team's board channel.
@@ -33,7 +32,7 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
     private Message response = null!;
     private Tile? selectedTile = null;
     private SelectComponent tileSelect = null!;
-    private DiscordButtonComponent closeButton = null!;
+    private DiscordButton closeButton = null!;
     private User User = null!;
 
     /// <inheritdoc/>
@@ -48,41 +47,39 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
 
         return Result.Ok();
     }
-
-    private Message GetResponseMessage() =>
-        new Message()
-            .WithContent(InitialResponseMessagePrefix.FormatConst(Interaction.User.Mention))
-            .AddComponents(tileSelect.discordComponent!)
-            .AddComponents(closeButton);
-
     private void CreateTileSelect()
     {
-        tileSelect = new SelectComponent("Select a tile", TileSelectItemSelected, TileSelectPageSelected, GetPageName);
+        tileSelect = new SelectComponent("Select a tile", TileSelectItemSelected, getPageNameCallback: GetPageName);
         tileSelect.SelectOptions = GetTileSelectOptions();
         tileSelect.Build();
     }
 
     private List<SelectComponentOption> GetTileSelectOptions()
     {
-        var tileSelectOptions = new List<SelectComponentOption>();
+        List<SelectComponentOption> tileSelectOptions = new();
         foreach (Tile tile in User.Team.Tiles)
         {
-            Evidence? evidence = tile.GetEvidence(DataWorker, User!.DiscordUserId);
-            if (evidence is null) { continue; }
-
-            DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
-            DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
-            tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, selectedTile == tile, emoji));
+            TryAddSelectOption(tile, tileSelectOptions);
         }
 
         return tileSelectOptions;
     }
 
-    private string GetPageName(IEnumerable<SelectComponentOption> options) =>
-        $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
+    private void TryAddSelectOption(Tile tile, List<SelectComponentOption> tileSelectOptions)
+    {
+        Evidence? evidence = tile.GetEvidence(DataWorker, User!.DiscordUserId);
+        if (evidence is null) { return; }
 
-    private async Task TileSelectPageSelected(InteractionCreateEventArgs args) =>
-        await UpdateOriginalResponse(Interaction);
+        DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
+        DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
+        tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, selectedTile == tile, emoji));
+    }
+
+    private Message GetResponseMessage() =>
+        new Message()
+            .WithContent(InitialResponseMessagePrefix.FormatConst(Interaction.User.Mention))
+            .AddComponents(tileSelect)
+            .AddComponents(closeButton);
 
     private async Task TileSelectItemSelected(ComponentInteractionCreateEventArgs args)
     {
@@ -98,6 +95,9 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
 
         await PostEvidence(evidence);
     }
+
+    private string GetPageName(IEnumerable<SelectComponentOption> options) =>
+        $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
 
     private async Task PostEvidence(Evidence evidence)
     {
