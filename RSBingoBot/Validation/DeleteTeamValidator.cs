@@ -1,4 +1,4 @@
-﻿// <copyright file="AddUserToTeamValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="DeleteTeamValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,14 +9,12 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class AddUserToTeamValidator : AbstractValidator<AddUserToTeamRequest>
+internal class DeleteTeamValidator : AbstractValidator<DeleteTeamRequest>
 {
     private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
-    public AddUserToTeamValidator()
+    public DeleteTeamValidator()
     {
-        this.ValidateDiscordUserNotNull();
-        this.ValidateDiscordUserOnATeam(dataWorker);
         this.ValidateTeamExists(dataWorker);
     }
 }

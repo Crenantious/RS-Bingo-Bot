@@ -11,6 +11,6 @@ internal class ViewEvidenceButtonValidator : AbstractValidator<ViewEvidenceButto
 {
     public ViewEvidenceButtonValidator()
     {
-        this.UserNotNull();
+        this.ValidateUserNotNull();
     }
 }

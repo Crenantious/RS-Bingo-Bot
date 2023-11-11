@@ -15,7 +15,7 @@ internal static class RequestsValidationUtilities
     private const string UserIsAlreadyOnATeamResponse = "This user '{0}' is already on a team.";
     private const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
 
-    public static void DiscordUserNotNull<T>(this AbstractValidator<T> validator)
+    public static void ValidateDiscordUserNotNull<T>(this AbstractValidator<T> validator)
         where T : IRequestWithDiscordUser
     {
         validator.RuleFor(r => r.DiscordUser)
@@ -23,7 +23,7 @@ internal static class RequestsValidationUtilities
             .WithMessage(UserIsNull);
     }
 
-    public static void UserNotNull<T>(this AbstractValidator<T> validator)
+    public static void ValidateUserNotNull<T>(this AbstractValidator<T> validator)
         where T : IRequestWithUser
     {
         validator.RuleFor(r => r.User)
@@ -31,7 +31,7 @@ internal static class RequestsValidationUtilities
             .WithMessage(UserIsNull);
     }
 
-    public static void DiscordUserOnATeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
+    public static void ValidateDiscordUserOnATeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
         where T : IRequestWithDiscordUser
     {
         validator.RuleFor(r => r.DiscordUser)
@@ -39,7 +39,7 @@ internal static class RequestsValidationUtilities
             .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(r.DiscordUser));
     }
 
-    public static void TeamExists<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
+    public static void ValidateTeamExists<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
         where T : IRequestWithTeamName
     {
         validator.RuleFor(r => r.TeamName)
