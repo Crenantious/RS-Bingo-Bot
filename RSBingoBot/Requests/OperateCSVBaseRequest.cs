@@ -12,7 +12,7 @@ using System.Net;
 /// <summary>
 /// Request for operating on a csv file.
 /// </summary>
-internal abstract class OperateCSVBaseRequest<LineType> : RequestBase
+internal abstract class OperateCSVBaseRequest<LineType> : RequestHandlerBase
     where LineType : CSVLine
 {
     private const string InvalidFileTypeResponse = "The uploaded file must be a .csv.";

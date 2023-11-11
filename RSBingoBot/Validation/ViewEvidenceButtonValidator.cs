@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Validation;
+namespace RSBingoBot.Requests.Validation;
 
 using FluentValidation;
 using RSBingoBot.Requests;
@@ -11,6 +11,6 @@ internal class ViewEvidenceButtonValidator : AbstractValidator<ViewEvidenceButto
 {
     public ViewEvidenceButtonValidator()
     {
-        RuleFor(r => r.User).NotNull();
+        this.UserNotNull();
     }
 }

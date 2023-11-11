@@ -14,7 +14,7 @@ using static RSBingoBot.MessageUtilities;
 /// <summary>
 /// Request for deleting a team.
 /// </summary>
-internal class DeleteTeamRequest : RequestBase
+internal class DeleteTeamRequest : RequestHandlerBase
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string RoleDeletionError = "Failed to delete the role '{0}'.";

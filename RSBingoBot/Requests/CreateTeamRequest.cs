@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for creating a team.
 /// </summary>
-internal class CreateTeamRequest : RequestBase
+internal class CreateTeamRequest : RequestHandlerBase
 {
     private const string TeamSuccessfullyCreatedMessage = "The team '{0}' has been created successfully.";
 

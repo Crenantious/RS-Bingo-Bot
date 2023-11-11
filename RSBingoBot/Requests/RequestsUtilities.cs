@@ -7,6 +7,9 @@ namespace RSBingoBot.Requests;
 using RSBingoBot.DTO;
 using RSBingoBot.Exceptions;
 using RSBingo_Framework.Interfaces;
+using DSharpPlus.Entities;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Models;
 
 internal static class RequestsUtilities
 {
@@ -35,4 +38,10 @@ internal static class RequestsUtilities
 
     private static bool ContainsSpecialCharacters(string name) =>
         name.Any(ch => (char.IsLetterOrDigit(ch) || ch is ' ') is false);
+
+    public static DiscordRole GetTeamRole(IDataWorker dataWorker, string teamName) =>
+        DataFactory.Guild.GetRole(dataWorker.Teams.GetByName(teamName)!.RoleId);
+
+    public static DiscordRole GetRole(IDataWorker dataWorker, Team team) =>
+        DataFactory.Guild.GetRole(team.RoleId);
 }

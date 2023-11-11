@@ -9,7 +9,4 @@ using FluentResults;
 using RSBingo_Framework.Models;
 using RSBingoBot.Interfaces;
 
-internal record ViewEvidenceButtonRequest(User User) : IInteractionRequest<Result>
-{
-    public DiscordInteraction DiscordInteraction { get; set; }
-}
+internal record ViewEvidenceButtonRequest(User User, DiscordInteraction DiscordInteraction) : IInteractionRequest<Result>, IRequestWithUser;

@@ -11,5 +11,5 @@ using DSharpPlus.Entities;
 public interface IInteractionRequest<TResponse> : IRequest<TResponse>, IValidatable
     where TResponse : Result
 {
-    public DiscordInteraction DiscordInteraction { get; set; }
+    public DiscordInteraction DiscordInteraction { get; }
 }

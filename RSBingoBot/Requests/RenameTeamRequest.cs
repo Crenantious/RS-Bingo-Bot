@@ -12,7 +12,7 @@ using static RSBingoBot.DiscordTeam;
 /// <summary>
 /// Request for renaming a team.
 /// </summary>
-internal class RenameTeamRequest : RequestBase
+internal class RenameTeamRequest : RequestHandlerBase
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string TeamSuccessfullyRenamed = "The team has been renamed to '{0}'.";

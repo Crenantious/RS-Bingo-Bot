@@ -10,7 +10,7 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for removing a user from a team.
 /// </summary>
-internal class RemoveUserFromTeamRequest : RequestBase
+internal class RemoveUserFromTeamRequest : RequestHandlerBase
 {
     private const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     private const string UserIsNotOnTheTeam = "The user '{0}' is not on that team; they are on the team '{0}'.";
