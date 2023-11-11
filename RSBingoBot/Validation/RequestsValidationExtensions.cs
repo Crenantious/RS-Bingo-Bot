@@ -15,6 +15,10 @@ internal static class RequestsValidationUtilities
     private const string UserIsAlreadyOnATeamResponse = "This user '{0}' is already on a team.";
     private const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
 
+    // CSV
+    private const string CsvMediaType = "text/csv";
+    private const string NonCsvFileError = "The uploaded file must be a csv.";
+
     public static void ValidateDiscordUserNotNull<T>(this AbstractValidator<T> validator)
         where T : IRequestWithDiscordUser
     {
@@ -45,5 +49,13 @@ internal static class RequestsValidationUtilities
         validator.RuleFor(r => r.TeamName)
             .Must(n => dataWorker.Teams.DoesTeamExist(n))
             .WithMessage(r => TeamDoesNotExistResponse.FormatConst(r.TeamName));
+    }
+
+    public static void ValidateIsCSVFile<T>(this AbstractValidator<T> validator)
+        where T : IRequestWithDiscordAttachment
+    {
+        validator.RuleFor(r => r.Attachment)
+            .Must(a => a.MediaType.StartsWith(CsvMediaType))
+            .WithMessage(r => NonCsvFileError);
     }
 }

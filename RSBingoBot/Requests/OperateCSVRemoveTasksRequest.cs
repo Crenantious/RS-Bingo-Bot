@@ -15,10 +15,10 @@ using static RSBingo_Common.General;
 /// <summary>
 /// Request for removing <see cref="BingoTask"/>s via a csv file.
 /// </summary>
-internal class OperateCSVRemoveTasksRequest : OperateCSVBaseRequest<RemoveTasksCSVLine>
+internal class OperateCSVRemoveTasksRequest : OperateCSVHandlerBase<RemoveTasksCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSussessResponse => "The tasks were successfully removed from the database";
+    protected override string ProcessSuccessResponse => "The tasks were successfully removed from the database";
 
     /// <inheritdoc/>
     public OperateCSVRemoveTasksRequest(DiscordAttachment attachment) : base(attachment) { }

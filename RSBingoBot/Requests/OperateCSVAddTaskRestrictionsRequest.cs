@@ -12,10 +12,10 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for adding <see cref="Restriction"/>s via a csv file.
 /// </summary>
-internal class OperateCSVAddTaskRestrictionsRequest : OperateCSVBaseRequest<AddTaskRestrictionCSVLine>
+internal class OperateCSVAddTaskRestrictionsRequest : OperateCSVHandlerBase<AddTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSussessResponse => "The restrictions were successfully added to the database";
+    protected override string ProcessSuccessResponse => "The restrictions were successfully added to the database";
 
     /// <inheritdoc/>
     public OperateCSVAddTaskRestrictionsRequest(DiscordAttachment attachment) : base(attachment) { }

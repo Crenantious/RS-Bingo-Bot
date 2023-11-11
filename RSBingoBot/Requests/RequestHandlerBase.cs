@@ -4,12 +4,11 @@
 
 namespace RSBingoBot.Requests;
 
-using RSBingoBot.DTO;
+using FluentResults;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
-using Microsoft.Extensions.Logging;
-using MediatR;
-using FluentResults;
 using System.Threading;
 
 internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest, Result>
@@ -19,9 +18,12 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
 
     private readonly SemaphoreSlim semaphore;
 
+    private List<ISuccess> sucesses = new();
+    private List<IError> errors = new();
+
     protected ILogger<RequestHandlerBase<TRequest>> Logger { get; private set; }
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
-    protected List<ISuccess> Sucesses { get; } = new();
+
 
     // TODO: JR - decide if errors should be added from derived classes.
     // Currently the only errors should be from unhandled exceptions since there is a validation layer.
@@ -36,8 +38,7 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
 
         try
         {
-            await Process(request, cancellationToken);
-            return Result.Ok().WithSuccesses(Sucesses);
+            return await ProcessRequest(request, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -52,8 +53,25 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
         }
     }
 
+    private async Task<Result> ProcessRequest(TRequest request, CancellationToken cancellationToken)
+    {
+        await Process(request, cancellationToken);
+        return errors.Count == 0 ?
+            Result.Ok().WithSuccesses(sucesses) :
+            Result.Fail(errors);
+    }
+
     protected abstract Task Process(TRequest request, CancellationToken cancellationToken);
 
     protected void AddSucess(ISuccess success) =>
-        Sucesses.Add(success);
+        sucesses.Add(success);
+
+    protected void AddSucesses(IEnumerable<ISuccess> successes) =>
+        sucesses.Concat(successes);
+
+    protected void AddError(IError error) =>
+        errors.Add(error);
+
+    protected void AddErrors(IEnumerable<IError> errors) =>
+        errors.Concat(errors);
 }

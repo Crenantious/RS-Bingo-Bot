@@ -12,10 +12,10 @@ using DSharpPlus.Entities;
 /// <summary>
 /// Request for adding <see cref="BingoTask"/>s via a csv file.
 /// </summary>
-internal class OperateCSVAddTasksRequest : OperateCSVBaseRequest<AddTasksCSVLine>
+internal class OperateCSVAddTasksRequest : OperateCSVHandlerBase<AddTasksCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSussessResponse => "The tasks were successfully added to the database";
+    protected override string ProcessSuccessResponse => "The tasks were successfully added to the database";
 
     /// <inheritdoc/>
     public OperateCSVAddTasksRequest(DiscordAttachment attachment) : base(attachment) { }

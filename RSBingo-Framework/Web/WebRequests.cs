@@ -4,10 +4,10 @@
 
 namespace RSBingoBot.Requests;
 
-using System.Net;
+using FluentResults;
 using RSBingo_Framework;
-using RSBingo_Framework.DTO;
 using RSBingo_Framework.Exceptions;
+using System.Net;
 
 public static class WebRequests
 {
@@ -36,13 +36,13 @@ public static class WebRequests
         }
         catch (WebException e)
         {
-            return new(new WebException(UnableToDownloadFileResponse));
+            return Result.Fail(UnableToDownloadFileResponse);
         }
         catch (Exception e)
         {
-            return new(e);
+            return Result.Fail(e.Message);
         }
 
-        return new();
+        return Result.Ok();
     }
 }
