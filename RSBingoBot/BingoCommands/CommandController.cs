@@ -146,7 +146,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTasks(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTasksRequest(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTasksHandler(attachment));
     }
 
     [SlashCommand("AddTaskRestrictions", "Adds task restrictions to the database based on the uploaded csv file.")]
@@ -162,7 +162,7 @@ internal class CommandController : ApplicationCommandModule
     [DisableDuringCompetition]
     public async Task DeleteTaskRestrictions(InteractionContext ctx, [Option("Attachment", "Attachment")] DiscordAttachment attachment)
     {
-        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTaskRestrictionsRequest(attachment));
+        await requestServices.RunRequest(ctx.Interaction, new OperateCSVRemoveTaskRestrictionsHandler(attachment));
     }
 
     #endregion
