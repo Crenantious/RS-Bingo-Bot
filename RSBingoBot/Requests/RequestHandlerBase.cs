@@ -24,10 +24,6 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
     protected ILogger<RequestHandlerBase<TRequest>> Logger { get; private set; }
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-
-    // TODO: JR - decide if errors should be added from derived classes.
-    // Currently the only errors should be from unhandled exceptions since there is a validation layer.
-
     protected RequestHandlerBase(SemaphoreSlim semaphore) =>
         this.semaphore = semaphore;
 
@@ -63,15 +59,34 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
 
     protected abstract Task Process(TRequest request, CancellationToken cancellationToken);
 
+    #region Add result responses
+
+    protected void AddSucess(string message) =>
+      sucesses.Add(new ProcessSuccessful(message));
+
     protected void AddSucess(ISuccess success) =>
         sucesses.Add(success);
 
     protected void AddSucesses(IEnumerable<ISuccess> successes) =>
         sucesses.Concat(successes);
 
+    protected void AddWarning(string message) =>
+        sucesses.Add(new Warning(message));
+
+    protected void AddWarning(Warning warning) =>
+        sucesses.Add(warning);
+
+    protected void AddWarning(IEnumerable<Warning> warnings) =>
+        sucesses.Concat(warnings);
+
+    protected void AddError(string message) =>
+        errors.Add(new ProcessError(message));
+
     protected void AddError(IError error) =>
         errors.Add(error);
 
     protected void AddErrors(IEnumerable<IError> errors) =>
         errors.Concat(errors);
+
+    #endregion
 }

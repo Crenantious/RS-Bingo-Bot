@@ -40,7 +40,14 @@ internal static class RequestsValidationUtilities
     {
         validator.RuleFor(r => r.DiscordUser)
             .Must(u => u.IsOnATeam(dataWorker))
-            .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(r.DiscordUser));
+            .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(r.DiscordUser.Username));
+    }
+
+    public static void ValidateDiscordUserOnTeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
+        where T : IRequestWithDiscordUser, IRequestWithTeamName
+    {
+        validator.RuleFor(r => r.DiscordUser)
+            .SetValidator(new UserOnTeamValidator<T>(dataWorker));
     }
 
     public static void ValidateTeamExists<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)

@@ -6,9 +6,20 @@ namespace RSBingoBot.DiscordExtensions;
 
 using DSharpPlus.Entities;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 
 public static class DiscordUserExtensions
 {
-    public static bool IsOnATeam(this DiscordUser user, IDataWorker dataWorker) =>
-        dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == user.Id) is not null;
+    public static bool IsOnATeam(this DiscordUser discordUser, IDataWorker dataWorker) =>
+        GetUser(discordUser, dataWorker) is not null;
+
+    public static bool IsOnTeam(this DiscordUser discordUser, IDataWorker dataWorker, string teamName)
+    {
+        User? user = GetUser(discordUser, dataWorker);
+        if (user is null) { return false; }
+        return user.Team.Name == teamName;
+    }
+
+    private static User? GetUser(DiscordUser discordUser, IDataWorker dataWorker) =>
+        dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == discordUser.Id);
 }

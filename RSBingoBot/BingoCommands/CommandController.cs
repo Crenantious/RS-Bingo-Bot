@@ -118,7 +118,7 @@ internal class CommandController : ApplicationCommandModule
     public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
         [Option("User", "User")] DiscordUser user)
     {
-        await requestServices.RunRequest(ctx.Interaction, new RemoveUserFromTeamRequest(ctx.Interaction, teamName, user));
+        await requestServices.RunRequest(ctx.Interaction, new RemoveUserFromTeamHandler(ctx.Interaction, teamName, user));
     }
 
     [SlashCommand("DeleteTeam", "Deletes a team (from the database), its role, and channels.")]
