@@ -10,7 +10,7 @@ using RSBingo_Framework.CSV.Lines;
 internal class OperateCSVAddTaskRestrictionsHandler : OperateCSVHandlerBase<AddTaskRestrictionCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSuccessResponse => "The restrictions were successfully added to the database";
+    protected override string SuccessResponse => "The restrictions were successfully added.";
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

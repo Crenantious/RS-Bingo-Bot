@@ -14,7 +14,7 @@ using RSBingo_Framework.Models;
 internal class OperateCSVAddTasksHandler : OperateCSVHandlerBase<AddTasksCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSuccessResponse => "The tasks were successfully added to the database";
+    protected override string SuccessResponse => "The tasks were successfully added.";
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

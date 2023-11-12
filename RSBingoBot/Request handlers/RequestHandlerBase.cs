@@ -71,13 +71,13 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
 
     #region Add result responses
 
-    protected void AddSucess(string message) =>
+    protected void AddSuccess(string message) =>
       sucesses.Add(new ProcessSuccessful(message));
 
-    protected void AddSucess(ISuccess success) =>
+    protected void AddSuccess(ISuccess success) =>
         sucesses.Add(success);
 
-    protected void AddSucesses(IEnumerable<ISuccess> successes) =>
+    protected void AddSuccesses(IEnumerable<ISuccess> successes) =>
         sucesses.Concat(successes);
 
     protected void AddWarning(string message) =>

@@ -12,7 +12,7 @@ internal abstract class OperateCSVHandlerBase<LineType> : RequestHandlerBase<Ope
 {
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
-    protected abstract string ProcessSuccessResponse { get; }
+    protected abstract string SuccessResponse { get; }
     protected string FileName { get; } = Guid.NewGuid().ToString() + ".csv";
     protected CSVData<LineType> Data { get; private set; } = null!;
 
@@ -30,7 +30,7 @@ internal abstract class OperateCSVHandlerBase<LineType> : RequestHandlerBase<Ope
             return;
         }
 
-        AddSucess(new ProcessSuccessful(ProcessSuccessResponse));
+        AddSuccess(SuccessResponse);
 
         ParseFile();
         IEnumerable<string> warnings = Operate();
@@ -49,7 +49,7 @@ internal abstract class OperateCSVHandlerBase<LineType> : RequestHandlerBase<Ope
     {
         foreach (string warning in warnings)
         {
-            AddSucess(new CSVWarning(warning));
+            AddSuccess(new CSVWarning(warning));
         }
     }
 }

@@ -25,7 +25,7 @@ internal class RemoveUserFromTeamHandler : RequestHandlerBase<RemoveUserFromTeam
     {
         User user = DataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.DiscordUser.Id)!;
         DataWorker.Users.Remove(user);
-        AddSucess(UserSuccessfullyRemovedMessage.FormatConst(request.DiscordUser.Username));
+        AddSuccess(UserSuccessfullyRemovedMessage.FormatConst(request.DiscordUser.Username));
 
         DiscordRole? role = DataFactory.Guild.GetRole(user.Team.RoleId);
         if (role is null)

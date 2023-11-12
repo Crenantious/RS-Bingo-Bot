@@ -14,7 +14,7 @@ using RSBingo_Framework.Models;
 internal class OperateCSVRemoveTasksHandler : OperateCSVHandlerBase<RemoveTasksCSVLine>
 {
     /// <inheritdoc/>
-    protected override string ProcessSuccessResponse => "The tasks were successfully removed from the database";
+    protected override string SuccessResponse => "The tasks were successfully removed.";
 
     /// <inheritdoc/>
     private protected override IEnumerable<string> Operate()

@@ -10,7 +10,7 @@ using RSBingo_Framework.DAL;
 internal class AddUserToTeamHandler : RequestHandlerBase<AddUserToTeamRequest>
 {
     private const string UserSuccessfullyAddedMessage = "The user '{0}' has been added to the team successfully.";
-    private const string TeamRoleDoesNotExistError = "The team's role does not exist.";
+    private const string TeamRoleDoesNotExistWarning = "The team's role does not exist.";
 
     // TODO: JR - consider having one semaphore for all database write requests to avoid conflicts.
     private static readonly SemaphoreSlim semaphore = new(1, 1);
@@ -25,13 +25,14 @@ internal class AddUserToTeamHandler : RequestHandlerBase<AddUserToTeamRequest>
         ulong userId = request.DiscordUser.Id;
         string teamName = request.TeamName;
 
-        // TODO: JR - consider what happens if the team is deleted/renamed between validation and here.
-        DiscordRole? role = RequestsUtilities.GetTeamRole(DataWorker, teamName);
         DataWorker.Users.Create(userId, teamName);
+        AddSuccess(UserSuccessfullyAddedMessage);
 
+        DiscordRole? role = RequestsUtilities.GetTeamRole(DataWorker, teamName);
         if (role is null)
         {
-            // TODO: JR - create the team role and log a warning.
+            AddWarning(TeamRoleDoesNotExistWarning);
+            return;
         }
 
         DiscordMember member = await DataFactory.Guild.GetMemberAsync(userId);

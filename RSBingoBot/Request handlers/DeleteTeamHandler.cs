@@ -6,7 +6,7 @@ using RSBingo_Framework.Models;
 
 namespace RSBingoBot.Requests;
 
-internal class DeleteTeamHandler : RequestHandlerBase<CreateTeamRequest>
+internal class DeleteTeamHandler : RequestHandlerBase<DeleteTeamRequest>
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string RoleDeletionError = "Failed to delete the role '{0}'.";
@@ -20,12 +20,13 @@ internal class DeleteTeamHandler : RequestHandlerBase<CreateTeamRequest>
 
     }
 
-    protected override async Task Process(CreateTeamRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(DeleteTeamRequest request, CancellationToken cancellationToken)
     {
+        // TODO: JE - implement.
         await DeleteRole();
         await DeleteChannels();
 
-        Team team = DataWorker.Teams.GetByName(request.TeamName);
+        Team team = DataWorker.Teams.GetByName(request.TeamName)!;
         DataWorker.Teams.Remove(team);
         RSBingoBot.DiscordTeam.TeamDeleted(team);
     }

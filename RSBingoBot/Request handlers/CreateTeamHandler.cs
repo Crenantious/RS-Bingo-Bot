@@ -17,6 +17,7 @@ internal class CreateTeamHandler : RequestHandlerBase<CreateTeamRequest>
 
     protected override async Task Process(CreateTeamRequest request, CancellationToken cancellationToken)
     {
+        // TODO: JR - implement.
         throw new NotImplementedException();
     }
 }

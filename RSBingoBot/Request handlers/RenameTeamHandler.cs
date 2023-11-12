@@ -10,7 +10,7 @@ using System.Threading;
 
 internal class RenameTeamHandler : RequestHandlerBase<RenameTeamRequest>
 {
-    private const string TeamSuccessfullyRenamed = "The team has been renamed to '{0}'.";
+    private const string TeamSuccessfullyRenamed = "The team '{0}' has been renamed to '{1}'.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
@@ -29,5 +29,7 @@ internal class RenameTeamHandler : RequestHandlerBase<RenameTeamRequest>
         BoardImage.RenameTeam(oldName, newName);
         team.Name = newName;
         await RSBingoBot.DiscordTeam.GetInstance(team).Rename(newName);
+
+        AddSuccess(TeamSuccessfullyRenamed.FormatConst(oldName, newName));
     }
 }
