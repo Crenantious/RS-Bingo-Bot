@@ -5,12 +5,10 @@
 namespace RSBingoBot.Requests;
 
 using DSharpPlus.Entities;
-using FluentResults;
-using RSBingoBot.Interaction_handlers;
-using RSBingoBot.Interfaces;
+using RSBingoBot.InteractionHandlers;
 
 // TODO: JR - consider running this through another request ConcludeInteractionRequest, possibly in conjunction.
-internal record CloseButtonRequest(IInteractionHandler InteractionHandler) : IInteractionRequest<Result>
+internal record CloseButtonRequest(IInteractionHandler? ParentHandler) : IInteractionRequest
 {
-    public DiscordInteraction DiscordInteraction { get; set; }
+    public DiscordInteraction Interaction { get; set; } = null!;
 }

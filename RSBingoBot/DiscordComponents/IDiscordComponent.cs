@@ -7,7 +7,7 @@ namespace RSBingoBot.DiscordComponents;
 using DSharpPlus.Entities;
 using RSBingoBot.Interfaces;
 
-public interface IDiscordComponent
+internal interface IDiscordComponent : IInteractable
 {
     /// <summary>
     /// The component to send to Discord.

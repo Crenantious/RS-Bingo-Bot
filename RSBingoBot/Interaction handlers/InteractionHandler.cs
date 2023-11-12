@@ -2,37 +2,68 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Interaction_handlers;
+namespace RSBingoBot.InteractionHandlers;
 
-using MediatR;
-using FluentResults;
-using DSharpPlus.Entities;
-using RSBingoBot.Interfaces;
 using RSBingoBot.DiscordEntities;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.DAL;
+using RSBingoBot.Requests;
+using System.Threading;
 
-internal abstract class InteractionHandler<TRequest, TResponse> : IInteractionHandler, IRequestHandler<TRequest, TResponse>
-    where TRequest : IInteractionRequest<TResponse>
-    where TResponse : Result
+internal abstract class InteractionHandler<TRequest> : RequestHandlerBase<TRequest>, IInteractionHandler
+    where TRequest : IInteractionRequest
 {
+    // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
+    private static SemaphoreSlim semaphore = new(100);
+
+    private IInteractionHandler? parent;
     private List<Message> messagesForCleanup = new();
+    private bool isClosed = false;
+    private bool isConcluded = false;
 
-    protected DiscordInteraction Interaction { get; private set; } = null!;
-    protected IDataWorker DataWorker { get; private set; } = null!;
+    public static event Func<IInteractionHandler, Task> Closed;
+    public static event Func<IInteractionHandler, Task> Concluded;
 
-    public virtual async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
+    protected InteractionHandler() : base(semaphore)
     {
-        Interaction = request.DiscordInteraction;
-        DataWorker = DataFactory.CreateDataWorker();
-        return (TResponse)Result.Ok();
+    }
+
+    protected override Task Process(TRequest request, CancellationToken cancellationToken)
+    {
+        parent = request.ParentHandler;
+        Closed += OnClose;
+        Concluded += OnConclude;
+        return Task.CompletedTask;
+    }
+
+    public async Task Close()
+    {
+        if (isClosed) { return; }
+
+        // Delete all messages in messagesForCleanup.
+        Closed?.Invoke(this);
+        parent?.Close();
+
+        throw new NotImplementedException();
     }
 
     public async Task Conclude()
     {
-        // Delete all messages in messagesForCleanup.
+        if (isConcluded) { return; }
+
         // Remove self from active interaction handlers.
+        Concluded?.Invoke(this);
+        parent?.Conclude();
+
         throw new NotImplementedException();
+    }
+
+    private async Task OnClose(IInteractionHandler hander)
+    {
+        if (hander == parent) { await Close(); }
+    }
+
+    private async Task OnConclude(IInteractionHandler hander)
+    {
+        if (hander == parent) { await Conclude(); }
     }
 
     protected void AddMessageForCleanup(Message message)
@@ -40,7 +71,7 @@ internal abstract class InteractionHandler<TRequest, TResponse> : IInteractionHa
         messagesForCleanup.Add(message);
     }
 
-    protected void CleanupMessages()
+    private void CleanupMessages()
     {
         throw new NotImplementedException();
     }

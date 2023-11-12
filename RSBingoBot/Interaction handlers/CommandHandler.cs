@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Interaction_handlers;
+namespace RSBingoBot.InteractionHandlers;
 
 using RSBingoBot.DiscordEntities;
 using MediatR;

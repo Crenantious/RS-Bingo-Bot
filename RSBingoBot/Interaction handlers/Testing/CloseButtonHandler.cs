@@ -2,23 +2,16 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Interaction_handlers;
+namespace RSBingoBot.InteractionHandlers;
 
-using FluentResults;
 using RSBingoBot.Requests;
 
-/// <summary>
-/// Concludes the <see cref="CloseButtonRequest.InteractionHandler"/>.
-/// </summary>
-internal class CloseButtonHandler : InteractionHandler<CloseButtonRequest, Result>
+internal class CloseButtonHandler : InteractionHandler<CloseButtonRequest>
 {
-    ///<inheritdoc/>
-    public async override Task<Result> Handle(CloseButtonRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(CloseButtonRequest request, CancellationToken cancellationToken)
     {
         await base.Handle(request, cancellationToken);
 
-        request.InteractionHandler.Conclude();
-
-        return Result.Ok();
+        await request.ParentHandler.Conclude();
     }
 }

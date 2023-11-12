@@ -8,9 +8,9 @@ using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingoBot.Discord_event_handlers;
 using RSBingoBot.DiscordServices;
-using RSBingoBot.Interfaces;
+using RSBingoBot.Requests;
 
-internal class DiscordInteractionServices
+internal static class DiscordInteractionServices
 {
     private static ComponentInteractionDEH componentInteractionDEH;
 
@@ -19,14 +19,12 @@ internal class DiscordInteractionServices
         componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
     }
 
-    public static void RegisterInteractionHandler<TResponse>(IInteractionRequest<TResponse> interaction, ComponentInteractionDEH.Constraints constraints)
-        where TResponse : Result
+    public static void RegisterInteractionHandler(IInteractionRequest interaction, ComponentInteractionDEH.Constraints constraints)
     {
         componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(interaction, args));
     }
 
-    private static async Task OnComponentInteraction<TResponse>(IInteractionRequest<TResponse> interaction, ComponentInteractionCreateEventArgs args)
-        where TResponse : Result
+    private static async Task OnComponentInteraction(IInteractionRequest interaction, ComponentInteractionCreateEventArgs args)
     {
         await RequestServices.Run(interaction);
     }

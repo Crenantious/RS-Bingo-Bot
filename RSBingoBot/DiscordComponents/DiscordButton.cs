@@ -6,11 +6,14 @@ namespace RSBingoBot.DiscordComponents;
 
 using DSharpPlus.Entities;
 using RSBingoBot.Interfaces;
+using RSBingoBot.Requests;
 
-public class DiscordButton : IDiscordComponent
+internal class DiscordButton : IDiscordComponent
 {
     public DiscordComponent DiscordComponent { get; }
     public IMessage Message { get; set; } = null!;
+
+    public string CustomId => DiscordComponent.CustomId;
 
     public DiscordButton(DiscordButtonComponent buttonComponent)
     {
