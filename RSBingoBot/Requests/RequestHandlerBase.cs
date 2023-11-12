@@ -11,6 +11,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using System.Threading;
 
+// TODO: - JR probably add an abstract ProcessSuccess message like in CSVOperatorHandlerBase.
 internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest, Result>
     where TRequest : IRequest<Result>
 {

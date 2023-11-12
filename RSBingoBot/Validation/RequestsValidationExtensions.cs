@@ -58,6 +58,13 @@ internal static class RequestsValidationUtilities
             .WithMessage(r => TeamDoesNotExistResponse.FormatConst(r.TeamName));
     }
 
+    public static void ValidateNewTeamName<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
+        where T : IRequestWithNewTeamName
+    {
+        validator.RuleFor(r => r.NewTeamName)
+            .SetValidator(new NewTeamNameValidator<T>(dataWorker));
+    }
+
     public static void ValidateIsCSVFile<T>(this AbstractValidator<T> validator)
         where T : IRequestWithDiscordAttachment
     {

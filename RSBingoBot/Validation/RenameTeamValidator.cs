@@ -1,4 +1,4 @@
-﻿// <copyright file="CreateTeamValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="RenameTeamValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,12 +9,13 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class CreateTeamValidator : AbstractValidator<CreateTeamRequest>
+internal class RenameTeamValidator : AbstractValidator<RenameTeamRequest>
 {
     private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
-    public CreateTeamValidator()
+    public RenameTeamValidator()
     {
+        this.ValidateTeamExists(dataWorker);
         this.ValidateNewTeamName(dataWorker);
     }
 }
