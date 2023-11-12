@@ -3,6 +3,7 @@
 // </copyright>
 
 namespace RSBingoBot.Requests;
+
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
