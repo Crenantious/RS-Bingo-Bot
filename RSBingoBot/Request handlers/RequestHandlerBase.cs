@@ -9,20 +9,26 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using System.Text;
 using System.Threading;
 
 // TODO: - JR probably add an abstract ProcessSuccess message like in CSVOperatorHandlerBase.
 internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest, Result>
     where TRequest : IRequest<Result>
 {
+    private const string BeginHandlingRequest = "Handling request {0} with id {1}.";
+    private const string RequestSucceeded = "Successfully handled request {0} with id {1}.";
+    private const string RequestFailed = "Failed handling request {0} with id {1}.";
     private const string InternalError = "An internal error has occurred.";
+
+    private static int requestId = 0;
 
     private readonly SemaphoreSlim semaphore;
 
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
-    protected ILogger<RequestHandlerBase<TRequest>> Logger { get; private set; }
+    protected ILogger<RequestHandlerBase<TRequest>> Logger { get; private set; } = null!;
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
     protected RequestHandlerBase(SemaphoreSlim semaphore) =>
@@ -32,15 +38,18 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
     {
         await semaphore.WaitAsync();
         Logger = General.LoggingInstance<RequestHandlerBase<TRequest>>();
+        int id = requestId++;
 
         try
         {
-            return await ProcessRequest(request, cancellationToken);
+            LogRequestBegin(request, id);
+            Result result = await ProcessRequest(request, cancellationToken);
+            LogRequestEnd(request, result, id);
+            return result;
         }
         catch (Exception ex)
         {
-            // TODO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
-            Logger.LogError(ex, null);
+            LogReqestException(request, ex, id);
             return Result.Fail(InternalError);
         }
         finally
@@ -88,6 +97,46 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
 
     protected void AddErrors(IEnumerable<IError> errors) =>
         errors.Concat(errors);
+
+    #endregion
+
+    #region Logging
+
+    private void LogRequestBegin(TRequest request, int id)
+    {
+        Logger.LogInformation(BeginHandlingRequest.FormatConst(request.GetType().Name, id));
+    }
+
+    private void LogRequestEnd(TRequest request, Result result, int id)
+    {
+        string prefix = result.IsFailed ?
+            RequestFailed.FormatConst(request.GetType().Name, id) :
+            RequestSucceeded.FormatConst(request.GetType().Name, id);
+
+        StringBuilder sb = new(prefix);
+        IEnumerable<IReason> reasons = result.IsFailed ? result.Errors : result.Successes;
+        GetResultInfo(sb, reasons);
+
+        Logger.LogInformation(sb.ToString());
+    }
+
+    private void LogReqestException(TRequest request, Exception exception, int id)
+    {
+        // TODO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
+        string message = RequestFailed.FormatConst(request.GetType().Name, id);
+        Logger.LogError(exception, message);
+    }
+
+    // TODO: JR - check how this logs meta data.
+    private static void GetResultInfo(StringBuilder sb, IEnumerable<IReason> reasons)
+    {
+        foreach (IReason reason in reasons)
+        {
+            sb.Append(reason.Message);
+            sb.Append("Meta data:");
+            sb.Append(reason.Metadata);
+        }
+    }
 
     #endregion
 }
