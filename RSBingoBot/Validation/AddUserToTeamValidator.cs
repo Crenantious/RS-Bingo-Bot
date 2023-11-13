@@ -16,7 +16,7 @@ internal class AddUserToTeamValidator : AbstractValidator<AddUserToTeamRequest>
     public AddUserToTeamValidator()
     {
         this.ValidateDiscordUserNotNull();
-        this.ValidateDiscordUserOnATeam(dataWorker);
+        this.ValidateDiscordUserNotOnATeam(dataWorker);
         this.ValidateTeamExists(dataWorker);
     }
 }

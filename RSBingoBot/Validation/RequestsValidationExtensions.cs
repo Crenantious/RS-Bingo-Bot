@@ -4,10 +4,12 @@
 
 namespace RSBingoBot.Requests.Validation;
 
+using DSharpPlus.Entities;
 using FluentValidation;
 using Requests;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.DiscordExtensions;
+using System.Linq.Expressions;
 
 internal static class RequestsValidationUtilities
 {
@@ -35,12 +37,21 @@ internal static class RequestsValidationUtilities
             .WithMessage(UserIsNull);
     }
 
-    public static void ValidateDiscordUserOnATeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
+    public static void ValidateDiscordUserNotOnATeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)
         where T : IRequestWithDiscordUser
     {
         validator.RuleFor(r => r.DiscordUser)
             .Must(u => u.IsOnATeam(dataWorker))
             .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(r.DiscordUser.Username));
+    }
+
+    public static void ValidateDiscordUserNotOnATeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker,
+        Expression<Func<T, DiscordUser>> expression)
+        where T : IInteractionRequest
+    {
+        validator.RuleFor(expression)
+            .Must(u => u.IsOnATeam(dataWorker))
+            .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(r.Interaction.User.Username));
     }
 
     public static void ValidateDiscordUserOnTeam<T>(this AbstractValidator<T> validator, IDataWorker dataWorker)

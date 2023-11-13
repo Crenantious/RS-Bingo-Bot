@@ -5,12 +5,16 @@
 namespace RSBingoBot.Requests.Validation;
 
 using FluentValidation;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
 internal class ViewEvidenceButtonValidator : AbstractValidator<ViewEvidenceButtonRequest>
 {
+    IDataWorker dataWorker = DataFactory.CreateDataWorker();
+
     public ViewEvidenceButtonValidator()
     {
-        this.ValidateUserNotNull();
+        this.ValidateDiscordUserNotOnATeam(dataWorker, r => r.Interaction.User);
     }
 }
