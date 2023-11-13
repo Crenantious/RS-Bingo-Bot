@@ -4,17 +4,12 @@
 
 namespace RSBingoBot.Requests.Validation;
 
-using FluentValidation;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class DeleteTeamValidator : AbstractValidator<DeleteTeamRequest>
+internal class DeleteTeamValidator : Validator<DeleteTeamRequest>
 {
-    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
-
     public DeleteTeamValidator()
     {
-        this.ValidateTeamExists(dataWorker);
+        TeamExists(r => r.TeamName);
     }
 }

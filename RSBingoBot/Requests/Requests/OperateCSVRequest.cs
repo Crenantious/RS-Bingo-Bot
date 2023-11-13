@@ -8,4 +8,4 @@ using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record OperateCSVRequest(DiscordAttachment Attachment) : IRequest<Result>, IRequestWithDiscordAttachment;
+internal record OperateCSVRequest(DiscordAttachment Attachment) : IRequest<Result>;

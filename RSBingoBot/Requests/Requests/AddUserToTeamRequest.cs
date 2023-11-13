@@ -8,4 +8,4 @@ using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record AddUserToTeamRequest(DiscordUser DiscordUser, string TeamName) : IRequest<Result>, IRequestWithDiscordUser, IRequestWithTeamName;
+internal record AddUserToTeamRequest(DiscordUser User, string TeamName) : IRequest<Result>;

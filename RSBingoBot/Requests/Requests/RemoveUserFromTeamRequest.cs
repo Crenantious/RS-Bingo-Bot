@@ -7,6 +7,6 @@ namespace RSBingoBot.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
+using RSBingo_Framework.Models;
 
-internal record RemoveUserFromTeamRequest(DiscordUser DiscordUser, string TeamName) :
-    IRequest<Result>, IRequestWithDiscordUser, IRequestWithTeamName;
+internal record RemoveUserFromTeamRequest(DiscordUser User, Team Team) : IRequest<Result>;

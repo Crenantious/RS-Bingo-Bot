@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using FluentResults;
 using MediatR;
 
-internal record DeleteTeamRequest(string TeamName) : IRequest<Result>, IRequestWithTeamName;
+internal record DeleteTeamRequest(string TeamName) : IRequest<Result>;

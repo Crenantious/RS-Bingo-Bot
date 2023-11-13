@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using FluentResults;
 using MediatR;
 
-internal record CreateTeamRequest(string NewTeamName) : IRequest<Result>, IRequestWithNewTeamName;
+internal record CreateTeamRequest(string TeamName) : IRequest<Result>;

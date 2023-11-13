@@ -23,9 +23,9 @@ internal class RemoveUserFromTeamHandler : RequestHandlerBase<RemoveUserFromTeam
 
     protected async override Task Process(RemoveUserFromTeamRequest request, CancellationToken cancellationToken)
     {
-        User user = DataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.DiscordUser.Id)!;
+        User user = DataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.User.Id)!;
         DataWorker.Users.Remove(user);
-        AddSuccess(UserSuccessfullyRemovedMessage.FormatConst(request.DiscordUser.Username));
+        AddSuccess(UserSuccessfullyRemovedMessage.FormatConst(request.User.Username));
 
         DiscordRole? role = DataFactory.Guild.GetRole(user.Team.RoleId);
         if (role is null)
@@ -34,7 +34,7 @@ internal class RemoveUserFromTeamHandler : RequestHandlerBase<RemoveUserFromTeam
             return;
         }
 
-        DiscordMember member = await DataFactory.Guild.GetMemberAsync(request.DiscordUser.Id);
+        DiscordMember member = await DataFactory.Guild.GetMemberAsync(request.User.Id);
         await member.RevokeRoleAsync(role);
     }
 }

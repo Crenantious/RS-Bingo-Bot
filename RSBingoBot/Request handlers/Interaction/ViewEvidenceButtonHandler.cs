@@ -38,9 +38,9 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
     {
         await base.Process(request, cancellationToken);
 
-        User = request.User;
+        User = DataWorker.Users.GetByDiscordId(request.Interaction.User.Id);
 
-        closeButton = ButtonFactory.CreateClose(new(this), request.DiscordUser);
+        closeButton = ButtonFactory.CreateClose(new CloseButtonRequest(this), request.Interaction.User);
         CreateTileSelect();
         response = GetResponseMessage();
     }

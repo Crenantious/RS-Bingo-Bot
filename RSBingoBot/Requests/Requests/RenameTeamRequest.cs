@@ -7,5 +7,4 @@ namespace RSBingoBot.Requests;
 using FluentResults;
 using MediatR;
 
-internal record RenameTeamRequest(string TeamName, string NewTeamName) :
-    IRequest<Result>, IRequestWithTeamName, IRequestWithNewTeamName;
+internal record RenameTeamRequest(string TeamName, string NewTeamName) : IRequest<Result>;

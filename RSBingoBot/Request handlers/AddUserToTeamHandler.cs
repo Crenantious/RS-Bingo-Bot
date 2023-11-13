@@ -22,7 +22,7 @@ internal class AddUserToTeamHandler : RequestHandlerBase<AddUserToTeamRequest>
 
     protected override async Task Process(AddUserToTeamRequest request, CancellationToken cancellationToken)
     {
-        ulong userId = request.DiscordUser.Id;
+        ulong userId = request.User.Id;
         string teamName = request.TeamName;
 
         DataWorker.Users.Create(userId, teamName);

@@ -4,17 +4,12 @@
 
 namespace RSBingoBot.Requests.Validation;
 
-using FluentValidation;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class CreateTeamValidator : AbstractValidator<CreateTeamRequest>
+internal class CreateTeamValidator : Validator<CreateTeamRequest>
 {
-    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
-
     public CreateTeamValidator()
     {
-        this.ValidateNewTeamName(dataWorker);
+        NewTeamName(r => r.TeamName);
     }
 }

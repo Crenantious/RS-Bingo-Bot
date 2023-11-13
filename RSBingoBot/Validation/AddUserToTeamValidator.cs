@@ -4,19 +4,14 @@
 
 namespace RSBingoBot.Requests.Validation;
 
-using FluentValidation;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class AddUserToTeamValidator : AbstractValidator<AddUserToTeamRequest>
+internal class AddUserToTeamValidator : Validator<AddUserToTeamRequest>
 {
-    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
-
     public AddUserToTeamValidator()
     {
-        this.ValidateDiscordUserNotNull();
-        this.ValidateDiscordUserNotOnATeam(dataWorker);
-        this.ValidateTeamExists(dataWorker);
+        UserNotNull(r => r.User);
+        UserNotOnATeam(r => r.User);
+        TeamExists(r => r.TeamName);
     }
 }

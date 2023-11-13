@@ -4,17 +4,12 @@
 
 namespace RSBingoBot.Requests.Validation;
 
-using FluentValidation;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
 
-internal class OperateCSVValidator : AbstractValidator<OperateCSVRequest>
+internal class OperateCSVValidator : Validator<OperateCSVRequest>
 {
-    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
-
     public OperateCSVValidator()
     {
-        this.ValidateIsCSVFile();
+        IsCSVFile(r => r.Attachment);
     }
 }
