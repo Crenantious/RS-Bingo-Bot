@@ -20,6 +20,13 @@ public static class DiscordUserExtensions
         return user.Team.Name == teamName;
     }
 
+    public static bool IsOnTeam(this DiscordUser discordUser, IDataWorker dataWorker, Team team)
+    {
+        User? user = GetUser(discordUser, dataWorker);
+        if (user is null) { return false; }
+        return user.Team == team;
+    }
+
     private static User? GetUser(DiscordUser discordUser, IDataWorker dataWorker) =>
         dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == discordUser.Id);
 }
