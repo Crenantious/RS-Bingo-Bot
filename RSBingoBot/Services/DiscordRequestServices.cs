@@ -4,11 +4,10 @@
 
 namespace RSBingoBot.DiscordServices;
 
-using RSBingoBot.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using static RequestServices;
 using RSBingoBot.DiscordEntities;
+using RSBingoBot.Interfaces;
 
 public class DiscordRequestServices : IDiscordRequestServices
 {

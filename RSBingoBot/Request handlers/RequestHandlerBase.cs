@@ -28,6 +28,7 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
+    protected TRequest Request { get; private set; }
     protected ILogger<RequestHandlerBase<TRequest>> Logger { get; private set; } = null!;
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
@@ -37,6 +38,7 @@ internal abstract class RequestHandlerBase<TRequest> : IRequestHandler<TRequest,
     public async Task<Result> Handle(TRequest request, CancellationToken cancellationToken)
     {
         await semaphore.WaitAsync();
+        Request = request;
         Logger = General.LoggingInstance<RequestHandlerBase<TRequest>>();
         int id = requestId++;
 

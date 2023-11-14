@@ -5,6 +5,7 @@
 namespace RSBingoBot.InteractionHandlers;
 
 using RSBingoBot.DiscordEntities;
+using RSBingoBot.DiscordServices;
 using RSBingoBot.Requests;
 using System.Threading;
 
@@ -14,6 +15,8 @@ internal abstract class InteractionHandler<TRequest> : RequestHandlerBase<TReque
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
 
+    private readonly DiscordRequestServices discordRequestServices;
+
     private IInteractionHandler? parent;
     private List<Message> messagesForCleanup = new();
     private bool isClosed = false;
@@ -22,9 +25,8 @@ internal abstract class InteractionHandler<TRequest> : RequestHandlerBase<TReque
     public static event Func<IInteractionHandler, Task> Closed;
     public static event Func<IInteractionHandler, Task> Concluded;
 
-    protected InteractionHandler() : base(semaphore)
-    {
-    }
+    protected InteractionHandler() : base(semaphore) =>
+        this.discordRequestServices = (DiscordRequestServices)General.DI.GetService(typeof(DiscordRequestServices))!;
 
     protected override Task Process(TRequest request, CancellationToken cancellationToken)
     {
@@ -33,6 +35,10 @@ internal abstract class InteractionHandler<TRequest> : RequestHandlerBase<TReque
         Concluded += OnConclude;
         return Task.CompletedTask;
     }
+
+    // TODO: JR - use Message/InteractionMessage.
+    protected async Task PostMessage(string message, bool isEphemeral = true) =>
+        await discordRequestServices.Followup(Request.Interaction, message, true);
 
     public async Task Close()
     {
