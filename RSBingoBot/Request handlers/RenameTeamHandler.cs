@@ -8,7 +8,7 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Imaging;
 using System.Threading;
 
-internal class RenameTeamHandler : RequestHandlerBase<RenameTeamRequest>
+internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 {
     private const string TeamSuccessfullyRenamed = "The team '{0}' has been renamed to '{1}'.";
 

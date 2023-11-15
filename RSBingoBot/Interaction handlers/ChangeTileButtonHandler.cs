@@ -11,7 +11,7 @@ using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.Imaging;
 using Select_Component;
 using SixLabors.ImageSharp;

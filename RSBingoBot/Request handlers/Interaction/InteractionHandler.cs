@@ -4,12 +4,14 @@
 
 namespace RSBingoBot.InteractionHandlers;
 
+using FluentResults;
 using RSBingoBot.DiscordEntities;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Requests;
 using System.Threading;
 
-internal abstract class InteractionHandler<TRequest> : RequestHandlerBase<TRequest>, IInteractionHandler
+// TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
+internal abstract class InteractionHandler<TRequest> : RequestHandler<TRequest, Result>, IInteractionHandler
     where TRequest : IInteractionRequest
 {
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.

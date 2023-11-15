@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using FluentResults;
 using RSBingo_Framework.CSV;
 
-internal abstract class OperateCSVHandlerBase<LineType> : RequestHandlerBase<OperateCSVRequest>
+internal abstract class OperateCSVHandlerBase<LineType> : RequestHandler<OperateCSVRequest>
     where LineType : CSVLine
 {
     private static readonly SemaphoreSlim semaphore = new(1, 1);

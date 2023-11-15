@@ -6,7 +6,7 @@ namespace RSBingoBot.BingoCommands;
 
 using RSBingoBot.Requests;
 using RSBingoBot.DiscordServices;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.BingoCommands.Attributes;
 using RSBingoBot.Component_interaction_handlers;
 using RSBingo_Framework.Interfaces;

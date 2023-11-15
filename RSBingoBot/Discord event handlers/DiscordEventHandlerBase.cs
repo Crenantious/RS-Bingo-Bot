@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Discord_event_handlers;
+namespace RSBingoBot.DiscordEventHandlers;
 
 using System;
 using System.Collections.Generic;

@@ -6,7 +6,7 @@ namespace RSBingoBot.Services;
 
 using DSharpPlus.EventArgs;
 using FluentResults;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Requests;
 

@@ -4,7 +4,7 @@
 
 namespace RSBingoBot.Component_interaction_handlers;
 
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingo_Framework.Models;
 using DSharpPlus;
 using DSharpPlus.Entities;

@@ -9,7 +9,7 @@ using RSBingo_Framework.Models;
 using RSBingoBot.InteractionHandlers;
 
 internal record ViewEvidenceButtonRequest(Team Team, IInteractionHandler? ParentHandler) :
-    IInteractionRequest
+    IButtonRequest
 {
     public DiscordInteraction Interaction { get; set; } = null!;
 }

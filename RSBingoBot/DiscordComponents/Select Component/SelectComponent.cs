@@ -7,50 +7,42 @@ namespace RSBingoBot.DiscordComponents;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingoBot.DiscordComponents;
 using RSBingoBot.Interfaces;
 
 public class SelectComponent : IDiscordComponent
 {
+    private DiscordSelectComponent? discordComponent;
+    private string? placeholder = null;
+    private List<DiscordSelectComponentOption> discordOptions = new();
+    private HashSet<SelectComponentItem> SelectedItemsHashSet = new();
+
     /// <summary>
     /// Gets the discord version of the component. This is null if either <see cref="Build"/> has not been called, or it failed.
     /// </summary>
     public DiscordComponent DiscordComponent => discordComponent;
 
     /// <inheritdoc/>
-    public IMessage Message { get; set; }
-
+    public IMessage? Message { get; set; }
     public SelectComponentPage? SelectedPage { get; private set; } = null;
     public List<SelectComponentItem> SelectedItems { get; private set; } = new();
-    public List<SelectComponentOption> SelectOptions { get; set; } = new();
+    public IEnumerable<SelectComponentOption> SelectOptions { get; set; } = Enumerable.Empty<SelectComponentOption>();
     public string CustomId { get; set; } = Guid.NewGuid().ToString();
     public string InitialPlaceholder { get; set; } = null!;
     public bool Disabled { get; set; }
     public int MinOptions { get; set; }
     public int MaxOptions { get; set; }
 
+    public event Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
+    public event Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
+    public event Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback;
 
-    private DiscordSelectComponent? discordComponent;
-    private string? placeholder = null;
-    private Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
-    private Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
-    private Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback;
-    private List<DiscordSelectComponentOption> discordOptions = new();
-    private HashSet<SelectComponentItem> SelectedItemsHashSet = new();
-
-    public SelectComponent(string placeholder,
-        Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback = null,
-        Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback = null,
-        Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback = null,
-        bool disabled = false, int minOptions = 1, int maxOptions = 1)
+    public SelectComponent(SelectComponentInfo info)
     {
-        this.itemSelectedCallback = itemSelectedCallback;
-        this.pageSelectedCallback = pageSelectedCallback;
-        this.getPageNameCallback = getPageNameCallback;
-        this.Disabled = disabled;
-        this.MinOptions = minOptions;
-        this.MaxOptions = maxOptions;
-        this.placeholder = placeholder;
+        this.Disabled = info.Disabled;
+        this.SelectOptions = info.Options;
+        this.MinOptions = info.MinOptions;
+        this.MaxOptions = info.MaxOptions;
+        this.placeholder = info.Placeholder;
         this.InitialPlaceholder = placeholder;
     }
 
@@ -65,6 +57,7 @@ public class SelectComponent : IDiscordComponent
     /// and the <see cref="DiscordSelectComponent"/>.
     /// This should be called before <see cref="OnInteraction"/>.
     /// </summary>
+    // TODO: JR - see if this can be made private and called automatically when created.
     public void Build()
     {
         // TODO: JR - add support for building multiple times.
@@ -123,7 +116,7 @@ public class SelectComponent : IDiscordComponent
             try
             {
                 index = int.Parse(args.Values[i]);
-                option = SelectOptions[index];
+                option = SelectOptions.ElementAt(index);
             }
             catch
             {
@@ -150,9 +143,9 @@ public class SelectComponent : IDiscordComponent
     {
         discordOptions.Clear();
 
-        for (int i = 0; i < SelectOptions.Count; i++)
+        for (int i = 0; i < SelectOptions.Count(); i++)
         {
-            SelectComponentOption option = SelectOptions[i];
+            SelectComponentOption option = SelectOptions.ElementAt(i);
             option.isDefault = SelectedItemsHashSet.Contains(option);
             option.Build(i.ToString());
             discordOptions.Add(option.discordOption);

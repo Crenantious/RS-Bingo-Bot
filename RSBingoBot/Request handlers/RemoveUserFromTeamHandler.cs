@@ -9,7 +9,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
 using System.Threading;
 
-internal class RemoveUserFromTeamHandler : RequestHandlerBase<RemoveUserFromTeamRequest>
+internal class RemoveUserFromTeamHandler : RequestHandler<RemoveUserFromTeamRequest>
 {
     private const string UserSuccessfullyRemovedMessage = "The user '{0}' has been removed from the team.";
     private const string TeamRoleDoesNotExistWarning = "The team's role does not exist.";

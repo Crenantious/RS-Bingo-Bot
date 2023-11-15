@@ -4,7 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
-internal class CreateTeamHandler : RequestHandlerBase<CreateTeamRequest>
+internal class CreateTeamHandler : RequestHandler<CreateTeamRequest>
 {
     private const string TeamSuccessfullyCreatedMessage = "The team '{0}' has been created successfully.";
 

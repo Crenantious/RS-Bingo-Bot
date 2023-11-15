@@ -6,7 +6,7 @@ namespace RSBingoBot;
 
 using RSBingoBot.Imaging;
 using RSBingoBot.Leaderboard;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingo_Common;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;

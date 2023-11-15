@@ -17,7 +17,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.Behaviours;
 using RSBingoBot.BingoCommands;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Imaging;
 using RSBingoBot.Requests;

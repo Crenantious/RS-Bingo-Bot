@@ -10,6 +10,7 @@ using DSharpPlus.EventArgs;
 using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.DiscordEntities;
 using RSBingoBot.DiscordEntities.Messages;
@@ -22,7 +23,7 @@ using System.Threading;
 /// <summary>
 /// Handles the Interaction with the "View evidence" button in a team's board channel.
 /// </summary>
-internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButtonRequest>
+internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonRequest>
 {
     private const string messageText = "{0} Select a tile to view its evidence.";
     private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
@@ -41,15 +42,17 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
 
         User = request.Interaction.User.GetDBUser(DataWorker)!;
 
-        CreateEvidenceSelection();
+        CreateEvidenceSelection(request.Interaction.User);
         closeButton = ButtonFactory.CreateClose(new CloseButtonRequest(this), request.Interaction.User);
         response = GetResponseMessage();
     }
 
-    private void CreateEvidenceSelection()
+    private void CreateEvidenceSelection(DiscordUser user)
     {
-        evidenceSelection = new SelectComponent("Select a tile", OnEvidenceSelected, getPageNameCallback: GetPageName);
-        evidenceSelection.SelectOptions = GetEvidenceSelectionOptions();
+        evidenceSelection = SelectComponentFactory.Create(
+            new SelectComponentInfo("Select a tile", GetEvidenceSelectionOptions()),
+            new ViewEvidenceSelectionRequest(),
+            new ComponentInteractionDEH.StrippedConstraints(User: user));
         evidenceSelection.Build();
     }
 
@@ -69,24 +72,6 @@ internal class ViewEvidenceButtonHandler : InteractionHandler<ViewEvidenceButton
         DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
         tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, this.evidenceTile == tile, emoji));
     }
-
-    private async Task OnEvidenceSelected(ComponentInteractionCreateEventArgs args)
-    {
-        evidenceTile = (Tile)evidenceSelection.SelectedItems[0].value!;
-        Evidence? evidence = evidenceTile.GetEvidence(DataWorker, args.User.Id);
-        if (evidence is null)
-        {
-            // TODO: JR - make this metod use the requests system such that adding an error will post the error message.
-            // Currently, this does nothing as this method is called from an event, thus the request system cannot track it.
-            // Probably make the SelectComponent have its own request and handler which can be derived from.
-            AddError(new EvidenceMissingError(evidenceTile));
-        }
-
-        await PostEvidence(evidence);
-    }
-
-    private string GetPageName(IEnumerable<SelectComponentOption> options) =>
-        $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
 
     private Message GetResponseMessage() =>
       new Message()

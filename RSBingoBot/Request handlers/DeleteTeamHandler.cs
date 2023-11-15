@@ -6,7 +6,7 @@ using RSBingo_Framework.Models;
 
 namespace RSBingoBot.Requests;
 
-internal class DeleteTeamHandler : RequestHandlerBase<DeleteTeamRequest>
+internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 {
     private const string TeamDoesNotExistError = "A team with the name '{0}' does not exist.";
     private const string RoleDeletionError = "Failed to delete the role '{0}'.";

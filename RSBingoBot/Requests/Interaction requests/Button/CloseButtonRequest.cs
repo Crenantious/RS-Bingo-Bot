@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 using RSBingoBot.InteractionHandlers;
 
 // TODO: JR - consider running this through another request ConcludeInteractionRequest, possibly in conjunction.
-internal record CloseButtonRequest(IInteractionHandler? ParentHandler) : IInteractionRequest
+internal record CloseButtonRequest(IInteractionHandler? ParentHandler) : IButtonRequest
 {
     public DiscordInteraction Interaction { get; set; } = null!;
 }

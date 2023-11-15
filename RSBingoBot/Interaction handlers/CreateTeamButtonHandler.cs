@@ -7,7 +7,7 @@ namespace RSBingoBot.Component_interaction_handlers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingoBot.Discord_event_handlers;
+using RSBingoBot.DiscordEventHandlers;
 using static RSBingoBot.MessageUtilities;
 
 /// <summary>

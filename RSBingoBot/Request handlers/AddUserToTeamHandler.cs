@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 
-internal class AddUserToTeamHandler : RequestHandlerBase<AddUserToTeamRequest>
+internal class AddUserToTeamHandler : RequestHandler<AddUserToTeamRequest>
 {
     private const string UserSuccessfullyAddedMessage = "The user '{0}' has been added to the team successfully.";
     private const string TeamRoleDoesNotExistWarning = "The team's role does not exist.";

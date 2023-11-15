@@ -4,7 +4,7 @@
 
 namespace RSBingoBot.Interactions;
 
-using DSharpPlus.Entities;
+using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.Interfaces;
 using RSBingoBot.Requests;
 using RSBingoBot.Services;
@@ -12,8 +12,9 @@ using RSBingoBot.Services;
 internal static class IInteractableExtensions
 {
     public static void Register(this IInteractable interactable, IInteractionRequest request,
-        DiscordChannel? channel = null, DiscordUser? user = null)
+        ComponentInteractionDEH.StrippedConstraints strippedConstraints)
     {
-        DiscordInteractionServices.RegisterInteractionHandler(request, new(channel, user, interactable.CustomId));
+        ComponentInteractionDEH.Constraints constraints = new(strippedConstraints, interactable.CustomId);
+        DiscordInteractionServices.RegisterInteractionHandler(request, constraints);
     }
 }
