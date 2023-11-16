@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework_Tests;
 
-using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingoBot.RequestHandlers.Select_Component;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

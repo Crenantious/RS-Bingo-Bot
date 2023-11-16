@@ -15,11 +15,9 @@ public static class SelectComponentFactory
         ComponentInteractionDEH.StrippedConstraints constraints)
     {
         SelectComponent selectComponent = new(info);
-
         request.SelectComponent = selectComponent;
-        request.SelectComponent.CustomId = Guid.NewGuid().ToString();
 
-        selectComponent.Build();
+        SelectComponentUpdater.Build(selectComponent);
         selectComponent.Register(request, constraints);
 
         return selectComponent;

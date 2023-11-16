@@ -12,7 +12,7 @@ namespace RSBingo_Framework_Tests
     using static RSBingo_Framework.Records.TileRecord;
     using static RSBingo_Framework.Records.BingoTaskRecord;
     using RSBingo_Framework.Records;
-    using RSBingoBot.Component_interaction_handlers;
+    using RSBingoBot.RequestHandlers;
 
     [TestClass]
     public class ChangeTileButtonHandlerTests : MockDBBaseTestClass

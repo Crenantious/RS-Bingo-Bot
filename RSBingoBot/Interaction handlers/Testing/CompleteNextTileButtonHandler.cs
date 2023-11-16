@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers.Testing;
+namespace RSBingoBot.RequestHandlers.Testing;
 
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;

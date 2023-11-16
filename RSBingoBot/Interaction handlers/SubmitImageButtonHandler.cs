@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers;
+namespace RSBingoBot.RequestHandlers;
 
 using System.Text;
 using DSharpPlus;
@@ -14,7 +14,7 @@ using RSBingo_Framework.Records;
 using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.DiscordEventHandlers;
-using RSBingoBot.Component_interaction_handlers.Select_Component;
+using RSBingoBot.RequestHandlers.Select_Component;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.MessageUtilities;
 using RSBingoBot.Imaging;

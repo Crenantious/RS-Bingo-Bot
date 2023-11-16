@@ -8,5 +8,5 @@ using DiscordLibrary.DiscordComponents;
 
 public interface ISelectComponentRequest : IInteractionRequest
 {
-    public SelectComponent SelectComponent { get; internal set; }
+    internal SelectComponent SelectComponent { get; }
 }

@@ -24,7 +24,6 @@ public abstract class SelectComponentOption
         this.emoji = emoji;
     }
 
-    // TODO: JR - see if this can be built straight from the constructor.
     public void Build(string id)
     {
         discordOption = new(label, id, description!, isDefault, emoji!);

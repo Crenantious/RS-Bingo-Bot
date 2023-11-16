@@ -59,7 +59,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
-    <ProjectReference Include="..\RSBingo-Framework\RSBingo-Framework.csproj" />
+	  <ProjectReference Include="..\RSBingo-Framework\RSBingo-Framework.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,7 +69,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Extensions\" />
     <Folder Include="Interaction handlers\Command handlers\" />
+    <Folder Include="Request handlers\Results\Successes\" />
   </ItemGroup>
 
 </Project>

@@ -4,14 +4,14 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
-using RSBingoBot.DiscordComponents;
-using RSBingoBot.InteractionHandlers;
+using DSharpPlus.EventArgs;
 
 internal record ViewEvidenceSelectionRequest() : ISelectComponentRequest
 {
-    public SelectComponent SelectComponent { get; set; } = null!;
-
     public IInteractionHandler? ParentHandler { get; set; }
 
     public DiscordInteraction Interaction { get; set; } = null!;

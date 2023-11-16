@@ -2,12 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.InteractionHandlers;
+namespace DiscordLibrary.RequestHandlers;
 
-using FluentResults;
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.RequestHandlers;
 using DiscordLibrary.Requests;
+using FluentResults;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest, Result>, IInteractionHandler

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.BingoCommands;
-using RSBingoBot.Component_interaction_handlers;
+using RSBingoBot.RequestHandlers;
 using RSBingoBot.Leaderboard;
 using static RSBingo_Framework.DAL.DataFactory;
 

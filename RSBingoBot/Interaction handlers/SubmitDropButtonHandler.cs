@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers;
+namespace RSBingoBot.RequestHandlers;
 
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;

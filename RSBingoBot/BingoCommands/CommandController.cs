@@ -8,7 +8,7 @@ using RSBingoBot.Requests;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.BingoCommands.Attributes;
-using RSBingoBot.Component_interaction_handlers;
+using RSBingoBot.RequestHandlers;
 using RSBingo_Framework.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;

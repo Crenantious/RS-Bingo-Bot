@@ -5,8 +5,8 @@
 namespace RSBingoBot;
 
 using RSBingoBot.Imaging;
-using RSBingoBot.Component_interaction_handlers;
-using RSBingoBot.Component_interaction_handlers.Testing;
+using RSBingoBot.RequestHandlers;
+using RSBingoBot.RequestHandlers.Testing;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingo_Framework.Interfaces;

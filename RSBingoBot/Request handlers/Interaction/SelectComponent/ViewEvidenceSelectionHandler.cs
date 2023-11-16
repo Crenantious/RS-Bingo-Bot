@@ -2,10 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Component_interaction_handlers;
+namespace RSBingoBot.RequestHandlers;
 
+using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.RequestHandlers;
 using DSharpPlus.EventArgs;
-using RSBingoBot.DiscordComponents;
 using RSBingoBot.Requests;
 
 internal abstract class ViewEvidenceSelectionHandler : SelectComponentHandler<ViewEvidenceSelectionRequest>

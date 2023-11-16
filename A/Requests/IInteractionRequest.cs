@@ -4,13 +4,13 @@
 
 namespace DiscordLibrary.Requests;
 
-using DSharpPlus.Entities;
+using DiscordLibrary.RequestHandlers;
+using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
-using DiscordLibrary.RequestHandlers;
 
 public interface IInteractionRequest : IRequest<Result>
 {
+    internal ComponentInteractionCreateEventArgs InteractionArgs { get; }
     public IInteractionHandler? ParentHandler { get; protected set; }
-    public DiscordInteraction Interaction { get; internal set; }
 }
