@@ -6,6 +6,7 @@ namespace RSBingoBot.Services;
 
 using DSharpPlus.EventArgs;
 using FluentResults;
+using RSBingoBot.DiscordEntities;
 using RSBingoBot.DiscordEventHandlers;
 using RSBingoBot.DiscordServices;
 using RSBingoBot.Requests;
@@ -26,7 +27,19 @@ internal static class DiscordInteractionServices
 
     private static async Task OnComponentInteraction(IInteractionRequest interaction, ComponentInteractionCreateEventArgs args)
     {
-        await RequestServices.Run(interaction);
+        Result result = await RequestServices.Run(interaction);
+        IEnumerable<IInteractionReason> reasons = result.Reasons.OfType<IInteractionReason>();
+
+        foreach (IInteractionReason reason in reasons)
+        {
+            if (reason.HasMetadataKey(IInteractionReason.DiscordMessageMetaDataKey))
+            {
+                // TODO: JR - check for cast error. This would be an internal error and should be handled
+                // the same way it is for RequestHandler.
+                Message message = (Message)reason.Metadata[IInteractionReason.DiscordMessageMetaDataKey];
+                // TODO: JR - send message.
+            }
+        }
     }
 
     // TODO: implement registration for a command

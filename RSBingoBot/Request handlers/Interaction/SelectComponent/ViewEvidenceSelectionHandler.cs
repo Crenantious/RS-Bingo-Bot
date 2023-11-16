@@ -8,10 +8,9 @@ using DSharpPlus.EventArgs;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Requests;
 
-internal abstract class ViewEvidenceSelectionHandler<TRequest> : SelectComponentHandler<TRequest>
-    where TRequest : ISelectComponentRequest
+internal abstract class ViewEvidenceSelectionHandler : SelectComponentHandler<ViewEvidenceSelectionRequest>
 {
-    protected virtual Task OnItemSelected(ComponentInteractionCreateEventArgs args)
+    protected override async Task OnItemSelected(ComponentInteractionCreateEventArgs args)
     {
         evidenceTile = (Tile)evidenceSelection.SelectedItems[0].value!;
         Evidence? evidence = evidenceTile.GetEvidence(DataWorker, args.User.Id);
@@ -26,11 +25,6 @@ internal abstract class ViewEvidenceSelectionHandler<TRequest> : SelectComponent
         await PostEvidence(evidence);
     }
 
-    protected virtual Task OnPageSelected(ComponentInteractionCreateEventArgs args)
-    {
-        return Task.CompletedTask;
-    }
-
-    protected virtual string OnGetPageName(IEnumerable<SelectComponentOption> options) => 
+    protected override string OnGetPageName(IEnumerable<SelectComponentOption> options) =>
         $"{options.ElementAt(0).label} - {options.ElementAt(options.Count() - 1).label}";
 }

@@ -32,9 +32,9 @@ public class SelectComponent : IDiscordComponent
     public int MinOptions { get; set; }
     public int MaxOptions { get; set; }
 
-    public event Func<ComponentInteractionCreateEventArgs, Task>? itemSelectedCallback;
-    public event Func<ComponentInteractionCreateEventArgs, Task>? pageSelectedCallback;
-    public event Func<IEnumerable<SelectComponentOption>, string>? getPageNameCallback;
+    public event Func<ComponentInteractionCreateEventArgs, Task>? ItemSelectedCallback;
+    public event Func<ComponentInteractionCreateEventArgs, Task>? PageSelectedCallback;
+    public event Func<IEnumerable<SelectComponentOption>, string>? GetPageNameCallback;
 
     public SelectComponent(SelectComponentInfo info)
     {

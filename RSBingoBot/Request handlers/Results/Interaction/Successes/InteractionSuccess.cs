@@ -1,4 +1,4 @@
-﻿// <copyright file="InteractionError.cs" company="PlaceholderCompany">
+﻿// <copyright file="InteractionSuccess.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,11 +9,11 @@ using RSBingoBot.DiscordEntities;
 using RSBingoBot.DiscordEntities.Messages;
 
 /// <inheritdoc/>
-internal abstract class InteractionError : Error, IInteractionError, IInteractionReason
+internal abstract class InteractionSuccess : Success, IInteractionSuccess, IInteractionReason
 {
-    public InteractionError(Message message) : base(message.Content) =>
+    public InteractionSuccess(Message message) : base(message.Content) =>
         WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, message);
 
-    public InteractionError(string message) : base(message) =>
+    public InteractionSuccess(string message) : base(message) =>
         WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, new Message().WithContent(message));
 }

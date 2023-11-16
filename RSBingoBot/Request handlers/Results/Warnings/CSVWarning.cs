@@ -4,7 +4,10 @@
 
 namespace RSBingoBot.Requests;
 
-internal record CSVWarning(string Message) : Warning(Message)
+internal class CSVWarning : HandlerWarning
 {
+    public CSVWarning(string message) : base(message)
+    {
 
+    }
 }

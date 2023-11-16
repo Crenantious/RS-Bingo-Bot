@@ -53,7 +53,6 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
             new SelectComponentInfo("Select a tile", GetEvidenceSelectionOptions()),
             new ViewEvidenceSelectionRequest(),
             new ComponentInteractionDEH.StrippedConstraints(User: user));
-        evidenceSelection.Build();
     }
 
     private List<SelectComponentOption> GetEvidenceSelectionOptions()

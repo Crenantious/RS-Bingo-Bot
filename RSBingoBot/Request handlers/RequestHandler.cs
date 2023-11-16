@@ -12,7 +12,6 @@ using RSBingo_Framework.Interfaces;
 using System.Text;
 using System.Threading;
 
-// TODO:: JR - split successes and errors into a sub class since InteractionHandler should not use them.
 internal abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : Result
@@ -81,10 +80,10 @@ internal abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReq
     protected void AddSuccesses(IEnumerable<ISuccess> successes) =>
         sucesses.Concat(successes);
 
-    protected void AddWarning(Warning warning) =>
+    protected void AddWarning(IWarning warning) =>
         sucesses.Add(warning);
 
-    protected void AddWarning(IEnumerable<Warning> warnings) =>
+    protected void AddWarning(IEnumerable<IWarning> warnings) =>
         sucesses.Concat(warnings);
 
     protected void AddError(IError error) =>
