@@ -4,19 +4,15 @@
 
 namespace DiscordLibrary.Factories;
 
-using DSharpPlus.Entities;
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
 
-// TODO: JR - Put each factory (e.g. Close button) into its own class and have them injected.
-public static class ButtonFactory
+// TODO: JR - allow button to be created by a group style. Could be achieved by having
+// a sub factory for each one (team registration button, board button etc.), or perhaps
+// with a static class containing the groups as ButtonTemplates that are referenced and
+// passed in here (or to a sister class).
+public class ButtonFactory : ComponentFactory<ButtonInfo, IButtonRequest>
 {
-    public static DiscordButton Create(IButtonRequest request, DiscordUser? user = null)
-    {
-        string id = Guid.NewGuid().ToString();
-        DiscordButton button = new(new DiscordButtonComponent(DSharpPlus.ButtonStyle.Primary, id, "Close"));
-        button.Register(request, new(User: user));
-        return button;
-    }
+    protected internal override IDiscordComponent Create(ButtonInfo buttonInfo, MetaData metaData) =>
+        new Button(buttonInfo);
 }

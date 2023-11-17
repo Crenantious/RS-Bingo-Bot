@@ -5,23 +5,14 @@
 namespace DiscordLibrary.Factories;
 
 using DiscordComponents;
-using DiscordEventHandlers;
-using Interactions;
 using Requests;
 
-public static class SelectComponentFactory
+public class SelectComponentFactory : ComponentFactory<SelectComponentInfo, ISelectComponentRequest>
 {
-    public static SelectComponent Create(SelectComponentInfo info, ISelectComponentRequest request,
-        ComponentInteractionDEH.StrippedConstraints constraints)
+    protected internal override IDiscordComponent Create(SelectComponentInfo createInfo, MetaData metaData)
     {
-        SelectComponent selectComponent = new(info);
+        SelectComponent selectComponent = new(createInfo);
         SelectComponentUpdater.Build(selectComponent);
-
-        MetaData metaData = new();
-        metaData.Add<SelectComponent>(selectComponent);
-
-        selectComponent.Register(request, constraints, metaData);
-
         return selectComponent;
     }
 }

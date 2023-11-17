@@ -4,7 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
-public interface ISelectComponentRequest : IInteractionRequest
+public interface ISelectComponentRequest : IDiscordComponentRequest
 {
 
 }

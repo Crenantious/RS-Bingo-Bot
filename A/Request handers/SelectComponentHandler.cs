@@ -13,6 +13,7 @@ public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TReq
 {
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
+        // TODO: JR - see if we need to get IDiscordComponent from MetaData then cast to SelectComponent.
         List<SelectComponentOption> options = GetSelectedOptions(MetaData.Get<SelectComponent>(),
             MetaData.Get<ComponentInteractionCreateEventArgs>());
         IEnumerable<SelectComponentPage> pages = options.OfType<SelectComponentPage>();
