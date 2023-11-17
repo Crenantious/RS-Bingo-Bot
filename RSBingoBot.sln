@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingoBot", "RSBingoBot\RSBingoBot.csproj", "{0707A8E3-2D6B-4FAC-86D7-AB05595D3336}"
+	ProjectSection(ProjectDependencies) = postProject
+		{327F3108-8C59-4EF5-9871-ED59095E2543} = {327F3108-8C59-4EF5-9871-ED59095E2543}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingo-Framework", "RSBingo-Framework\RSBingo-Framework.csproj", "{D34EC254-EB6B-42E1-B449-BCCE82C88B37}"
 EndProject
@@ -20,6 +23,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RSBingo-Framework-Tests", "
 	ProjectSection(ProjectDependencies) = postProject
 		{0707A8E3-2D6B-4FAC-86D7-AB05595D3336} = {0707A8E3-2D6B-4FAC-86D7-AB05595D3336}
 		{4ACFB456-EB3E-4661-BE42-1EEA165407DE} = {4ACFB456-EB3E-4661-BE42-1EEA165407DE}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordLibrary", "A\DiscordLibrary.csproj", "{327F3108-8C59-4EF5-9871-ED59095E2543}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4ACFB456-EB3E-4661-BE42-1EEA165407DE} = {4ACFB456-EB3E-4661-BE42-1EEA165407DE}
+		{D34EC254-EB6B-42E1-B449-BCCE82C88B37} = {D34EC254-EB6B-42E1-B449-BCCE82C88B37}
 	EndProjectSection
 EndProject
 Global
@@ -44,6 +53,10 @@ Global
 		{7BE031CD-2873-42C0-83DB-52E93901DE0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BE031CD-2873-42C0-83DB-52E93901DE0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BE031CD-2873-42C0-83DB-52E93901DE0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{327F3108-8C59-4EF5-9871-ED59095E2543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{327F3108-8C59-4EF5-9871-ED59095E2543}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{327F3108-8C59-4EF5-9871-ED59095E2543}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{327F3108-8C59-4EF5-9871-ED59095E2543}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

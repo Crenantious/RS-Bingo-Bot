@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
@@ -17,11 +18,14 @@ internal static class RequestServices
         mediator = (IMediator)General.DI.GetService(typeof(IMediator))!;
     }
 
-    public static async Task<TResult> Run<TResult>(IRequest<TResult> request,
+    public static async Task<TResult> Run<TRequest, TResult>(TRequest request, MetaData? metaData = null,
         Action<TResult>? onSuccess = null, Action<List<IError>>? onFailure = null)
+
+        where TRequest : IRequest<TResult>
         where TResult : Result
     {
-        TResult result = await RunRequest(request);
+        RequestContext<TRequest, TResult> context = new(request, metaData);
+        TResult result = await RunRequest<RequestContext<TRequest, TResult>, TResult>(context);
 
         if (result.IsSuccess)
         {
@@ -33,7 +37,8 @@ internal static class RequestServices
         return result;
     }
 
-    private static async Task<TResult> RunRequest<TResult>(IRequest<TResult> request)
+    private static async Task<TResult> RunRequest<TRequest, TResult>(TRequest request)
+        where TRequest : IRequest<TResult>
         where TResult : Result
     {
         try

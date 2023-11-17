@@ -20,14 +20,19 @@ internal static class DiscordInteractionServices
         componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
     }
 
-    public static void RegisterInteractionHandler(IInteractionRequest interaction, ComponentInteractionDEH.Constraints constraints)
+    public static void RegisterInteractionHandler(IInteractionRequest request, ComponentInteractionDEH.Constraints constraints,
+        MetaData? metaData = null)
     {
-        componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(interaction, args));
+        metaData = metaData ?? new();
+        componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(request, args, metaData));
     }
 
-    private static async Task OnComponentInteraction(IInteractionRequest interaction, ComponentInteractionCreateEventArgs args)
+    private static async Task OnComponentInteraction(IInteractionRequest request, ComponentInteractionCreateEventArgs args,
+        MetaData metaData)
     {
-        Result result = await RequestServices.Run(interaction);
+        metaData.Add<ComponentInteractionCreateEventArgs>(args);
+
+        Result result = await RequestServices.Run<IInteractionRequest, Result>(request, metaData);
         IEnumerable<IInteractionReason> reasons = result.Reasons.OfType<IInteractionReason>();
 
         foreach (IInteractionReason reason in reasons)

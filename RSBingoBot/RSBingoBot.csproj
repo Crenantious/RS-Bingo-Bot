@@ -58,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\A\DiscordLibrary.csproj" />
     <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
 	  <ProjectReference Include="..\RSBingo-Framework\RSBingo-Framework.csproj" />
   </ItemGroup>

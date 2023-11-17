@@ -13,16 +13,17 @@ public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TReq
 {
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        List<SelectComponentOption> options = GetSelectedOptions(request.SelectComponent, request.InteractionArgs);
+        List<SelectComponentOption> options = GetSelectedOptions(MetaData.Get<SelectComponent>(),
+            MetaData.Get<ComponentInteractionCreateEventArgs>());
         IEnumerable<SelectComponentPage> pages = options.OfType<SelectComponentPage>();
 
         if (pages.Any())
         {
-            await OnPageSelected(pages.ElementAt(0), Request, cancellationToken);
+            await OnPageSelected(pages.ElementAt(0), request, cancellationToken);
             return;
         }
 
-        await OnItemSelected(options.Cast<SelectComponentItem>(), Request, cancellationToken);
+        await OnItemSelected(options.Cast<SelectComponentItem>(), request, cancellationToken);
     }
 
     protected abstract Task OnPageSelected(SelectComponentPage page, TRequest request, CancellationToken cancellationToken);

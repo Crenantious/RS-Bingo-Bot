@@ -12,7 +12,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using System.Text;
 
-public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TRequest, TResult>
+public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<RequestContext<TRequest, TResult>, TResult>
     where TRequest : IRequest<TResult>
     where TResult : Result
 {
@@ -28,30 +28,32 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
-    protected TRequest Request { get; private set; }
     protected ILogger<RequestHandler<TRequest, TResult>> Logger { get; private set; } = null!;
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
+
+    internal protected MetaData MetaData { get; private set; } = null!;
 
     protected RequestHandler(SemaphoreSlim semaphore) =>
         this.semaphore = semaphore;
 
-    public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(RequestContext<TRequest, TResult> context, CancellationToken cancellationToken)
     {
         await semaphore.WaitAsync();
-        Request = request;
+
+        MetaData = context.MetaData;
         Logger = General.LoggingInstance<RequestHandler<TRequest, TResult>>();
         int id = requestId++;
 
         try
         {
-            LogRequestBegin(request, id);
-            TResult result = await ProcessRequest(request, cancellationToken);
-            LogRequestEnd(request, result, id);
+            LogRequestBegin(context.Request, id);
+            TResult result = await ProcessRequest(context.Request, cancellationToken);
+            LogRequestEnd(context.Request, result, id);
             return result;
         }
         catch (Exception ex)
         {
-            LogReqestException(request, ex, id);
+            LogReqestException(context.Request, ex, id);
             return (Result.Fail(InternalError) as TResult)!;
         }
         finally

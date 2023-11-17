@@ -12,9 +12,9 @@ using DiscordLibrary.Requests;
 internal static class IInteractableExtensions
 {
     public static void Register(this IInteractable interactable, IInteractionRequest request,
-        ComponentInteractionDEH.StrippedConstraints strippedConstraints)
+        ComponentInteractionDEH.StrippedConstraints strippedConstraints, MetaData metaData)
     {
         ComponentInteractionDEH.Constraints constraints = new(strippedConstraints, interactable.CustomId);
-        DiscordInteractionServices.RegisterInteractionHandler(request, constraints);
+        DiscordInteractionServices.RegisterInteractionHandler(request, constraints, metaData);
     }
 }

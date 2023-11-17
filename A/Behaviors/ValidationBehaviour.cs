@@ -4,22 +4,22 @@
 
 namespace DiscordLibrary.Behaviours;
 
-using MediatR;
+using DiscordLibrary.Requests;
 using FluentResults;
 using FluentValidation;
 using FluentValidation.Results;
-using DiscordLibrary.Requests;
-using DiscordLibrary.Interfaces;
+using MediatR;
 
-public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, Result>
-    where TRequest : IValidatable<TResult>
+public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
+    where TRequest : IRequest<TResult>
+    where TResult : Result
 {
     private readonly IValidator<TRequest> validator;
 
     public ValidationBehavior(IValidator<TRequest> validator) =>
         this.validator = validator;
 
-    public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         if (validator is null)
         {

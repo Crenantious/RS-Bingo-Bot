@@ -4,10 +4,10 @@
 
 namespace DiscordLibrary.Factories;
 
-using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.DiscordEventHandlers;
-using DiscordLibrary.Interactions;
-using DiscordLibrary.Requests;
+using DiscordComponents;
+using DiscordEventHandlers;
+using Interactions;
+using Requests;
 
 public static class SelectComponentFactory
 {
@@ -15,10 +15,12 @@ public static class SelectComponentFactory
         ComponentInteractionDEH.StrippedConstraints constraints)
     {
         SelectComponent selectComponent = new(info);
-        request.SelectComponent = selectComponent;
-
         SelectComponentUpdater.Build(selectComponent);
-        selectComponent.Register(request, constraints);
+
+        MetaData metaData = new();
+        metaData.Add<SelectComponent>(selectComponent);
+
+        selectComponent.Register(request, constraints, metaData);
 
         return selectComponent;
     }
