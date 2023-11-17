@@ -10,5 +10,5 @@ using MediatR;
 
 public interface IInteractionRequest : IRequest<Result>
 {
-    public IInteractionHandler? ParentHandler { get; protected set; }
+    public IInteractionHandler? ParentHandler { get; }
 }

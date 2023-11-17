@@ -4,20 +4,15 @@
 
 namespace RSBingoBot.Requests;
 
-using FluentResults;
+using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
-using System.Collections.Generic;
 
-internal class EvidenceMissingError : IError
+internal class EvidenceMissingError : InteractionError
 {
-    private const string message = "Evidence can no longer be found for the tile {0}";
+    private const string ErrorMessage = "Evidence can no longer be found for the tile {0}.";
 
-    public Dictionary<string, object> Metadata => new();
+    public EvidenceMissingError(Tile tile) : base(ErrorMessage.FormatConst(tile.Task.Name))
+    {
 
-    public List<IError> Reasons { get; } = new();
-
-    public string Message { get; }
-
-    public EvidenceMissingError(Tile tile) =>
-        Message = message.FormatConst(tile.Task.Name);
+    }
 }

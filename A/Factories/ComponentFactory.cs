@@ -11,7 +11,7 @@ using DiscordLibrary.Requests;
 
 // TODO : JR - make it so these classes don't duplicate code.
 public abstract class ComponentFactory<TRequest>
-    where TRequest : IDiscordComponentRequest
+    where TRequest : IComponentRequest
 {
     internal ComponentFactory()
     {
@@ -37,7 +37,7 @@ public abstract class ComponentFactory<TRequest>
 }
 
 public abstract class ComponentFactory<TCreateInfo, TRequest>
-    where TRequest : IDiscordComponentRequest
+    where TRequest : IComponentRequest
 {
     internal ComponentFactory()
     {

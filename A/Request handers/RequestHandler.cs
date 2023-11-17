@@ -76,21 +76,31 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<Reques
 
     #region Add result responses
 
+    /// <summary>
+    /// How this is processed depends on the type. See the user guide for specifics.
+    /// </summary>
     protected void AddSuccess(ISuccess success) =>
         sucesses.Add(success);
 
+    /// <summary>
+    /// How these are processed depends on the type. See the user guide for specifics.
+    /// </summary>
     protected void AddSuccesses(IEnumerable<ISuccess> successes) =>
         sucesses.Concat(successes);
 
+    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
     protected void AddWarning(IWarning warning) =>
         sucesses.Add(warning);
 
-    protected void AddWarning(IEnumerable<IWarning> warnings) =>
+    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
+    protected void AddWarnings(IEnumerable<IWarning> warnings) =>
         sucesses.Concat(warnings);
 
+    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
     protected void AddError(IError error) =>
         errors.Add(error);
 
+    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
     protected void AddErrors(IEnumerable<IError> errors) =>
         errors.Concat(errors);
 

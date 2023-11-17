@@ -4,13 +4,16 @@
 
 namespace DiscordLibrary.RequestHandlers;
 
+using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
+using DSharpPlus.EventArgs;
 using FluentResults;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
-public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest, Result>, IInteractionHandler
+public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<TRequest, Result>, IInteractionHandler
     where TRequest : IInteractionRequest
+    where TComponent : IDiscordComponent
 {
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
@@ -20,6 +23,9 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest, Re
     private bool isClosed = false;
     private bool isConcluded = false;
 
+    protected TComponent Component { get; private set; }
+    protected ComponentInteractionCreateEventArgs InteractionArgs { get; private set; }
+    
     public static event Func<IInteractionHandler, Task> Closed;
     public static event Func<IInteractionHandler, Task> Concluded;
 
@@ -31,6 +37,8 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest, Re
     protected override Task Process(TRequest request, CancellationToken cancellationToken)
     {
         parent = request.ParentHandler;
+        Component = MetaData.Get<TComponent>();
+        InteractionArgs = MetaData.Get<ComponentInteractionCreateEventArgs>();
         Closed += OnClose;
         Concluded += OnConclude;
         return Task.CompletedTask;

@@ -4,7 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
-public interface IButtonRequest : IDiscordComponentRequest
+public interface IButtonRequest : IComponentRequest
 {
 
 }

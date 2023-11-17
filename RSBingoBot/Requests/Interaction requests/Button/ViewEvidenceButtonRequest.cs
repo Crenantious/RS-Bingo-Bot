@@ -4,12 +4,8 @@
 
 namespace RSBingoBot.Requests;
 
-using DSharpPlus.Entities;
+using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
-using RSBingoBot.InteractionHandlers;
 
-internal record ViewEvidenceButtonRequest(Team Team, IInteractionHandler? ParentHandler) :
-    IButtonRequest
-{
-    public DiscordInteraction Interaction { get; set; } = null!;
-}
+internal record ViewEvidenceButtonRequest(Team Team, IInteractionHandler? ParentHandler) : IButtonRequest;

@@ -6,42 +6,42 @@ namespace DiscordLibrary.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
-public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TRequest>
+public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest
 {
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        // TODO: JR - see if we need to get IDiscordComponent from MetaData then cast to SelectComponent.
-        List<SelectComponentOption> options = GetSelectedOptions(MetaData.Get<SelectComponent>(),
-            MetaData.Get<ComponentInteractionCreateEventArgs>());
+        List<SelectComponentOption> options = GetSelectedOptions();
         IEnumerable<SelectComponentPage> pages = options.OfType<SelectComponentPage>();
 
         if (pages.Any())
         {
-            await OnPageSelected(pages.ElementAt(0), request, cancellationToken);
+            OnPageSelected(pages.ElementAt(0), request, cancellationToken);
+            await OnPageSelectedAsync(pages.ElementAt(0), request, cancellationToken);
             return;
         }
 
-        await OnItemSelected(options.Cast<SelectComponentItem>(), request, cancellationToken);
+        OnItemSelected(options.Cast<SelectComponentItem>(), request, cancellationToken);
+        await OnItemSelectedAsync(options.Cast<SelectComponentItem>(), request, cancellationToken);
     }
 
-    protected abstract Task OnPageSelected(SelectComponentPage page, TRequest request, CancellationToken cancellationToken);
+    protected virtual void OnItemSelected(IEnumerable<SelectComponentItem> items, TRequest request, CancellationToken cancellationToken) { }
+    protected virtual async Task OnItemSelectedAsync(IEnumerable<SelectComponentItem> items, TRequest request, CancellationToken cancellationToken) { }
+    protected virtual void OnPageSelected(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
+    protected virtual async Task OnPageSelectedAsync(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
 
-    protected abstract Task OnItemSelected(IEnumerable<SelectComponentItem> page, TRequest request, CancellationToken cancellationToken);
-
-    private List<SelectComponentOption> GetSelectedOptions(SelectComponent selectComponent, ComponentInteractionCreateEventArgs args)
+    private List<SelectComponentOption> GetSelectedOptions()
     {
-        List<SelectComponentOption> options = new(args.Values.Length);
+        List<SelectComponentOption> options = new(InteractionArgs.Values.Length);
         int index;
 
-        for (int i = 0; i < args.Values.Length; i++)
+        for (int i = 0; i < InteractionArgs.Values.Length; i++)
         {
             try
             {
-                index = int.Parse(args.Values[i]);
-                options.Add(selectComponent.selectOptions.ElementAt(index));
+                index = int.Parse(InteractionArgs.Values[i]);
+                options.Add(Component.selectOptions.ElementAt(index));
             }
             catch
             {

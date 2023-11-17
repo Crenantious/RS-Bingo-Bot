@@ -81,11 +81,6 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
     private string GetMessageText() =>
         messageText.FormatConst(Request.Interaction.User.Mention);
 
-    private async Task PostEvidence(Evidence evidence)
-    {
-        await PostMessage($"Evidence submitted for tile {evidence.Tile.Task.Name} {evidence.Url}");
-    }
-
     private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args) =>
         await Conclude();
 }
