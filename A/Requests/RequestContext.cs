@@ -7,6 +7,10 @@ namespace DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 
+// TODO: JR - remove this as all it does is cause problems and add needless complexity.
+// Instead, put whatever the MetaData contains on the request and add a comment
+// saying when the value gets set thus consumers should not set it themselves as it
+// will be overridden.
 public class RequestContext<TRequest, TResult> : IRequestContext<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : Result

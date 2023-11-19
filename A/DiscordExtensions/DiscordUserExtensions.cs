@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.DiscordExtensions;
+namespace DiscordLibrary.DiscordExtensions;
 
 using DSharpPlus.Entities;
 using RSBingo_Framework.Interfaces;

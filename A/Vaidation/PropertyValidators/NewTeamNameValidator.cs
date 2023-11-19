@@ -2,10 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests.Validation;
+namespace DiscordLibrary.Requests.Validation;
 
 using FluentValidation;
 using FluentValidation.Validators;
+using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 
 public class NewTeamNameValidator<T> : IPropertyValidator<T, string>

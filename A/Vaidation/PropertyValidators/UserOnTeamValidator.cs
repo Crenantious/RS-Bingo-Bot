@@ -2,14 +2,14 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests.Validation;
+namespace DiscordLibrary.Requests.Validation;
 
+using DiscordLibrary.DiscordExtensions;
 using DSharpPlus.Entities;
 using FluentValidation;
 using FluentValidation.Validators;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingoBot.DiscordExtensions;
 
 public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
 {

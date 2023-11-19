@@ -4,9 +4,10 @@
 
 namespace RSBingoBot.Requests.Validation;
 
+using DiscordLibrary.Requests.Validation;
 using RSBingoBot.Requests;
 
-internal class ViewEvidenceButtonValidator : Validator<ViewEvidenceButtonRequest>
+internal class ViewEvidenceButtonValidator : InteractionValidator<ViewEvidenceButtonRequest>
 {
     public ViewEvidenceButtonValidator()
     {
