@@ -7,7 +7,7 @@ namespace DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
-public abstract class Component : IDiscordComponent
+public abstract class Component : IComponent
 {
     public abstract DiscordComponent DiscordComponent { get; }
     public IMessage? Message { get; internal set; }

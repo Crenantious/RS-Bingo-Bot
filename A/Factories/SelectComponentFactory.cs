@@ -7,9 +7,9 @@ namespace DiscordLibrary.Factories;
 using DiscordComponents;
 using Requests;
 
-public class SelectComponentFactory : ComponentFactory<SelectComponentInfo, ISelectComponentRequest>
+public class SelectComponentFactory : InteractableComponentFactory<SelectComponentInfo, SelectComponent, ISelectComponentRequest>
 {
-    protected internal override IDiscordComponent Create(SelectComponentInfo createInfo, MetaData metaData)
+    protected internal override SelectComponent Create(SelectComponentInfo createInfo)
     {
         SelectComponent selectComponent = new(createInfo);
         SelectComponentUpdater.Build(selectComponent);

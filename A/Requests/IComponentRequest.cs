@@ -9,7 +9,7 @@ using FluentResults;
 using MediatR;
 
 public interface IComponentRequest<TComponent> : IRequest<Result>
-    where TComponent : IDiscordComponent
+    where TComponent : IComponent
 {
     /// <summary>
     /// Value will be set by the framework.

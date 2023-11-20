@@ -13,7 +13,7 @@ public class Message : IMessage
     private const int DiscordComponentLimitPerRow = 5;
 
     public string Content { get; set; } = string.Empty;
-    public DynamicGrid<IDiscordComponent> Components { get; set; } = new(DiscordComponentLimitPerRow);
+    public DynamicGrid<IComponent> Components { get; set; } = new(DiscordComponentLimitPerRow);
 
     public Message() { }
 

@@ -11,8 +11,8 @@ using DiscordLibrary.Requests;
 // a sub factory for each one (team registration button, board button etc.), or perhaps
 // with a static class containing the groups as ButtonTemplates that are referenced and
 // passed in here (or to a sister class).
-public class ButtonFactory : ComponentFactory<ButtonInfo, IButtonRequest>
+public class ButtonFactory : InteractableComponentFactory<ButtonInfo, IButtonRequest>
 {
-    protected internal override IDiscordComponent Create(ButtonInfo buttonInfo, MetaData metaData) =>
+    protected internal override IComponent Create(ButtonInfo buttonInfo, MetaData metaData) =>
         new Button(buttonInfo);
 }

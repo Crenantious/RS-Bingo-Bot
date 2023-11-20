@@ -1,13 +1,13 @@
-﻿// <copyright file="IDiscordComponent.cs" company="PlaceholderCompany">
+﻿// <copyright file="IComponent.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace DiscordLibrary.DiscordComponents;
 
-using DSharpPlus.Entities;
 using DiscordLibrary.DiscordEntities;
+using DSharpPlus.Entities;
 
-public interface IDiscordComponent : IInteractable
+public interface IComponent : IInteractable
 {
     /// <summary>
     /// The component to send to Discord.

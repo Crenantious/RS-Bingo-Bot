@@ -11,7 +11,7 @@ using DiscordLibrary.DiscordComponents;
 public interface IMessage
 {
     public string Content { get; set; }
-    public DynamicGrid<IDiscordComponent> Components { get; set; }
+    public DynamicGrid<IComponent> Components { get; set; }
 
     public DiscordMessageBuilder GetMessageBuilder();
     public DiscordWebhookBuilder GetWebhookBuilder();

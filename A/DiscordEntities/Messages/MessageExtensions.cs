@@ -17,7 +17,7 @@ public static class MessageExtensions
         return message;
     }
 
-    public static TMessage AddComponents<TMessage>(this TMessage message, params IDiscordComponent[] components)
+    public static TMessage AddComponents<TMessage>(this TMessage message, params IComponent[] components)
         where TMessage : IMessage
     {
         components.ForEach(c => c.Message = message);

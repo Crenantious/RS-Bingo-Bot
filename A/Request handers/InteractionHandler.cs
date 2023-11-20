@@ -14,14 +14,12 @@ using FluentResults;
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
 public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<TRequest, Result>, IInteractionHandler
     where TRequest : IInteractionRequest
-    where TComponent : IDiscordComponent
+    where TComponent : IInteractable
 {
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
 
     private bool isConcluded = false;
-
-    protected InteractionCreateEventArgs InteractionArgs { get; private set; } = null!;
 
     protected InteractionHandler() : base(semaphore)
     {
@@ -30,7 +28,6 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
 
     protected override Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        InteractionArgs = request.InteractionArgs;
         return Task.CompletedTask;
     }
 

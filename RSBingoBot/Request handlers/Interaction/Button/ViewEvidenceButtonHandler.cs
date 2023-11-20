@@ -4,19 +4,16 @@
 
 namespace RSBingoBot.RequestHandlers;
 
+using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.Factories;
+using DiscordLibrary.RequestHandlers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingo_Framework.Exceptions;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingoBot.DiscordEventHandlers;
-using RSBingoBot.DiscordComponents;
-using RSBingoBot.DiscordEntities;
-using RSBingoBot.DiscordEntities.Messages;
-using RSBingoBot.DiscordExtensions;
-using RSBingoBot.Factories;
-using RSBingoBot.InteractionHandlers;
 using RSBingoBot.Requests;
 using System.Threading;
 
@@ -28,19 +25,22 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
     private const string messageText = "{0} Select a tile to view its evidence.";
     private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
 
-    private readonly string tileSelectCustomId = Guid.NewGuid().ToString();
+    private readonly SelectComponentFactory selectComponentFactory;
 
     private Message response = null!;
     private Tile? evidenceTile = null;
-    private SelectComponent evidenceSelection = null!;
-    private DiscordButton closeButton = null!;
     private User User = null!;
+
+    public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory)
+    {
+        this.selectComponentFactory = selectComponentFactory;
+    }
 
     protected override async Task Process(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
         await base.Process(request, cancellationToken);
 
-        User = request.Interaction.User.GetDBUser(DataWorker)!;
+        User = request.InteractionArgs.Interaction.User.GetDBUser(DataWorker)!;
 
         CreateEvidenceSelection(request.Interaction.User);
         closeButton = ButtonFactory.CreateClose(new CloseButtonRequest(this), request.Interaction.User);
@@ -49,10 +49,10 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     private void CreateEvidenceSelection(DiscordUser user)
     {
-        evidenceSelection = SelectComponentFactory.Create(
+        selectComponentFactory.Create(
             new SelectComponentInfo("Select a tile", GetEvidenceSelectionOptions()),
             new ViewEvidenceSelectionRequest(),
-            new ComponentInteractionDEH.StrippedConstraints(User: user));
+            new (User: user));
     }
 
     private List<SelectComponentOption> GetEvidenceSelectionOptions()

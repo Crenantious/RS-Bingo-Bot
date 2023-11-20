@@ -14,9 +14,9 @@ internal abstract class MessageBase<T>
     // Max capacity is based on Discord limitations.
     // TODO: JR - Make the max capacity a constant somewhere.
     //private List<DiscordActionRowComponent> componentRows = new(5);
-    private List<IEnumerable<IDiscordComponent>> discordComponents = new();
+    private List<IEnumerable<IComponent>> discordComponents = new();
 
-    public IReadOnlyList<IEnumerable<IDiscordComponent>> Components => discordComponents.AsReadOnly();
+    public IReadOnlyList<IEnumerable<IComponent>> Components => discordComponents.AsReadOnly();
 
     public string Content { get; set; }
 
@@ -30,7 +30,7 @@ internal abstract class MessageBase<T>
         return (T)this;
     }
 
-    public T AddComponents(params IDiscordComponent[] components)
+    public T AddComponents(params IComponent[] components)
     {
         discordComponents.Add(components);
         return (T)this;
