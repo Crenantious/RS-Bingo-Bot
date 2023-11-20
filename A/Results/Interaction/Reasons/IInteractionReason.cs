@@ -4,9 +4,10 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using FluentResults;
 
-internal interface IInteractionReason : IReason
+public interface IInteractionReason : IReason
 {
-    public const string DiscordMessageMetaDataKey = "DiscordMessage";
+    public Message DiscordMessage { get; }
 }

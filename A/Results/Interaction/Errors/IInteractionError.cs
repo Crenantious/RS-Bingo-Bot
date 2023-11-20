@@ -6,7 +6,7 @@ namespace DiscordLibrary.Requests;
 
 using FluentResults;
 
-public interface IInteractionError : IError
+public interface IInteractionError : IError, IInteractionReason
 {
 
 }

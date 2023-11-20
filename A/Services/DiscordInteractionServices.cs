@@ -4,12 +4,11 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.DiscordEventHandlers;
+using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingo_Common;
-using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEventHandlers;
-using DiscordLibrary.Requests;
 
 internal static class DiscordInteractionServices
 {
@@ -34,13 +33,8 @@ internal static class DiscordInteractionServices
 
         foreach (IInteractionReason reason in reasons)
         {
-            if (reason.HasMetadataKey(IInteractionReason.DiscordMessageMetaDataKey))
-            {
-                // TODO: JR - check for cast error. This would be an internal error and should be handled
-                // the same way it is for RequestHandler.
-                Message message = (Message)reason.Metadata[IInteractionReason.DiscordMessageMetaDataKey];
-                // TODO: JR - send message.
-            }
+            // reason.DiscordMessage
+            // TODO: JR - send message.
         }
     }
 

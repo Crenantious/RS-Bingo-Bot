@@ -4,16 +4,17 @@
 
 namespace DiscordLibrary.Requests;
 
-using FluentResults;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordEntities.Messages;
 
 /// <inheritdoc/>
-public abstract class InteractionSuccess : Success, IInteractionSuccess, IInteractionReason
+public abstract class InteractionSuccess : HandlerSuccess, IInteractionSuccess
 {
+    public Message DiscordMessage { get; private set; }
+
     public InteractionSuccess(Message message) : base(message.Content) =>
-        WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, message);
+        DiscordMessage = message;
 
     public InteractionSuccess(string message) : base(message) =>
-        WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, new Message().WithContent(message));
+        DiscordMessage = new Message().WithContent(message);
 }

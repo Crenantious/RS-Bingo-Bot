@@ -8,11 +8,13 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordEntities.Messages;
 
 /// <inheritdoc/>
-public abstract class InteractionWarning : HandlerWarning, IInteractionWarning, IInteractionReason
+public abstract class InteractionWarning : HandlerWarning, IInteractionWarning
 {
+    public Message DiscordMessage { get; private set; }
+
     public InteractionWarning(Message message) : base(message.Content) =>
-        WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, message);
+        DiscordMessage = message;
 
     public InteractionWarning(string message) : base(message) =>
-        WithMetadata(IInteractionReason.DiscordMessageMetaDataKey, new Message().WithContent(message));
+        DiscordMessage = new Message().WithContent(message);
 }

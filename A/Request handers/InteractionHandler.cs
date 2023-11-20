@@ -5,14 +5,13 @@
 namespace DiscordLibrary.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using FluentResults;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
-// TODO: JR - add methods for successes, warnings and errors that take those inheriting the interaction interface base
-// and return the message they create so the handler has access to them.
 public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<TRequest, Result>, IInteractionHandler
     where TRequest : IInteractionRequest
     where TComponent : IDiscordComponent
@@ -43,4 +42,29 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
 
         throw new NotImplementedException();
     }
+
+    #region Add result responses
+
+    /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddSuccess(ISuccess)"/>
+    protected Message AddSuccess(IInteractionSuccess success)
+    {
+        base.AddSuccess(success);
+        return success.DiscordMessage;
+    }
+
+    /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddWarning(IWarning)"/>
+    protected Message AddWarning(IInteractionWarning warning)
+    {
+        base.AddWarning(warning);
+        return warning.DiscordMessage;
+    }
+
+    /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddError(IError)"/>
+    protected Message AddError(IInteractionError error)
+    {
+        base.AddError(error);
+        return error.DiscordMessage;
+    }
+
+    #endregion
 }

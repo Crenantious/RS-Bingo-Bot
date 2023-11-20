@@ -6,7 +6,7 @@ namespace DiscordLibrary.Requests;
 
 using FluentResults;
 
-public interface IInteractionSuccess : ISuccess
+public interface IInteractionSuccess : ISuccess, IInteractionReason
 {
 
 }
