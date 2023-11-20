@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests.Validation;
 
+using DiscordLibrary.DiscordExtensions;
 using DSharpPlus.Entities;
 using FluentValidation;
 using MediatR;
@@ -12,8 +13,8 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 
-public class Validator<T> : AbstractValidator<T>
-    where T : IBaseRequest
+public class Validator<TRequest> : AbstractValidator<TRequest>
+    where TRequest : IBaseRequest
 {
     internal protected const string UserIsNull = "User cannot be null";
     internal protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
@@ -26,14 +27,21 @@ public class Validator<T> : AbstractValidator<T>
 
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();
 
-    public void UserNotNull(Func<T, User> func)
+    public void UserNotNull(Func<TRequest, User> func)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(UserIsNull);
     }
 
-    public void TeamExists(Func<T, string> func)
+    public void UserNotNull(Func<TRequest, DiscordUser> func)
+    {
+        RuleFor(r => func(r))
+            .NotNull()
+            .WithMessage(UserIsNull);
+    }
+
+    public void TeamExists(Func<TRequest, string> func)
     {
         RuleFor(r => func(r))
             .Must(t => DataWorker.Teams.DoesTeamExist(t))
@@ -41,20 +49,46 @@ public class Validator<T> : AbstractValidator<T>
 
     }
 
-    public void TeamExists(Func<T, Team> func)
+    public void TeamExists(Func<TRequest, Team> func)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(r => TeamDoesNotExistResponse.FormatConst(func(r)));
     }
 
-    public void NewTeamName(Func<T, string> func)
+    public void NewTeamName(Func<TRequest, string> func)
     {
         RuleFor(r => func(r))
-            .SetValidator(new NewTeamNameValidator<T>(DataWorker));
+            .SetValidator(new NewTeamNameValidator<TRequest>(DataWorker));
     }
 
-    public void IsCSVFile(Func<T, DiscordAttachment> func)
+    public void UserOnATeam(Func<TRequest, DiscordUser> func)
+    {
+        RuleFor(r => func(r))
+            .Must(u => u.IsOnATeam(DataWorker))
+            .WithMessage(r => UserIsNotOnATeamResponse.FormatConst(func(r).Username));
+    }
+
+    public void UserNotOnATeam(Func<TRequest, DiscordUser> func)
+    {
+        RuleFor(r => func(r))
+            .Must(u => u.IsOnATeam(DataWorker) is false)
+            .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(func(r).Username));
+    }
+
+    public void UserOnTeam(Func<TRequest, (DiscordUser, string)> func)
+    {
+        RuleFor(r => func(r).Item1)
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+    }
+
+    public void UserOnTeam(Func<TRequest, (DiscordUser, Team)> func)
+    {
+        RuleFor(r => func(r).Item1)
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+    }
+
+    public void IsCSVFile(Func<TRequest, DiscordAttachment> func)
     {
         RuleFor(r => func(r))
             .Must(a => a.MediaType.StartsWith(CsvMediaType))

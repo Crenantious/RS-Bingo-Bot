@@ -12,6 +12,6 @@ internal class ViewEvidenceButtonValidator : InteractionValidator<ViewEvidenceBu
     public ViewEvidenceButtonValidator()
     {
         TeamExists(r => r.Team);
-        UserOnTeam(r => (r.Interaction.User, r.Team));
+        DiscordUserOnTeam(r => r.Team);
     }
 }

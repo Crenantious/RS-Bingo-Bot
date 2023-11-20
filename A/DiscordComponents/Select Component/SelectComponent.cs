@@ -4,22 +4,19 @@
 
 namespace DiscordLibrary.DiscordComponents;
 
-using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
-public class SelectComponent : IDiscordComponent
+public class SelectComponent : Component
 {
-    internal DiscordSelectComponent discordComponent { get; set; } = null!;
+    internal DiscordSelectComponent DiscordSelectComponent { get; set; } = null!;
     internal string? placeholder { get; set; } = null;
     internal List<DiscordSelectComponentOption> discordOptions { get; set; } = new();
     internal HashSet<SelectComponentItem> SelectedItemsHashSet { get; set; } = new();
     internal List<SelectComponentItem> selectedItems { get; set; } = new();
     internal List<SelectComponentOption> selectOptions { get; set; } = new();
 
-    public DiscordComponent DiscordComponent => discordComponent;
-    public IMessage? Message { get; internal set; }
+    public override DiscordComponent DiscordComponent => DiscordSelectComponent;
 
-    public string CustomId { get; } = Guid.NewGuid().ToString();
     public string InitialPlaceholder { get; } = null!;
     public bool Disabled { get; }
     public int MinOptions { get; }

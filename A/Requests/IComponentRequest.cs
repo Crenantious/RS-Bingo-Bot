@@ -4,7 +4,15 @@
 
 namespace DiscordLibrary.Requests;
 
-public interface IComponentRequest : IInteractionRequest
-{
+using DiscordLibrary.DiscordComponents;
+using FluentResults;
+using MediatR;
 
+public interface IComponentRequest<TComponent> : IRequest<Result>
+    where TComponent : IDiscordComponent
+{
+    /// <summary>
+    /// Value will be set by the framework.
+    /// </summary>
+    public TComponent Component { get; set; }
 }

@@ -12,7 +12,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using System.Text;
 
-public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<RequestContext<TRequest, TResult>, TResult>
+public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : Result
 {
@@ -31,29 +31,26 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<Reques
     protected ILogger<RequestHandler<TRequest, TResult>> Logger { get; private set; } = null!;
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-    internal protected MetaData MetaData { get; private set; } = null!;
-
     protected RequestHandler(SemaphoreSlim semaphore) =>
         this.semaphore = semaphore;
 
-    public async Task<TResult> Handle(RequestContext<TRequest, TResult> context, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
         await semaphore.WaitAsync();
 
-        MetaData = context.MetaData;
         Logger = General.LoggingInstance<RequestHandler<TRequest, TResult>>();
         int id = requestId++;
 
         try
         {
-            LogRequestBegin(context.Request, id);
-            TResult result = await ProcessRequest(context.Request, cancellationToken);
-            LogRequestEnd(context.Request, result, id);
+            LogRequestBegin(request, id);
+            TResult result = await ProcessRequest(request, cancellationToken);
+            LogRequestEnd(request, result, id);
             return result;
         }
         catch (Exception ex)
         {
-            LogReqestException(context.Request, ex, id);
+            LogReqestException(request, ex, id);
             return (Result.Fail(InternalError) as TResult)!;
         }
         finally

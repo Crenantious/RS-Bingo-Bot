@@ -5,10 +5,14 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.RequestHandlers;
+using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
 
 public interface IInteractionRequest : IRequest<Result>
 {
-    public IInteractionHandler? ParentHandler { get; }
+    /// <summary>
+    /// Value will be set by the framework.
+    /// </summary>
+    public InteractionCreateEventArgs InteractionArgs { get; set; }
 }

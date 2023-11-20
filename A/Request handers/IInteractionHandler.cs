@@ -11,9 +11,4 @@ public interface IInteractionHandler
     /// with any <see cref="Interactable"/> created by this handler.
     /// </summary>
     public Task Conclude();
-
-    /// <summary>
-    /// Conclude the interaction and cleanup excess entities such as <see cref="Message"/>s.
-    /// </summary>
-    public Task Close();
 }
