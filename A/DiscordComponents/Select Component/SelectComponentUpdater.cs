@@ -8,14 +8,13 @@ using DSharpPlus.Entities;
 
 internal static class SelectComponentUpdater
 {
-    // TODO: JR - is this needed? Can't we just use the SelectComponentPage.Label?
-    internal static void UpdatePageNames(SelectComponent selectComponent, Func<SelectComponentPage, string> getPageName)
+    internal static void UpdatePageNames(SelectComponent selectComponent)
     {
         foreach (SelectComponentOption option in selectComponent.selectOptions)
         {
             if (option is SelectComponentPage)
             {
-                option.label = getPageName(((SelectComponentPage)option).Options);
+                option.label = selectComponent.PageName.Get((SelectComponentPage)option);
             }
         }
     }
@@ -72,7 +71,7 @@ internal static class SelectComponentUpdater
         int maxOptions = (int)MathF.Min(selectComponent.MaxOptions, selectComponent.discordOptions.Count());
 
         // For maxOptions, the number cannot exceed the amount of discordOptions or there'll be an error
-        selectComponent.discordComponent = new DiscordSelectComponent(
+        selectComponent.DiscordSelectComponent = new DiscordSelectComponent(
             selectComponent.CustomId,
             selectComponent.placeholder ?? selectComponent.InitialPlaceholder,
             selectComponent.discordOptions,

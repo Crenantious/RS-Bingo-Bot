@@ -14,6 +14,7 @@ public class SelectComponent : Component
     internal HashSet<SelectComponentItem> SelectedItemsHashSet { get; set; } = new();
     internal List<SelectComponentItem> selectedItems { get; set; } = new();
     internal List<SelectComponentOption> selectOptions { get; set; } = new();
+    internal SelectComponentPageName PageName { get; set; }
 
     public override DiscordComponent DiscordComponent => DiscordSelectComponent;
 
@@ -34,6 +35,8 @@ public class SelectComponent : Component
         this.MaxOptions = info.MaxOptions;
         this.placeholder = info.Placeholder;
         this.InitialPlaceholder = placeholder;
+
+        PageName = info.pageName ?? SelectComponentPageName.FirstToLastOptions();
 
         SelectOptions = selectOptions.AsReadOnly();
         SelectedItems = selectedItems.AsReadOnly();

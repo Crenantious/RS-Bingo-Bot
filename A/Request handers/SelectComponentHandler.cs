@@ -22,11 +22,11 @@ public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TReq
             return;
         }
 
-        OnItemSelected(options.Cast<SelectComponentItem>(), request, cancellationToken);
+        OnItemsSelected(options.Cast<SelectComponentItem>(), request, cancellationToken);
         await OnItemSelectedAsync(options.Cast<SelectComponentItem>(), request, cancellationToken);
     }
 
-    protected virtual void OnItemSelected(IEnumerable<SelectComponentItem> items, TRequest request, CancellationToken cancellationToken) { }
+    protected virtual void OnItemsSelected(IEnumerable<SelectComponentItem> items, TRequest request, CancellationToken cancellationToken) { }
     protected virtual async Task OnItemSelectedAsync(IEnumerable<SelectComponentItem> items, TRequest request, CancellationToken cancellationToken) { }
     protected virtual void OnPageSelected(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
     protected virtual async Task OnPageSelectedAsync(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
