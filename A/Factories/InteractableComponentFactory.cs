@@ -44,7 +44,7 @@ public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TReq
 
     }
 
-    public IComponent Create(TCreateInfo createInfo, TRequest request,
+    public TComponent Create(TCreateInfo createInfo, TRequest request,
         ComponentInteractionDEH.StrippedConstraints constraints)
     {
         TComponent component = Create(createInfo);

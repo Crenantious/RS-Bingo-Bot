@@ -6,9 +6,11 @@ namespace DiscordLibrary.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 using FluentResults;
+using RSBingo_Framework.Models;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
@@ -21,6 +23,9 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
 
     private bool isConcluded = false;
 
+    protected DiscordUser DiscordUser { get; private set; } = null!;
+    protected User User { get; private set; } = null!;
+
     protected InteractionHandler() : base(semaphore)
     {
 
@@ -28,6 +33,8 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
 
     protected override Task Process(TRequest request, CancellationToken cancellationToken)
     {
+        DiscordUser = request.InteractionArgs.Interaction.User; ;
+        User = DiscordUser.GetDBUser(DataWorker)!;
         return Task.CompletedTask;
     }
 

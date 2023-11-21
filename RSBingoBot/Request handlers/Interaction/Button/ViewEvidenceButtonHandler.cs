@@ -5,8 +5,6 @@
 namespace RSBingoBot.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Factories;
 using DiscordLibrary.RequestHandlers;
 using DSharpPlus;
@@ -15,21 +13,15 @@ using DSharpPlus.EventArgs;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Requests;
-using System.Threading;
 
 /// <summary>
 /// Handles the Interaction with the "View evidence" button in a team's board channel.
 /// </summary>
 internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonRequest>
 {
-    private const string messageText = "{0} Select a tile to view its evidence.";
     private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
 
     private readonly SelectComponentFactory selectComponentFactory;
-
-    private Message response = null!;
-    private Tile? evidenceTile = null;
-    private User User = null!;
 
     public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory)
     {
@@ -40,20 +32,16 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
     {
         await base.Process(request, cancellationToken);
 
-        User = request.InteractionArgs.Interaction.User.GetDBUser(DataWorker)!;
-
-        CreateEvidenceSelection(request.Interaction.User);
-        closeButton = ButtonFactory.CreateClose(new CloseButtonRequest(this), request.Interaction.User);
-        response = GetResponseMessage();
+        var selectComponent = CreateEvidenceSelection();
+        var closeButton = ButtonFactory.CreateClose(new CloseButtonRequest(this), request.Interaction.User);
+        AddSuccess(new ViewEvidenceSuccess(DiscordUser, selectComponent, closeButton));
     }
 
-    private void CreateEvidenceSelection(DiscordUser user)
-    {
+    private SelectComponent CreateEvidenceSelection() =>
         selectComponentFactory.Create(
             new SelectComponentInfo("Select a tile", GetEvidenceSelectionOptions()),
             new ViewEvidenceSelectionRequest(),
-            new (User: user));
-    }
+            new(User: DiscordUser));
 
     private List<SelectComponentOption> GetEvidenceSelectionOptions()
     {
@@ -71,15 +59,6 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         DiscordComponentEmoji? emoji = discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
         tileSelectOptions.Add(new SelectComponentItem(tile.Task.Name, tile, null, this.evidenceTile == tile, emoji));
     }
-
-    private Message GetResponseMessage() =>
-      new Message()
-          .WithContent(GetMessageText())
-          .AddComponents(evidenceSelection)
-          .AddComponents(closeButton);
-
-    private string GetMessageText() =>
-        messageText.FormatConst(Request.Interaction.User.Mention);
 
     private async Task CancelButtonInteraction(DiscordClient client, ComponentInteractionCreateEventArgs args) =>
         await Conclude();

@@ -30,6 +30,11 @@ public class DynamicGrid<T>
         }
     }
 
+    public void AddRow(params T[] values)
+    {
+        Cells.Add(values.ToList());
+    }
+
     public List<List<T>> GetRows() =>
         Cells;
 }
