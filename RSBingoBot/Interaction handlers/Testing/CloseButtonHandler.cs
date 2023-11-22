@@ -6,9 +6,9 @@ namespace RSBingoBot.InteractionHandlers;
 
 using RSBingoBot.Requests;
 
-internal class CloseButtonHandler : InteractionHandler<CloseButtonRequest>
+internal class CloseButtonHandler : InteractionHandler<ConclueInteractionrequest>
 {
-    protected override async Task Process(CloseButtonRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(ConclueInteractionrequest request, CancellationToken cancellationToken)
     {
         await base.Handle(request, cancellationToken);
 

@@ -5,7 +5,6 @@
 namespace DiscordLibrary.Factories;
 
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
 
@@ -19,13 +18,12 @@ public abstract class InteractableComponentFactory<TComponent, TRequest>
 
     }
 
-    public TComponent Create(TRequest request,
-        ComponentInteractionDEH.StrippedConstraints constraints)
+    public TComponent Create(TRequest request)
     {
         TComponent component = Create();
 
         request.Component = component;
-        component.Register<TComponent, TRequest>(request, constraints);
+        component.Register<TComponent, TRequest>(request);
         return component;
     }
 
@@ -44,13 +42,12 @@ public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TReq
 
     }
 
-    public TComponent Create(TCreateInfo createInfo, TRequest request,
-        ComponentInteractionDEH.StrippedConstraints constraints)
+    public TComponent Create(TCreateInfo createInfo, TRequest request)
     {
         TComponent component = Create(createInfo);
 
         request.Component = component;
-        component.Register<TComponent, TRequest>(request, constraints);
+        component.Register<TComponent, TRequest>(request);
         return component;
     }
 

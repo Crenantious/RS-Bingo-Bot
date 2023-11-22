@@ -49,6 +49,17 @@ public static class MessageExtensions
         throw new NotImplementedException();
     }
 
+
+    public static void Delete(this Message message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static void DeleteByTag(this Message message)
+    {
+        throw new NotImplementedException();
+    }
+
     private static void ValidateAddComponents<T>(T message, IComponent[] components)
         where T : Message
     {

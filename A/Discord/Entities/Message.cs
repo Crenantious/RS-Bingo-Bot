@@ -13,6 +13,11 @@ public class Message : IMessage
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
 
+    /// <summary>
+    /// This can be used to group messages and perform mass operations, e.g. to delete them all together.
+    /// </summary>
+    public string Tag { get; set; } = string.Empty;
+
     public Message() { }
 
     // Probably make the GetBuilder methods extensions.

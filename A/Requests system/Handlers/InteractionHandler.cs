@@ -40,7 +40,7 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
         return Task.CompletedTask;
     }
 
-    public async Task Conclude()
+    public virtual async Task Conclude()
     {
         if (isConcluded) { return; }
 

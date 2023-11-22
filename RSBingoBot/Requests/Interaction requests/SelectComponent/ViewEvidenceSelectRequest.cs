@@ -1,4 +1,4 @@
-﻿// <copyright file="ViewEvidenceSelectionRequest.cs" company="PlaceholderCompany">
+﻿// <copyright file="ViewEvidenceSelectRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-internal record ViewEvidenceSelectionRequest() : ISelectComponentRequest
+internal record ViewEvidenceSelectRequest() : ISelectComponentRequest
 {
     public SelectComponent Component { get; set; } = null!;
 
