@@ -26,6 +26,8 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
     protected DiscordUser DiscordUser { get; private set; } = null!;
     protected User User { get; private set; } = null!;
 
+    internal IInteractionHandler ParentHandler { get; set; } = null!;
+
     protected InteractionHandler() : base(semaphore)
     {
 
