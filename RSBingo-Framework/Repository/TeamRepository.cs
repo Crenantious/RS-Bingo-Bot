@@ -35,7 +35,7 @@ public class TeamRepository : RepositoryBase<Team>, ITeamRepository
             CategoryChannelId = categoryChannelId,
             BoardChannelId = boardChannelId,
             GeneralChannelId = generalChannelId,
-            EvidencelChannelId = evidenceChannelId,
+            EvidenceChannelId = evidenceChannelId,
             VoiceChannelId = voiceChannelId,
             BoardMessageId = boardMessageId,
             RoleId = roleId

@@ -173,7 +173,7 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.GeneralChannelId).HasColumnName("generalchannelid");
 
-            entity.Property(e => e.EvidencelChannelId).HasColumnName("evidencechannelid");
+            entity.Property(e => e.EvidenceChannelId).HasColumnName("evidencechannelid");
 
             entity.Property(e => e.VoiceChannelId).HasColumnName("voicechannelid");
 

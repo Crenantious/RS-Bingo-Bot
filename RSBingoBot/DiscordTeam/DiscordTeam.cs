@@ -258,7 +258,7 @@ public class DiscordTeam
         await RenameChannel(team!.CategoryChannelId, categoryChannelName);
         await RenameChannel(team.BoardChannelId, boardChannelName);
         await RenameChannel(team.GeneralChannelId, generalChannelName);
-        await RenameChannel(team.EvidencelChannelId, evidenceChannelName);
+        await RenameChannel(team.EvidenceChannelId, evidenceChannelName);
         await RenameChannel(team.VoiceChannelId, voiceChannelName);
     }
 

@@ -109,7 +109,7 @@ internal class EvidenceReaction
     private static async Task PostInTeamEvidenceChannel(MessageReactionAddEventArgs args,
         Evidence evidence)
     {
-        DiscordChannel evidenceChannel = Guild.GetChannel(evidence.Tile.Team.EvidencelChannelId);
+        DiscordChannel evidenceChannel = Guild.GetChannel(evidence.Tile.Team.EvidenceChannelId);
         string status = EvidenceStatusLookup.Get(evidence.Status).ToString().ToLower();
 
         DiscordEmbedBuilder builder = new();

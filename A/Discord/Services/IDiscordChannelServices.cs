@@ -9,5 +9,5 @@ using DSharpPlus.Entities;
 
 public interface IDiscordChannelServices
 {
-    public Task<bool> Create(string name, ChannelType channelType, DiscordChannel? parent = null);
+    public Task<DiscordChannel?> Create(string name, ChannelType channelType, DiscordChannel? parent = null);
 }

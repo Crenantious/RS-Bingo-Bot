@@ -23,21 +23,25 @@ public class DiscordChannelServices : IDiscordChannelServices
         Created,
     }
 
-    public async Task<bool> Create(string name, ChannelType channelType, DiscordChannel? parent = null) =>
-        await SendRequest(() => DataFactory.Guild.CreateChannelAsync(name, channelType, parent!), name, RequestType.Created);
+    public async Task<DiscordChannel?> Create(string name, ChannelType channelType, DiscordChannel? parent = null)
+    {
+        var request = () => DataFactory.Guild.CreateChannelAsync(name, channelType, parent!);
+        (bool success, DiscordChannel? channel) = await SendRequest(request!, name, RequestType.Created);
+        return channel;
+    }
 
-    private async Task<bool> SendRequest(Func<Task> request, string name, RequestType requestType)
+    private async Task<(bool, DiscordChannel?)> SendRequest(Func<Task<DiscordChannel?>> request, string name, RequestType requestType)
     {
         try
         {
-            await request();
+            DiscordChannel? channel = await request();
             Log(name, requestType, true);
-            return true;
+            return (true, channel);
         }
         catch
         {
             Log(name, requestType, false);
-            return false;
+            return (false, null);
         }
     }
 

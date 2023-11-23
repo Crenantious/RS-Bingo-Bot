@@ -1,4 +1,4 @@
-﻿// <copyright file="CreateTeamGeneralChannelHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="CreateTeamEvidenceChannelHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -10,18 +10,18 @@ using DSharpPlus.Entities;
 using FluentResults;
 using RSBingoBot.Requests;
 
-internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGeneralChannelRequest, Result>
+internal class CreateTeamEvidenceChannelHandler : RequestHandler<CreateTeamEvidenceChannelRequest, Result>
 {
-    private const string ChannelName = "{0}-general";
+    private const string ChannelName = "{0}-evidence";
 
     private readonly DiscordChannelServices channelServices;
 
-    public CreateTeamGeneralChannelHandler(DiscordChannelServices channelServices)
+    public CreateTeamEvidenceChannelHandler(DiscordChannelServices channelServices)
     {
         this.channelServices = channelServices;
     }
 
-    protected override async Task Process(CreateTeamGeneralChannelRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(CreateTeamEvidenceChannelRequest request, CancellationToken cancellationToken)
     {
         string name = ChannelName.FormatConst(request.Team.Name);
         DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text);
@@ -31,7 +31,7 @@ internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGenera
         }
         else
         {
-            request.Team.GeneralChannelId = channel.Id;
+            request.Team.EvidenceChannelId = channel.Id;
             AddSuccess(new CreateTeamGeneralChannelSuccess());
         }
     }

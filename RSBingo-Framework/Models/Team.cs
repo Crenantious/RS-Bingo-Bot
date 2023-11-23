@@ -17,7 +17,7 @@ public partial class Team : BingoRecord
     public ulong CategoryChannelId { get; set; }
     public ulong BoardChannelId { get; set; }
     public ulong GeneralChannelId { get; set; }
-    public ulong EvidencelChannelId { get; set; }
+    public ulong EvidenceChannelId { get; set; }
     public ulong VoiceChannelId { get; set; }
     public ulong BoardMessageId { get; set; }
     public ulong RoleId { get; set; }
