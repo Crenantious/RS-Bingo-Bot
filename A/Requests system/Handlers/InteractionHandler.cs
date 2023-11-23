@@ -10,6 +10,8 @@ using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
@@ -27,6 +29,8 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
     protected User User { get; private set; } = null!;
 
     internal IInteractionHandler ParentHandler { get; set; } = null!;
+
+    protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
     protected InteractionHandler() : base(semaphore)
     {

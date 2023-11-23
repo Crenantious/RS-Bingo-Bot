@@ -24,7 +24,7 @@ internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGenera
     protected override async Task Process(CreateTeamGeneralChannelRequest request, CancellationToken cancellationToken)
     {
         string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text);
+        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category);
         if (channel is null)
         {
             AddError(new CreateTeamGeneralChannelError());

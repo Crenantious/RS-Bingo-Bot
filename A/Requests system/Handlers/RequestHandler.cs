@@ -29,7 +29,6 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
     private List<IError> errors = new();
 
     protected ILogger<RequestHandler<TRequest, TResult>> Logger { get; private set; } = null!;
-    protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
     protected RequestHandler(SemaphoreSlim? semaphore = null) =>
         this.semaphore = semaphore;
@@ -58,7 +57,6 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
         }
         finally
         {
-            DataWorker.SaveChanges();
             semaphore?.Release();
         }
     }
