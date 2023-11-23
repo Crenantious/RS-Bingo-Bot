@@ -12,5 +12,6 @@ internal class CreateTeamEvidenceChannelValidator : Validator<CreateTeamEvidence
     public CreateTeamEvidenceChannelValidator()
     {
         TeamExists(r => r.Team);
+        ChannelNotNull(r => r.Category);
     }
 }

@@ -16,7 +16,9 @@ using RSBingo_Framework.Models;
 public class Validator<TRequest> : AbstractValidator<TRequest>
     where TRequest : IBaseRequest
 {
-    internal protected const string UserIsNull = "User cannot be null";
+    // TODO: JR - decide how to word this.
+    internal protected const string UserIsNull = "User cannot be null.";
+    internal protected const string ChannelDoesNotExist = "Channel does not exist.";
     internal protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
     internal protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     internal protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
@@ -86,6 +88,13 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     {
         RuleFor(r => func(r).Item1)
             .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+    }
+
+    public void ChannelNotNull(Func<TRequest, DiscordChannel> func)
+    {
+        RuleFor(r => func(r))
+            .NotNull()
+            .WithMessage(ChannelDoesNotExist);
     }
 
     public void IsCSVFile(Func<TRequest, DiscordAttachment> func)
