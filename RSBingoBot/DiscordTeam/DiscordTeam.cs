@@ -2,21 +2,20 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot;
+namespace RSBingoBot.DiscordTeam;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
+using RSBingoBot.DTO;
 using RSBingoBot.Imaging;
 using RSBingoBot.RequestHandlers;
 using RSBingoBot.RequestHandlers.Testing;
-using RSBingo_Framework.Models;
-using RSBingo_Framework.Records;
-using RSBingo_Framework.Interfaces;
-using DSharpPlus;
-using DSharpPlus.Entities;
 using SixLabors.ImageSharp;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.Imaging.BoardImage;
-using RSBingo_Framework.Scoring;
-using RSBingoBot.DTO;
 
 /// <summary>
 /// Creates and sets up channels, roles and messages for the team.
@@ -28,16 +27,6 @@ public class DiscordTeam
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     public const string RoleName = "Team {0}";
-
-    #region channelNames
-
-    public const string categoryChannelName = "{0}";
-    public const string boardChannelName = "{0}-board";
-    public const string generalChannelName = "{0}-general";
-    public const string evidenceChannelName = "{0}-evidence";
-    public const string voiceChannelName = "{0}-voice";
-
-    #endregion
 
     #region buttonIds
 
@@ -130,7 +119,7 @@ public class DiscordTeam
 
         DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category, overwrites: overwrites.Category);
         BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category, overwrites: overwrites.Board);
-        
+
         ids.Add(category.Id);
         ids.Add(BoardChannel.Id);
         ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category, overwrites: overwrites.General)).Id);

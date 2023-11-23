@@ -23,7 +23,7 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
 
     private static int requestId = 0;
 
-    private readonly SemaphoreSlim semaphore;
+    private readonly SemaphoreSlim? semaphore;
 
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
@@ -31,12 +31,15 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
     protected ILogger<RequestHandler<TRequest, TResult>> Logger { get; private set; } = null!;
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-    protected RequestHandler(SemaphoreSlim semaphore) =>
+    protected RequestHandler(SemaphoreSlim? semaphore = null) =>
         this.semaphore = semaphore;
 
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
-        await semaphore.WaitAsync();
+        if (semaphore is not null)
+        {
+            await semaphore.WaitAsync();
+        }
 
         Logger = General.LoggingInstance<RequestHandler<TRequest, TResult>>();
         int id = requestId++;
@@ -56,7 +59,7 @@ public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TReque
         finally
         {
             DataWorker.SaveChanges();
-            semaphore.Release();
+            semaphore?.Release();
         }
     }
 
