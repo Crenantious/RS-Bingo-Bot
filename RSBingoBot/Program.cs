@@ -6,6 +6,9 @@ namespace RSBingoBot;
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DiscordLibrary.Behaviours;
+using DiscordLibrary.DiscordEventHandlers;
+using DiscordLibrary.DiscordServices;
 using DSharpPlus;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -15,13 +18,8 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
-using RSBingoBot.Behaviours;
 using RSBingoBot.BingoCommands;
-using RSBingoBot.DiscordEventHandlers;
-using RSBingoBot.DiscordServices;
 using RSBingoBot.Imaging;
-using RSBingoBot.Requests;
-using RSBingoBot.Validation;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
@@ -134,7 +132,6 @@ public class Program
 
                 services.AddScoped<CommandController>();
 
-                services.AddSingleton<DiscordRequestServices>();
                 services.AddSingleton<ComponentInteractionDEH>();
                 services.AddSingleton<MessageReactionAddedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
@@ -145,6 +142,8 @@ public class Program
 
                 services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
                 services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+                services.AddSingleton(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
             })
 
             // Swap out the DI factory for Autofac as it has more features

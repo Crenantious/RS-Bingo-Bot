@@ -2,39 +2,79 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.DiscordEntities.Messages;
+namespace DiscordLibrary.DiscordEntities;
 
-using RSBingo_Common;
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.Exceptions;
 using SixLabors.ImageSharp;
 
 public static class MessageExtensions
 {
-    public static TMessage WithContent<TMessage>(this TMessage message, string content)
-        where TMessage : IMessage
+    private const int MaxComponentColumns = 5;
+    private const int MaxComponentRows = 5;
+
+    public static T WithContent<T>(this T message, string content)
+        where T : Message
     {
         message.Content = content;
         return message;
     }
 
-    public static TMessage AddComponents<TMessage>(this TMessage message, params IComponent[] components)
-        where TMessage : IMessage
+    // TODO: JR - certain components, like SelectComponent, can only exist on the row by itself.
+    // Set the limits based on component types, probably using IComponentRowLimit for example.
+    // So this method would not take SelectComponent but a new method, AddComponent, would.
+    /// <summary>
+    /// Note that <see cref="SelectComponent"/> cannot be put on a row with other components.
+    /// </summary>
+    /// <exception cref="MessageComponentRowsExceededException"></exception>
+    /// <exception cref="MessageComponentColumnsExceededException"></exception>
+    /// <exception cref="MessageAddSelectComponentException"></exception>
+    public static T AddComponents<T>(this T message, params IComponent[] components)
+        where T : Message
     {
-        components.ForEach(c => c.Message = message);
-        // TODO: JR - add method
-        message.Components.Add(components);
+        ValidateAddComponents(message, components);
+        message.Components.AddRow(components);
         return message;
     }
 
-    public static TMessage AddFile<TMessage>(this TMessage message, string path)
-        where TMessage : IMessage
+    public static T AddFile<T>(this T message)
+        where T : Message
     {
         throw new NotImplementedException();
     }
 
-    public static TMessage AddImage<TMessage>(this TMessage message, Image image)
-        where TMessage : IMessage
+    public static T AddImage<T>(this T message, Image image)
+        where T : Message
     {
         throw new NotImplementedException();
+    }
+
+    public static void Delete(this Message message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static void DeleteByTag(this Message message)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static void ValidateAddComponents<T>(T message, IComponent[] components)
+        where T : Message
+    {
+        if (message.Components.GetRows().Count >= MaxComponentRows)
+        {
+            throw new MessageComponentRowsExceededException(MaxComponentRows);
+        }
+
+        if (components.Length >= MaxComponentRows)
+        {
+            throw new MessageComponentColumnsExceededException(MaxComponentColumns);
+        }
+
+        if (components.Where(component => component is SelectComponent).Any())
+        {
+            throw new MessageAddSelectComponentException();
+        }
     }
 }
