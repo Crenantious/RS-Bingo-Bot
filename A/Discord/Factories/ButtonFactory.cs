@@ -7,12 +7,10 @@ namespace DiscordLibrary.Factories;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 
-// TODO: JR - allow button to be created by a group style. Could be achieved by having
-// a sub factory for each one (team registration button, board button etc.), or perhaps
-// with a static class containing the groups as ButtonTemplates that are referenced and
-// passed in here (or to a sister class).
 public class ButtonFactory : InteractableComponentFactory<ButtonInfo, Button, IButtonRequest>
 {
+    public static ButtonInfo CloseButton => new(DSharpPlus.ButtonStyle.Primary, "Close");
+
     protected internal override Button Create(ButtonInfo buttonInfo) =>
         new Button(buttonInfo);
 }

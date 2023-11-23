@@ -33,17 +33,25 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
     /// <returns>If the message was sent successfully.</returns>
     public async Task<bool> Send(InteractionMessage message)
     {
+        bool succeeded;
+
         if (InteractionsRespondedTo.Contains(message.Interaction.Id))
         {
-            return await Followup(message.Interaction, message.GetFollowupMessageBuilder());
+            succeeded = await Followup(message.Interaction, message.GetFollowupMessageBuilder());
+        }
+        else
+        {
+            succeeded = await CreateOriginalResponse(message.Interaction, message.GetInteractionResponseBuilder());
+            if (succeeded)
+            {
+                InteractionsRespondedTo.Add(message.Interaction.Id);
+            }
         }
 
-        bool succeeded = await CreateOriginalResponse(message.Interaction, message.GetInteractionResponseBuilder());
         if (succeeded)
         {
-            InteractionsRespondedTo.Add(message.Interaction.Id);
+            MessageTagTracker.Add(message);
         }
-
         return succeeded;
     }
 
@@ -60,10 +68,18 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
     /// Deletes the Discord message.
     /// </summary>
     /// <returns>If the message was deleted successfully.</returns>
-    public async Task<bool> Delete(InteractionMessage message) =>
-        message.FollowupMessageId != 0 ?
-            await DeleteFollowup(message.Interaction, message.FollowupMessageId) :
-            await DeleteOriginalResponse(message.Interaction);
+    public async Task<bool> Delete(InteractionMessage message)
+    {
+        bool succeeded = message.FollowupMessageId != 0 ?
+               await DeleteFollowup(message.Interaction, message.FollowupMessageId) :
+               await DeleteOriginalResponse(message.Interaction);
+
+        if (succeeded)
+        {
+            MessageTagTracker.Remove(message);
+        }
+        return succeeded;
+    }
 
     private async Task<bool> CreateOriginalResponse(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder) =>
         await SendRequest(interaction,

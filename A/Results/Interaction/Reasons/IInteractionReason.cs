@@ -9,5 +9,5 @@ using FluentResults;
 
 public interface IInteractionReason : IReason
 {
-    public Message DiscordMessage { get; }
+    public InteractionMessage InteractionMessage { get; }
 }

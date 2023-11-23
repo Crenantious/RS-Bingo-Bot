@@ -52,24 +52,24 @@ public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<
     #region Add result responses
 
     /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddSuccess(ISuccess)"/>
-    protected Message AddSuccess(IInteractionSuccess success)
+    protected InteractionMessage AddSuccess(IInteractionSuccess success)
     {
         base.AddSuccess(success);
-        return success.DiscordMessage;
+        return success.InteractionMessage;
     }
 
     /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddWarning(IWarning)"/>
-    protected Message AddWarning(IInteractionWarning warning)
+    protected InteractionMessage AddWarning(IInteractionWarning warning)
     {
         base.AddWarning(warning);
-        return warning.DiscordMessage;
+        return warning.InteractionMessage;
     }
 
     /// <inheritdoc cref="RequestHandler{TRequest, TResult}.AddError(IError)"/>
-    protected Message AddError(IInteractionError error)
+    protected InteractionMessage AddError(IInteractionError error)
     {
         base.AddError(error);
-        return error.DiscordMessage;
+        return error.InteractionMessage;
     }
 
     #endregion

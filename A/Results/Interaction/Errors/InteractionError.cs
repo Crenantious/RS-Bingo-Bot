@@ -5,16 +5,17 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEntities.Messages;
+using DSharpPlus.Entities;
 
 /// <inheritdoc/>
 public abstract class InteractionError : HandlerError, IInteractionError
 {
-    public Message DiscordMessage { get; private set; }
+    public InteractionMessage InteractionMessage { get; private set; }
 
-    public InteractionError(Message message) : base(message.Content) =>
-        DiscordMessage = message;
+    public InteractionError(InteractionMessage message) : base(message.Content) =>
+        InteractionMessage = message;
 
-    public InteractionError(string message) : base(message) =>
-        DiscordMessage = new Message().WithContent(message);
+    public InteractionError(string message, DiscordInteraction interaction) : base(message) =>
+        InteractionMessage = new InteractionMessage(interaction).WithContent(message);
+
 }

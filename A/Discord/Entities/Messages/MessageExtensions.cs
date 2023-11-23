@@ -53,7 +53,7 @@ public static class MessageExtensions
     {
         throw new NotImplementedException();
     }
-
+    
     public static void DeleteByTag(this Message message)
     {
         throw new NotImplementedException();

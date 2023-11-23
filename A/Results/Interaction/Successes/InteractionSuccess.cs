@@ -5,16 +5,16 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEntities.Messages;
+using DSharpPlus.Entities;
 
 /// <inheritdoc/>
 public abstract class InteractionSuccess : HandlerSuccess, IInteractionSuccess
 {
-    public Message DiscordMessage { get; private set; }
+    public InteractionMessage InteractionMessage { get; private set; }
 
-    public InteractionSuccess(Message message) : base(message.Content) =>
-        DiscordMessage = message;
+    public InteractionSuccess(InteractionMessage message) : base(message.Content) =>
+        InteractionMessage = message;
 
-    public InteractionSuccess(string message) : base(message) =>
-        DiscordMessage = new Message().WithContent(message);
+    public InteractionSuccess(string message, DiscordInteraction interaction) : base(message) =>
+        InteractionMessage = new InteractionMessage(interaction).WithContent(message);
 }

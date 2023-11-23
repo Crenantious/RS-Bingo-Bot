@@ -13,14 +13,15 @@ internal class ViewEvidenceSuccess : InteractionSuccess
 {
     private const string SuccessMessage = "{0} Select a tile to view its evidence.";
 
-    public ViewEvidenceSuccess(DiscordUser user, SelectComponent selectComponent, Button close) :
-        base(CreateMessage(user, selectComponent, close))
+    public ViewEvidenceSuccess(DiscordInteraction interaction, DiscordUser user, SelectComponent selectComponent, Button close) :
+        base(CreateMessage(interaction, user, selectComponent, close))
     {
 
     }
 
-    private static Message CreateMessage(DiscordUser user, SelectComponent selectComponent, Button close) =>
-        new Message()
+    private static InteractionMessage CreateMessage(DiscordInteraction interaction, DiscordUser user,
+                                                    SelectComponent selectComponent, Button close) =>
+        new InteractionMessage(interaction)
             .WithContent(SuccessMessage.FormatConst(user.Mention))
             .AddComponents(selectComponent)
             .AddComponents(close);

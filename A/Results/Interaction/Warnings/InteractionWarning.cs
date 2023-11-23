@@ -5,16 +5,16 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEntities.Messages;
+using DSharpPlus.Entities;
 
 /// <inheritdoc/>
 public abstract class InteractionWarning : HandlerWarning, IInteractionWarning
 {
-    public Message DiscordMessage { get; private set; }
+    public InteractionMessage InteractionMessage { get; private set; }
 
-    public InteractionWarning(Message message) : base(message.Content) =>
-        DiscordMessage = message;
+    public InteractionWarning(InteractionMessage message) : base(message.Content) =>
+        InteractionMessage = message;
 
-    public InteractionWarning(string message) : base(message) =>
-        DiscordMessage = new Message().WithContent(message);
+    public InteractionWarning(string message, DiscordInteraction interaction) : base(message) =>
+        InteractionMessage = new InteractionMessage(interaction).WithContent(message);
 }

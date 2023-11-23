@@ -7,7 +7,7 @@ namespace DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using RSBingo_Common;
 
-internal static class InteractionMessageExtensions
+public static class InteractionMessageExtensions
 {
     public static T AsEphemeral<T>(this T message, bool status)
         where T : InteractionMessage
@@ -24,7 +24,7 @@ internal static class InteractionMessageExtensions
 
     public static async Task<bool> Delete(this InteractionMessage message) =>
         await GetMessageService().Delete(message);
-
+   
     private static IDiscordInteractionMessagingServices GetMessageService() =>
         (IDiscordInteractionMessagingServices)General.DI.GetService(typeof(IDiscordInteractionMessagingServices))!;
 }
