@@ -5,7 +5,10 @@
 namespace DiscordLibrary.DiscordEntities;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Exceptions;
+using DSharpPlus.Entities;
+using RSBingo_Common;
 using SixLabors.ImageSharp;
 
 public static class MessageExtensions
@@ -49,11 +52,17 @@ public static class MessageExtensions
         throw new NotImplementedException();
     }
 
+    public static void Send(this Message message, DiscordChannel channel)
+    {
+        var service = (IDiscordMessageServices)General.DI.GetService(typeof(IDiscordMessageServices))!;
+        service.Send(message, channel);
+    }
+
     public static void Delete(this Message message)
     {
         throw new NotImplementedException();
     }
-    
+
     public static void DeleteByTag(this Message message)
     {
         throw new NotImplementedException();

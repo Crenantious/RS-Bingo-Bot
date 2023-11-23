@@ -14,6 +14,8 @@ public abstract class Component : IComponent
 
     public string CustomId { get; } = Guid.NewGuid().ToString();
 
+    public abstract string Name { get; protected set; }
+
     internal Component()
     {
 

@@ -14,7 +14,7 @@ using System.Text;
 
 public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TRequest, TResult>
     where TRequest : IRequest<TResult>
-    where TResult : Result
+    where TResult : IResultBase
 {
     private const string BeginHandlingRequest = "Handling request {0} with id {1}.";
     private const string RequestSucceeded = "Successfully handled request {0} with id {1}.";

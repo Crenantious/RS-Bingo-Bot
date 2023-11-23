@@ -28,17 +28,6 @@ public class DiscordTeam
 
     public const string RoleName = "Team {0}";
 
-    #region buttonIds
-
-    private readonly string changeTileButtonId = Guid.NewGuid().ToString();
-    private readonly string submitEvidenceButtonId = Guid.NewGuid().ToString();
-    private readonly string submitDropButtonId = Guid.NewGuid().ToString();
-    private readonly string viewEvidenceButtonId = Guid.NewGuid().ToString();
-    private readonly string clearEvidenceButtonId = Guid.NewGuid().ToString();
-    private readonly string completeNextTileEvidenceButtonId = Guid.NewGuid().ToString();
-
-    #endregion
-
     private static Dictionary<int, DiscordTeam> instances = new();
 
     private Team team = null!;

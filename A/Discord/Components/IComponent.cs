@@ -18,4 +18,6 @@ public interface IComponent : IInteractable
     /// The Discord message this component is attached to.
     /// </summary>
     public IMessage? Message { get; }
+
+    public string Name { get; }
 }

@@ -17,6 +17,7 @@ public class SelectComponent : Component
     internal SelectComponentPageName PageName { get; set; }
 
     public override DiscordComponent DiscordComponent => DiscordSelectComponent;
+    public override string Name { get; protected set; }
 
     public string InitialPlaceholder { get; } = null!;
     public bool Disabled { get; }
@@ -36,8 +37,8 @@ public class SelectComponent : Component
         this.placeholder = info.Placeholder;
         this.InitialPlaceholder = placeholder;
 
+        Name = $"({nameof(SelectComponent)}) {info.Placeholder}";
         PageName = info.pageName ?? SelectComponentPageName.FirstToLastOptions();
-
         SelectOptions = selectOptions.AsReadOnly();
         SelectedItems = selectedItems.AsReadOnly();
     }
