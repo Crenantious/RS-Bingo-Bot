@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
+using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 
 internal class CreateTeamCategoryChannelHandler : RequestHandler<CreateTeamCategoryChannelRequest, Result>
@@ -15,16 +16,20 @@ internal class CreateTeamCategoryChannelHandler : RequestHandler<CreateTeamCateg
     private const string ChannelName = "{0}";
 
     private readonly DiscordChannelServices channelServices;
+    private readonly DiscordTeamChannelOverwrites channelOverwrites;
 
-    public CreateTeamCategoryChannelHandler(DiscordChannelServices channelServices)
+    public CreateTeamCategoryChannelHandler(DiscordChannelServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
     {
         this.channelServices = channelServices;
+        this.channelOverwrites = channelOverwrites;
     }
 
     protected override async Task Process(CreateTeamCategoryChannelRequest request, CancellationToken cancellationToken)
     {
         string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Category);
+        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.TeamRole);
+
+        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Category, overwrites: overwrites);
         if (channel is null)
         {
             AddError(new CreateTeamCategoryChannelError());

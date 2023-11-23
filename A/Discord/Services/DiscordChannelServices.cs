@@ -23,9 +23,10 @@ public class DiscordChannelServices : IDiscordChannelServices
         Created,
     }
 
-    public async Task<DiscordChannel?> Create(string name, ChannelType channelType, DiscordChannel? parent = null)
+    public async Task<DiscordChannel?> Create(string name, ChannelType channelType, DiscordChannel? parent = null,
+        IEnumerable<DiscordOverwriteBuilder>? overwrites = null)
     {
-        var request = () => DataFactory.Guild.CreateChannelAsync(name, channelType, parent!);
+        var request = () => DataFactory.Guild.CreateChannelAsync(name, channelType, parent!, overwrites: overwrites!);
         (bool success, DiscordChannel? channel) = await SendRequest(request!, name, RequestType.Created);
         return channel;
     }

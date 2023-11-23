@@ -101,22 +101,6 @@ public class DiscordTeam
         CompetitionStart.CompetitionStartedAsync += async () => UpdateBoardMessage(BoardImage.GetBoard(team.Name));
     }
 
-    private async Task<List<ulong>> CreateChannels(DiscordRole teamRole)
-    {
-        List<ulong> ids = new(4);
-        DiscordTeamChannelOverwrites overwrites = new(Guild, teamRole);
-
-        DiscordChannel category = await Guild.CreateChannelAsync(GetId(categoryChannelName), ChannelType.Category, overwrites: overwrites.Category);
-        BoardChannel = await Guild.CreateChannelAsync(GetId(boardChannelName), ChannelType.Text, category, overwrites: overwrites.Board);
-
-        ids.Add(category.Id);
-        ids.Add(BoardChannel.Id);
-        ids.Add((await Guild.CreateChannelAsync(GetId(generalChannelName), ChannelType.Text, category, overwrites: overwrites.General)).Id);
-        ids.Add((await Guild.CreateChannelAsync(GetId(evidenceChannelName), ChannelType.Text, category, overwrites: overwrites.Evidence)).Id);
-        ids.Add((await Guild.CreateChannelAsync(GetId(voiceChannelName), ChannelType.Voice, category, overwrites: overwrites.Voice)).Id);
-        return ids;
-    }
-
     private async Task<ulong> CreateRole()
     {
         Role = await Guild.CreateRoleAsync(RoleName.FormatConst(Name));
@@ -200,34 +184,6 @@ public class DiscordTeam
 
         await boardMessage.ModifyAsync(builder);
         fs.Dispose();
-    }
-
-    private async Task<ulong> InitialiseBoardChannel()
-    {
-        var builder = new DiscordMessageBuilder()
-            .WithContent("Loading...");
-        boardMessage = await BoardChannel.SendMessageAsync(builder);
-        return boardMessage.Id;
-    }
-
-    private void RegisterBoardChannelComponentInteractions()
-    {
-        ComponentInteractionHandler.InitialisationInfo info = new()
-        {
-            Team = this,
-        };
-
-        ComponentInteractionHandler.Register<ChangeTileButtonHandler>(changeTileButtonId, info);
-        ComponentInteractionHandler.Register<SubmitEvidenceButtonHandler>(submitEvidenceButtonId, info);
-        ComponentInteractionHandler.Register<SubmitDropButtonHandler>(submitDropButtonId, info);
-        ComponentInteractionHandler.Register<ViewEvidenceButtonHandler>(viewEvidenceButtonId, info);
-
-#if DEBUG
-
-        ComponentInteractionHandler.Register<ClearTeamsEvidenceButtonHandler>(clearEvidenceButtonId, info);
-        ComponentInteractionHandler.Register<CompleteNextTileButtonHandler>(completeNextTileEvidenceButtonId, info);
-
-#endif
     }
 
     public async Task MarkTileCompleted(Tile tile) =>

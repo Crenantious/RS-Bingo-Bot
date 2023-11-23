@@ -9,4 +9,4 @@ using FluentResults;
 using MediatR;
 using RSBingo_Framework.Models;
 
-internal record CreateTeamEvidenceChannelRequest(Team Team, DiscordChannel Category) : IRequest<Result>;
+internal record CreateTeamEvidenceChannelRequest(Team Team, DiscordChannel Category, DiscordRole TeamRole) : IRequest<Result>;

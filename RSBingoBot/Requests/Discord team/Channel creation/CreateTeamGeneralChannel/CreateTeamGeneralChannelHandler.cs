@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
+using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 
 internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGeneralChannelRequest, Result>
@@ -15,16 +16,20 @@ internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGenera
     private const string ChannelName = "{0}-general";
 
     private readonly DiscordChannelServices channelServices;
+    private readonly DiscordTeamChannelOverwrites channelOverwrites;
 
-    public CreateTeamGeneralChannelHandler(DiscordChannelServices channelServices)
+    public CreateTeamGeneralChannelHandler(DiscordChannelServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
     {
         this.channelServices = channelServices;
+        this.channelOverwrites = channelOverwrites;
     }
 
     protected override async Task Process(CreateTeamGeneralChannelRequest request, CancellationToken cancellationToken)
     {
         string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category);
+        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.TeamRole);
+
+        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category, overwrites);
         if (channel is null)
         {
             AddError(new CreateTeamGeneralChannelError());
