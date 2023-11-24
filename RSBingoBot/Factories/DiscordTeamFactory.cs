@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordServices;
 using RSBingo_Framework.Models;
 using RSBingoBot.DTO;
 
+// This will be called from somewhere that will null check everything then run request to create missing content.
 public class DiscordTeamFactory
 {
     private readonly IDiscordChannelServices discordChannelServices;

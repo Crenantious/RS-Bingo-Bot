@@ -6,141 +6,37 @@ namespace DiscordLibrary.Requests;
 
 using FluentResults;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using RSBingo_Common;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
-using System.Text;
 
-public abstract class RequestHandler<TRequest, TResult> : IRequestHandler<TRequest, TResult>
-    where TRequest : IRequest<TResult>
-    where TResult : IResultBase
+public abstract class RequestHandler<TRequest> : RequestHandlerBase<TRequest, Result>
+    where TRequest : IRequest<Result>
 {
-    private const string BeginHandlingRequest = "Handling request {0} with id {1}.";
-    private const string RequestSucceeded = "Successfully handled request {0} with id {1}.";
-    private const string RequestFailed = "Failed handling request {0} with id {1}.";
-    private const string InternalError = "An internal error has occurred.";
-
-    private static int requestId = 0;
-
-    private readonly SemaphoreSlim? semaphore;
-
-    private List<ISuccess> sucesses = new();
-    private List<IError> errors = new();
-
-    protected ILogger<RequestHandler<TRequest, TResult>> Logger { get; private set; } = null!;
-
-    protected RequestHandler(SemaphoreSlim? semaphore = null) =>
-        this.semaphore = semaphore;
-
-    public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
+    protected RequestHandler(SemaphoreSlim? semaphore = null) : base(semaphore)
     {
-        if (semaphore is not null)
-        {
-            await semaphore.WaitAsync();
-        }
 
-        Logger = General.LoggingInstance<RequestHandler<TRequest, TResult>>();
-        int id = requestId++;
-
-        try
-        {
-            LogRequestBegin(request, id);
-            TResult result = await ProcessRequest(request, cancellationToken);
-            LogRequestEnd(request, result, id);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            LogReqestException(request, ex, id);
-            return (Result.Fail(InternalError) as TResult)!;
-        }
-        finally
-        {
-            semaphore?.Release();
-        }
     }
 
-    private async Task<TResult> ProcessRequest(TRequest request, CancellationToken cancellationToken)
+    internal protected override async Task<Result> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
         await Process(request, cancellationToken);
-        Result result = errors.Count == 0 ?
-            Result.Ok().WithSuccesses(sucesses) :
-            Result.Fail(errors);
-        return (result as TResult)!;
+        return new Result();
     }
 
     protected abstract Task Process(TRequest request, CancellationToken cancellationToken);
+}
 
-    #region Add result responses
-
-    /// <summary>
-    /// How this is processed depends on the type. See the user guide for specifics.
-    /// </summary>
-    protected void AddSuccess(ISuccess success) =>
-        sucesses.Add(success);
-
-    /// <summary>
-    /// How these are processed depends on the type. See the user guide for specifics.
-    /// </summary>
-    protected void AddSuccesses(IEnumerable<ISuccess> successes) =>
-        sucesses.Concat(successes);
-
-    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
-    protected void AddWarning(IWarning warning) =>
-        sucesses.Add(warning);
-
-    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
-    protected void AddWarnings(IEnumerable<IWarning> warnings) =>
-        sucesses.Concat(warnings);
-
-    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
-    protected void AddError(IError error) =>
-        errors.Add(error);
-
-    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
-    protected void AddErrors(IEnumerable<IError> errors) =>
-        errors.Concat(errors);
-
-    #endregion
-
-    #region Logging
-
-    private void LogRequestBegin(TRequest request, int id)
+public abstract class RequestHandler<TRequest, TResult> : RequestHandlerBase<TRequest, Result<TResult>>
+    where TRequest : IRequest<Result<TResult>>
+{
+    protected RequestHandler(SemaphoreSlim? semaphore = null) : base(semaphore)
     {
-        Logger.LogInformation(BeginHandlingRequest.FormatConst(request.GetType().Name, id));
+
     }
 
-    private void LogRequestEnd(TRequest request, TResult result, int id)
+    internal protected override async Task<Result<TResult>> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
-        string prefix = result.IsFailed ?
-            RequestFailed.FormatConst(request.GetType().Name, id) :
-            RequestSucceeded.FormatConst(request.GetType().Name, id);
-
-        StringBuilder sb = new(prefix);
-        IEnumerable<IReason> reasons = result.IsFailed ? result.Errors : result.Successes;
-        GetResultInfo(sb, reasons);
-
-        Logger.LogInformation(sb.ToString());
+        TResult result = await Process(request, cancellationToken);
+        return new Result<TResult>().WithValue(result);
     }
 
-    private void LogReqestException(TRequest request, Exception exception, int id)
-    {
-        // TODO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
-        string message = RequestFailed.FormatConst(request.GetType().Name, id);
-        Logger.LogError(exception, message);
-    }
-
-    // TODO: JR - check how this logs meta data.
-    private static void GetResultInfo(StringBuilder sb, IEnumerable<IReason> reasons)
-    {
-        foreach (IReason reason in reasons)
-        {
-            sb.Append(reason.Message);
-            sb.Append("Meta data:");
-            sb.Append(reason.Metadata);
-        }
-    }
-
-    #endregion
+    protected abstract Task<TResult> Process(TRequest request, CancellationToken cancellationToken);
 }
