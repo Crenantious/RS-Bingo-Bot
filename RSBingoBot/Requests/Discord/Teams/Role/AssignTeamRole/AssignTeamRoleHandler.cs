@@ -12,9 +12,9 @@ using RSBingo_Framework.Models;
 
 internal class AssignTeamRoleHandler : RequestHandler<AssignTeamRoleRequest>
 {
-    private readonly IDiscordUserServices discordUserServices;
+    private readonly IDiscordServices discordUserServices;
 
-    public AssignTeamRoleHandler(IDiscordUserServices discordUserServices)
+    public AssignTeamRoleHandler(IDiscordServices discordUserServices)
     {
         this.discordUserServices = discordUserServices;
     }
@@ -23,11 +23,12 @@ internal class AssignTeamRoleHandler : RequestHandler<AssignTeamRoleRequest>
     {
         foreach (User user in request.Team.Users)
         {
-            Result<DiscordMember> discordUser = await discordUserServices.GetUser(user.DiscordUserId);
-            if (discordUser.IsSuccess)
+            Result<DiscordMember> discordMember = await discordUserServices.GetUser(user.DiscordUserId);
+            if (discordMember.IsSuccess)
             {
-                await discordUser.Value.GrantRoleAsync(request.Role);
+                await discordUserServices.GrantRole(discordMember.Value, request.Role);
             }
         }
+        AddSuccess(new AssignTeamRoleSuccess());
     }
 }

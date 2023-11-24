@@ -9,14 +9,13 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
-using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
-public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<TRequest, Result>, IInteractionHandler
+public abstract class InteractionHandler<TRequest, TComponent> : DiscordHandler<TRequest>, IInteractionHandler
     where TRequest : IInteractionRequest
     where TComponent : IInteractable
 {

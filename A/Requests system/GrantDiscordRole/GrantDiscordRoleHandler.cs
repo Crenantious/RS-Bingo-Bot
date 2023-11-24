@@ -7,12 +7,11 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 
-// TODO: JR - add a DiscordRequestHandler that catches for Discord exceptions and creates appropriate errors.
-internal class GrantDiscordRoleHandler : RequestHandler<GrantDiscordRoleRequest>
+internal class GrantDiscordRoleHandler : DiscordHandler<GrantDiscordRoleRequest>
 {
-    private readonly IDiscordUserServices userServices;
+    private readonly IDiscordServices userServices;
 
-    public GrantDiscordRoleHandler(IDiscordUserServices userServices)
+    public GrantDiscordRoleHandler(IDiscordServices userServices)
     {
         this.userServices = userServices;
     }
