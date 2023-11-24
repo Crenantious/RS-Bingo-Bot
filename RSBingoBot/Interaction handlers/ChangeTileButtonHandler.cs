@@ -264,7 +264,7 @@ public class ChangeTileButtonHandler : ComponentInteractionHandler
             BoardImage.UpdateTile(fromTileInfo.Tile!);
         }
 
-        await RSBingoBot.DiscordTeam.UpdateBoard(Team!, teamBoard);
+        await RSBingoBot.DiscordTeamOld.UpdateBoard(Team!, teamBoard);
     }
 
     private async Task SubmitButtonInteracted(DiscordClient client, ComponentInteractionCreateEventArgs args)

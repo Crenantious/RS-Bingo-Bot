@@ -10,5 +10,7 @@ using DSharpPlus.Entities;
 public interface IDiscordChannelServices
 {
     public Task<DiscordChannel?> Create(string name, ChannelType channelType, DiscordChannel? parent = null,
-        IEnumerable<DiscordOverwriteBuilder>? overwrites = nulls);
+        IEnumerable<DiscordOverwriteBuilder>? overwrites = null);
+
+    public DiscordChannel? Get(ulong id);
 }

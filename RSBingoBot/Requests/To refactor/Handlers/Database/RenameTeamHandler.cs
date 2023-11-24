@@ -28,7 +28,7 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 
         BoardImage.RenameTeam(oldName, newName);
         team.Name = newName;
-        await RSBingoBot.DiscordTeam.GetInstance(team).Rename(newName);
+        await RSBingoBot.DiscordTeamOld.GetInstance(team).Rename(newName);
 
         AddSuccess(TeamSuccessfullyRenamed.FormatConst(oldName, newName));
     }

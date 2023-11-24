@@ -10,4 +10,5 @@ using DSharpPlus.Entities;
 public interface IDiscordMessageServices
 {
     public Task<bool> Send(Message message, DiscordChannel channel);
+    public Task<Message> Get(ulong id, DiscordChannel channel);
 }

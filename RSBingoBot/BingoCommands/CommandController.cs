@@ -26,7 +26,7 @@ internal class CommandController : ApplicationCommandModule
 
     private readonly IDataWorker dataWorker = CreateDataWorker();
     private readonly DiscordClient discordClient;
-    private readonly RSBingoBot.DiscordTeam.Factory teamFactory;
+    private readonly RSBingoBot.DiscordTeamOld.Factory teamFactory;
     private readonly MessageCreatedDEH messageCreatedDEH;
     private readonly ModalSubmittedDEH modalSubmittedDEH;
     private readonly RequestServices requestServices;
@@ -34,7 +34,7 @@ internal class CommandController : ApplicationCommandModule
     private static DiscordRequestServices interactionServices = null!;
 
     public CommandController(DiscordClient discordClient, RequestServices requestServices,
-        DiscordRequestServices interactionServices, RSBingoBot.DiscordTeam.Factory teamFactory,
+        DiscordRequestServices interactionServices, RSBingoBot.DiscordTeamOld.Factory teamFactory,
         MessageCreatedDEH messageCreatedDEH, ModalSubmittedDEH modalSubmittedDEH)
     {
         this.discordClient = discordClient;

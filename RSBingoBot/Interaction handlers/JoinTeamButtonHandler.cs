@@ -111,7 +111,7 @@ internal class JoinTeamButtonHandler : ComponentInteractionHandler
 
         content = $"You have joined team {teamSelected}.";
 
-        DiscordRole role = RSBingoBot.DiscordTeam.GetInstance(team).Role;
+        DiscordRole role = RSBingoBot.DiscordTeamOld.GetInstance(team).Role;
 
         try
         {

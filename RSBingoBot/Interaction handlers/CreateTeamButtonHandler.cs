@@ -90,7 +90,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
     {
         await Respond(args.Interaction, "Creating team...", true);
 
-        RSBingoBot.DiscordTeam team = new(discordClient, teamName);
+        RSBingoBot.DiscordTeamOld team = new(discordClient, teamName);
         await team.InitialiseAsync();
 
         User = DataWorker.Users.Create(args.Interaction.User.Id, teamName);

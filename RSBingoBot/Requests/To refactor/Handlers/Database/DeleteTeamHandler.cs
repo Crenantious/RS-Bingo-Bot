@@ -28,7 +28,7 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 
         Team team = DataWorker.Teams.GetByName(request.TeamName)!;
         DataWorker.Teams.Remove(team);
-        RSBingoBot.DiscordTeam.TeamDeleted(team);
+        RSBingoBot.DiscordTeamOld.TeamDeleted(team);
     }
 
     private async Task DeleteRole()

@@ -94,7 +94,7 @@ internal class EvidenceReaction
     }
 
     private static async Task UpdateTeamBoard(Evidence evidence) =>
-        await RSBingoBot.DiscordTeam.UpdateBoard(evidence.Tile.Team, BoardImage.UpdateTile(evidence.Tile));
+        await RSBingoBot.DiscordTeamOld.UpdateBoard(evidence.Tile.Team, BoardImage.UpdateTile(evidence.Tile));
 
     private static async Task<DiscordMessage> MoveMessage(MessageReactionAddEventArgs args,
         DiscordChannel channel)

@@ -110,7 +110,7 @@ public class Program
 #endif
             .ConfigureServices(services =>
             {
-                services.Configure<HostOptions>(option =>
+                services.Configure((HostOptions option) =>
                 {
                     option.ShutdownTimeout = TimeSpan.FromSeconds(60);
                 });
@@ -147,11 +147,11 @@ public class Program
             })
 
             // Swap out the DI factory for Autofac as it has more features
-            .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-            .ConfigureContainer<ContainerBuilder>(builder =>
+            .UseServiceProviderFactory<ContainerBuilder>(new AutofacServiceProviderFactory())
+            .ConfigureContainer((Action<ContainerBuilder>)(builder =>
             {
                 // Register types that contain factories here
-                builder.RegisterType<DiscordTeam>();
-            });
+                builder.RegisterType<DiscordTeamOld>();
+            }));
     }
 }

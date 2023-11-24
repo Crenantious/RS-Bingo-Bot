@@ -23,7 +23,7 @@ public class Bot : BackgroundService
 {
     private readonly ILogger logger;
     private readonly DiscordClient discordClient;
-    private readonly DiscordTeam.Factory teamFactory;
+    private readonly DiscordTeamOld.Factory teamFactory;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -32,7 +32,7 @@ public class Bot : BackgroundService
     /// <param name="logger">The logger the instance will log to.</param>
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeam.Factory teamFactory)
+    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamOld.Factory teamFactory)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -66,7 +66,7 @@ public class Bot : BackgroundService
     {
         foreach (Team team in dataWorker.Teams.GetTeams())
         {
-            DiscordTeam discordTeam = new (discordClient, team.Name);
+            DiscordTeamOld discordTeam = new (discordClient, team.Name);
             await discordTeam.InitialiseAsync(team);
         }
     }

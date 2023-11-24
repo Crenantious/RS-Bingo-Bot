@@ -44,7 +44,7 @@ public class CompleteNextTileButtonHandler : ComponentInteractionHandler
             TeamScore.Update(tile);
             DataWorker.SaveChanges();
 
-            await RSBingoBot.DiscordTeam.GetInstance(Team).MarkTileCompleted(tile);
+            await RSBingoBot.DiscordTeamOld.GetInstance(Team).MarkTileCompleted(tile);
             await LeaderboardDiscord.Update(DataWorker);
 
             return "The next tile as been marked as completed.";

@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
+// TODO: JR - convert to using the requests system.
 public class DiscordMessageServices : IDiscordMessageServices
 {
     private readonly Logger<DiscordChannelServices> logger;
@@ -28,6 +29,11 @@ public class DiscordMessageServices : IDiscordMessageServices
     {
         var request = () => channel.SendMessageAsync(message.GetMessageBuilder());
         return await SendRequest(request, message, channel, RequestType.Sent);
+    }
+
+    public async Task<Message> Get(ulong id, DiscordChannel channel)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<bool> SendRequest(Func<Task> request, Message message, DiscordChannel channel, RequestType requestType)

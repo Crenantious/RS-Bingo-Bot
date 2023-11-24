@@ -185,7 +185,7 @@ public abstract class SubmitImageForTileButtonHandler : ComponentInteractionHand
     }
 
     private async Task UpdateBoard(IEnumerable<Tile> tiles) =>
-        await RSBingoBot.DiscordTeam.UpdateBoard(Team, BoardImage.UpdateTiles(Team, tiles));
+        await RSBingoBot.DiscordTeamOld.UpdateBoard(Team, BoardImage.UpdateTiles(Team, tiles));
 
     private async Task<bool> ValidateSelection(ComponentInteractionCreateEventArgs args, IEnumerable<Tile> tiles)
     {
