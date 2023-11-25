@@ -5,6 +5,7 @@
 namespace DiscordLibrary.DiscordEntities;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Exceptions;
 using DSharpPlus.Entities;
@@ -35,9 +36,21 @@ public static class MessageExtensions
     public static T AddComponents<T>(this T message, params IComponent[] components)
         where T : Message
     {
-        ValidateAddComponents(message, components);
-        message.Components.AddRow(components);
-        return message;
+        return AddComponentsCommon(message, components);
+    }
+
+    /// <inheritdoc cref="AddComponents{T}(T, IComponent[])"/>
+    public static T AddComponents<T>(this T message, IEnumerable<IComponent> components)
+        where T : Message
+    {
+        return AddComponentsCommon(message, components);
+    }
+
+    /// <inheritdoc cref="AddComponents{T}(T, IComponent[])"/>
+    public static T AddComponents<T>(this T message, IEnumerable<DiscordComponent> components)
+        where T : Message
+    {
+        return AddComponentsCommon(message, components);
     }
 
     public static T AddFile<T>(this T message)
@@ -68,7 +81,45 @@ public static class MessageExtensions
         throw new NotImplementedException();
     }
 
-    private static void ValidateAddComponents<T>(T message, IComponent[] components)
+    private static T AddComponentsCommon<T>(this T message, IEnumerable<IComponent> components)
+        where T : Message
+    {
+        ValidateAddComponents(message, components);
+        message.Components.AddRow(components);
+        return message;
+    }
+
+    private static T AddComponentsCommon<T>(this T message, IEnumerable<DiscordComponent> components)
+        where T : Message
+    {
+        ValidateAddComponents(message, components);
+        message.Components.AddRow(components.Select(c => Component.FromDiscordComponent(c)));
+        return message;
+    }
+
+    private static void ValidateAddComponents<T>(T message, IEnumerable<IComponent> components)
+        where T : Message
+    {
+        ValidateAddComponentsCommon(message, components);
+
+        if (components.Any(c => c is SelectComponent))
+        {
+            throw new MessageAddSelectComponentException();
+        }
+    }
+
+    private static void ValidateAddComponents<T>(T message, IEnumerable<DiscordComponent> components)
+        where T : Message
+    {
+        ValidateAddComponentsCommon(message, components);
+
+        if (components.Any(c => c.IsSelect()))
+        {
+            throw new MessageAddSelectComponentException();
+        }
+    }
+
+    private static void ValidateAddComponentsCommon<T>(T message, IEnumerable<object> components)
         where T : Message
     {
         if (message.Components.GetRows().Count >= MaxComponentRows)
@@ -76,14 +127,9 @@ public static class MessageExtensions
             throw new MessageComponentRowsExceededException(MaxComponentRows);
         }
 
-        if (components.Length >= MaxComponentRows)
+        if (components.Count() >= MaxComponentRows)
         {
             throw new MessageComponentColumnsExceededException(MaxComponentColumns);
-        }
-
-        if (components.Where(component => component is SelectComponent).Any())
-        {
-            throw new MessageAddSelectComponentException();
         }
     }
 }

@@ -17,6 +17,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     where TRequest : IBaseRequest
 {
     // TODO: JR - decide how to word this.
+    internal protected const string ObjectIsNull = "{0} cannot be null.";
     internal protected const string UserIsNull = "User cannot be null.";
     internal protected const string ChannelDoesNotExist = "Channel does not exist.";
     internal protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
@@ -28,6 +29,13 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     internal protected const string NonCsvFileError = "The uploaded file must be a csv.";
 
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();
+
+    public void NotNull(Func<TRequest, object> func, string name)
+    {
+        RuleFor(r => func(r))
+            .NotNull()
+            .WithMessage(ObjectIsNull.FormatConst(name));
+    }
 
     public void UserNotNull(Func<TRequest, User> func)
     {

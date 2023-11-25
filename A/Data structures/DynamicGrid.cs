@@ -35,6 +35,11 @@ public class DynamicGrid<T>
         Cells.Add(values.ToList());
     }
 
+    public void AddRow(IEnumerable<T> values)
+    {
+        Cells.Add(values.ToList());
+    }
+
     public List<List<T>> GetRows() =>
         Cells;
 }

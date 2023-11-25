@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.DiscordEntities;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
@@ -30,9 +31,15 @@ public class DiscordServices : IDiscordServices
         await RequestServices.Run(new GrantDiscordRoleRequest(member, role));
 
     public async Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
-      IEnumerable<DiscordOverwriteBuilder>? overwrites = null) =>
-            await RequestServices.Run<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
+        IEnumerable<DiscordOverwriteBuilder>? overwrites = null) =>
+        await RequestServices.Run<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
 
     public async Task<Result<DiscordChannel>> GetChannel(ulong id) =>
-           await RequestServices.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
+        await RequestServices.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
+
+    public async Task<Result<DiscordChannel>> SendMessage(Message message, DiscordChannel channel) =>
+        await RequestServices.Run(new SendMessageRequest(message, channel));
+
+    public async Task<Result<Message>> GetMessage(ulong id, DiscordChannel channel) =>
+        await RequestServices.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 }

@@ -71,6 +71,9 @@
 
   <ItemGroup>
     <Folder Include="Interaction handlers\Command handlers\" />
+    <Folder Include="Requests\Discord\Channels\" />
+    <Folder Include="Requests\Discord\Messages\" />
+    <Folder Include="Requests\Discord\Roles\" />
   </ItemGroup>
 
 </Project>

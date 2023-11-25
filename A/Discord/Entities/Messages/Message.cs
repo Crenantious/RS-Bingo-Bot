@@ -20,6 +20,16 @@ public class Message : IMessage
 
     public Message() { }
 
+    public Message(DiscordMessage message)
+    {
+        this.WithContent(message.Content);
+
+        foreach (var row in message.Components)
+        {
+            this.AddComponents(row.Components);
+        }
+    }
+
     // Probably make the GetBuilder methods extensions.
     public DiscordMessageBuilder GetMessageBuilder() =>
         GetBaseMessageBuilder(new DiscordMessageBuilder());

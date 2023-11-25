@@ -28,7 +28,7 @@ internal static class DiscordInteractionServices
     {
         request.InteractionArgs = args;
 
-        Result result = await RequestServices.Run<IInteractionRequest, Result>(request);
+        Result result = await RequestServices.Run<IInteractionRequest>(request);
         IEnumerable<IInteractionReason> reasons = result.Reasons.OfType<IInteractionReason>();
 
         foreach (IInteractionReason reason in reasons)

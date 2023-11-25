@@ -12,12 +12,18 @@ public abstract class Component : IComponent
     public abstract DiscordComponent DiscordComponent { get; }
     public IMessage? Message { get; internal set; }
 
-    public string CustomId { get; } = Guid.NewGuid().ToString();
+    public string CustomId { get; }
 
     public abstract string Name { get; protected set; }
 
-    internal Component()
+    public Component(string id)
     {
+        CustomId = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
+    }
 
+    internal static Component FromDiscordComponent(DiscordComponent component)
+    {
+        // TODO: JR - implement
+        throw new NotImplementedException();
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="IInteractableExtensions.cs" company="PlaceholderCompany">
+﻿// <copyright file="InteractableComponentExtensions.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 
-internal static class IInteractableExtensions
+internal static class InteractableComponentExtensions
 {
     public static void Register<T, K>(this T interactable, K request)
         where T : IComponent, IInteractable

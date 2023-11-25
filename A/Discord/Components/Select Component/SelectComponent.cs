@@ -28,7 +28,7 @@ public class SelectComponent : Component
     public IReadOnlyList<SelectComponentItem> SelectedItems { get; }
     public IReadOnlyList<SelectComponentOption> SelectOptions { get; }
 
-    internal SelectComponent(SelectComponentInfo info)
+    internal SelectComponent(SelectComponentInfo info, string id = "") : base(id)
     {
         this.Disabled = info.Disabled;
         this.selectOptions = info.Options.ToList();
