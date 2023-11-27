@@ -15,6 +15,8 @@ public interface IDiscordServices
 
     public Task<Result<DiscordRole>> CreateRole(string name);
 
+    public Task<Result<DiscordRole>> GetRole(ulong ids);
+
     public Task<Result> GrantRole(DiscordMember member, DiscordRole role);
 
     public Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
