@@ -8,7 +8,7 @@ using FluentResults;
 using MediatR;
 using RSBingo_Common;
 
-internal static class RequestServices
+public static class RequestServices
 {
     private static readonly IMediator mediator;
 
