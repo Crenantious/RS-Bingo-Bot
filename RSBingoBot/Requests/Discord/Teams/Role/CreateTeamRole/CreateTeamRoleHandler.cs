@@ -9,7 +9,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 
-internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest, DiscordRole>
+internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest>
 {
     private readonly IDiscordServices userServices;
 
@@ -18,7 +18,7 @@ internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest, Dis
         this.userServices = discordServices;
     }
 
-    protected override async Task<DiscordRole> Process(CreateTeamRoleRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(CreateTeamRoleRequest request, CancellationToken cancellationToken)
     {
         Result<DiscordRole> role = await userServices.CreateRole(request.DiscordTeam.Team.Name);
         if (role.IsSuccess)
@@ -29,6 +29,5 @@ internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest, Dis
         {
             AddError(new CreateTeamRoleError());
         }
-        return role.Value;
     }
 }

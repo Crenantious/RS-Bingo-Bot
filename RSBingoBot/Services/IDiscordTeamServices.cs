@@ -17,4 +17,6 @@ public interface IDiscordTeamServices
     public Task<Result<DiscordChannel>> CreateEvidenceChannel(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result<DiscordChannel>> CreateVoiceChannel(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team);
 }

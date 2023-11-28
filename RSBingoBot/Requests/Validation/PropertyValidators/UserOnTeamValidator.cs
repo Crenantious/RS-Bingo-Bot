@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.Requests.Validation;
+namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
 using DSharpPlus.Entities;

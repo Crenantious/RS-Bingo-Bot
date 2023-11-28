@@ -6,33 +6,30 @@ namespace RSBingoBot.Factories;
 
 using DiscordLibrary.DiscordServices;
 using RSBingo_Framework.Models;
-using RSBingoBot.DTO;
+using RSBingoBot.Discord;
 
-// This will be called from somewhere that will null check everything then run request to create missing content.
 public class DiscordTeamFactory
 {
-    private readonly IDiscordServices discordServices;
-    private readonly IDiscordMessageServices discordMessageServices;
+    private readonly IDiscordTeamServices discordServices;
 
-    public DiscordTeamFactory(IDiscordServices discordChannelServices, IDiscordMessageServices discordMessageServices)
+    public DiscordTeamFactory(IDiscordTeamServices teamServices)
     {
-        this.discordServices = discordChannelServices;
-        this.discordMessageServices = discordMessageServices;
+        this.discordServices = teamServices;
     }
 
-    public async Task<DiscordTeam> Create(Team team)
+    public async Task<DiscordTeam> CreateNew(string name)
     {
-        var boardChannel = await discordServices.GetChannel(team.BoardChannelId);
-        var categoryChannel = await discordServices.GetChannel(team.CategoryChannelId);
-        var generalChannel = await discordServices.GetChannel(team.GeneralChannelId);
-        var evidenceChannel = await discordServices.GetChannel(team.EvidenceChannelId);
-        var voiceChannel = await discordServices.GetChannel(team.VoiceChannelId);
-        var role = await discordServices.GetRole(team.RoleId);
-        var boardMessage = boardChannel.IsSuccess ?
-            (await discordServices.GetMessage(team.BoardMessageId, boardChannel.Value)).Value
-            : null;
+        Team team = new();
+        team.Name = name;
+        DiscordTeam discordTeam = new(team);
+        await discordServices.CreateMissingEntities(discordTeam);
+        return discordTeam;
+    }
 
-        return new DiscordTeam(categoryChannel.Value, generalChannel.Value, boardChannel.Value,
-            evidenceChannel.Value, voiceChannel.Value, boardMessage, role.Value);
+    public async Task<DiscordTeam> CreateFromExisting(Team team)
+    {
+        DiscordTeam discordTeam = new(team);
+        await discordServices.SetExistingEntities(discordTeam);
+        return discordTeam;
     }
 }

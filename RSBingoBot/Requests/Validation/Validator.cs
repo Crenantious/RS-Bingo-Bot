@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.Requests.Validation;
+namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
 using DSharpPlus.Entities;
@@ -52,7 +52,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
             .WithMessage(UserIsNull);
     }
 
-    public void DiscordTeamNotNull(Func<TRequest, DiscordLibrary.DiscordEntities.DiscordTeam?> func)
+    public void DiscordTeamNotNull(Func<TRequest, RSBingoBot.Discord.DiscordTeam?> func)
     {
         RuleFor(r => func(r))
             .NotNull()
