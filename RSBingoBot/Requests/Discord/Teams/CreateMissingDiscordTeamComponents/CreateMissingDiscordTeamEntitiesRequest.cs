@@ -6,6 +6,6 @@ namespace RSBingoBot.Requests;
 
 using FluentResults;
 using MediatR;
-using RSBingoBot.DTO;
+using RSBingoBot.Discord;
 
 internal record CreateMissingDiscordTeamEntitiesRequest(DiscordTeam DiscordTeam) : IRequest<Result>;

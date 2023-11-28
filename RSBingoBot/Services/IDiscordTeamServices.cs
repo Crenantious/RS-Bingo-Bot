@@ -7,16 +7,14 @@ namespace DiscordLibrary.DiscordServices;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingo_Framework.Models;
 
 public interface IDiscordTeamServices
 {
-    public Task<Result<DiscordRole>> CreateTeamRole(Team team);
-    public Task<Result<DiscordChannel>> CreateCategoryChannel(Team team, DiscordRole teamRole);
-    public Task<Result<DiscordChannel>> CreateBoardChannel(Team team, DiscordChannel category, DiscordRole teamRole);
-    public Task<Result<DiscordChannel>> CreateGeneralChannel(Team team, DiscordChannel category, DiscordRole teamRole);
-    public Task<Result<DiscordChannel>> CreateEvidenceChannel(Team team, DiscordChannel category, DiscordRole teamRole);
-    public Task<Result<DiscordChannel>> CreateVoiceChannel(Team team, DiscordChannel category, DiscordRole teamRole);
-    public Task<Result> InitialiseBoardChannel(Team team, DiscordChannel boardChannel);
-    public Task<Result<Message>> CreateBoardMessage(Team team, DiscordChannel boardChannel);
+    public Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<DiscordChannel>> CreateCategoryChannel(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<DiscordChannel>> CreateBoardChannel(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<DiscordChannel>> CreateGeneralChannel(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<DiscordChannel>> CreateEvidenceChannel(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<DiscordChannel>> CreateVoiceChannel(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam team);
 }

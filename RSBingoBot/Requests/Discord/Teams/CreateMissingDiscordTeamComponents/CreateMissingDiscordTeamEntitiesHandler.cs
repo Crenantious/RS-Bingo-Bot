@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
@@ -14,7 +15,7 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
     private readonly IDiscordTeamServices teamServices;
     private readonly IDiscordServices discordServices;
 
-    private RSBingoBot.DTO.DiscordTeam discordTeam = null!;
+    private RSBingoBot.Discord.DiscordTeam team = null!;
 
     public CreateMissingDiscordTeamEntitiesHandler(IDiscordTeamServices teamServices, IDiscordServices discordServices)
     {
@@ -24,99 +25,109 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
     protected override async Task Process(CreateMissingDiscordTeamEntitiesRequest request, CancellationToken cancellationToken)
     {
-        this.discordTeam = request.DiscordTeam;
+        this.team = request.DiscordTeam;
 
-        if (discordTeam.Role is null && await CreateRole() is false)
+        if (team.Role is null && await CreateRole() is false)
         {
+            AddError(new CreateMissingDiscordTeamEntitiesRoleError());
             return;
         }
 
-        if (discordTeam.CategoryChannel is null && await CreateCategoryChannel() is false)
+        if (team.CategoryChannel is null && await CreateCategoryChannel() is false)
         {
+            AddError(new CreateMissingDiscordTeamEntitiesCategoryError());
             return;
         }
 
+        await CreateBoardChannel();
         await CreateGeneralChannel();
         await CreateEvidenceChannel();
         await CreateVoiceChannel();
+        await CreateBoardChannelMessage();
 
         AddSuccess(new CreateMissingDiscordTeamEntitiesSuccess());
     }
 
     private async Task<bool> CreateRole()
     {
-        Result<DiscordRole> role = await teamServices.CreateTeamRole(discordTeam.Team);
+        Result<DiscordRole> role = await teamServices.CreateTeamRole(team);
         if (role.IsFailed)
         {
-            AddError(new CreateMissingDiscordTeamEntitiesRoleError());
             return false;
         }
-        discordTeam.SetRole(role.Value);
+        team.SetRole(role.Value);
         return true;
     }
 
     private async Task<bool> CreateCategoryChannel()
     {
-        Result<DiscordChannel> channel = await teamServices.CreateCategoryChannel(discordTeam.Team, discordTeam.Role!);
+        Result<DiscordChannel> channel = await teamServices.CreateCategoryChannel(team);
         if (channel.IsFailed)
         {
-            AddError(new CreateMissingDiscordTeamEntitiesCategoryError());
             return false;
         }
-        discordTeam.SetCategoryChannel(channel.Value);
+        team.SetCategoryChannel(channel.Value);
         return true;
     }
 
     private async Task<bool> CreateBoardChannel()
     {
-        Result<DiscordChannel> channel = await teamServices.CreateBoardChannel(
-            discordTeam.Team, discordTeam.CategoryChannel!, discordTeam.Role!);
+        Result<DiscordChannel> channel = await teamServices.CreateBoardChannel(team);
 
         if (channel.IsFailed)
         {
             return false;
         }
-        discordTeam.SetBoardChannel(channel.Value);
-        await teamServices.InitialiseBoardChannel(discordTeam.Team, channel.Value);
+        team.SetBoardChannel(channel.Value);
         return true;
     }
 
     private async Task<bool> CreateGeneralChannel()
     {
-        Result<DiscordChannel> channel = await teamServices.CreateGeneralChannel(
-            discordTeam.Team, discordTeam.CategoryChannel!, discordTeam.Role!);
+        Result<DiscordChannel> channel = await teamServices.CreateGeneralChannel(team);
 
         if (channel.IsFailed)
         {
             return false;
         }
-        discordTeam.SetGeneralChannel(channel.Value);
+        team.SetGeneralChannel(channel.Value);
         return true;
     }
 
     private async Task<bool> CreateEvidenceChannel()
     {
-        Result<DiscordChannel> channel = await teamServices.CreateEvidenceChannel(
-            discordTeam.Team, discordTeam.CategoryChannel!, discordTeam.Role!);
+        Result<DiscordChannel> channel = await teamServices.CreateEvidenceChannel(team);
 
         if (channel.IsFailed)
         {
             return false;
         }
-        discordTeam.SetEvidenceChannel(channel.Value);
+        team.SetEvidenceChannel(channel.Value);
         return true;
     }
 
     private async Task<bool> CreateVoiceChannel()
     {
-        Result<DiscordChannel> channel = await teamServices.CreateVoiceChannel(
-            discordTeam.Team, discordTeam.CategoryChannel!, discordTeam.Role!);
+        Result<DiscordChannel> channel = await teamServices.CreateVoiceChannel(team);
 
         if (channel.IsFailed)
         {
             return false;
         }
-        discordTeam.SetVoiceChannel(channel.Value);
+        team.SetVoiceChannel(channel.Value);
+        return true;
+    }
+
+    private async Task<bool> CreateBoardChannelMessage()
+    {
+        Result<Message> message = await teamServices.CreateBoardMessage(team);
+
+        if (message.IsFailed)
+        {
+            return false;
+        }
+        team.SetBoardMessage(message.Value);
+        message.Value.Send(team.BoardChannel!);
         return true;
     }
 }

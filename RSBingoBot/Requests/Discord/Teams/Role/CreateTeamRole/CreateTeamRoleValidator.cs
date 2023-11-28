@@ -5,12 +5,12 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests.Validation;
-using RSBingoBot.Requests;
 
 internal class CreateTeamRoleValidator : Validator<CreateTeamRoleRequest>
 {
     public CreateTeamRoleValidator()
     {
-
+        DiscordTeamNotNull(r => r.DiscordTeam);
+        TeamExists(r => r.DiscordTeam.Team);
     }
 }

@@ -8,17 +8,16 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 
-internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGeneralChannelRequest, Result>
+internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGeneralChannelRequest>
 {
     private const string ChannelName = "{0}-general";
 
-    private readonly DiscordChannelServices channelServices;
+    private readonly IDiscordServices channelServices;
     private readonly DiscordTeamChannelOverwrites channelOverwrites;
 
-    public CreateTeamGeneralChannelHandler(DiscordChannelServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
+    public CreateTeamGeneralChannelHandler(IDiscordServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
     {
         this.channelServices = channelServices;
         this.channelOverwrites = channelOverwrites;
@@ -26,18 +25,20 @@ internal class CreateTeamGeneralChannelHandler : RequestHandler<CreateTeamGenera
 
     protected override async Task Process(CreateTeamGeneralChannelRequest request, CancellationToken cancellationToken)
     {
-        string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.TeamRole);
+        string name = ChannelName.FormatConst(request.DiscordTeam.Team.Name);
+        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetGeneral(request.DiscordTeam.Role!);
 
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category, overwrites);
-        if (channel is null)
+        Result<DiscordChannel> channel = await channelServices.CreateChannel(
+            name, DSharpPlus.ChannelType.Text, request.DiscordTeam.CategoryChannel, overwrites);
+
+        if (channel.IsSuccess)
         {
-            AddError(new CreateTeamGeneralChannelError());
+            request.DiscordTeam.SetGeneralChannel(channel.Value);
+            AddSuccess(new CreateTeamGeneralChannelSuccess());
         }
         else
         {
-            request.Team.GeneralChannelId = channel.Id;
-            AddSuccess(new CreateTeamGeneralChannelSuccess());
+            AddError(new CreateTeamGeneralChannelError());
         }
     }
 }

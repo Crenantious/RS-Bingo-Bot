@@ -1,4 +1,4 @@
-﻿// <copyright file="CreateTeamCategoryChannelValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="CreateTeamBoardMessageValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -7,12 +7,12 @@ namespace RSBingoBot.Requests.Validation;
 using DiscordLibrary.Requests.Validation;
 using RSBingoBot.Requests;
 
-internal class CreateTeamCategoryChannelValidator : Validator<CreateTeamCategoryChannelRequest>
+internal class CreateTeamBoardMessageValidator : Validator<CreateTeamBoardMessageRequest>
 {
-    public CreateTeamCategoryChannelValidator()
+    public CreateTeamBoardMessageValidator()
     {
         DiscordTeamNotNull(r => r.DiscordTeam);
         TeamExists(r => r.DiscordTeam.Team);
-        RoleNotNull(r => r.DiscordTeam.Role);
+        ChannelNotNull(r => r.DiscordTeam.BoardChannel);
     }
 }

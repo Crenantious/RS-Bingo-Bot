@@ -4,10 +4,10 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using FluentResults;
 using Microsoft.Extensions.Logging;
-using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
 
 public class DiscordTeamServices : IDiscordTeamServices
@@ -19,24 +19,24 @@ public class DiscordTeamServices : IDiscordTeamServices
         this.logger = logger;
     }
 
-    public async Task<Result<DiscordRole>> CreateTeamRole(Team team) =>
+    public async Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam team) =>
         await RequestServices.Run<CreateTeamRoleRequest, DiscordRole>(new CreateTeamRoleRequest(team));
 
-    public async Task<Result<DiscordChannel>> CreateCategoryChannel(Team team, DiscordRole teamRole) =>
-        await RequestServices.Run(new CreateTeamCategoryChannelRequest(team, teamRole));
+    public async Task<Result<DiscordChannel>> CreateCategoryChannel(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new CreateTeamCategoryChannelRequest(team));
 
-    public async Task<Result<DiscordChannel>> CreateBoardChannel(Team team, DiscordChannel category, DiscordRole teamRole) =>
-        await RequestServices.Run(new CreateTeamBoardChannelRequest(team, category, teamRole));
+    public async Task<Result<DiscordChannel>> CreateBoardChannel(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new CreateTeamBoardChannelRequest(team));
 
-    public async Task<Result<DiscordChannel>> CreateGeneralChannel(Team team, DiscordChannel category, DiscordRole teamRole) =>
-        await RequestServices.Run(new CreateTeamGeneralChannelRequest(team, category, teamRole));
+    public async Task<Result<DiscordChannel>> CreateGeneralChannel(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new CreateTeamGeneralChannelRequest(team));
 
-    public async Task<Result<DiscordChannel>> CreateEvidenceChannel(Team team, DiscordChannel category, DiscordRole teamRole) =>
-        await RequestServices.Run(new CreateTeamEvidenceChannelRequest(team, category, teamRole));
+    public async Task<Result<DiscordChannel>> CreateEvidenceChannel(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new CreateTeamEvidenceChannelRequest(team));
 
-    public async Task<Result<DiscordChannel>> CreateVoiceChannel(Team team, DiscordChannel category, DiscordRole teamRole) =>
-        await RequestServices.Run(new CreateTeamVoiceChannelRequest(team, category, teamRole));
+    public async Task<Result<DiscordChannel>> CreateVoiceChannel(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new CreateTeamVoiceChannelRequest(team));
 
-    public async Task InitialiseBoardChannel(Team team, DiscordChannel boardChannel) =>
-        await RequestServices.Run(new InitialiseTeamBoardChannelRequest(team, boardChannel));
+    public async Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run<CreateTeamBoardMessageRequest, Message>(new CreateTeamBoardMessageRequest(team));
 }

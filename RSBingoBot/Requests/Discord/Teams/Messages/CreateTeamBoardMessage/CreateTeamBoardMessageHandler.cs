@@ -1,4 +1,4 @@
-﻿// <copyright file="InitialiseTeamBoardChannelHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="CreateTeamBoardMessageHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,19 +8,18 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
-using FluentResults;
 using RSBingoBot.Requests;
 
-internal class InitialiseTeamBoardChannelHandler : RequestHandler<InitialiseTeamBoardChannelRequest, Result<Message>>
+internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMessageRequest, Message>
 {
     private readonly ButtonFactory buttonFactory;
 
-    public InitialiseTeamBoardChannelHandler(ButtonFactory buttonFactory)
+    public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory)
     {
         this.buttonFactory = buttonFactory;
     }
 
-    protected override async Task<Message> Process(InitialiseTeamBoardChannelRequest request, CancellationToken cancellationToken)
+    protected override async Task<Message> Process(CreateTeamBoardMessageRequest request, CancellationToken cancellationToken)
     {
         // TODO: send a request to get the board image.
         Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"));
@@ -37,7 +36,7 @@ internal class InitialiseTeamBoardChannelHandler : RequestHandler<InitialiseTeam
         message.AddComponents(clearEvidence, completeNextTileEvidence);
 #endif
 
-        message.Send(request.BoardChannel);
+        AddSuccess(new CreateTeamBoardMessageSuccess());
         return message;
     }
 }

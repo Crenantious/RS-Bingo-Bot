@@ -4,9 +4,8 @@
 
 namespace RSBingoBot.Requests;
 
-using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
-using RSBingo_Framework.Models;
+using RSBingoBot.Discord;
 
-internal record CreateTeamCategoryChannelRequest(Team Team, DiscordRole TeamRole) : IRequest<Result>;
+internal record CreateTeamCategoryChannelRequest(DiscordTeam DiscordTeam) : IRequest<Result>;

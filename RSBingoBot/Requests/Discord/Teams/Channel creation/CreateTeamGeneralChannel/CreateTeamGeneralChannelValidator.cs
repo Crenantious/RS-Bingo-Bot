@@ -11,7 +11,9 @@ internal class CreateTeamGeneralChannelValidator : Validator<CreateTeamGeneralCh
 {
     public CreateTeamGeneralChannelValidator()
     {
-        TeamExists(r => r.Team);
-        ChannelNotNull(r => r.Category);
+        DiscordTeamNotNull(r => r.DiscordTeam);
+        TeamExists(r => r.DiscordTeam.Team);
+        RoleNotNull(r => r.DiscordTeam.Role);
+        ChannelNotNull(r => r.DiscordTeam.CategoryChannel);
     }
 }

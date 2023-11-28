@@ -8,17 +8,16 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 
-internal class CreateTeamEvidenceChannelHandler : RequestHandler<CreateTeamEvidenceChannelRequest, Result>
+internal class CreateTeamEvidenceChannelHandler : RequestHandler<CreateTeamEvidenceChannelRequest>
 {
     private const string ChannelName = "{0}-evidence";
 
-    private readonly DiscordChannelServices channelServices;
+    private readonly IDiscordServices channelServices;
     private readonly DiscordTeamChannelOverwrites channelOverwrites;
 
-    public CreateTeamEvidenceChannelHandler(DiscordChannelServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
+    public CreateTeamEvidenceChannelHandler(IDiscordServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
     {
         this.channelServices = channelServices;
         this.channelOverwrites = channelOverwrites;
@@ -26,18 +25,20 @@ internal class CreateTeamEvidenceChannelHandler : RequestHandler<CreateTeamEvide
 
     protected override async Task Process(CreateTeamEvidenceChannelRequest request, CancellationToken cancellationToken)
     {
-        string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.TeamRole);
+        string name = ChannelName.FormatConst(request.DiscordTeam.Team.Name);
+        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.DiscordTeam.Role!);
 
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category, overwrites);
-        if (channel is null)
+        Result<DiscordChannel> channel = await channelServices.CreateChannel(
+            name, DSharpPlus.ChannelType.Text, request.DiscordTeam.CategoryChannel, overwrites);
+
+        if (channel.IsSuccess)
         {
-            AddError(new CreateTeamGeneralChannelError());
+            request.DiscordTeam.SetEvidenceChannel(channel.Value);
+            AddSuccess(new CreateTeamGeneralChannelSuccess());
         }
         else
         {
-            request.Team.EvidenceChannelId = channel.Id;
-            AddSuccess(new CreateTeamGeneralChannelSuccess());
+            AddError(new CreateTeamGeneralChannelError());
         }
     }
 }

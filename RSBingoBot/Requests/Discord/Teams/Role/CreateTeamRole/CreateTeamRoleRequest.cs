@@ -7,6 +7,5 @@ namespace RSBingoBot.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
-using RSBingo_Framework.Models;
 
-internal record CreateTeamRoleRequest(Team Team) : IRequest<Result<DiscordRole>>;
+internal record CreateTeamRoleRequest(RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result<DiscordRole>>;

@@ -8,36 +8,37 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingoBot.DTO;
 using RSBingoBot.Requests;
 
-internal class CreateTeamBoardChannelHandler : RequestHandler<CreateTeamBoardChannelRequest, Result>
+internal class CreateTeamBoardChannelHandler : RequestHandler<CreateTeamBoardChannelRequest>
 {
     private const string ChannelName = "{0}-board";
 
-    private readonly DiscordChannelServices channelServices;
+    private readonly IDiscordServices services;
     private readonly DiscordTeamChannelOverwrites channelOverwrites;
 
-    public CreateTeamBoardChannelHandler(DiscordChannelServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
+    public CreateTeamBoardChannelHandler(IDiscordServices channelServices, DiscordTeamChannelOverwrites channelOverwrites)
     {
-        this.channelServices = channelServices;
+        this.services = channelServices;
         this.channelOverwrites = channelOverwrites;
     }
 
     protected override async Task Process(CreateTeamBoardChannelRequest request, CancellationToken cancellationToken)
     {
-        string name = ChannelName.FormatConst(request.Team.Name);
-        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetCategory(request.TeamRole);
+        string name = ChannelName.FormatConst(request.DiscordTeam.Team.Name);
+        DiscordOverwriteBuilder[] overwrites = channelOverwrites.GetBoard(request.DiscordTeam.Role!);
 
-        DiscordChannel? channel = await channelServices.Create(name, DSharpPlus.ChannelType.Text, request.Category, overwrites);
-        if (channel is null)
+        Result<DiscordChannel> channel = await services.CreateChannel(
+            name, DSharpPlus.ChannelType.Text, request.DiscordTeam.CategoryChannel, overwrites);
+
+        if (channel.IsSuccess)
         {
-            AddError(new CreateTeamBoardChannelError());
+            request.DiscordTeam.SetBoardChannel(channel.Value);
+            AddSuccess(new CreateTeamBoardChannelSuccess());
         }
         else
         {
-            request.Team.CategoryChannelId = channel.Id;
-            AddSuccess(new CreateTeamBoardChannelSuccess());
+            AddError(new CreateTeamBoardChannelError());
         }
     }
 }

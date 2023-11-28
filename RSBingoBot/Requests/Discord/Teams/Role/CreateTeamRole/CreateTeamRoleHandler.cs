@@ -20,7 +20,7 @@ internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest, Dis
 
     protected override async Task<DiscordRole> Process(CreateTeamRoleRequest request, CancellationToken cancellationToken)
     {
-        Result<DiscordRole> role = await userServices.CreateRole(request.Team.Name);
+        Result<DiscordRole> role = await userServices.CreateRole(request.DiscordTeam.Team.Name);
         if (role.IsSuccess)
         {
             AddSuccess(new CreateTeamRoleSuccess());
