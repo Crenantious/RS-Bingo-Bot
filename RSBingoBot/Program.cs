@@ -19,6 +19,7 @@ using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.BingoCommands;
+using RSBingoBot.DiscordComponents;
 using RSBingoBot.Imaging;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -136,6 +137,8 @@ public class Program
                 services.AddSingleton<MessageReactionAddedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
+
+                services.AddSingleton<SingletonButtons>();
 
                 services.AddMediatR(c =>
                     c.RegisterServicesFromAssemblyContaining<Program>());

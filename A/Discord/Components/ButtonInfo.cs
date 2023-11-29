@@ -7,4 +7,4 @@ namespace DiscordLibrary.DiscordComponents;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-public record ButtonInfo(ButtonStyle Style, string Label, DiscordComponentEmoji? Emoji = null);
+public record ButtonInfo(ButtonStyle Style, string Label, string Id = "", DiscordComponentEmoji? Emoji = null);

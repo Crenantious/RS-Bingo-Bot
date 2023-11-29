@@ -6,13 +6,13 @@ namespace RSBingoBot;
 
 using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.BingoCommands;
-using RSBingoBot.RequestHandlers;
+using RSBingoBot.DiscordComponents;
+using RSBingoBot.Factories;
 using RSBingoBot.Leaderboard;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -23,7 +23,8 @@ public class Bot : BackgroundService
 {
     private readonly ILogger logger;
     private readonly DiscordClient discordClient;
-    private readonly DiscordTeamOld.Factory teamFactory;
+    private readonly DiscordTeamFactory teamFactory;
+    private readonly SingletonButtons singletonButtons;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -32,11 +33,16 @@ public class Bot : BackgroundService
     /// <param name="logger">The logger the instance will log to.</param>
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamOld.Factory teamFactory)
+    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamFactory teamFactory, SingletonButtons singletonButtons)
     {
         this.logger = logger;
         this.discordClient = client;
         this.teamFactory = teamFactory;
+
+        // Injected with DI so this is enough for all the buttons to be created.
+        // TODO: JR - make the buttons themselves injected or make SingletonButtons eager loaded so
+        // injecting here is unnecessary.
+        this.singletonButtons = singletonButtons;
     }
 
     /// <inheritdoc/>
@@ -45,9 +51,6 @@ public class Bot : BackgroundService
         discordClient.UseInteractivity();
 
         CommandController.RegisterSlashCommands(discordClient);
-
-        ComponentInteractionHandler.Register<CreateTeamButtonHandler>(CreateTeamButtonHandler.CreateTeamButtonId);
-        ComponentInteractionHandler.Register<JoinTeamButtonHandler>(JoinTeamButtonHandler.JoinTeamButtonId);
 
         await discordClient.ConnectAsync();
         await CreateExistingTeams();
@@ -66,8 +69,7 @@ public class Bot : BackgroundService
     {
         foreach (Team team in dataWorker.Teams.GetTeams())
         {
-            DiscordTeamOld discordTeam = new (discordClient, team.Name);
-            await discordTeam.InitialiseAsync(team);
+            teamFactory.CreateFromExisting(team);
         }
     }
 }

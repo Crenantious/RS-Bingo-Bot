@@ -6,14 +6,14 @@ namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-public class Button : Component
+public class Button : Component, IInteractable
 {
     public override DiscordComponent DiscordComponent { get; }
     public override string Name { get; protected set; }
 
-    public Button(ButtonInfo info, string id = "") : base(id)
+    public Button(ButtonInfo info) : base(info.Id)
     {
-        DiscordComponent = new DiscordButtonComponent(info.Style, Guid.NewGuid().ToString(), info.Label, false, info.Emoji!);
+        DiscordComponent = new DiscordButtonComponent(info.Style, CustomId, info.Label, false, info.Emoji!);
         Name = $"({nameof(Button)}) {info.Label}";
     }
 }

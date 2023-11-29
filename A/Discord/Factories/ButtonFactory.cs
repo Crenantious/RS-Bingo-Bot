@@ -11,6 +11,6 @@ public class ButtonFactory : InteractableComponentFactory<ButtonInfo, Button, IB
 {
     public static ButtonInfo CloseButton => new(DSharpPlus.ButtonStyle.Primary, "Close");
 
-    protected internal override Button Create(ButtonInfo buttonInfo) =>
+    internal protected override Button Create(ButtonInfo buttonInfo) =>
         new Button(buttonInfo);
 }
