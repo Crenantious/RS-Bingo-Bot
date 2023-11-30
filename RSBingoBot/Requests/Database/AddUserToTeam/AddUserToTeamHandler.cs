@@ -29,10 +29,20 @@ internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest, B
         AddSuccess(new AddUserToTeamAddedToTeamSuccess(request.User));
 
         Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
-        if (member.IsSuccess)
+
+        if (member.IsFailed)
         {
-            await discordServices.GrantRole(member.Value, request.DiscordTeam.Role!);
-            AddSuccess(new AddUserToTeamAddedRoleSuccess(request.User));
+            AddErrors(member.Errors);
+            return;
         }
+
+        Result result = await discordServices.GrantRole(member.Value, request.DiscordTeam.Role!);
+        if (result.IsFailed)
+        {
+            AddErrors(result.Errors);
+            return;
+        }
+
+        AddSuccess(new AddUserToTeamAddedRoleSuccess(request.User));
     }
 }
