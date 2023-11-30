@@ -72,30 +72,38 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     #region Add result responses
 
     /// <summary>
-    /// How this is processed depends on the type. See the user guide for specifics.
+    /// Add a success to the <see cref="Result"/> response.
     /// </summary>
     protected void AddSuccess(ISuccess success) =>
         sucesses.Add(success);
 
     /// <summary>
-    /// How these are processed depends on the type. See the user guide for specifics.
+    /// Add successes to the <see cref="Result"/> response.
     /// </summary>
     protected void AddSuccesses(IEnumerable<ISuccess> successes) =>
         sucesses.Concat(successes);
 
-    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
+    /// <summary>
+    /// Add a warning to the <see cref="Result"/> response.
+    /// </summary>
     protected void AddWarning(IWarning warning) =>
         sucesses.Add(warning);
 
-    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
+    /// <summary>
+    /// Add warnings to the <see cref="Result"/> response.
+    /// </summary>
     protected void AddWarnings(IEnumerable<IWarning> warnings) =>
         sucesses.Concat(warnings);
 
-    /// <inheritdoc cref="AddSuccess(ISuccess)"/>
+    /// <summary>
+    /// Add an error to the <see cref="Result"/> response.
+    /// </summary>
     protected void AddError(IError error) =>
         errors.Add(error);
 
-    /// <inheritdoc cref="AddSuccesses(IEnumerable{ISuccess})"/>
+    /// <summary>
+    /// Add errors to the <see cref="Result"/> response.
+    /// </summary>
     protected void AddErrors(IEnumerable<IError> errors) =>
         errors.Concat(errors);
 

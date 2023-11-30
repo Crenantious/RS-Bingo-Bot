@@ -31,4 +31,10 @@ public class InteractionMessage : Message
         builder.IsEphemeral = IsEphemeral;
         return builder;
     }
+
+    public static InteractionMessage operator +(InteractionMessage prefix, InteractionMessage suffix) =>
+        (InteractionMessage)((prefix as Message) + (suffix as Message));
+
+    public static InteractionMessage operator +(InteractionMessage prefix, Message suffix) =>
+        (InteractionMessage)((prefix as Message) + suffix);
 }

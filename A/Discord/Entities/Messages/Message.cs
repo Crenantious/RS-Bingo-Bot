@@ -59,7 +59,7 @@ public class Message : IMessage
         return builder;
     }
 
-    public static Message operator +(Message suffixMessage)
+    public static Message operator +(Message prefix, Message suffix)
     {
         // TODO: JR - implement.
         // Use this to append messages. Combines content, components etc.
