@@ -23,7 +23,7 @@ internal class AssignTeamRoleHandler : RequestHandler<AssignTeamRoleRequest>
     {
         foreach (User user in request.Team.Users)
         {
-            Result<DiscordMember> discordMember = await discordUserServices.GetUser(user.DiscordUserId);
+            Result<DiscordMember> discordMember = await discordUserServices.GetMember(user.DiscordUserId);
             if (discordMember.IsSuccess)
             {
                 await discordUserServices.GrantRole(discordMember.Value, request.Role);

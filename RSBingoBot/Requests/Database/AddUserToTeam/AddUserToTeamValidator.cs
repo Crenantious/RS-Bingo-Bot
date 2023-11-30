@@ -2,16 +2,16 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests.Validation;
+namespace RSBingoBot.Requests;
 
-using RSBingoBot.Requests;
+using RSBingoBot.Requests.Validation;
 
 internal class AddUserToTeamValidator : Validator<AddUserToTeamRequest>
 {
     public AddUserToTeamValidator()
     {
         UserNotNull(r => r.User);
-        UserNotOnATeam(r => r.User);
-        TeamExists(r => r.TeamName);
+        DiscordTeamNotNull(r => r.DiscordTeam);
+        TeamExists(r => r.DiscordTeam.Team);
     }
 }

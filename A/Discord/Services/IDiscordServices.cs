@@ -11,7 +11,7 @@ using FluentResults;
 
 public interface IDiscordServices
 {
-    public Task<Result<DiscordMember>> GetUser(ulong id);
+    public Task<Result<DiscordMember>> GetMember(ulong id);
 
     public Task<Result<DiscordRole>> CreateRole(string name);
 

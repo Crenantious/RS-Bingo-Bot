@@ -22,7 +22,7 @@ public class DiscordServices : IDiscordServices
         this.logger = logger;
     }
 
-    public async Task<Result<DiscordMember>> GetUser(ulong id) =>
+    public async Task<Result<DiscordMember>> GetMember(ulong id) =>
         await RequestServices.Run<GetDiscordUserRequest, DiscordMember>(new GetDiscordUserRequest(id));
 
     public async Task<Result<DiscordRole>> CreateRole(string name) =>

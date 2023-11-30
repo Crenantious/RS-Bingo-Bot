@@ -7,6 +7,8 @@ namespace DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 
+// TODO: JR - move the semaphore to Validator since it's possible for one request to complete
+// which invalidates another that's queued.
 public abstract class RequestHandler<TRequest> : RequestHandlerBase<TRequest, Result>
     where TRequest : IRequest<Result>
 {
