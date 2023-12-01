@@ -4,7 +4,6 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.RequestHandlers;
 using DSharpPlus.Entities;
@@ -12,7 +11,7 @@ using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 
-internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest, Button>
+internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest>
 {
     private readonly IDiscordServices discordServices;
     private IDataWorker dataWorker = DataFactory.CreateDataWorker();
@@ -26,7 +25,7 @@ internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest, B
     {
         dataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
         dataWorker.SaveChanges();
-        AddSuccess(new AddUserToTeamAddedToTeamSuccess(request.User));
+        AddSuccess(new AddUserToTeamAddedToTeamSuccess(request.User), false);
 
         Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
 
@@ -43,6 +42,6 @@ internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest, B
             return;
         }
 
-        AddSuccess(new AddUserToTeamAddedRoleSuccess(request.User));
+        AddSuccess(new AddUserToTeamSuccess(request.DiscordTeam.Team));
     }
 }

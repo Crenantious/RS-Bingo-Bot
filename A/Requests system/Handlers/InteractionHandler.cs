@@ -4,7 +4,6 @@
 
 namespace DiscordLibrary.RequestHandlers;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
@@ -17,9 +16,8 @@ using System.Text;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
-public abstract class InteractionHandler<TRequest, TComponent> : RequestHandler<TRequest>, IInteractionHandler
+public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
     where TRequest : IInteractionRequest
-    where TComponent : IInteractable
 {
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
