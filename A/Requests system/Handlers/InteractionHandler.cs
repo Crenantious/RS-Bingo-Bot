@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
@@ -26,7 +27,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     protected DiscordUser DiscordUser { get; private set; } = null!;
     protected User User { get; private set; } = null!;
-    protected DiscordInteraction Interaction { get; private set; } = null!;
+    protected InteractionCreateEventArgs InteractionArgs { get; private set; } = null!;
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
 
     internal IInteractionHandler ParentHandler { get; set; } = null!;
@@ -38,12 +39,16 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     }
 
-    protected override Task Process(TRequest request, CancellationToken cancellationToken)
+    internal protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
-        Interaction = request.InteractionArgs.Interaction;
-        DiscordUser = Interaction.User;
+        InteractionArgs = request.InteractionArgs;
+        DiscordUser = InteractionArgs.Interaction.User;
         User = DiscordUser.GetDBUser(DataWorker)!;
+        return Task.CompletedTask;
+    }
 
+    internal protected override Task PostProcess(TRequest request, CancellationToken cancellationToken)
+    {
         ResponseMessages.ForEach(async m => await m.Send());
         return Task.CompletedTask;
     }
@@ -139,7 +144,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     private InteractionMessage AddResponseCommon(string content, bool addToLastResponse)
     {
-        var message = new InteractionMessage(Interaction).WithContent(content);
+        var message = new InteractionMessage(InteractionArgs.Interaction).WithContent(content);
 
         if (addToLastResponse)
         {

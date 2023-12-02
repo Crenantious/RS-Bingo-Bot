@@ -59,15 +59,19 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         }
     }
 
+    internal protected virtual async Task PreProcess(TRequest request, CancellationToken cancellationToken) { }
+    internal protected virtual async Task PostProcess(TRequest request, CancellationToken cancellationToken) { }
+
+    internal protected abstract Task<TResult> InternalProcess(TRequest request, CancellationToken cancellationToken);
+
     private async Task<TResult> ProcessRequest(TRequest request, CancellationToken cancellationToken)
     {
+        await PreProcess(request, cancellationToken);
         TResult result = await InternalProcess(request, cancellationToken);
         return errors.Count == 0 ?
                result.WithSuccesses(sucesses) :
                result.WithErrors(errors);
     }
-
-    internal protected abstract Task<TResult> InternalProcess(TRequest request, CancellationToken cancellationToken);
 
     #region Add result responses
 

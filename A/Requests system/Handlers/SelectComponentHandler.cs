@@ -7,12 +7,12 @@ namespace DiscordLibrary.RequestHandlers;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 
-public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TRequest, SelectComponent>
+public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest
 {
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
-        List<SelectComponentOption> options = GetSelectedOptions();
+        List<SelectComponentOption> options = GetSelectedOptions(request);
         IEnumerable<SelectComponentPage> pages = options.OfType<SelectComponentPage>();
 
         if (pages.Any())
@@ -31,7 +31,7 @@ public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TReq
     protected virtual void OnPageSelected(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
     protected virtual async Task OnPageSelectedAsync(SelectComponentPage page, TRequest request, CancellationToken cancellationToken) { }
 
-    private List<SelectComponentOption> GetSelectedOptions()
+    private List<SelectComponentOption> GetSelectedOptions(TRequest request)
     {
         List<SelectComponentOption> options = new(InteractionArgs.Values.Length);
         int index;
@@ -41,11 +41,12 @@ public abstract class SelectComponentHandler<TRequest> : InteractionHandler<TReq
             try
             {
                 index = int.Parse(InteractionArgs.Values[i]);
-                options.Add(Component.selectOptions.ElementAt(index));
+                options.Add(request.Component.selectOptions.ElementAt(index));
             }
             catch
             {
                 // Received garbage data
+                // TODO: JR - add an appropriate error
                 continue;
             }
         }
