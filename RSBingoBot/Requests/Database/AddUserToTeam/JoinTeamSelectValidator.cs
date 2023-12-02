@@ -1,4 +1,4 @@
-﻿// <copyright file="AddUserToTeamValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="JoinTeamSelectValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,9 +6,9 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class AddUserToTeamValidator : Validator<AddUserToTeamRequest>
+internal class JoinTeamSelectValidator : Validator<JoinTeamSelectRequest>
 {
-    public AddUserToTeamValidator()
+    public JoinTeamSelectValidator()
     {
         UserNotNull(r => r.User);
         DiscordTeamNotNull(r => r.DiscordTeam);

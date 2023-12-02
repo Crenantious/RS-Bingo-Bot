@@ -1,4 +1,4 @@
-﻿// <copyright file="AddUserToTeamHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="JoinTeamSelectHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -11,21 +11,21 @@ using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 
-internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest>
+internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequest>
 {
     private readonly IDiscordServices discordServices;
     private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
-    public AddUserToTeamHandler(IDiscordServices discordServices)
+    public JoinTeamSelectHandler(IDiscordServices discordServices)
     {
         this.discordServices = discordServices;
     }
 
-    protected override async Task Process(AddUserToTeamRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(JoinTeamSelectRequest request, CancellationToken cancellationToken)
     {
         dataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
         dataWorker.SaveChanges();
-        AddSuccess(new AddUserToTeamAddedToTeamSuccess(request.User), false);
+        AddSuccess(new JoinTeamSelectAddedToTeamSuccess(request.User), false);
 
         Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
 
@@ -42,6 +42,6 @@ internal class AddUserToTeamHandler : InteractionHandler<AddUserToTeamRequest>
             return;
         }
 
-        AddSuccess(new AddUserToTeamSuccess(request.DiscordTeam.Team));
+        AddSuccess(new JoinTeamSelectSuccess(request.DiscordTeam.Team));
     }
 }
