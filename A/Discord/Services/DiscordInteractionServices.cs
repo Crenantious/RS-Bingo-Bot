@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
@@ -19,23 +20,17 @@ internal static class DiscordInteractionServices
         componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
     }
 
-    public static void RegisterInteractionHandler(IInteractionRequest request, ComponentInteractionDEH.Constraints constraints)
+    public static void RegisterInteractionHandler<T>(IComponentInteractionRequest<T> request, ComponentInteractionDEH.Constraints constraints)
+        where T : IComponent
     {
         componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(request, args));
     }
 
-    private static async Task OnComponentInteraction(IInteractionRequest request, ComponentInteractionCreateEventArgs args)
+    private static async Task OnComponentInteraction<T>(IComponentInteractionRequest<T> request, ComponentInteractionCreateEventArgs args)
+        where T : IComponent
     {
         request.InteractionArgs = args;
-
-        Result result = await RequestServices.Run<IInteractionRequest>(request);
-        IEnumerable<IInteractionReason> reasons = result.Reasons.OfType<IInteractionReason>();
-
-        foreach (IInteractionReason reason in reasons)
-        {
-            // reason.DiscordMessage
-            // TODO: JR - send message.
-        }
+        Result result = await RequestServices.Run(request);
     }
 
     // TODO: implement registration for a command

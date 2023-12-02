@@ -4,12 +4,13 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.RequestHandlers;
-using DSharpPlus.Entities;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using RSBingoBot.Discord;
 
 internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequest>
 {
@@ -21,13 +22,15 @@ internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequ
         this.discordServices = discordServices;
     }
 
-    protected override async Task Process(JoinTeamSelectRequest request, CancellationToken cancellationToken)
+    protected override async Task OnItemSelectedAsync(IEnumerable<SelectComponentItem> items, JoinTeamSelectRequest request, CancellationToken cancellationToken)
     {
-        dataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
+        DiscordTeam discordTeam = (DiscordTeam)items.ElementAt(0).Value!;
+
+        dataWorker.Users.Create(request.User.Id, discordTeam.Team);
         dataWorker.SaveChanges();
         AddSuccess(new JoinTeamSelectAddedToTeamSuccess(request.User), false);
 
-        Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
+        Result<DSharpPlus.Entities.DiscordMember> member = await discordServices.GetMember(request.User.Id);
 
         if (member.IsFailed)
         {
@@ -35,13 +38,13 @@ internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequ
             return;
         }
 
-        Result result = await discordServices.GrantRole(member.Value, request.DiscordTeam.Role!);
+        Result result = await discordServices.GrantRole(member.Value, discordTeam.Role!);
         if (result.IsFailed)
         {
             AddErrors(result.Errors);
             return;
         }
 
-        AddSuccess(new JoinTeamSelectSuccess(request.DiscordTeam.Team));
+        AddSuccess(new JoinTeamSelectSuccess(discordTeam.Team));
     }
 }

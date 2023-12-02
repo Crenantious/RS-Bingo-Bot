@@ -6,7 +6,7 @@ namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-public class SelectComponent : Component
+public class SelectComponent : Component, IInteractable
 {
     internal DiscordSelectComponent DiscordSelectComponent { get; set; } = null!;
     internal string? placeholder { get; set; } = null;

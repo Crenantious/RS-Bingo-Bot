@@ -11,6 +11,6 @@ using DSharpPlus.EventArgs;
 
 internal record JoinTeamButtonRequest(DiscordUser User) : IButtonRequest
 {
-    public InteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-    public Button Component { get; set; }
+    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
+    public Button Component { get; set; } = null!;
 }

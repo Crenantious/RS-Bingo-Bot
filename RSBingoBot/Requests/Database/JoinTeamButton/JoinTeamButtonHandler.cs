@@ -24,7 +24,8 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
         SelectComponent selectComponent = selectComponentFactory.Create(new("Select a team", GetSelectOptions()),
                                                                         new JoinTeamSelectRequest(request.User));
         var response = new InteractionMessage(InteractionArgs.Interaction)
-                           .AddComponents(selectComponent);
+                           .AddComponents(selectComponent)
+                           .AsEphemeral(true);
         ResponseMessages.Add(response);
         AddSuccess(new JoinTeamButtonSuccess(), false);
     }
@@ -35,7 +36,6 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
         foreach (Team team in DataWorker.Teams.GetAll())
         {
             items.Add(new(team.Name, team));
-
         }
         return items;
     }

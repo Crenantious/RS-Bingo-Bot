@@ -11,7 +11,7 @@ using DiscordLibrary.Requests;
 // TODO : JR - make it so these classes don't duplicate code.
 public abstract class InteractableComponentFactory<TComponent, TRequest>
     where TComponent : IComponent, IInteractable
-    where TRequest : IComponentRequest<TComponent>, IInteractionRequest
+    where TRequest : IComponentInteractionRequest<TComponent>
 {
     internal InteractableComponentFactory()
     {
@@ -23,7 +23,7 @@ public abstract class InteractableComponentFactory<TComponent, TRequest>
         TComponent component = Create();
 
         request.Component = component;
-        component.Register<TComponent, TRequest>(request);
+        component.Register(request);
         return component;
     }
 
@@ -35,7 +35,7 @@ public abstract class InteractableComponentFactory<TComponent, TRequest>
 
 public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TRequest>
     where TComponent : IComponent, IInteractable
-    where TRequest : IComponentRequest<TComponent>, IInteractionRequest
+    where TRequest : IComponentInteractionRequest<TComponent>
 {
     internal InteractableComponentFactory()
     {
@@ -47,7 +47,7 @@ public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TReq
         TComponent component = Create(createInfo);
 
         request.Component = component;
-        component.Register<TComponent, TRequest>(request);
+        component.Register(request);
         return component;
     }
 

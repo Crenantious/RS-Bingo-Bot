@@ -7,11 +7,11 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordComponents;
 using DSharpPlus.EventArgs;
 
-public interface IComponentInteractionRequest<TComponent> : IComponentRequest<TComponent>, IInteractionRequest
+public interface IComponentInteractionRequest<TComponent> : IComponentRequest<TComponent>
     where TComponent : IComponent
 {
     /// <summary>
     /// Value will be set by the framework.
     /// </summary>
-    public new ComponentInteractionCreateEventArgs InteractionArgs { get; set; }
+    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; }
 }

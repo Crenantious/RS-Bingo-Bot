@@ -13,7 +13,7 @@ internal static class InteractableComponentExtensions
 {
     public static void Register<T, K>(this T interactable, K request)
         where T : IComponent, IInteractable
-        where K : IComponentRequest<T>, IInteractionRequest
+        where K : IComponentInteractionRequest<T>
     {
         // TODO: JR - remove the need for constraints.
         ComponentInteractionDEH.Constraints constraints = new(new(), interactable.CustomId);

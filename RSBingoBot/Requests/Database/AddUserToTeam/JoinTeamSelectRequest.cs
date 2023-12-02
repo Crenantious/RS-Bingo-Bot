@@ -11,6 +11,6 @@ using DSharpPlus.EventArgs;
 
 internal record JoinTeamSelectRequest(DiscordUser User) : ISelectComponentRequest
 {
-    public InteractionCreateEventArgs InteractionArgs { get; set; } = null!;
+    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
     public SelectComponent Component { get; set; } = null!;
 }

@@ -11,7 +11,5 @@ internal class JoinTeamSelectValidator : Validator<JoinTeamSelectRequest>
     public JoinTeamSelectValidator()
     {
         UserNotNull(r => r.User);
-        DiscordTeamNotNull(r => r.DiscordTeam);
-        TeamExists(r => r.DiscordTeam.Team);
     }
 }
