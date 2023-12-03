@@ -28,32 +28,19 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
     }
 
     /// <summary>
+    /// Sends a modal to Discord in response to an interaction.
+    /// </summary>
+    /// <returns>If the message was sent successfully.</returns>
+    // TODO: JR - check if this works. I believe a modal can only be an original response.
+    public async Task<bool> Send(Modal modal) =>
+        await Send(modal, InteractionResponseType.Modal);
+
+    /// <summary>
     /// Sends a message to Discord in response to an interaction.
     /// </summary>
     /// <returns>If the message was sent successfully.</returns>
-    public async Task<bool> Send(InteractionMessage message)
-    {
-        bool succeeded;
-
-        if (InteractionsRespondedTo.Contains(message.Interaction.Id))
-        {
-            succeeded = await Followup(message.Interaction, message.GetFollowupMessageBuilder());
-        }
-        else
-        {
-            succeeded = await CreateOriginalResponse(message.Interaction, message.GetInteractionResponseBuilder());
-            if (succeeded)
-            {
-                InteractionsRespondedTo.Add(message.Interaction.Id);
-            }
-        }
-
-        if (succeeded)
-        {
-            MessageTagTracker.Add(message);
-        }
-        return succeeded;
-    }
+    public async Task<bool> Send(InteractionMessage message) =>
+        await Send(message, InteractionResponseType.ChannelMessageWithSource);
 
     /// <summary>
     /// Edits the Discord message to update it to the new contents of <paramref name="message"/>.
@@ -81,9 +68,34 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
         return succeeded;
     }
 
-    private async Task<bool> CreateOriginalResponse(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder) =>
+    private async Task<bool> Send(InteractionMessage message, InteractionResponseType responseType)
+    {
+        bool succeeded;
+
+        if (InteractionsRespondedTo.Contains(message.Interaction.Id))
+        {
+            succeeded = await Followup(message.Interaction, message.GetFollowupMessageBuilder());
+        }
+        else
+        {
+            succeeded = await CreateOriginalResponse(message.Interaction, message.GetInteractionResponseBuilder(), responseType);
+            if (succeeded)
+            {
+                InteractionsRespondedTo.Add(message.Interaction.Id);
+            }
+        }
+
+        if (succeeded)
+        {
+            MessageTagTracker.Add(message);
+        }
+        return succeeded;
+    }
+
+    private async Task<bool> CreateOriginalResponse(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder,
+        InteractionResponseType responseType) =>
         await SendRequest(interaction,
-            async () => await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder),
+            async () => await interaction.CreateResponseAsync(responseType, builder),
             RequestType.Send);
 
     private async Task<bool> Followup(DiscordInteraction interaction, DiscordFollowupMessageBuilder builder) =>

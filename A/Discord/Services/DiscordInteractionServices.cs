@@ -14,10 +14,12 @@ using RSBingo_Common;
 internal static class DiscordInteractionServices
 {
     private static ComponentInteractionDEH componentInteractionDEH;
+    private static ModalSubmittedDEH modalDEH;
 
     static DiscordInteractionServices()
     {
         componentInteractionDEH = (ComponentInteractionDEH)General.DI.GetService(typeof(ComponentInteractionDEH))!;
+        modalDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH))!;
     }
 
     public static void RegisterInteractionHandler<T>(IComponentInteractionRequest<T> request, ComponentInteractionDEH.Constraints constraints)
@@ -26,8 +28,19 @@ internal static class DiscordInteractionServices
         componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(request, args));
     }
 
+    public static void RegisterModal(IModalRequest request, ModalSubmittedDEH.Constraints constraints)
+    {
+        modalDEH.Subscribe(constraints, (client, args) => OnModalSubmitted(request, args));
+    }
+
     private static async Task OnComponentInteraction<T>(IComponentInteractionRequest<T> request, ComponentInteractionCreateEventArgs args)
         where T : IComponent
+    {
+        request.InteractionArgs = args;
+        Result result = await RequestServices.Run(request);
+    }
+
+    private static async Task OnModalSubmitted(IModalRequest request, ModalSubmitEventArgs args)
     {
         request.InteractionArgs = args;
         Result result = await RequestServices.Run(request);

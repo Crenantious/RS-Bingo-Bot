@@ -18,7 +18,7 @@ public class InteractionMessage : Message
         Interaction = interaction;
     }
 
-    public DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
+    public virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
     {
         var builder = GetBaseMessageBuilder(new DiscordInteractionResponseBuilder());
         builder.IsEphemeral = IsEphemeral;

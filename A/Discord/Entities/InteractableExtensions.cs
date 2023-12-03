@@ -1,15 +1,16 @@
-﻿// <copyright file="InteractableComponentExtensions.cs" company="PlaceholderCompany">
+﻿// <copyright file="InteractableExtensions.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace DiscordLibrary.Interactions;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 
-internal static class InteractableComponentExtensions
+internal static class InteractableExtensions
 {
     public static void Register<T, K>(this T interactable, K request)
         where T : IComponent, IInteractable
@@ -18,5 +19,12 @@ internal static class InteractableComponentExtensions
         // TODO: JR - remove the need for constraints.
         ComponentInteractionDEH.Constraints constraints = new(new(), interactable.CustomId);
         DiscordInteractionServices.RegisterInteractionHandler(request, constraints);
+    }
+
+    public static void Register(this Modal modal, IModalRequest request)
+    {
+        // TODO: JR - remove the need for constraints.
+        ModalSubmittedDEH.Constraints constraints = new(null, modal.CustomId);
+        DiscordInteractionServices.RegisterModal(request, constraints);
     }
 }

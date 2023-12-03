@@ -7,8 +7,6 @@ namespace RSBingoBot.RequestHandlers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using RSBingoBot.DiscordEventHandlers;
-using static RSBingoBot.MessageUtilities;
 
 /// <summary>
 /// Handles the interaction with the "Create team" button in the team-registration channel.
@@ -53,7 +51,7 @@ internal class CreateTeamButtonHandler : ComponentInteractionHandler
         var builder = new DiscordInteractionResponseBuilder()
             .WithTitle("Create a team.")
             .WithCustomId(modalId)
-            .AddComponents(teamNameInput);
+            .AddComponents(teamNameInput)
 
         await CurrentInteractionArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, builder);
         SubscribeModal(new ModalSubmittedDEH.Constraints(customId: modalId), TeamNameSubmitted);

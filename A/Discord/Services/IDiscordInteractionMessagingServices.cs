@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordEntities;
 
 public interface IDiscordInteractionMessagingServices
 {
+    public Task<bool> Send(Modal modal);
     public Task<bool> Send(InteractionMessage message);
     public Task<bool> Update(InteractionMessage message);
     public Task<bool> Delete(InteractionMessage message);
