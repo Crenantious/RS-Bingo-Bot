@@ -45,4 +45,7 @@ public class DiscordTeamServices : IDiscordTeamServices
 
     public async Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team) =>
         await RequestServices.Run(new CreateMissingDiscordTeamEntitiesRequest(team));
+
+    public async Task<Result> AddUserToTeam(DiscordUser user, RSBingoBot.Discord.DiscordTeam team) =>
+        await RequestServices.Run(new AddUserToTeamRequest(user, team));
 }

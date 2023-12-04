@@ -27,9 +27,10 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
                            .AddComponents(selectComponent)
                            .AsEphemeral(true);
         ResponseMessages.Add(response);
-        AddSuccess(new JoinTeamButtonSuccess(), false);
     }
 
+    // TODO: JR - add SelectItemsGenerator to make this simple since it's commonplace.
+    // I.e. a method: FromEnumerable(IEnumerable<T>, Func<T, SelectComponentItem>)
     private List<SelectComponentItem> GetSelectOptions()
     {
         List<SelectComponentItem> items = new();

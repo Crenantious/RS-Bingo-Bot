@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
 using RSBingoBot.Requests;
 
-// TODO: JR - convert other Discord services to requests and wrap them here.
 public class DiscordServices : IDiscordServices
 {
     private readonly Logger<DiscordServices> logger;

@@ -76,6 +76,15 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     #region Add result responses
 
     /// <summary>
+    /// Add successes and errors to the <see cref="Result"/> response.
+    /// </summary>
+    protected void AddReasons(ResultBase result)
+    {
+        AddSuccesses(result.Successes);
+        AddErrors(result.Errors);
+    }
+
+    /// <summary>
     /// Add a success to the <see cref="Result"/> response.
     /// </summary>
     protected void AddSuccess(ISuccess success) =>
