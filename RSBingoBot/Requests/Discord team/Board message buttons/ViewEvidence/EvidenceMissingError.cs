@@ -5,9 +5,10 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
+using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class EvidenceMissingError : InteractionError
+internal class EvidenceMissingError : Error, IDiscordResponse
 {
     private const string ErrorMessage = "Evidence can no longer be found for the tile {0}.";
 

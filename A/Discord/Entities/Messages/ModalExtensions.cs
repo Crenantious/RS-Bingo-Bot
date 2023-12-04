@@ -21,12 +21,6 @@ public static class ModalExtensions
         return false;
     }
 
-    public static async Task<bool> Update(this InteractionMessage message) =>
-        await GetMessageService().Update(message);
-
-    public static async Task<bool> Delete(this InteractionMessage message) =>
-        await GetMessageService().Delete(message);
-
     private static IDiscordInteractionMessagingServices GetMessageService() =>
         (IDiscordInteractionMessagingServices)General.DI.GetService(typeof(IDiscordInteractionMessagingServices))!;
 }

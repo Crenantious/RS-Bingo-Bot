@@ -9,8 +9,8 @@ using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using RSBingo_Framework.Models;
 
-internal record ViewEvidenceButtonRequest(Team Team) : IButtonRequest, IInteractionRequest
+internal record ViewEvidenceButtonRequest(Team Team) : IButtonRequest
 {
     public Button Component { get; set; } = null!;
-    public InteractionCreateEventArgs InteractionArgs { get; set; } = null!;
+    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
 }

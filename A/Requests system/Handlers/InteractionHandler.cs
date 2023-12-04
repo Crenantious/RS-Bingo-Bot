@@ -55,6 +55,11 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
         throw new NotImplementedException();
     }
 
+    protected void DeleteResponses()
+    {
+        ResponseMessages.ForEach(async m => await m.Delete());
+    }
+
     #region Add result responses
 
     public InteractionMessage AddResponses(ResultBase result, bool addToLastResponse = true) =>

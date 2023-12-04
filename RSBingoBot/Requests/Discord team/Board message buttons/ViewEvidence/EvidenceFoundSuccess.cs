@@ -5,9 +5,10 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
+using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class EvidenceFoundSuccess : InteractionSuccess
+internal class EvidenceFoundSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Evidence submitted for tile {0}:\n{1}.";
 

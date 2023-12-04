@@ -5,7 +5,6 @@
 namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
-using DiscordLibrary.Requests.Validation;
 using FluentValidation;
 using RSBingoBot.Requests;
 

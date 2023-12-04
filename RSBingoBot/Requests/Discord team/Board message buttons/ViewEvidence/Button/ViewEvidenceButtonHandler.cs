@@ -6,21 +6,19 @@ namespace RSBingoBot.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Factories;
 using DiscordLibrary.RequestHandlers;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
 
-/// <summary>
-/// Handles the Interaction with the "View evidence" button in a team's board channel.
-/// </summary>
 internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonRequest>
 {
+    private const string ResponseContent = "{0} Select a tile to view its evidence.";
+
     private readonly SelectComponentFactory selectComponentFactory;
     private readonly ButtonFactory buttonFactory;
-
-    private InteractionMessage? response;
 
     public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory)
     {
@@ -30,29 +28,31 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     protected override async Task Process(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
-        await base.Process(request, cancellationToken);
+        DiscordUser discordUser = InteractionArgs.Interaction.User;
+        User user = discordUser.GetDBUser(DataWorker)!;
 
-        var selectComponent = CreateSelectComponent();
+        var selectComponent = CreateSelectComponent(user);
         var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, new ConclueInteractionButtonRequest(this));
-        response = AddSuccess(new ViewEvidenceSuccess(request.InteractionArgs.Interaction, DiscordUser, selectComponent, closeButton));
+
+        ResponseMessages.Add(
+            new InteractionMessage(InteractionArgs.Interaction)
+                .WithContent(ResponseContent.FormatConst(discordUser.Mention))
+                .AddComponents(selectComponent)
+                .AddComponents(closeButton));
     }
 
     public override async Task Conclude()
     {
-        if (response is not null)
-        {
-            await response.Delete();
-        }
-        await base.Conclude();
+        DeleteResponses();
     }
 
-    private SelectComponent CreateSelectComponent() =>
+    private SelectComponent CreateSelectComponent(User user) =>
         selectComponentFactory.Create(
-            new SelectComponentInfo("Select a tile", GetSelectOptions()),
+            new SelectComponentInfo("Select a tile", GetSelectOptions(user)),
             new ViewEvidenceSelectRequest());
 
-    private IEnumerable<SelectComponentOption> GetSelectOptions() =>
-        User.Evidence.Select(e => CreateSelectOption(e));
+    private IEnumerable<SelectComponentOption> GetSelectOptions(User user) =>
+        user.Evidence.Select(e => CreateSelectOption(e));
 
     private SelectComponentItem CreateSelectOption(Evidence evidence) =>
         new(evidence.Tile.Task.Name, evidence, emoji: GetSelectOptionEmoji(evidence));
