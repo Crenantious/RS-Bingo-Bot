@@ -5,9 +5,12 @@
 namespace RSBingoBot.Factories;
 
 using DiscordLibrary.DiscordServices;
+using FluentResults;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Discord;
 
+// TODO: JR - probably convert to requests.
 public class DiscordTeamFactory
 {
     private readonly IDiscordTeamServices discordServices;
@@ -17,19 +20,25 @@ public class DiscordTeamFactory
         this.discordServices = teamServices;
     }
 
-    public async Task<DiscordTeam> CreateNew(string name)
+    public async Task<Result<DiscordTeam>> CreateNew(string name, IDataWorker dataWorker)
     {
-        Team team = new();
+        Team team = dataWorker.Teams.Create();
         team.Name = name;
         DiscordTeam discordTeam = new(team);
-        await discordServices.CreateMissingEntities(discordTeam);
-        return discordTeam;
+
+        Result result = await discordServices.CreateMissingEntities(discordTeam);
+
+        return result.IsSuccess ?
+            Result.Ok<DiscordTeam>(discordTeam) :
+            Result.Fail<DiscordTeam>(result.Errors);
     }
 
-    public async Task<DiscordTeam> CreateFromExisting(Team team)
+    public async Task<Result<DiscordTeam>> CreateFromExisting(Team team)
     {
         DiscordTeam discordTeam = new(team);
-        await discordServices.SetExistingEntities(discordTeam);
-        return discordTeam;
+        Result result = await discordServices.SetExistingEntities(discordTeam);
+        return result.IsSuccess ?
+            Result.Ok<DiscordTeam>(discordTeam) :
+            Result.Fail<DiscordTeam>(result.Errors); ;
     }
 }

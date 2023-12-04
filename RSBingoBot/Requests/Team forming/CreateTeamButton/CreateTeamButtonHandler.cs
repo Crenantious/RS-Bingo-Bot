@@ -10,6 +10,8 @@ using DiscordLibrary.RequestHandlers;
 
 internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
 {
+    public const string ModalTeamNameKey = "Name";
+
     private readonly TextInputFactory textInputFactory;
 
     public CreateTeamButtonHandler(TextInputFactory textInputFactory) : base()
@@ -20,8 +22,7 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
     protected override async Task Process(CreateTeamButtonRequest request, CancellationToken cancellationToken)
     {
         var modal = new Modal("Create team", request.InteractionArgs.Interaction)
-            // TODO: JR - check if the text input id will suffice.
-            .AddComponents(textInputFactory.Create(new("Team name", "Team name")));
+            .AddComponents(textInputFactory.Create(new("Team name", ModalTeamNameKey)));
 
         ResponseMessages.Add(modal);
         AddSuccess(new CreateTeamButtonSuccess());

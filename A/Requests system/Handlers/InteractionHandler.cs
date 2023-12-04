@@ -5,30 +5,26 @@
 namespace DiscordLibrary.RequestHandlers;
 
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using System.Text;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
 // TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
-public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
-    where TRequest : IInteractionRequest
+public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequest>, IInteractionHandler
+    where TRequest : IInteractionRequest<TArgs>
+    where TArgs : InteractionCreateEventArgs
 {
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
 
     private bool isConcluded = false;
 
-    protected DiscordUser DiscordUser { get; private set; } = null!;
-    protected User User { get; private set; } = null!;
-    protected InteractionCreateEventArgs InteractionArgs { get; private set; } = null!;
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
+    protected TArgs InteractionArgs { get; set; } = null!;
 
     internal IInteractionHandler ParentHandler { get; set; } = null!;
 
@@ -38,12 +34,9 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     {
 
     }
-
     internal protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         InteractionArgs = request.InteractionArgs;
-        DiscordUser = InteractionArgs.Interaction.User;
-        User = DiscordUser.GetDBUser(DataWorker)!;
         return Task.CompletedTask;
     }
 

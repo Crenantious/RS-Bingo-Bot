@@ -8,10 +8,11 @@ using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
 
-public interface IInteractionRequest : IRequest<Result>
+public interface IInteractionRequest<TArgs> : IRequest<Result>
+    where TArgs : InteractionCreateEventArgs
 {
     /// <summary>
     /// Value will be set by the framework.
     /// </summary>
-    public InteractionCreateEventArgs InteractionArgs { get; set; }
+    public TArgs InteractionArgs { get; set; }
 }

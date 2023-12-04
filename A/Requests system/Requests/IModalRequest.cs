@@ -5,13 +5,8 @@
 namespace DiscordLibrary.Requests;
 
 using DSharpPlus.EventArgs;
-using FluentResults;
-using MediatR;
 
-public interface IModalRequest : IRequest<Result>
+public interface IModalRequest : IInteractionRequest<ModalSubmitEventArgs>
 {
-    /// <summary>
-    /// Value will be set by the framework.
-    /// </summary>
-    public ModalSubmitEventArgs InteractionArgs { get; set; }
+
 }

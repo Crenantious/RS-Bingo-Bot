@@ -8,16 +8,9 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-public abstract class ComponentInteractionHandler<TRequest, TComponent> : InteractionHandler<TRequest>
+public abstract class ComponentInteractionHandler<TRequest, TComponent> : InteractionHandler<TRequest, ComponentInteractionCreateEventArgs>
     where TRequest : IComponentInteractionRequest<TComponent>
     where TComponent : IComponent
 {
-    protected new ComponentInteractionCreateEventArgs InteractionArgs { get; private set; } = null!;
 
-    internal protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
-    {
-        base.PreProcess(request, cancellationToken);
-        InteractionArgs = request.InteractionArgs;
-        return Task.CompletedTask;
-    }
 }
