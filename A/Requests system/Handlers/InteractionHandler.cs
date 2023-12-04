@@ -57,6 +57,10 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
 
     #region Add result responses
 
+    public InteractionMessage AddResponses(ResultBase result, bool addToLastResponse = true) =>
+        AddSuccesses(result.Successes.GetDiscordResponses(), addToLastResponse) +
+        AddErrors(result.Errors.GetDiscordResponses(), addToLastResponse);
+
     /// <summary>
     /// Adds the <paramref name="success"/> according to <see cref="RequestHandlerBase{TRequest, TResult}.AddSuccess(ISuccess)"/>,
     /// converts it to an <see cref="InteractionMessage"/> and potentially appends that to <see cref="ResponseMessages"/>.

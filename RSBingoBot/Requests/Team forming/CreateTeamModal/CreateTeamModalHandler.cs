@@ -30,18 +30,14 @@ internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
             InteractionArgs.Values[CreateTeamButtonHandler.ModalTeamNameKey],
             dataWorker);
 
+        AddResponses(discordTeam);
+
         if (discordTeam.IsFailed)
         {
-            AddError(new CreateTeamModalError());
             return;
         }
-        AddSuccess(new CreateTeamModalSuccess(discordTeam.Value.Team));
 
         Result addToTeam = await teamServices.AddUserToTeam(request.InteractionArgs.Interaction.User, discordTeam.Value);
-
-        if (addToTeam.IsFailed)
-        {
-            AddError(new CreateTeamModalError());
-        }
+        AddResponses(addToTeam);
     }
 }
