@@ -5,11 +5,13 @@
 namespace DiscordLibrary.RequestHandlers;
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using System.Text;
 
 // TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
@@ -45,6 +47,9 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
         ResponseMessages.ForEach(async m => await m.Send());
         return Task.CompletedTask;
     }
+
+    protected User? GetUser() =>
+        InteractionArgs.Interaction.User.GetDBUser(DataWorker);
 
     public virtual async Task Conclude()
     {

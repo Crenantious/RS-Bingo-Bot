@@ -94,7 +94,7 @@ public partial class RSBingoContext : DbContext
 
             entity.Property(e => e.EvidenceType).HasColumnName("type");
 
-            entity.HasOne(d => d.DiscordUser)
+            entity.HasOne(d => d.User)
                 .WithMany(p => p.Evidence)
                 .HasForeignKey(d => d.DiscordUserId)
                 .OnDelete(DeleteBehavior.Cascade)

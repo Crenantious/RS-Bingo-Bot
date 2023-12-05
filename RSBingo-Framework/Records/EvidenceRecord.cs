@@ -44,7 +44,7 @@ public static class EvidenceRecord
     public static Evidence? GetByTileUserAndType(IDataWorker dataWorker, Tile tile, User user, EvidenceType evidenceType) =>
         dataWorker.Evidence.FirstOrDefault(e =>
         e.Tile == tile &&
-        e.DiscordUser == user &&
+        e.User == user &&
         e.EvidenceType == EvidenceTypeLookup.Get(evidenceType));
 
     public static Evidence? GetByMessageId(IDataWorker dataWorker, ulong messageId) =>

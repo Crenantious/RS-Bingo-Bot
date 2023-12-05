@@ -14,7 +14,7 @@ namespace RSBingo_Framework.Models
         public sbyte Status { get; set; }
         public sbyte EvidenceType { get; set; }
 
-        public virtual User DiscordUser { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
         public virtual Tile Tile { get; set; } = null!;
     }
 }
