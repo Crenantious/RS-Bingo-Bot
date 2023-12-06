@@ -4,8 +4,8 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordEntities;
+using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record DeleteMessageRequest(Message Message) : IRequest<Result>;
+internal record DeleteMessageRequest(DiscordMessage Message) : IRequest<Result>;

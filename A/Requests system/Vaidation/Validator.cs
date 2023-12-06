@@ -4,12 +4,11 @@
 
 namespace DiscordLibrary.Requests.Validation;
 
+using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using FluentValidation;
 using MediatR;
 using RSBingo_Common;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 
 public class Validator<TRequest> : AbstractValidator<TRequest>
     where TRequest : IBaseRequest
@@ -19,6 +18,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     internal protected const string UserIsNull = "User cannot be null.";
     internal protected const string ChannelDoesNotExist = "The channel does not exist.";
     internal protected const string RoleDoesNotExist = "The role does not exist.";
+    internal protected const string DiscordMessageDoesNotExist = "The Discord message does not exist.";
 
     public void NotNull(Func<TRequest, object?> func, string name)
     {
@@ -46,5 +46,12 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(RoleDoesNotExist);
+    }
+
+    public void DiscordMessageExists(Func<TRequest, Message> func)
+    {
+        RuleFor(r => func(r).DiscordMessage)
+            .NotNull()
+            .WithMessage(DiscordMessageDoesNotExist);
     }
 }

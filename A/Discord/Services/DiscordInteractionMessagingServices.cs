@@ -130,7 +130,7 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
 
     private void Log(DiscordInteraction interaction, RequestType requestType, bool wasSuccessful)
     {
-        // TODO: JR - check if this information is sufficient.
+        // TODO: JR - check if this information is sufficient. Remove from here and use an IPipelineBehaviour.
         string outcome = wasSuccessful ? "successfully" : "unsuccessfully";
         string information = $"Interaction response was {requestType} {outcome}. " +
                              $"Id: {interaction.Id}, type: {interaction.Type}, name: {interaction.Data.Name}.";

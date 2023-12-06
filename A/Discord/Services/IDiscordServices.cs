@@ -4,7 +4,6 @@
 
 namespace DiscordLibrary.DiscordServices;
 
-using DiscordLibrary.DiscordEntities;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
@@ -23,8 +22,4 @@ public interface IDiscordServices
         IEnumerable<DiscordOverwriteBuilder>? overwrites = null);
 
     public Task<Result<DiscordChannel>> GetChannel(ulong id);
-
-    public Task<Result<DiscordChannel>> SendMessage(Message message, DiscordChannel channel);
-
-    public Task<Result<Message>> GetMessage(ulong id, DiscordChannel channel);
 }

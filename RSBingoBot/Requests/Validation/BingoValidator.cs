@@ -26,6 +26,11 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     internal protected const string CsvMediaType = "text/csv";
     internal protected const string NonCsvFileError = "The uploaded file must be a csv.";
 
+    // Image
+    // TODO: JR - use ImageSharp for image validation.
+    private readonly string[] mediaTypes = new string[] { "png", "bmp", "jpg" };
+    private const string NotAValidImage = "Attachment must be of type: png, bmp or jpg";
+
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();
 
     public void UserNotNull(Func<TRequest, User?> func)
@@ -94,5 +99,12 @@ public class BingoValidator<TRequest> : Validator<TRequest>
         RuleFor(r => func(r))
             .Must(a => a.MediaType.StartsWith(CsvMediaType))
             .WithMessage(r => NonCsvFileError);
+    }
+
+    public void IsImage(Func<TRequest, DiscordAttachment> func)
+    {
+        RuleFor(r => func(r).MediaType)
+            .Must(t => mediaTypes.Contains(t))
+            .WithMessage(NotAValidImage);
     }
 }

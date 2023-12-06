@@ -27,6 +27,7 @@ public class Message : IMessage
 
     public Message(DiscordMessage message)
     {
+        DiscordMessage = message;
         this.WithContent(message.Content);
 
         foreach (var row in message.Components)

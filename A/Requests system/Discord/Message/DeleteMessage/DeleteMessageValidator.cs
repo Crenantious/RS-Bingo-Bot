@@ -4,13 +4,13 @@
 
 namespace RSBingoBot.Requests;
 
-using RSBingoBot.Requests;
-using RSBingoBot.Requests.Validation;
+using DiscordLibrary.Requests.Validation;
 
 internal class DeleteMessageValidator : Validator<DeleteMessageRequest>
 {
     public DeleteMessageValidator()
     {
-
+        NotNull(r => r.Message, "Message");
+        DiscordMessageExists(r => r.Message);
     }
 }

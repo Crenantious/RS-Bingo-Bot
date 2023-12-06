@@ -8,10 +8,13 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
+using FluentResults;
 
 public interface IDiscordMessageServices
 {
-    public Task<bool> Send(Message message, DiscordChannel channel);
-    public Task<Message> Get(ulong id, DiscordChannel channel);
-    public void RegisterCreationHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints);
+    public Task<Result> Send(Message message, DiscordChannel channel);
+    public Task<Result<Message>> Get(ulong id, DiscordChannel channel);
+    public Task<Result> Delete(Message message);
+    public Task<Result> Delete(DiscordMessage message);
+    public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints);
 }

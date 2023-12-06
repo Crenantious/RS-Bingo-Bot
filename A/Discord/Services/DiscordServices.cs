@@ -4,12 +4,10 @@
 
 namespace DiscordLibrary.DiscordServices;
 
-using DiscordLibrary.DiscordEntities;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
 using Microsoft.Extensions.Logging;
-using RSBingo_Framework.DAL;
 using RSBingoBot.Requests;
 
 public class DiscordServices : IDiscordServices
@@ -39,10 +37,4 @@ public class DiscordServices : IDiscordServices
 
     public async Task<Result<DiscordChannel>> GetChannel(ulong id) =>
         await RequestServices.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
-
-    public async Task<Result<DiscordChannel>> SendMessage(Message message, DiscordChannel channel) =>
-        await RequestServices.Run(new SendMessageRequest(message, channel));
-
-    public async Task<Result<Message>> GetMessage(ulong id, DiscordChannel channel) =>
-        await RequestServices.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 }

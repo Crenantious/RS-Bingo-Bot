@@ -53,7 +53,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         response.AddComponents(submit, cancel);
         ResponseMessages.Add(response);
 
-        messageServices.RegisterCreationHandler(new SubmitDropMessageRequest(dto), new(InteractionArgs.Channel, InteractionArgs.User, 1));
+        messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto), new(InteractionArgs.Channel, InteractionArgs.User, 1));
     }
     private string GetResponseContent() =>
         ResponseContent.FormatConst(Environment.NewLine);

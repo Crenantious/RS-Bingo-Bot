@@ -10,8 +10,8 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using FluentResults;
+using RSBingoBot.Requests;
 
-// TODO: JR - implement. Remember to set the Message.Id when sending or getting.
 public class DiscordMessageServices : IDiscordMessageServices
 {
     private readonly MessageCreatedDEH messageCreatedDEH;
@@ -21,17 +21,19 @@ public class DiscordMessageServices : IDiscordMessageServices
         this.messageCreatedDEH = messageCreatedDEH;
     }
 
-    public Task<bool> Send(Message message, DiscordChannel channel)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result> Send(Message message, DiscordChannel channel) =>
+        await RequestServices.Run(new SendMessageRequest(message, channel));
 
-    public Task<Message> Get(ulong id, DiscordChannel channel)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
+        await RequestServices.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 
-    public void RegisterCreationHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints)
+    public async Task<Result> Delete(Message message) =>
+        await RequestServices.Run(new DeleteMessageRequest(message.DiscordMessage));
+
+    public async Task<Result> Delete(DiscordMessage message) =>
+        await RequestServices.Run(new DeleteMessageRequest(message));
+
+    public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints)
     {
         messageCreatedDEH.Subscribe(constraints, (client, args) => OnMessageCreated(request, args));
     }
