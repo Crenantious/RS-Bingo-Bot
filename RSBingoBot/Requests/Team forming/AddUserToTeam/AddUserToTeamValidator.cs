@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class AddUserToTeamValidator : Validator<AddUserToTeamRequest>
+internal class AddUserToTeamValidator : BingoValidator<AddUserToTeamRequest>
 {
     public AddUserToTeamValidator()
     {

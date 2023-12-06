@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests.Validation;
 
 using RSBingoBot.Requests;
 
-internal class RemoveUserFromTeamValidator : Validator<RemoveUserFromTeamRequest>
+internal class RemoveUserFromTeamValidator : BingoValidator<RemoveUserFromTeamRequest>
 {
     public RemoveUserFromTeamValidator()
     {

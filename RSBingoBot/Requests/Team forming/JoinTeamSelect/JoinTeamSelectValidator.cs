@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class JoinTeamSelectValidator : Validator<JoinTeamSelectRequest>
+internal class JoinTeamSelectValidator : BingoValidator<JoinTeamSelectRequest>
 {
     public JoinTeamSelectValidator()
     {

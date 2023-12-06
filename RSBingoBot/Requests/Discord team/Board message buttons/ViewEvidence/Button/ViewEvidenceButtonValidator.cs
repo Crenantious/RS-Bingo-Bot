@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordExtensions;
 using FluentValidation;
 using RSBingoBot.Requests;
 
-internal class ViewEvidenceButtonValidator : Validator<ViewEvidenceButtonRequest>
+internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRequest>
 {
     private const string NoTilesFoundError = "You have not submitted evidence for any tiles.";
 

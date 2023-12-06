@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests.Validation;
 
 using RSBingoBot.Requests;
 
-internal class OperateCSVValidator : Validator<OperateCSVRequest>
+internal class OperateCSVValidator : BingoValidator<OperateCSVRequest>
 {
     public OperateCSVValidator()
     {

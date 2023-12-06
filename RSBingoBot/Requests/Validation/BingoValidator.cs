@@ -1,10 +1,11 @@
-﻿// <copyright file="Validator.cs" company="PlaceholderCompany">
+﻿// <copyright file="BingoValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.Requests.Validation;
 using DSharpPlus.Entities;
 using FluentValidation;
 using MediatR;
@@ -13,14 +14,10 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 
-public class Validator<TRequest> : AbstractValidator<TRequest>
+public class BingoValidator<TRequest> : Validator<TRequest>
     where TRequest : IBaseRequest
 {
     // TODO: JR - decide how to word this.
-    internal protected const string ObjectIsNull = "{0} cannot be null.";
-    internal protected const string UserIsNull = "User cannot be null.";
-    internal protected const string ChannelDoesNotExist = "The channel does not exist.";
-    internal protected const string RoleDoesNotExist = "The role does not exist.";
     internal protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
     internal protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     internal protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
@@ -31,21 +28,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
 
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();
 
-    public void NotNull(Func<TRequest, object?> func, string name)
-    {
-        RuleFor(r => func(r))
-            .NotNull()
-            .WithMessage(ObjectIsNull.FormatConst(name));
-    }
-
     public void UserNotNull(Func<TRequest, User?> func)
-    {
-        RuleFor(r => func(r))
-            .NotNull()
-            .WithMessage(UserIsNull);
-    }
-
-    public void UserNotNull(Func<TRequest, DiscordUser?> func)
     {
         RuleFor(r => func(r))
             .NotNull()
@@ -104,20 +87,6 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     {
         RuleFor(r => func(r).Item1)
             .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
-    }
-
-    public void ChannelNotNull(Func<TRequest, DiscordChannel?> func)
-    {
-        RuleFor(r => func(r))
-            .NotNull()
-            .WithMessage(ChannelDoesNotExist);
-    }
-
-    public void RoleNotNull(Func<TRequest, DiscordRole?> func)
-    {
-        RuleFor(r => func(r))
-            .NotNull()
-            .WithMessage(RoleDoesNotExist);
     }
 
     public void IsCSVFile(Func<TRequest, DiscordAttachment> func)

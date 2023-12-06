@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using FluentValidation;
 using RSBingoBot.Requests.Validation;
 
-internal class SubmitDropButtonValidator : Validator<SubmitDropButtonRequest>
+internal class SubmitDropButtonValidator : BingoValidator<SubmitDropButtonRequest>
 {
     private const string NoTilesError = "Your team has no tiles to submit evidence for.";
 

@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests.Validation;
 using DiscordLibrary.Requests.Validation;
 using RSBingoBot.Requests;
 
-internal class CreateTeamBoardMessageValidator : Validator<CreateTeamBoardMessageRequest>
+internal class CreateTeamBoardMessageValidator : BingoValidator<CreateTeamBoardMessageRequest>
 {
     public CreateTeamBoardMessageValidator()
     {

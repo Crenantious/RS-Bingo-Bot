@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class CreateTeamModalValidator : Validator<CreateTeamModalRequest>
+internal class CreateTeamModalValidator : BingoValidator<CreateTeamModalRequest>
 {
     public CreateTeamModalValidator()
     {

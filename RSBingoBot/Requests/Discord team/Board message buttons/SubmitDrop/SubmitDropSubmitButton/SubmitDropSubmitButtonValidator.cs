@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class SubmitDropSubmitButtonValidator : Validator<SubmitDropSubmitButtonRequest>
+internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmitButtonRequest>
 {
     private const string NoTilesSelectedError = "At least one tile must be selected to submit evidence for.";
     private const string NoEvidenceSubmittedError = "You cannot submit no evidence; please post a message with a single image first.";

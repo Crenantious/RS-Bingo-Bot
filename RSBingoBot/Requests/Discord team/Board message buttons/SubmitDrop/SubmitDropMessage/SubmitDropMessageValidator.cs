@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using FluentValidation;
 using RSBingoBot.Requests.Validation;
 
-internal class SubmitDropMessageValidator : Validator<SubmitDropMessageRequest>
+internal class SubmitDropMessageValidator : BingoValidator<SubmitDropMessageRequest>
 {
     // TODO: JR - use ImageSharp for image validation.
     private readonly string[] mediaTypes = new string[] { "png", "bmp", "jpg" };

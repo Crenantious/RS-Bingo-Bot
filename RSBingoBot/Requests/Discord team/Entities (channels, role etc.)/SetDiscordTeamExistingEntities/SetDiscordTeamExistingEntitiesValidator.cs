@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
 
-internal class SetDiscordTeamExistingEntitiesValidator : Validator<SetDiscordTeamExistingEntitiesRequest>
+internal class SetDiscordTeamExistingEntitiesValidator : BingoValidator<SetDiscordTeamExistingEntitiesRequest>
 {
     public SetDiscordTeamExistingEntitiesValidator()
     {

@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests.Validation;
 using DiscordLibrary.Requests.Validation;
 using RSBingoBot.Requests;
 
-internal class CreateTeamGeneralChannelValidator : Validator<CreateTeamGeneralChannelRequest>
+internal class CreateTeamGeneralChannelValidator : BingoValidator<CreateTeamGeneralChannelRequest>
 {
     public CreateTeamGeneralChannelValidator()
     {

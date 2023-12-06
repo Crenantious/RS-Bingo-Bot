@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests.Validation;
 
 using RSBingoBot.Requests;
 
-internal class DeleteTeamValidator : Validator<DeleteTeamRequest>
+internal class DeleteTeamValidator : BingoValidator<DeleteTeamRequest>
 {
     public DeleteTeamValidator()
     {

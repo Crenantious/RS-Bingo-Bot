@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using RSBingoBot.Requests;
 using RSBingoBot.Requests.Validation;
 
-internal class SubmitDropSelectValidator : Validator<SubmitDropSelectRequest>
+internal class SubmitDropSelectValidator : BingoValidator<SubmitDropSelectRequest>
 {
     public SubmitDropSelectValidator()
     {

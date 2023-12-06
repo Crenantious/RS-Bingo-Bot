@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests.Validation;
 
 using RSBingoBot.Requests;
 
-internal class RenameTeamValidator : Validator<RenameTeamRequest>
+internal class RenameTeamValidator : BingoValidator<RenameTeamRequest>
 {
     public RenameTeamValidator()
     {
