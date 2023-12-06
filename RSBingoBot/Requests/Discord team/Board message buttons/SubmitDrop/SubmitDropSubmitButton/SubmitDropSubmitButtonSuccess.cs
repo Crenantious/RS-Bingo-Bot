@@ -4,10 +4,11 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class SubmitDropSubmitButtonSuccess : Success
+internal class SubmitDropSubmitButtonSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Drop submitted for {0}.";
 

@@ -7,7 +7,6 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.RequestHandlers;
-using DSharpPlus.Entities;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
@@ -35,12 +34,21 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
             await UpdateEvidence(request, user, tile);
         }
 
-        // TODO: JR - catch db exceptions in a base class and post a message to the user telling them the bd failed to update.
+        // TODO: JR - update the board.
+        // TODO: JR - make altering a Team a request so a semaphore can be used which will avoid concurrency issues and
+        // can return any db errors.
         DataWorker.SaveChanges();
     }
 
     private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, User user, Tile tile)
     {
+        if (tile.IsCompleteAsBool())
+        {
+            // It's possible the tile was marked as complete after the select component was create.
+            AddError(new SubmitDropSubmitButtonTileAlreadyCompleteError(tile));
+            return;
+        }
+
         var pendingReviewMessage = new Message()
             .WithContent(GetPendingReviewMessagePrefix(request, tile));
 
@@ -49,7 +57,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 
         if (result.IsFailed)
         {
-            AddError(new SubmitDropSubmitButtonEvidenceReviewMessageError(tile));
+            AddError(new SubmitDropSubmitButtonEvidenceSubmissionError(tile));
             return;
         }
 
@@ -61,7 +69,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         }
         else
         {
-            await DeleteExistingEvidenceMessage(evidence);
+            await DeleteExistingPendingReviewMessage(evidence);
         }
 
         evidence.User = user;
@@ -74,17 +82,9 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         AddSuccess(new SubmitDropSubmitButtonSuccess(tile));
     }
 
-    private async Task DeleteExistingEvidenceMessage(Evidence evidence)
+    private async Task DeleteExistingPendingReviewMessage(Evidence evidence)
     {
-        DiscordChannel channel = EvidenceRecord.EvidenceStatusLookup.Get(evidence.Status) switch
-        {
-            EvidenceRecord.EvidenceStatus.PendingReview => DataFactory.PendingReviewEvidenceChannel,
-            EvidenceRecord.EvidenceStatus.Accepted => DataFactory.VerifiedEvidenceChannel,
-            EvidenceRecord.EvidenceStatus.Rejected => DataFactory.RejectedEvidenceChannel,
-            _ => throw new ArgumentOutOfRangeException()
-        }; ;
-
-        Result<Message> message = await messageServices.Get(evidence.DiscordMessageId, channel);
+        Result<Message> message = await messageServices.Get(evidence.DiscordMessageId, DataFactory.PendingReviewEvidenceChannel);
         if (message.IsSuccess)
         {
             await messageServices.Delete(message.Value.DiscordMessage);

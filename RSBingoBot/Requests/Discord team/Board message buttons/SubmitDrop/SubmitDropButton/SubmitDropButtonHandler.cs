@@ -14,6 +14,7 @@ using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
+// TODO: JR - don't allow tiles to be changed while someone is submitting evidence and vice versa.
 internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 {
     private const string ResponsePrefix =
@@ -37,9 +38,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
     protected override async Task Process(SubmitDropButtonRequest request, CancellationToken cancellationToken)
     {
         user = GetUser()!;
-        evidenceType = General.HasCompetitionStarted ?
-                       EvidenceRecord.EvidenceType.Drop :
-                       EvidenceRecord.EvidenceType.TileVerification;
+        evidenceType = request.EvidenceType;
 
         var response = new InteractionMessage(InteractionArgs.Interaction)
              .WithContent(GetResponsePrefix())
@@ -65,7 +64,9 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
             new SubmitDropSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>
-        user.Team.Tiles.Select(t => CreateSelectOption(t));
+        user.Team.Tiles
+            .Where(t => t.IsCompleteAsBool() is false)
+            .Select(t => CreateSelectOption(t));
 
     private SelectComponentItem CreateSelectOption(Tile tile) =>
         new(tile.Task.Name, tile, emoji: GetSelectOptionEmoji(tile));
@@ -78,6 +79,8 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
             return default;
         }
 
+        // TODO: JR - get the emoji for the user's evidence if they are submitting evidence,
+        // but get it for any drop evidence if they are submitting a drop.
         DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
         return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
     }
