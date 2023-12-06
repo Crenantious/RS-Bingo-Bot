@@ -13,7 +13,7 @@ internal class SubmitDropSubmitButtonValidator : Validator<SubmitDropSubmitButto
 
     public SubmitDropSubmitButtonValidator()
     {
-        NotNull(r => r.GetTile(), NoTilesSelectedError);
-        NotNull(r => r.GetUrl(), NoEvidenceSubmittedError);
+        NotNull(r => r.DTO.Tile, NoTilesSelectedError);
+        NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
     }
 }

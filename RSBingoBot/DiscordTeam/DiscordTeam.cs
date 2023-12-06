@@ -57,7 +57,7 @@ public class DiscordTeam
     public void SetBoardMessage(Message message)
     {
         BoardMessage = message;
-        Team.BoardMessageId = message.Id;
+        Team.BoardMessageId = message.DiscordMessage.Id;
     }
 
     public void SetRole(DiscordRole role)

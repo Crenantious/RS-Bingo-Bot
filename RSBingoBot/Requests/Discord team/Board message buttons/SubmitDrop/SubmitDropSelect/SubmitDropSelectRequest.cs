@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-internal record SubmitDropSelectRequest() : ISelectComponentRequest
+internal record SubmitDropSelectRequest(SubmitDropButtonDTO DTO) : ISelectComponentRequest
 {
     public SelectComponent Component { get; set; } = null!;
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;

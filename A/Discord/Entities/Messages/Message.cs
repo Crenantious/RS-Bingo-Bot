@@ -11,10 +11,10 @@ using DSharpPlus.Entities;
 public class Message : IMessage
 {
     /// <summary>
-    /// The id for the <see cref="DiscordMessage"/> this is associated with.
+    /// The <see cref="DiscordMessage"/> this is associated with.
     /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DiscordMessage"/>.
     /// </summary>
-    public ulong Id { get; internal set; }
+    public DiscordMessage DiscordMessage { get; internal set; }
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
 

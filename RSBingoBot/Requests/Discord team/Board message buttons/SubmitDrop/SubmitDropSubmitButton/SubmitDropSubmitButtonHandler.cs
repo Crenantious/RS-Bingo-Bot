@@ -18,7 +18,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
     protected override async Task Process(SubmitDropSubmitButtonRequest request, CancellationToken cancellationToken)
     {
         User user = GetUser()!;
-        Tile tile = request.GetTile()!;
+        Tile tile = request.DTO.Tile!;
 
         Evidence? evidence = EvidenceRecord.GetByTileUserAndType(DataWorker, tile, user, request.EvidenceType);
 
@@ -30,7 +30,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 
         evidence.User = user;
         evidence.Tile = tile;
-        evidence.Url = request.GetUrl()!;
+        evidence.Url = request.DTO.EvidenceUrl!;
         evidence.EvidenceType = EvidenceRecord.EvidenceTypeLookup.Get(request.EvidenceType);
         evidence.Status = EvidenceRecord.EvidenceStatusLookup.Get(EvidenceRecord.EvidenceStatus.PendingReview);
         evidence.DiscordMessageId = ; // TODO: JR - send submission message and set the id.

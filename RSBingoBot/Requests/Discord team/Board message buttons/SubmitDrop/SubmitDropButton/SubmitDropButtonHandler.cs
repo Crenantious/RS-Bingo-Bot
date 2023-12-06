@@ -6,6 +6,7 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.RequestHandlers;
 using DSharpPlus;
@@ -16,19 +17,21 @@ using RSBingo_Framework.Records;
 internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 {
     private const string ResponseContent =
-       "{0} Add evidence by posting a message with a single image, posting another will override the previous." +
+       "Add evidence by posting a message with a single image, posting another will override the previous." +
        "{1}Submitting the evidence will override any previous.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
+    private readonly IDiscordMessageServices messageServices;
 
-    private User user;
+    private User user = null!;
     private EvidenceRecord.EvidenceType evidenceType;
 
-    public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
+    public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory, IDiscordMessageServices messageServices)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
+        this.messageServices = messageServices;
     }
 
     protected override async Task Process(SubmitDropButtonRequest request, CancellationToken cancellationToken)
@@ -38,22 +41,27 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
                        EvidenceRecord.EvidenceType.Drop :
                        EvidenceRecord.EvidenceType.TileVerification;
 
-        SelectComponent select = CreateSelectComponent();
-        Button close = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConclueInteractionButtonRequest(this));
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            new SubmitDropSubmitButtonRequest(() => GetSelectedTile(select), GetAttachment, evidenceType));
+        var response = new InteractionMessage(InteractionArgs.Interaction)
+             .WithContent(GetResponseContent())
+             .AsEphemeral(true);
+        SubmitDropButtonDTO dto = new(response);
 
-        ResponseMessages.Add(
-            new InteractionMessage(InteractionArgs.Interaction)
-                .WithContent(GetResponseContent())
-                .AddComponents(select)
-                .AddComponents(submit, close));
+        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new SubmitDropSubmitButtonRequest(dto, evidenceType));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConclueInteractionButtonRequest(this));
+
+        response.AddComponents(CreateSelectComponent(dto));
+        response.AddComponents(submit, cancel);
+        ResponseMessages.Add(response);
+
+        messageServices.RegisterCreationHandler(new SubmitDropMessageRequest(dto), new(InteractionArgs.Channel, InteractionArgs.User, 1));
     }
+    private string GetResponseContent() =>
+        ResponseContent.FormatConst(Environment.NewLine);
 
-    private SelectComponent CreateSelectComponent() =>
+    private SelectComponent CreateSelectComponent(SubmitDropButtonDTO dto) =>
         selectFactory.Create(
             new SelectComponentInfo("Select a tile", GetSelectOptions()),
-            new ViewEvidenceSelectRequest());
+            new SubmitDropSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>
         user.Team.Tiles.Select(t => CreateSelectOption(t));
@@ -72,15 +80,4 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
         return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
     }
-
-    private Tile? GetSelectedTile(SelectComponent select) =>
-        select.SelectedItems.Any() ? (Tile)select.SelectedItems.ElementAt(0).Value! : null;
-
-    private DiscordAttachment? GetAttachment()
-    {
-        throw new NotImplementedException();
-    }
-
-    private string GetResponseContent() =>
-        ResponseContent.FormatConst(InteractionArgs.Interaction.User.Mention, Environment.NewLine);
 }
