@@ -73,15 +73,26 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 
     private DiscordComponentEmoji? GetSelectOptionEmoji(Tile tile)
     {
-        Evidence? evidence = EvidenceRecord.GetByTileUserAndType(DataWorker, tile, user, evidenceType);
-        if (evidence == default)
+        Evidence? evidence = GetEvidenceForEmoji(tile);
+        if (evidence == null)
         {
-            return default;
+            return null;
         }
 
-        // TODO: JR - get the emoji for the user's evidence if they are submitting evidence,
-        // but get it for any drop evidence if they are submitting a drop.
         DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
         return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
     }
+
+    private Evidence? GetEvidenceForEmoji(Tile tile) =>
+        evidenceType switch
+        {
+            EvidenceRecord.EvidenceType.Drop => GetFirstDropEvidence(tile),
+            EvidenceRecord.EvidenceType.TileVerification => EvidenceRecord.GetByTileUserAndType(DataWorker, tile, user, evidenceType),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+    private static Evidence? GetFirstDropEvidence(Tile tile) =>
+        tile.Evidence.FirstOrDefault(e =>
+            EvidenceRecord.EvidenceTypeLookup.Get(e.EvidenceType) == EvidenceRecord.EvidenceType.Drop &&
+            EvidenceRecord.EvidenceStatusLookup.Get(e.Status) != EvidenceRecord.EvidenceStatus.Rejected);
 }
