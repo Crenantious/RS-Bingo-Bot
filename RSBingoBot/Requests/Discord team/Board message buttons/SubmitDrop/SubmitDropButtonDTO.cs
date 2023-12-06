@@ -6,17 +6,18 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordEntities;
 using RSBingo_Framework.Models;
+using System.Text;
 
 internal class SubmitDropButtonDTO
 {
     public string MessageContentPrefix { get; }
     public Message Message { get; set; }
-    public Tile? Tile { get; set; }
+    public IEnumerable<Tile> Tiles { get; set; } = Enumerable.Empty<Tile>();
     public string? EvidenceUrl { get; set; }
 
-    public SubmitDropButtonDTO(string messageContentPrefix, Message message)
+    public SubmitDropButtonDTO(Message message)
     {
-        MessageContentPrefix = messageContentPrefix;
+        MessageContentPrefix = message.Content;
         Message = message;
     }
 

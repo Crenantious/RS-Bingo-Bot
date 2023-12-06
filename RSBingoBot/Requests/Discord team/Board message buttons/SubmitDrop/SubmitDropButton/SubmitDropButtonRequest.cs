@@ -9,7 +9,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using RSBingoBot.Discord;
 
-internal record SubmitDropButtonRequest(DiscordTeam DiscordTeam) : IButtonRequest
+internal record SubmitDropButtonRequest(DiscordTeam DiscordTeam, int maxSelectOptions) : IButtonRequest
 {
     public Button Component { get; set; } = null!;
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;

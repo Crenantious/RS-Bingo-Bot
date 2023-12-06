@@ -13,6 +13,6 @@ internal class SubmitDropSelectHandler : SelectComponentHandler<SubmitDropSelect
     protected override void OnItemsSelected(IEnumerable<SelectComponentItem> items, SubmitDropSelectRequest request,
         CancellationToken cancellationToken)
     {
-        request.DTO.Tile = (Tile)items.ElementAt(0).Value!;
+        request.DTO.Tiles = items.Select(i => (Tile)i.Value!);
     }
 }

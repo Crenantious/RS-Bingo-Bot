@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using FluentValidation;
 using RSBingoBot.Requests.Validation;
 
 internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmitButtonRequest>
@@ -13,7 +14,9 @@ internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmit
 
     public SubmitDropSubmitButtonValidator()
     {
-        NotNull(r => r.DTO.Tile, NoTilesSelectedError);
+        RuleFor(r => r.DTO.Tiles.Any())
+            .Equal(true)
+            .WithMessage(NoTilesSelectedError);
         NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
     }
 }

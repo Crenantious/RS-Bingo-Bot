@@ -16,7 +16,7 @@ using RSBingo_Framework.Records;
 
 internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 {
-    private const string ResponseContent =
+    private const string ResponsePrefix =
        "Add evidence by posting a message with a single image, posting another will override the previous." +
        "{1}Submitting the evidence will override any previous.";
 
@@ -42,25 +42,26 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
                        EvidenceRecord.EvidenceType.TileVerification;
 
         var response = new InteractionMessage(InteractionArgs.Interaction)
-             .WithContent(GetResponseContent())
+             .WithContent(GetResponsePrefix())
              .AsEphemeral(true);
         SubmitDropButtonDTO dto = new(response);
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new SubmitDropSubmitButtonRequest(dto, evidenceType));
         Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConclueInteractionButtonRequest(this));
 
-        response.AddComponents(CreateSelectComponent(dto));
+        response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
         response.AddComponents(submit, cancel);
         ResponseMessages.Add(response);
 
         messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto), new(InteractionArgs.Channel, InteractionArgs.User, 1));
     }
-    private string GetResponseContent() =>
-        ResponseContent.FormatConst(Environment.NewLine);
 
-    private SelectComponent CreateSelectComponent(SubmitDropButtonDTO dto) =>
+    private string GetResponsePrefix() =>
+        ResponsePrefix.FormatConst(Environment.NewLine);
+
+    private SelectComponent CreateSelectComponent(int maxOptions, SubmitDropButtonDTO dto) =>
         selectFactory.Create(
-            new SelectComponentInfo("Select a tile", GetSelectOptions()),
+            new SelectComponentInfo("Select a tile", GetSelectOptions(), MaxOptions: maxOptions),
             new SubmitDropSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>
