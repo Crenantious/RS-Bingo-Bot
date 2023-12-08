@@ -14,7 +14,6 @@ using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-// TODO: JR - don't allow tiles to be changed while someone is submitting evidence and vice versa.
 internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 {
     private const string ResponsePrefix =

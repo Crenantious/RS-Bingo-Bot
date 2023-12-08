@@ -23,7 +23,10 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
     private static SemaphoreSlim semaphore = new(100);
 
+    private readonly InteractionHandlersTracker handlersTracker;
+
     private bool isConcluded = false;
+    private InteractionHandlerInstanceInfo<TRequest, TArgs> instanceInfo = null!;
 
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
     protected TArgs InteractionArgs { get; set; } = null!;
@@ -32,13 +35,16 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
 
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-    protected InteractionHandler() : base(semaphore)
+    protected InteractionHandler(InteractionHandlersTracker handlersTracker) : base(semaphore)
     {
-
+        this.handlersTracker = handlersTracker;
     }
+
     internal protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         InteractionArgs = request.InteractionArgs;
+        instanceInfo = new(request, this);
+        handlersTracker.Add(instanceInfo);
         return Task.CompletedTask;
     }
 
@@ -51,13 +57,13 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     protected User? GetUser() =>
         InteractionArgs.Interaction.User.GetDBUser(DataWorker);
 
-    public virtual async Task Conclude()
+    public virtual Task Conclude()
     {
-        if (isConcluded) { return; }
-
-        // Remove self from active interaction handlers.
-
-        throw new NotImplementedException();
+        if (isConcluded is false)
+        {
+            handlersTracker.Remove(instanceInfo);
+        }
+        return Task.CompletedTask;
     }
 
     protected void DeleteResponses()
