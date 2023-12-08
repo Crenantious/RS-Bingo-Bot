@@ -5,41 +5,45 @@
 namespace DiscordLibrary.Behaviours;
 
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Validation;
 using FluentResults;
-using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 
-public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
-    where TRequest : IRequest<TResult>
-    where TResult : Result
+public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, Result<TResult>>
+    where TRequest : IRequest<Result<TResult>>
 {
-    private readonly IValidator<TRequest> validator;
+    private readonly Validator<TRequest> validator;
 
-    public ValidationBehavior(IValidator<TRequest> validator) =>
+    public ValidationBehavior(Validator<TRequest> validator) =>
         this.validator = validator;
 
-    public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+    public async Task<Result<TResult>> Handle(TRequest request, RequestHandlerDelegate<Result<TResult>> next, CancellationToken cancellationToken)
     {
         if (validator is null)
         {
             return await next();
         }
 
+        foreach (SemaphoreSlim semaphore in validator.Semaphores)
+        {
+            await semaphore.WaitAsync();
+        }
+
         ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            Result response = new();
-
-            foreach (ValidationFailure error in validationResult.Errors)
-            {
-                response.WithError(new ValidationError(error.ErrorMessage));
-            }
-
-            return response;
+            return Result.Fail<TResult>(validationResult.Errors.Select(e => new ValidationError(e.ErrorMessage)));
         }
 
-        return await next();
+        var result = await next();
+
+        foreach (SemaphoreSlim semaphore in validator.Semaphores)
+        {
+            semaphore.Release();
+        }
+
+        return result;
     }
 }

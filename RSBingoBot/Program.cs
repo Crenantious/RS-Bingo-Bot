@@ -9,6 +9,7 @@ using Autofac.Extensions.DependencyInjection;
 using DiscordLibrary.Behaviours;
 using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
+using DiscordLibrary.Requests;
 using DSharpPlus;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,7 @@ using RSBingo_Framework.Scoring;
 using RSBingoBot.BingoCommands;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Imaging;
+using RSBingoBot.Requests.Validation;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
@@ -139,6 +141,9 @@ public class Program
                 services.AddSingleton<ModalSubmittedDEH>();
 
                 services.AddSingleton<SingletonButtons>();
+
+                services.AddSingleton<InteractionHandlersTracker>();
+                services.AddSingleton<RequestSemaphores>();
 
                 services.AddMediatR(c =>
                     c.RegisterServicesFromAssemblyContaining<Program>());

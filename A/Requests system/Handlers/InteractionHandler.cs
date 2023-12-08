@@ -9,20 +9,16 @@ using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using FluentResults;
+using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using System.Text;
 
-// TODO: JR - track instances against DiscordUsers to be able to limit how many they have open and potentially time them out.
-// TODO: JR - add a CascadeMessageDelete request that utilises ICasecadeDeleteMessages (in RSBingoBot).
 public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequest>, IInteractionHandler
     where TRequest : IInteractionRequest<TArgs>
     where TArgs : InteractionCreateEventArgs
 {
-    // 100 is arbitrary. Could remove the need all together but other handlers should use one so it's kept to ensure that.
-    private static SemaphoreSlim semaphore = new(100);
-
     private readonly InteractionHandlersTracker handlersTracker;
 
     private bool isConcluded = false;
@@ -35,12 +31,12 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
 
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-    protected InteractionHandler(InteractionHandlersTracker handlersTracker) : base(semaphore)
+    protected InteractionHandler()
     {
-        this.handlersTracker = handlersTracker;
+        this.handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
     }
 
-    internal protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
+    private protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         InteractionArgs = request.InteractionArgs;
         instanceInfo = new(request, this);
@@ -48,7 +44,7 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
         return Task.CompletedTask;
     }
 
-    internal protected override Task PostProcess(TRequest request, CancellationToken cancellationToken)
+    private protected override Task PostProcess(TRequest request, CancellationToken cancellationToken)
     {
         ResponseMessages.ForEach(async m => await m.Send());
         return Task.CompletedTask;

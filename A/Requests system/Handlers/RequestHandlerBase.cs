@@ -21,23 +21,13 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
 
     private static int requestId = 0;
 
-    private readonly SemaphoreSlim? semaphore;
-
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
     protected ILogger<RequestHandlerBase<TRequest, TResult>> Logger { get; private set; } = null!;
 
-    protected RequestHandlerBase(SemaphoreSlim? semaphore = null) =>
-        this.semaphore = semaphore;
-
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
-        if (semaphore is not null)
-        {
-            await semaphore.WaitAsync();
-        }
-
         Logger = General.LoggingInstance<RequestHandlerBase<TRequest, TResult>>();
         int id = requestId++;
 
@@ -53,16 +43,12 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
             LogReqestException(request, ex, id);
             return (Result.Fail(InternalError) as TResult)!;
         }
-        finally
-        {
-            semaphore?.Release();
-        }
     }
 
-    internal protected virtual async Task PreProcess(TRequest request, CancellationToken cancellationToken) { }
-    internal protected virtual async Task PostProcess(TRequest request, CancellationToken cancellationToken) { }
+    private protected virtual async Task PreProcess(TRequest request, CancellationToken cancellationToken) { }
+    private protected virtual async Task PostProcess(TRequest request, CancellationToken cancellationToken) { }
 
-    internal protected abstract Task<TResult> InternalProcess(TRequest request, CancellationToken cancellationToken);
+    private protected abstract Task<TResult> InternalProcess(TRequest request, CancellationToken cancellationToken);
 
     private async Task<TResult> ProcessRequest(TRequest request, CancellationToken cancellationToken)
     {

@@ -26,6 +26,8 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
     protected override async Task Process(SubmitDropSubmitButtonRequest request, CancellationToken cancellationToken)
     {
         User user = GetUser()!;
+        // TODO: JR - check if this will work with deleted/edited tiles or if the tiles id's need to be transfered
+        // so the dw can try to retrieve them.
         IEnumerable<Tile> tiles = request.DTO.Tiles;
 
         foreach (Tile tile in tiles)

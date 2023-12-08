@@ -5,6 +5,7 @@
 namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Validation;
 using DSharpPlus.Entities;
 using FluentValidation;
@@ -18,13 +19,13 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     where TRequest : IBaseRequest
 {
     // TODO: JR - decide how to word this.
-    internal protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
-    internal protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
-    internal protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
+    protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
+    protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
+    protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
 
     // CSV
-    internal protected const string CsvMediaType = "text/csv";
-    internal protected const string NonCsvFileError = "The uploaded file must be a csv.";
+    protected const string CsvMediaType = "text/csv";
+    protected const string NonCsvFileError = "The uploaded file must be a csv.";
 
     // Image
     // TODO: JR - use ImageSharp for image validation.

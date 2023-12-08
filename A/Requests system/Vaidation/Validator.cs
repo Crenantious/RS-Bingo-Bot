@@ -16,46 +16,53 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     private readonly InteractionHandlersTracker handlersTracker;
 
     // TODO: JR - decide how to word this.
-    internal protected const string ObjectIsNull = "{0} cannot be null.";
-    internal protected const string UserIsNull = "User cannot be null.";
-    internal protected const string ChannelDoesNotExist = "The channel does not exist.";
-    internal protected const string RoleDoesNotExist = "The role does not exist.";
-    internal protected const string DiscordMessageDoesNotExist = "The Discord message does not exist.";
+    protected const string ObjectIsNull = "{0} cannot be null.";
+    protected const string UserIsNull = "User cannot be null.";
+    protected const string ChannelDoesNotExist = "The channel does not exist.";
+    protected const string RoleDoesNotExist = "The role does not exist.";
+    protected const string DiscordMessageDoesNotExist = "The Discord message does not exist.";
 
-    public Validator(InteractionHandlersTracker handlersTracker)
+    internal IReadOnlyList<SemaphoreSlim> Semaphores { get; private set; } = new List<SemaphoreSlim>().AsReadOnly();
+
+    public Validator()
     {
-        this.handlersTracker = handlersTracker;
+        handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
     }
 
-    public void NotNull(Func<TRequest, object?> func, string name)
+    protected void SetSemaphores(params SemaphoreSlim[] semaphores)
+    {
+        Semaphores = semaphores.AsReadOnly();
+    }
+
+    protected void NotNull(Func<TRequest, object?> func, string name)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(ObjectIsNull.FormatConst(name));
     }
 
-    public void UserNotNull(Func<TRequest, DiscordUser?> func)
+    protected void UserNotNull(Func<TRequest, DiscordUser?> func)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(UserIsNull);
     }
 
-    public void ChannelNotNull(Func<TRequest, DiscordChannel?> func)
+    protected void ChannelNotNull(Func<TRequest, DiscordChannel?> func)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(ChannelDoesNotExist);
     }
 
-    public void RoleNotNull(Func<TRequest, DiscordRole?> func)
+    protected void RoleNotNull(Func<TRequest, DiscordRole?> func)
     {
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(RoleDoesNotExist);
     }
 
-    public void DiscordMessageExists(Func<TRequest, Message> func)
+    protected void DiscordMessageExists(Func<TRequest, Message> func)
     {
         RuleFor(r => func(r).DiscordMessage)
             .NotNull()
@@ -63,7 +70,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     }
 
     /// <inheritdoc cref="InteractionHandlersTracker.IsActive{TRequest}(Func{TRequest, bool})"/>
-    public void RequestHandlerInstanceExists<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message)
+    protected void RequestHandlerInstanceExists<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message)
     {
         RuleFor<Func<TCompareRequest, bool>>(r => (compareRequest) => constraints(r, compareRequest))
             .Must(f => handlersTracker.IsActive(f))

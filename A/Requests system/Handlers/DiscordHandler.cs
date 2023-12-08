@@ -15,12 +15,7 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
-    protected DiscordHandler(SemaphoreSlim? semaphore = null) : base(semaphore)
-    {
-
-    }
-
-    internal protected async override Task<Result> InternalProcess(TRequest request, CancellationToken cancellationToken)
+    private protected async override Task<Result> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -49,12 +44,7 @@ public abstract class DiscordHandler<TRequest, TResult> : RequestHandler<TReques
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
-    protected DiscordHandler(SemaphoreSlim? semaphore = null) : base(semaphore)
-    {
-
-    }
-
-    internal protected async override Task<Result<TResult>> InternalProcess(TRequest request, CancellationToken cancellationToken)
+    private protected async override Task<Result<TResult>> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -70,6 +60,7 @@ public abstract class DiscordHandler<TRequest, TResult> : RequestHandler<TReques
         }
     }
 
+    // Not sure if this is needed anymore given the new response system regarding IDiscordResponse.
     // TODO: JR - implement a dictionary that maps exceptions to Errors for custom error overriding.
     protected void RegisterError<T>(T exception, Error error)
         where T : Exception
