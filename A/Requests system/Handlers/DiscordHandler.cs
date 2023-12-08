@@ -8,34 +8,18 @@ using FluentResults;
 using MediatR;
 
 /// <summary>
-/// Catches Discord exceptions while processing and adds them as errors.
+/// Used for sending any requests to Discord (send message, create channel etc.) to ensure any Discord errors are handled.
 /// </summary>
 public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
     where TRequest : IRequest<Result>
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
-    private protected async override Task<Result> InternalProcess(TRequest request, CancellationToken cancellationToken)
+    public DiscordHandler()
     {
-        try
-        {
-            return await base.InternalProcess(request, cancellationToken);
-        }
-        catch
-        {
-            // TODO: JR - catch each Discord exception and add them as errors appropriately.
-            if (errorOverrides.ContainsKey(ex))
-            {
-                AddError(errorOverrides[ex]);
-            }
-        }
-    }
-
-    // TODO: JR - implement a dictionary that maps exceptions to Errors for custom error overriding.
-    protected void RegisterError<T>(T exception, Error error)
-        where T : Exception
-    {
-
+        // TODO: JR - find out what errors can occur and add messages for them.
+        // Determine if errorOverrides is needed.
+        //SetExceptionMessage<>();
     }
 }
 
@@ -44,27 +28,10 @@ public abstract class DiscordHandler<TRequest, TResult> : RequestHandler<TReques
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
-    private protected async override Task<Result<TResult>> InternalProcess(TRequest request, CancellationToken cancellationToken)
+    public DiscordHandler()
     {
-        try
-        {
-            return await base.InternalProcess(request, cancellationToken);
-        }
-        catch
-        {
-            // TODO: JR - catch each Discord exception and add them as errors appropriately.
-            if (errorOverrides.ContainsKey(ex))
-            {
-                AddError(errorOverrides[ex]);
-            }
-        }
-    }
-
-    // Not sure if this is needed anymore given the new response system regarding IDiscordResponse.
-    // TODO: JR - implement a dictionary that maps exceptions to Errors for custom error overriding.
-    protected void RegisterError<T>(T exception, Error error)
-        where T : Exception
-    {
-
+        // TODO: JR - find out what errors can occur and add messages for them.
+        // Determine if errorOverrides is needed.
+        //SetExceptionMessage<>();
     }
 }

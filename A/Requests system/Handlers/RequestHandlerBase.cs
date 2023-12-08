@@ -12,15 +12,16 @@ using System.Text;
 
 public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>
     where TRequest : IRequest<TResult>
-    where TResult : ResultBase<TResult>
+    where TResult : ResultBase<TResult>, new()
 {
     private const string BeginHandlingRequest = "Handling request {0} with id {1}.";
     private const string RequestSucceeded = "Successfully handled request {0} with id {1}.";
     private const string RequestFailed = "Failed handling request {0} with id {1}.";
-    private const string InternalError = "An internal error has occurred.";
+    private const string UnexpectedError = "An unexpected error occurred.";
 
     private static int requestId = 0;
 
+    private Dictionary<Type, string> exceptionMessages = new();
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
@@ -41,8 +42,21 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         catch (Exception ex)
         {
             LogReqestException(request, ex, id);
-            return (Result.Fail(InternalError) as TResult)!;
+            string error = exceptionMessages.ContainsKey(ex.GetType()) ?
+                exceptionMessages[ex.GetType()] :
+                UnexpectedError;
+            return new TResult().WithError(error);
         }
+    }
+
+    /// <summary>
+    /// <paramref name="message"/> will be added as an error if the exception type is thrown during <see cref="Process(TRequest, CancellationToken)"/>.
+    /// <br/>If the type was already set, it will be overridden.
+    /// </summary>
+    protected void SetExceptionMessage<TException>(string message)
+        where TException : Exception
+    {
+        exceptionMessages[typeof(TException)] = message;
     }
 
     private protected virtual async Task PreProcess(TRequest request, CancellationToken cancellationToken) { }
@@ -54,6 +68,8 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     {
         await PreProcess(request, cancellationToken);
         TResult result = await InternalProcess(request, cancellationToken);
+        await PostProcess(request, cancellationToken);
+
         return errors.Count == 0 ?
                result.WithSuccesses(sucesses) :
                result.WithErrors(errors);
@@ -115,7 +131,7 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         Logger.LogInformation(BeginHandlingRequest.FormatConst(request.GetType().Name, id));
     }
 
-    private void LogRequestEnd(TRequest request, TResult result, int id)
+    private void LogRequestEnd(TRequest request, Result<TResult> result, int id)
     {
         string prefix = result.IsFailed ?
             RequestFailed.FormatConst(request.GetType().Name, id) :

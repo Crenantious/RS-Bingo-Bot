@@ -13,7 +13,7 @@ public abstract class RequestHandler<TRequest> : RequestHandlerBase<TRequest, Re
     private protected override async Task<Result> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
         await Process(request, cancellationToken);
-        return new Result();
+        return Result.Ok();
     }
 
     protected abstract Task Process(TRequest request, CancellationToken cancellationToken);
@@ -25,7 +25,7 @@ public abstract class RequestHandler<TRequest, TResult> : RequestHandlerBase<TRe
     private protected override async Task<Result<TResult>> InternalProcess(TRequest request, CancellationToken cancellationToken)
     {
         TResult result = await Process(request, cancellationToken);
-        return new Result<TResult>().WithValue(result);
+        return Result.Ok<TResult>(result);
     }
 
     protected abstract Task<TResult> Process(TRequest request, CancellationToken cancellationToken);
