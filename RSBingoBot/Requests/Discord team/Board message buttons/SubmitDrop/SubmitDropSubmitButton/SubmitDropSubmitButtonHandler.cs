@@ -17,10 +17,12 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
     private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}{3}{4}";
 
     private readonly IDiscordMessageServices messageServices;
+    private readonly IDatabaseServices databaseServices;
 
-    public SubmitDropSubmitButtonHandler(IDiscordMessageServices messageServices)
+    public SubmitDropSubmitButtonHandler(IDiscordMessageServices messageServices, IDatabaseServices databaseServices)
     {
         this.messageServices = messageServices;
+        this.databaseServices = databaseServices;
     }
 
     protected override async Task Process(SubmitDropSubmitButtonRequest request, CancellationToken cancellationToken)
@@ -37,9 +39,12 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         }
 
         // TODO: JR - update the board.
-        // TODO: JR - make altering a Team a request so a semaphore can be used which will avoid concurrency issues and
-        // can return any db errors.
-        DataWorker.SaveChanges();
+
+        Result result = await databaseServices.Update(DataWorker);
+        if (result.IsFailed)
+        {
+            AddErrors(result.Errors);
+        }
     }
 
     private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, User user, Tile tile)

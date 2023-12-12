@@ -7,18 +7,10 @@ namespace DiscordLibrary.DiscordServices;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using FluentResults;
-using Microsoft.Extensions.Logging;
 using RSBingoBot.Requests;
 
 public class DiscordTeamServices : IDiscordTeamServices
 {
-    private readonly Logger<DiscordTeamServices> logger;
-
-    private DiscordTeamServices(Logger<DiscordTeamServices> logger)
-    {
-        this.logger = logger;
-    }
-
     public async Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam team) =>
         await RequestServices.Run<CreateTeamRoleRequest, DiscordRole>(new CreateTeamRoleRequest(team));
 
