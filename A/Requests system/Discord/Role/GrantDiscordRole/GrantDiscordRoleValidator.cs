@@ -5,12 +5,12 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests.Validation;
-using RSBingoBot.Requests;
 
 internal class GrantDiscordRoleValidator : Validator<GrantDiscordRoleRequest>
 {
     public GrantDiscordRoleValidator()
     {
-
+        MemberNotNull(r => r.Member);
+        RoleNotNull(r => r.Role);
     }
 }

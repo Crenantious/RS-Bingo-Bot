@@ -8,12 +8,12 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 
-internal class CreateRoleHandler : RequestHandler<CreateRoleRequest, DiscordRole>
+internal class CreateRoleHandler : DiscordHandler<CreateRoleRequest, DiscordRole>
 {
     protected override async Task<DiscordRole> Process(CreateRoleRequest request, CancellationToken cancellationToken)
     {
-        var role = await DataFactory.Guild.CreateRoleAsync(request.Name);
-        AddSuccess(new CreateRoleSuccess());
+        DiscordRole role = await DataFactory.Guild.CreateRoleAsync(request.Name);
+        AddSuccess(new CreateRoleSuccess(role));
         return role;
     }
 }

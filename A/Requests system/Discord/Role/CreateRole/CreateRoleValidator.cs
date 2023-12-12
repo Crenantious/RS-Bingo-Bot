@@ -11,6 +11,6 @@ internal class CreateRoleValidator : Validator<CreateRoleRequest>
 {
     public CreateRoleValidator()
     {
-
+        // TODO: JR - validate the role name.
     }
 }

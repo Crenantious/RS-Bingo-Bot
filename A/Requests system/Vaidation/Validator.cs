@@ -18,6 +18,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     // TODO: JR - decide how to word this.
     protected const string ObjectIsNull = "{0} cannot be null.";
     protected const string UserIsNull = "User cannot be null.";
+    protected const string MemberIsNull = "Member cannot be null.";
     protected const string ChannelDoesNotExist = "The channel does not exist.";
     protected const string RoleDoesNotExist = "The role does not exist.";
     protected const string DiscordMessageDoesNotExist = "The Discord message does not exist.";
@@ -46,6 +47,13 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
         RuleFor(r => func(r))
             .NotNull()
             .WithMessage(UserIsNull);
+    }
+
+    protected void MemberNotNull(Func<TRequest, DiscordMember?> func)
+    {
+        RuleFor(r => func(r))
+            .NotNull()
+            .WithMessage(MemberIsNull);
     }
 
     protected void ChannelNotNull(Func<TRequest, DiscordChannel?> func)
