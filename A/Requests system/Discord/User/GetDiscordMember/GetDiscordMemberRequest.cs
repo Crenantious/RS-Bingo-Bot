@@ -1,4 +1,4 @@
-﻿// <copyright file="GetDiscordUserRequest.cs" company="PlaceholderCompany">
+﻿// <copyright file="GetDiscordMemberRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,4 +8,4 @@ using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record GetDiscordUserRequest(ulong Id) : IRequest<Result<DiscordMember>>;
+internal record GetDiscordMemberRequest(ulong Id) : IRequest<Result<DiscordMember?>>;

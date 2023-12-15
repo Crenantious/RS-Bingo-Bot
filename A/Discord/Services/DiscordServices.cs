@@ -20,7 +20,7 @@ public class DiscordServices : IDiscordServices
     }
 
     public async Task<Result<DiscordMember>> GetMember(ulong id) =>
-        await RequestServices.Run<GetDiscordUserRequest, DiscordMember>(new GetDiscordUserRequest(id));
+        await RequestServices.Run<GetDiscordMemberRequest, DiscordMember>(new GetDiscordMemberRequest(id));
 
     public async Task<Result<DiscordRole>> CreateRole(string name) =>
         await RequestServices.Run<CreateRoleRequest, DiscordRole>(new CreateRoleRequest(name));
