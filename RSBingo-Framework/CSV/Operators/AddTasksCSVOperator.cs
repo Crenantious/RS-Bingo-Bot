@@ -4,18 +4,22 @@
 
 namespace RSBingo_Framework.CSV;
 
-using RSBingoBot.Requests;
+using FluentResults;
 using RSBingo_Common;
-using RSBingo_Framework.DTO;
 using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.CSV.Operators.Warnings;
+using RSBingo_Framework.Interfaces;
 using static RSBingo_Common.Paths;
 
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
-    public AddTasksCSVOperator(IDataWorker dataWorker) : base(dataWorker) { }
+    IWebServices webServices;
+
+    public AddTasksCSVOperator(IDataWorker dataWorker) : base(dataWorker)
+    {
+        webServices = (IWebServices)General.DI.GetService(typeof(IWebServices));
+    }
 
     /// <inheritdoc/>
     protected override void OperateOnLine(AddTasksCSVLine line)
@@ -23,7 +27,7 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
         string imagePath = GetTaskImagePath(line.TaskName.Value);
 
         // The image will be used elsewhere.
-        Result result = WebRequests.DownloadFile(line.TaskUrl.Value, imagePath);
+        Result result = await webServices.DownloadFile(line.TaskUrl.Value, imagePath);
         if (result.IsFaulted)
         {
             AddWarning(new UnableToDownloadImageWarning(result.Error, line.TaskUrl.ValueIndex, line.LineNumber));

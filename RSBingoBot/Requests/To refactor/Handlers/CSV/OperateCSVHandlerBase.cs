@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordServices;
 using FluentResults;
 using RSBingo_Framework.CSV;
 
@@ -12,18 +13,20 @@ internal abstract class OperateCSVHandlerBase<LineType> : RequestHandler<Operate
 {
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
+    private readonly IWebServices webServices;
+
     protected abstract string SuccessResponse { get; }
     protected string FileName { get; } = Guid.NewGuid().ToString() + ".csv";
     protected CSVData<LineType> Data { get; private set; } = null!;
 
-    public OperateCSVHandlerBase() : base(semaphore)
+    public OperateCSVHandlerBase(IWebServices webServices) : base(semaphore)
     {
-
+        this.webServices = webServices;
     }
 
     protected override async Task Process(OperateCSVRequest request, CancellationToken cancellationToken)
     {
-        Result result = WebRequests.DownloadFile(request.Attachment.Url, FileName);
+        Result result = await webServices.DownloadFile(request.Attachment.Url, FileName);
         if (result.IsFailed)
         {
             AddErrors(result.Errors);

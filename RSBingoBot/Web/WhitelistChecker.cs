@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework;
+namespace RSBingoBot.Web;
 
 using System.Collections.Immutable;
 
