@@ -10,7 +10,8 @@ using System.Text;
 
 internal class DownloadFileDomainError : Error
 {
-    private const string ErrorMessage = "The url must be from one of the following domains:";
+    private const string ErrorMessage = "The url must be from a whitelisted domain:";
+    private const string NoWhitelistedDomainsError = "Unable to download file; no whitelisted domains found.";
 
     public DownloadFileDomainError() : base(GetMessage())
     {
@@ -19,9 +20,14 @@ internal class DownloadFileDomainError : Error
 
     private static string GetMessage()
     {
+        IEnumerable<string> domains = WhitelistChecker.GetWhitelistedDomains();
+        if (domains.Any() is false)
+        {
+            return NoWhitelistedDomainsError;
+        }
+
         StringBuilder message = new(ErrorMessage);
-        WhitelistChecker.GetWhitelistedDomains()
-            .ForEach(d => message.Append(Environment.NewLine + d));
+        domains.ForEach(d => message.Append(Environment.NewLine + d));
         return message.ToString();
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="OperateCSVValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="AddTasksCSVValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,9 +6,9 @@ namespace RSBingoBot.Requests.Validation;
 
 using RSBingoBot.Requests;
 
-internal class OperateCSVValidator : BingoValidator<OperateCSVRequest>
+internal class AddTasksCSVValidator : BingoValidator<AddTasksCSVRequest>
 {
-    public OperateCSVValidator()
+    public AddTasksCSVValidator()
     {
         IsCSVFile(r => r.Attachment);
     }
