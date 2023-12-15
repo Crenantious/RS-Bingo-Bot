@@ -6,5 +6,6 @@ namespace RSBingoBot.Requests;
 
 using FluentResults;
 using MediatR;
+using RSBingoBot.Discord;
 
-internal record DeleteTeamRequest(string TeamName) : IRequest<Result>;
+internal record DeleteTeamRequest(DiscordTeam DiscordTeam) : IRequest<Result>;

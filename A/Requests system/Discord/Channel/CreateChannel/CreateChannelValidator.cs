@@ -5,12 +5,11 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests.Validation;
-using RSBingoBot.Requests;
 
 internal class CreateChannelValidator : Validator<CreateChannelRequest>
 {
     public CreateChannelValidator()
     {
-
+        // TODO: JR - validate the channel name
     }
 }

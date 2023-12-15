@@ -10,7 +10,7 @@ using RSBingo_Common;
 
 internal class CreateChannelSuccess : Success
 {
-    private const string SuccessMessage = "Successfully created channel with name '{0}' and id {1}.";
+    private const string SuccessMessage = "A channel with the name '{0}' and id {1} has been created.";
 
     public CreateChannelSuccess(DiscordChannel channel) : base(SuccessMessage.FormatConst(channel.Name, channel.Id))
     {
