@@ -5,7 +5,6 @@
 namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
-using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Validation;
 using DSharpPlus.Entities;
 using FluentValidation;
@@ -56,6 +55,13 @@ public class BingoValidator<TRequest> : Validator<TRequest>
 
     }
 
+    public void TeamExists(Func<TRequest, int> func)
+    {
+        RuleFor(r => func(r))
+            .Must(t => DataWorker.Teams.GetTeamByID(t) is not null)
+            .WithMessage(r => TeamDoesNotExistResponse.FormatConst(func(r)));
+    }
+
     public void TeamExists(Func<TRequest, Team> func)
     {
         RuleFor(r => func(r))
@@ -87,6 +93,12 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     {
         RuleFor(r => func(r).Item1)
             .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+    }
+
+    public void UserOnTeam(Func<TRequest, (DiscordUser, int)> func)
+    {
+        RuleFor(r => func(r).Item1)
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, DataWorker.Teams.GetTeamByID(func(r))));
     }
 
     public void UserOnTeam(Func<TRequest, (DiscordUser, Team)> func)

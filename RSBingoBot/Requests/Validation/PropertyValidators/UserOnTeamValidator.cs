@@ -18,6 +18,7 @@ public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
     private readonly IDataWorker dataWorker;
     private readonly Func<T, (DiscordUser, Team)>? userAndTeam;
     private readonly Func<T, (DiscordUser, string)>? userAndTeamName;
+    private readonly Func<T, (DiscordUser, int)>? userAndTeamId;
 
     public string Name => "UserOnTeamValidator";
 
@@ -33,6 +34,12 @@ public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
         this.userAndTeamName = func;
     }
 
+    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, int)> func)
+    {
+        this.dataWorker = dataWorker;
+        this.userAndTeamId = func;
+    }
+
     public string GetDefaultMessageTemplate(string errorCode)
     {
         throw new NotImplementedException();
@@ -45,10 +52,16 @@ public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
         {
             team = userAndTeam(context.InstanceToValidate).Item2;
         }
-        else
+        else if (userAndTeamName is not null)
         {
             string name = userAndTeamName(context.InstanceToValidate).Item2;
             team = dataWorker.Teams.GetByName(name);
+        }
+        else
+        {
+            int id = userAndTeamId!(context.InstanceToValidate).Item2;
+            team = dataWorker.Teams.GetTeamByID(id);
+
         }
         return user.IsOnTeam(dataWorker, team);
     }
