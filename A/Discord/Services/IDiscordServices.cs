@@ -10,15 +10,19 @@ using FluentResults;
 
 public interface IDiscordServices
 {
-    public Task<Result<DiscordMember?>> GetMember(ulong id);
+    public Task<Result<DiscordMember>> GetMember(ulong id);
+
+    public Task<Result<DiscordMember>> GetMember(DiscordUser user);
 
     public Task<Result<DiscordRole>> CreateRole(string name);
 
     public Task<Result<DiscordRole>> GetRole(ulong id);
 
-    public Task<Result> DeleteRole(DiscordRole role);
-
     public Task<Result> GrantRole(DiscordMember member, DiscordRole role);
+
+    public Task<Result> RevokeRole(DiscordMember member, DiscordRole role);
+
+    public Task<Result> DeleteRole(DiscordRole role);
 
     public Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
         IEnumerable<DiscordOverwriteBuilder>? overwrites = null);

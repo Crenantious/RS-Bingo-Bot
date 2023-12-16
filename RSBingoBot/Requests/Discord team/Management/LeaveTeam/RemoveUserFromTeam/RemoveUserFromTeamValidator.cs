@@ -2,15 +2,15 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests.Validation;
+namespace RSBingoBot.Requests;
 
-using RSBingoBot.Requests;
+using RSBingoBot.Requests.Validation;
 
 internal class RemoveUserFromTeamValidator : BingoValidator<RemoveUserFromTeamRequest>
 {
     public RemoveUserFromTeamValidator()
     {
-        TeamExists(r => r.Team);
-        UserOnTeam(r => (r.User, r.Team));
+        TeamExists(r => r.DiscordTeam.Team);
+        UserOnTeam(r => (r.User, r.DiscordTeam.Team.Name));
     }
 }

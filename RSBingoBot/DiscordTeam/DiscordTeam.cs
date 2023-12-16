@@ -10,6 +10,8 @@ using RSBingo_Framework.Models;
 
 public class DiscordTeam
 {
+    // TODO: JR - check if Team can be used or if its id is required; data workers may need to get a
+    // refreshed version since the team may have been created by a different dw and be out of sync.
     public Team Team { get; }
     public DiscordChannel? CategoryChannel { get; private set; }
     public DiscordChannel? GeneralChannel { get; private set; }
