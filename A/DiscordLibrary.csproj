@@ -19,8 +19,4 @@
     <ProjectReference Include="..\RSBingo-Framework\RSBingo-Framework.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Requests system\Discord\Channel\NewFolder\" />
-  </ItemGroup>
-
 </Project>
