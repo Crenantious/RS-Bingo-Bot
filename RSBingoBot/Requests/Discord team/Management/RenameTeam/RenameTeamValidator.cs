@@ -2,15 +2,15 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests.Validation;
+namespace RSBingoBot.Requests;
 
-using RSBingoBot.Requests;
+using RSBingoBot.Requests.Validation;
 
 internal class RenameTeamValidator : BingoValidator<RenameTeamRequest>
 {
     public RenameTeamValidator()
     {
-        TeamExists(r => r.TeamName);
-        NewTeamName(r => r.NewTeamName);
+        TeamExists(r => r.DiscordTeam.Team);
+        NewTeamName(r => r.NewName);
     }
 }

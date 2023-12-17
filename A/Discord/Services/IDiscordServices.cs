@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
@@ -22,11 +23,18 @@ public interface IDiscordServices
 
     public Task<Result> RevokeRole(DiscordMember member, DiscordRole role);
 
+    public Task<Result> RenameRole(DiscordRole role, string newName);
+
     public Task<Result> DeleteRole(DiscordRole role);
 
     public Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
         IEnumerable<DiscordOverwriteBuilder>? overwrites = null);
 
+    public Task<Result<DiscordChannel>> CreateChannel(ChannelInfo channelInfo);
+
     public Task<Result<DiscordChannel>> GetChannel(ulong id);
+
+    public Task<Result> RenameChannel(DiscordChannel channel, string newName);
+
     public Task<Result> DeleteChannel(DiscordChannel channel);
 }

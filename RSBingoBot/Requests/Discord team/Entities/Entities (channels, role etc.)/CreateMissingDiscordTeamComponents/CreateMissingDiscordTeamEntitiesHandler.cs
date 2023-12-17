@@ -33,16 +33,18 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
             return;
         }
 
-        if (team.CategoryChannel is null && await CreateCategoryChannel() is false)
+        DiscordTeamChannelsInfo channelsInfo = new(team);
+
+        if (team.CategoryChannel is null && await CreateChannel(channelsInfo.Category, c => team.SetCategoryChannel(c)) is false)
         {
             AddError(new CreateMissingDiscordTeamEntitiesCategoryError());
             return;
         }
 
-        await CreateBoardChannel();
-        await CreateGeneralChannel();
-        await CreateEvidenceChannel();
-        await CreateVoiceChannel();
+        await CreateChannel(channelsInfo.Board, c => team.SetBoardChannel(c));
+        await CreateChannel(channelsInfo.General, c => team.SetGeneralChannel(c));
+        await CreateChannel(channelsInfo.Evidence, c => team.SetEvidenceChannel(c));
+        await CreateChannel(channelsInfo.Voice, c => team.SetVoiceChannel(c));
         await CreateBoardChannelMessage();
 
         AddSuccess(new CreateMissingDiscordTeamEntitiesSuccess());
@@ -59,75 +61,24 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
         return true;
     }
 
-    private async Task<bool> CreateCategoryChannel()
+    private async Task<bool> CreateChannel(ChannelInfo creationInfo, Action<DiscordChannel> onCreation)
     {
-        Result<DiscordChannel> channel = await teamServices.CreateCategoryChannel(team);
-        if (channel.IsFailed)
+        Result<DiscordChannel> channel = await discordServices.CreateChannel(creationInfo);
+        if (channel.IsSuccess)
         {
-            return false;
+            onCreation(channel.Value);
         }
-        team.SetCategoryChannel(channel.Value);
-        return true;
+        return channel.IsSuccess;
     }
 
-    private async Task<bool> CreateBoardChannel()
-    {
-        Result<DiscordChannel> channel = await teamServices.CreateBoardChannel(team);
-
-        if (channel.IsFailed)
-        {
-            return false;
-        }
-        team.SetBoardChannel(channel.Value);
-        return true;
-    }
-
-    private async Task<bool> CreateGeneralChannel()
-    {
-        Result<DiscordChannel> channel = await teamServices.CreateGeneralChannel(team);
-
-        if (channel.IsFailed)
-        {
-            return false;
-        }
-        team.SetGeneralChannel(channel.Value);
-        return true;
-    }
-
-    private async Task<bool> CreateEvidenceChannel()
-    {
-        Result<DiscordChannel> channel = await teamServices.CreateEvidenceChannel(team);
-
-        if (channel.IsFailed)
-        {
-            return false;
-        }
-        team.SetEvidenceChannel(channel.Value);
-        return true;
-    }
-
-    private async Task<bool> CreateVoiceChannel()
-    {
-        Result<DiscordChannel> channel = await teamServices.CreateVoiceChannel(team);
-
-        if (channel.IsFailed)
-        {
-            return false;
-        }
-        team.SetVoiceChannel(channel.Value);
-        return true;
-    }
-
-    private async Task<bool> CreateBoardChannelMessage()
+    private async Task CreateBoardChannelMessage()
     {
         Result<Message> message = await teamServices.CreateBoardMessage(team);
 
-        if (message.IsFailed)
+        if (message.IsSuccess)
         {
-            return false;
+            team.SetBoardMessage(message.Value);
+            message.Value.Send(team.BoardChannel!);
         }
-        team.SetBoardMessage(message.Value);
-        message.Value.Send(team.BoardChannel!);
-        return true;
     }
 }

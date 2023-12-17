@@ -13,6 +13,10 @@ public class DiscordTeam
     // TODO: JR - check if Team can be used or if its id is required; data workers may need to get a
     // refreshed version since the team may have been created by a different dw and be out of sync.
     public Team Team { get; }
+    public string RoleName => Team.Name;
+
+    // TODO: JR - have a list of all channels to make it easy to manipulate (create, rename, delete etc.) all
+    // channels together and make it very simple to add/remove channels from the list and have it affect all manipulators.
     public DiscordChannel? CategoryChannel { get; private set; }
     public DiscordChannel? GeneralChannel { get; private set; }
     public DiscordChannel? BoardChannel { get; private set; }

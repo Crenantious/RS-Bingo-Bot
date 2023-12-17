@@ -6,5 +6,6 @@ namespace RSBingoBot.Requests;
 
 using FluentResults;
 using MediatR;
+using RSBingoBot.Discord;
 
-internal record RenameTeamRequest(string TeamName, string NewTeamName) : IRequest<Result>;
+internal record RenameTeamRequest(DiscordTeam DiscordTeam, string NewName) : IRequest<Result>;
