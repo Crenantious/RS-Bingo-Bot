@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.RequestHandlers;
+namespace DiscordLibrary.Requests;
 
-public interface IInteractionHandler
+public interface IInteractionHandler : IRequestHandler
 {
     /// <summary>
     /// Conclude the interaction such that the user can no longer interact

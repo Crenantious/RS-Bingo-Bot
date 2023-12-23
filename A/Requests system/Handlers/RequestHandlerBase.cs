@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using RSBingo_Common;
 using System.Text;
 
-public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>
+public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>, IRequestHandler
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
 {
@@ -27,21 +27,28 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
 
     protected ILogger<RequestHandlerBase<TRequest, TResult>> Logger { get; private set; } = null!;
 
+    public int Id { get; private set; }
+
+    /// <returns>
+    /// Notable information about the request such has the origin.
+    /// </returns>
+    public abstract string GetLogInfo(TRequest request);
+
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
         Logger = General.LoggingInstance<RequestHandlerBase<TRequest, TResult>>();
-        int id = requestId++;
+        Id = requestId++;
 
         try
         {
-            LogRequestBegin(request, id);
+            LogRequestBegin(request, Id);
             TResult result = await ProcessRequest(request, cancellationToken);
-            LogRequestEnd(request, result, id);
+            LogRequestEnd(request, result, Id);
             return result;
         }
         catch (Exception ex)
         {
-            LogReqestException(request, ex, id);
+            LogReqestException(request, ex, Id);
             string error = exceptionMessages.ContainsKey(ex.GetType()) ?
                 exceptionMessages[ex.GetType()] :
                 UnexpectedError;

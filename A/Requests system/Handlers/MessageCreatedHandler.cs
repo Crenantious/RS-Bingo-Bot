@@ -2,12 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.RequestHandlers;
-
-using DiscordLibrary.Requests;
+namespace DiscordLibrary.Requests;
 
 public abstract class MessageCreatedHandler<TRequest> : RequestHandler<TRequest>
     where TRequest : IMessageCreatedRequest
 {
-
+    public override string GetLogInfo(TRequest request) =>
+        $"Message created with id {request.Message.DiscordMessage.Id} and content '{request.Message.Content}'.";
 }

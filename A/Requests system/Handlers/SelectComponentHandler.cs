@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.RequestHandlers;
+namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.Requests;
 
 public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest

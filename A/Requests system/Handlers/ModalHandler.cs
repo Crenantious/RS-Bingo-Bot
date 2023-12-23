@@ -2,9 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.RequestHandlers;
+namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
 public abstract class ModalHandler<TRequest> : InteractionHandler<TRequest, ModalSubmitEventArgs>
