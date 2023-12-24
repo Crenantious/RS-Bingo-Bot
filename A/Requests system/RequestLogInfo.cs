@@ -1,4 +1,4 @@
-﻿// <copyright file="AdditionalLogInfoForRequest.cs" company="PlaceholderCompany">
+﻿// <copyright file="RequestLogInfo.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,13 +8,14 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using FluentResults;
+using MediatR;
 using System.Text;
 
-public class AdditionalLogInfoForRequest
+public class RequestLogInfo<TResponse>
 {
     private StringBuilder info = new();
 
-    public string GetInfo(IResultBase request)
+    public string GetInfo(IRequest<Result<TResponse>> request)
     {
         TryAddInfo<ISelectComponentRequest>(request, SelectComponentInfo);
         TryAddInfo<IButtonRequest>(request, ButtonInfo);
@@ -65,7 +66,7 @@ public class AdditionalLogInfoForRequest
         AddInfo("Interaction type", args.Interaction.Type);
     }
 
-    private void TryAddInfo<T>(IResultBase request, Action<T> addInfo)
+    private void TryAddInfo<T>(IRequest<Result<TResponse>> request, Action<T> addInfo)
     {
         if (IsType<T>(request))
         {
@@ -79,6 +80,6 @@ public class AdditionalLogInfoForRequest
         info.AppendLine($"{category}: {value}.");
     }
 
-    private bool IsType<T>(IResultBase request) =>
+    private bool IsType<T>(IRequest<Result<TResponse>> request) =>
         typeof(T).IsAssignableFrom(request.GetType());
 }

@@ -4,7 +4,6 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.RequestHandlers;
 using DSharpPlus.EventArgs;
 using MediatR;
 using System;

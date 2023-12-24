@@ -8,11 +8,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Metadata;
 using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using static RSBingo_Common.General;
 using System.Globalization;
+using static RSBingo_Common.General;
 
 /// <summary>
 /// The data factory where all <see cref="DataWorker"/>s are created.
@@ -42,7 +40,7 @@ public static class DataFactory
     private static string connectionString = string.Empty;
     private static string discordToken = string.Empty;
     private static bool dataIsMock = false;
-    
+
     private static DiscordGuild guild = null!;
     private static ulong hostRoleId;
     private static DiscordChannel pendingEvidenceChannel = null!;
@@ -57,6 +55,8 @@ public static class DataFactory
 
     private static DateTime competitionStartDateTime;
 
+    private static List<string> whitelistedDomains;
+
     private static InMemoryDatabaseRoot imdRoot;
 
     /// <summary>
@@ -70,7 +70,7 @@ public static class DataFactory
     public static DiscordGuild Guild => guild;
 
     public static ulong HostRole => hostRoleId;
-    
+
     /// <summary>
     /// Gets the "pending-evidence" channel.
     /// </summary>
@@ -107,7 +107,9 @@ public static class DataFactory
     public static bool UseNpgsql => useNpgsql;
 
     public static DateTime CompetitionStartDateTime => competitionStartDateTime;
-    
+
+    public static List<string> WhitelistedDomains => whitelistedDomains;
+
     // HACK: Remove this.
     private static string mockName = string.Empty;
 
@@ -129,7 +131,7 @@ public static class DataFactory
             builder.UseInMemoryDatabase(DataFactory.mockName, imdRoot);
         }
 
-        RSBingoContext dbContext = new (builder.Options);
+        RSBingoContext dbContext = new(builder.Options);
         return new DataWorker(dbContext, LoggingInstance<DataWorker>());
     }
 
@@ -177,8 +179,7 @@ public static class DataFactory
 
     private static void InitializeWhitelistedDomains()
     {
-        List<string> whitelistedDomains = Config_GetList<string>(WhitelistedDomainsKey);
-        WhitelistChecker.Initialise(whitelistedDomains);
+        whitelistedDomains = Config_GetList<string>(WhitelistedDomainsKey);
     }
 
     private static void InitializeDiscord()

@@ -11,29 +11,29 @@ using RSBingo_Common;
 using System.Diagnostics;
 using System.Text;
 
-public class LoggingBehaviour<TRequest> : IPipelineBehavior<TRequest, Result>
-    where TRequest : IResultBase
+public class LoggingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, Result<TResponse>>
+    where TRequest : IRequest<Result<TResponse>>
 {
     private const string BeganHandlingRequest = "Began handling request of type '{0}'. No additional information found.";
     private const string BeganHandlingRequestWithInfo = "Began handling request of type '{0}'.{1}{2}";
     private const string RequestSucceeded = "The request '{0}' was completed successfully after {1} ms.";
     private const string RequestFailed = "The request '{0}' failed after {1} ms with the following errors:";
 
-    private readonly ILogger<LoggingBehaviour<TRequest>> logger;
-    private readonly AdditionalLogInfoForRequest additionalRequestInfo;
+    private readonly ILogger<LoggingBehaviour<TRequest, TResponse>> logger;
+    private readonly RequestLogInfo<TResponse> additionalRequestInfo;
 
-    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest>> logger, AdditionalLogInfoForRequest additionalRequestInfo)
+    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResponse>> logger, RequestLogInfo<TResponse> additionalRequestInfo)
     {
         this.logger = logger;
         this.additionalRequestInfo = additionalRequestInfo;
     }
 
-    public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
+    public async Task<Result<TResponse>> Handle(TRequest request, RequestHandlerDelegate<Result<TResponse>> next, CancellationToken cancellationToken)
     {
         LogBeginHandling(request);
 
         Stopwatch stopwatch = Stopwatch.StartNew();
-        Result result = await next();
+        Result<TResponse> result = await next();
         stopwatch.Stop();
 
         if (result.IsFailed)

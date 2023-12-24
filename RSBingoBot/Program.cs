@@ -19,10 +19,10 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
-using RSBingoBot.BingoCommands;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Imaging;
 using RSBingoBot.Requests.Validation;
+using RSBingoBot.Web;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
@@ -55,6 +55,8 @@ public class Program
             EvidenceReaction.SetUp();
             BoardImage.Initialise();
             CompetitionStart.Setup();
+            WhitelistChecker.Initialise(DataFactory.WhitelistedDomains);
+
 #if DEBUG
             TaskTemplatePopulator.Run();
 #endif
@@ -133,7 +135,7 @@ public class Program
                     return discordClient;
                 });
 
-                services.AddScoped<CommandController>();
+                //services.AddScoped<CommandController>();
 
                 services.AddSingleton<ComponentInteractionDEH>();
                 services.AddSingleton<MessageReactionAddedDEH>();

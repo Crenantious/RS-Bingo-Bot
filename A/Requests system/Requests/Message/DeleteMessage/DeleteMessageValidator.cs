@@ -10,7 +10,6 @@ internal class DeleteMessageValidator : Validator<DeleteMessageRequest>
 {
     public DeleteMessageValidator()
     {
-        NotNull(r => r.Message, "Message");
-        DiscordMessageExists(r => r.Message);
+
     }
 }
