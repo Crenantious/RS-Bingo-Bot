@@ -1,18 +1,18 @@
-﻿// <copyright file="RequestServices.cs" company="PlaceholderCompany">
+﻿// <copyright file="RequestRunner.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.DiscordServices;
+namespace DiscordLibrary.Requests;
 
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
 
-public static class RequestServices
+public static class RequestRunner
 {
     private static readonly IMediator mediator;
 
-    static RequestServices()
+    static RequestRunner()
     {
         mediator = (IMediator)General.DI.GetService(typeof(IMediator))!;
     }

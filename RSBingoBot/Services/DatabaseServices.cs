@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.Requests;
@@ -11,5 +12,5 @@ using RSBingoBot.Requests;
 public class DatabaseServices : IDatabaseServices
 {
     public async Task<Result> Update(IDataWorker dataWorker) =>
-        await RequestServices.Run(new UpdateDatabaseRequest(dataWorker));
+        await RequestRunner.Run(new UpdateDatabaseRequest(dataWorker));
 }

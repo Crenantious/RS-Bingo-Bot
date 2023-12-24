@@ -9,6 +9,7 @@ using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using System.Text;
 
+// TODO: JR - decide if this is needed. Probably not since server audit logs exist.
 public static class MessageRequestInformation
 {
     public static string Get(Message message, DiscordChannel channel) =>

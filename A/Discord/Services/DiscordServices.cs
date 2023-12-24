@@ -13,30 +13,30 @@ using RSBingoBot.Requests;
 public class DiscordServices : IDiscordServices
 {
     public async Task<Result<DiscordMember?>> GetMember(ulong id) =>
-        await RequestServices.Run<GetDiscordMemberRequest, DiscordMember?>(new GetDiscordMemberRequest(id));
+        await RequestRunner.Run<GetDiscordMemberRequest, DiscordMember?>(new GetDiscordMemberRequest(id));
 
     public async Task<Result<DiscordRole>> CreateRole(string name) =>
-        await RequestServices.Run<CreateRoleRequest, DiscordRole>(new CreateRoleRequest(name));
+        await RequestRunner.Run<CreateRoleRequest, DiscordRole>(new CreateRoleRequest(name));
 
     public async Task<Result<DiscordRole>> GetRole(ulong id) =>
-        await RequestServices.Run<GetRoleRequest, DiscordRole>(new GetRoleRequest(id));
+        await RequestRunner.Run<GetRoleRequest, DiscordRole>(new GetRoleRequest(id));
 
     public async Task<Result> DeleteRole(DiscordRole role) =>
-        await RequestServices.Run(new DeleteRoleRequest(role));
+        await RequestRunner.Run(new DeleteRoleRequest(role));
 
     public async Task<Result> GrantRole(DiscordMember member, DiscordRole role) =>
-        await RequestServices.Run(new GrantDiscordRoleRequest(member, role));
+        await RequestRunner.Run(new GrantDiscordRoleRequest(member, role));
 
     public async Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
         IEnumerable<DiscordOverwriteBuilder>? overwrites = null) =>
-        await RequestServices.Run<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
+        await RequestRunner.Run<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
 
     public Task<Result<DiscordChannel>> CreateChannel(ChannelInfo info) =>
         CreateChannel(info.Name, info.ChannelType, info.Parent, info.Overwrites);
 
     public async Task<Result<DiscordChannel>> GetChannel(ulong id) =>
-        await RequestServices.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
+        await RequestRunner.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
 
     public async Task<Result> DeleteChannel(DiscordChannel channel) =>
-        await RequestServices.Run(new DeleteChannelRequest(channel));
+        await RequestRunner.Run(new DeleteChannelRequest(channel));
 }

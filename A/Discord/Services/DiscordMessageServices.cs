@@ -10,7 +10,6 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using FluentResults;
-using RSBingoBot.Requests;
 
 public class DiscordMessageServices : IDiscordMessageServices
 {
@@ -22,16 +21,16 @@ public class DiscordMessageServices : IDiscordMessageServices
     }
 
     public async Task<Result> Send(Message message, DiscordChannel channel) =>
-        await RequestServices.Run(new SendMessageRequest(message, channel));
+        await RequestRunner.Run(new SendMessageRequest(message, channel));
 
     public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
-        await RequestServices.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
+        await RequestRunner.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 
     public async Task<Result> Delete(Message message) =>
-        await RequestServices.Run(new DeleteMessageRequest(message.DiscordMessage));
+        await RequestRunner.Run(new DeleteMessageRequest(message.DiscordMessage));
 
     public async Task<Result> Delete(DiscordMessage message) =>
-        await RequestServices.Run(new DeleteMessageRequest(message));
+        await RequestRunner.Run(new DeleteMessageRequest(message));
 
     public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints)
     {
@@ -42,6 +41,6 @@ public class DiscordMessageServices : IDiscordMessageServices
     {
         request.MessageArgs = args;
         request.Message = new Message(args.Message);
-        Result result = await RequestServices.Run(request);
+        Result result = await RequestRunner.Run(request);
     }
 }

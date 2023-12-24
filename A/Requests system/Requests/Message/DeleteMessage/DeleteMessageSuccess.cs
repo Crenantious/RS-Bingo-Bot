@@ -4,13 +4,12 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
 internal class DeleteMessageSuccess : MessageSuccess
 {
-    public DeleteMessageSuccess(Message message, DiscordChannel channel) :
-        base("Successfully deleted a message.", message, channel)
+    public DeleteMessageSuccess(DiscordMessage message, DiscordChannel channel) :
+        base("Deleted a message.", message, channel)
     {
 
     }

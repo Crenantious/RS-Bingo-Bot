@@ -10,7 +10,7 @@ using DSharpPlus.Entities;
 internal class GetMessageSuccess : MessageSuccess
 {
     public GetMessageSuccess(Message message, DiscordChannel channel) :
-        base("Successfully retrieved message", message, channel)
+        base("Retrieved a message", message.DiscordMessage, channel)
     {
     }
 }

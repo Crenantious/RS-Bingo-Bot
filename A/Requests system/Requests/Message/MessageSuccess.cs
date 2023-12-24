@@ -4,15 +4,13 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordServices;
 using DSharpPlus.Entities;
 using FluentResults;
 
 internal class MessageSuccess : Success
 {
-    public MessageSuccess(string prefix, Message message, DiscordChannel channel) :
-        base(prefix + MessageRequestInformation.Get(message, channel))
+    public MessageSuccess(string prefix, DiscordMessage message, DiscordChannel channel) :
+        base($"{prefix}. Id: {message.Id}, Channel name: {channel.Name}, Channel id: {channel.Id}")
     {
 
     }

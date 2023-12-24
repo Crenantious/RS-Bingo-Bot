@@ -4,6 +4,6 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordEntities;
+using DSharpPlus.Entities;
 
-internal record DeleteMessageRequest(Message Message) : IDiscordRequest;
+internal record DeleteMessageRequest(DiscordMessage Message) : IDiscordRequest;

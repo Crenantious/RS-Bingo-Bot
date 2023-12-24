@@ -37,13 +37,13 @@ internal static class DiscordInteractionServices
         where T : IComponent
     {
         request.InteractionArgs = args;
-        Result result = await RequestServices.Run(request);
+        Result result = await RequestRunner.Run(request);
     }
 
     private static async Task OnModalSubmitted(IModalRequest request, ModalSubmitEventArgs args)
     {
         request.InteractionArgs = args;
-        Result result = await RequestServices.Run(request);
+        Result result = await RequestRunner.Run(request);
     }
 
     // TODO: implement registration for a command

@@ -10,7 +10,7 @@ using DSharpPlus.Entities;
 internal class SendMessageSuccess : MessageSuccess
 {
     public SendMessageSuccess(Message message, DiscordChannel channel) :
-        base("Successfully sent a message.", message, channel)
+        base("Sent a message.", message.DiscordMessage, channel)
     {
 
     }
