@@ -2,13 +2,12 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using static RSBingo_Framework.DAL.DataFactory;
+using RSBingoBot.CSV.Lines;
+using RSBingoBot.CSV.Operators.Warnings;
 
 /// <inheritdoc/>
 public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVLine>
@@ -25,7 +24,7 @@ public class AddTaskRestrictionsCSVOperator : CSVOperator<AddTaskRestrictionCSVL
     }
 
     /// <inheritdoc/>
-    protected override void OperateOnLine(AddTaskRestrictionCSVLine line)
+    protected override async Task OperateOnLine(AddTaskRestrictionCSVLine line)
     {
         if (existingRestrictionNames.Contains(line.RestrictionName.Value))
         {

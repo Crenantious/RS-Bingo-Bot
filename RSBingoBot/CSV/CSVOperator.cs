@@ -2,11 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
-using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
-using System.Text;
+using RSBingoBot.CSV.Operators.Warnings;
 
 /// <summary>
 /// Performs operations based on the contents of a CSV file.
@@ -50,11 +49,11 @@ public abstract class CSVOperator<LineType>
     /// Used to setup the environment and for any pre-processing logic before for operating.
     /// </summary>
     protected virtual void OnPreOperating() { }
-    
+
     /// <summary>
     /// Perform logic based on the data in <paramref name="line"/>.
     /// </summary>
-    protected abstract void OperateOnLine(LineType line);
+    protected abstract Task OperateOnLine(LineType line);
 
     /// <summary>
     /// Called after <see cref="OperateOnLine({LineType})"/>.

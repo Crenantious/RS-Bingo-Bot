@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV.Operators.Warnings;
+namespace RSBingoBot.CSV.Operators.Warnings;
 
 public class TaskDoesNotExistWarning : Warning
 {

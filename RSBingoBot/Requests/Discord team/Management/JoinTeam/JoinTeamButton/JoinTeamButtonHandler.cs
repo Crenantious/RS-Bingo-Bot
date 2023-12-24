@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Factories;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
 
 internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>

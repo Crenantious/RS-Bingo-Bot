@@ -4,8 +4,8 @@
 
 namespace RSBingoBot.Imaging;
 
+using DiscordLibrary.DataStructures;
 using RSBingoBot.DTO;
-using RSBingoBot.Leaderboard;
 using SixLabors.Fonts;
 
 internal static class GridImageUtilities
@@ -18,7 +18,7 @@ internal static class GridImageUtilities
     /// <param name="xPadding">Horizontal padding for the grid cells.</param>
     /// <param name="yPadding">Vertical padding for the grid cells.</param>
     /// <returns>The calculated dimensions.</returns>
-    public static GridImageDimensions GetGridImageDimensions(Grid grid, Font font, int xPadding = 0, int yPadding = 0)
+    public static GridImageDimensions GetGridImageDimensions(Grid<string> grid, Font font, int xPadding = 0, int yPadding = 0)
     {
         float[] columnWidths = new float[grid.Cells.GetLength(0)];
         float[] rowHeights = new float[grid.Cells.GetLength(1)];

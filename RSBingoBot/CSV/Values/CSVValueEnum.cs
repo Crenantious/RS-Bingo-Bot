@@ -2,10 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
 using DSharpPlus.SlashCommands;
-using RSBingo_Framework.Exceptions.CSV;
+using RSBingoBot.CSV.Exceptions;
 
 /// <inheritdoc/>
 public class CSVValueEnum<T> : CSVValue<T> where T : Enum

@@ -5,7 +5,7 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;

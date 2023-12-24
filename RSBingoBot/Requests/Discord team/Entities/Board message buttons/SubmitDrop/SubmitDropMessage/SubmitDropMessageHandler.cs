@@ -5,7 +5,7 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 
 internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessageRequest>
 {

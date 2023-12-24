@@ -2,11 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
-using RSBingo_Framework.Exceptions;
-using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework.Interfaces;
+using RSBingoBot.CSV.Exceptions;
 
 public abstract class CSVLine
 {

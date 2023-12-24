@@ -2,14 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using static RSBingo_Framework.DAL.DataFactory;
-    
+using RSBingoBot.CSV.Lines;
+using RSBingoBot.CSV.Operators.Warnings;
+
 /// <inheritdoc/>
 public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
 {
@@ -17,7 +16,7 @@ public class RemoveTasksCSVOperator : CSVOperator<RemoveTasksCSVLine>
         : base(dataWorker) { }
 
     /// <inheritdoc/>
-    protected override void OperateOnLine(RemoveTasksCSVLine line)
+    protected override async Task OperateOnLine(RemoveTasksCSVLine line)
     {
         IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetByNameAndDifficulty(line.TaskName.Value, line.TaskDifficulty.Value)
                                            .Take(line.AmountOfTasks.Value);

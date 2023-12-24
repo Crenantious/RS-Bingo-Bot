@@ -4,17 +4,18 @@
 
 namespace RSBingoBot.Leaderboard;
 
+using DiscordLibrary.DataStructures;
+using RSBingo_Framework.Interfaces;
 using RSBingoBot.DTO;
 using RSBingoBot.Imaging;
-using RSBingo_Framework.Interfaces;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingoBot.Leaderboard.LeaderboadPreferences;
 using static RSBingoBot.Leaderboard.LeaderboardImageUtilities;
-using static RSBingo_Framework.DAL.DataFactory;
 
 public static class LeaderboardImage
 {
@@ -23,11 +24,11 @@ public static class LeaderboardImage
         // TODO: find out why this is.
         // Must be recreated each time to get the updated scores for each team; a single instance on initialisation does not work.
         dataWorker = CreateDataWorker();
-        Grid cellValues = GetCellValues(dataWorker);
+        Grid<string> cellValues = GetCellValues(dataWorker);
         return CreateImage(GetGridImageDimensions(cellValues), cellValues);
     }
 
-    private static void MutateCell(Image cell, Grid cellValues, int column, int row)
+    private static void MutateCell(Image cell, Grid<string> cellValues, int column, int row)
     {
         cell.Mutate(x => x.Fill(TextBackgroundColour));
         DrawText(cell, cellValues.Cells[column, row], new(cell.Width / 2, cell.Height / 2));
@@ -45,12 +46,12 @@ public static class LeaderboardImage
         image.Mutate(x => x.DrawText(textOptions, text, TextColour));
     }
 
-    private static Image CreateImage(GridImageDimensions dimensions, Grid cellValues) =>
+    private static Image CreateImage(GridImageDimensions dimensions, Grid<string> cellValues) =>
         new GridImageBuilder<Rgba32>(dimensions, new ImageBorderInfo(TextBackgroundBorderColour, TextBackgroundBorderThickness),
             (image, column, row) => MutateCell(image, cellValues, column, row))
         .Build()
         .Image;
 
-    private static GridImageDimensions GetGridImageDimensions(Grid cellValues) =>
+    private static GridImageDimensions GetGridImageDimensions(Grid<string> cellValues) =>
         GridImageUtilities.GetGridImageDimensions(cellValues, LeaderboadPreferences.Font, TextPaddingWidth, TextPaddingHeight);
 }

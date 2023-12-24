@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Factories;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
@@ -32,7 +32,7 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         User user = discordUser.GetDBUser(DataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
-        var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, new ConclueInteractionButtonRequest(this));
+        var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, new ConcludeInteractionButtonRequest(this));
 
         ResponseMessages.Add(
             new InteractionMessage(InteractionArgs.Interaction)

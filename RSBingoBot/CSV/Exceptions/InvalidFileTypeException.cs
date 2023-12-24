@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.Exceptions.CSV;
+namespace RSBingoBot.CSV.Exceptions;
 
 public class InvalidFileTypeException : CSVReaderException
 {

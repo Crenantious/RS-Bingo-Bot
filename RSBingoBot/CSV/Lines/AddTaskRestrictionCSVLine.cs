@@ -2,9 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using RSBingo_Framework.Interfaces;
-
-namespace RSBingo_Framework.CSV.Lines;
+namespace RSBingoBot.CSV.Lines;
 
 public class AddTaskRestrictionCSVLine : AddOrRemoveTaskRestrictionCSVLine
 {

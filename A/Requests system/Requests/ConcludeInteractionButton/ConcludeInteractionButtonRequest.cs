@@ -7,7 +7,7 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordComponents;
 using DSharpPlus.EventArgs;
 
-internal record ConcludeInteractionButtonRequest(IInteractionHandler handler) : IButtonRequest
+public record ConcludeInteractionButtonRequest(IInteractionHandler handler) : IButtonRequest
 {
     public Button Component { get; set; } = null!;
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;

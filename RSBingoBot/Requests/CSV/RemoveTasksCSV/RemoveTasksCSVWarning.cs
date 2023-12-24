@@ -13,7 +13,7 @@ internal class RemoveTasksCSVWarning : IWarning
 
     public Dictionary<string, object> Metadata { get; } = new();
 
-    public AddTasksCSVWarning(string message)
+    public RemoveTasksCSVWarning(string message)
     {
         Message = message;
     }

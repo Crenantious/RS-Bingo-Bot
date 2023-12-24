@@ -52,7 +52,6 @@ public class Program
 
             // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
-            EvidenceReaction.SetUp();
             BoardImage.Initialise();
             CompetitionStart.Setup();
             WhitelistChecker.Initialise(DataFactory.WhitelistedDomains);
@@ -161,7 +160,7 @@ public class Program
             .ConfigureContainer((Action<ContainerBuilder>)(builder =>
             {
                 // Register types that contain factories here
-                builder.RegisterType<DiscordTeamOld>();
+                //builder.RegisterType<DiscordTeamOld>();
             }));
     }
 }

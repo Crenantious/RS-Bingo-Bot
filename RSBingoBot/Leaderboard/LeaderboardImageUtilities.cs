@@ -4,9 +4,9 @@
 
 namespace RSBingoBot.Leaderboard;
 
-using RSBingoBot.DTO;
-using RSBingo_Framework.Models;
+using DiscordLibrary.DataStructures;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 
 public class LeaderboardImageUtilities
 {
@@ -15,10 +15,10 @@ public class LeaderboardImageUtilities
     /// </summary>
     /// <param name="dataWorker"></param>
     /// <returns>The values. Dimension 0 is the columns and dimension 1 is the rows.</returns>
-    public static Grid GetCellValues(IDataWorker dataWorker)
+    public static Grid<string> GetCellValues(IDataWorker dataWorker)
     {
         IEnumerable<Team> teams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
-        Grid cellValues = new(3, teams.Count() + 1);
+        Grid<string> cellValues = new(3, teams.Count() + 1);
 
         AddHeaders(cellValues);
         AddTeams(cellValues, teams);
@@ -26,10 +26,10 @@ public class LeaderboardImageUtilities
         return cellValues;
     }
 
-    private static void AddHeaders(Grid cellValues) =>
+    private static void AddHeaders(Grid<string> cellValues) =>
        cellValues.SetRow(0, new string[] { "Name", "Score", "Rank" });
 
-    private static void AddTeams(Grid cellValues, IEnumerable<Team> teams)
+    private static void AddTeams(Grid<string> cellValues, IEnumerable<Team> teams)
     {
         for (int i = 0; i < teams.Count(); i++)
         {

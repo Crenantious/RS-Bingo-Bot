@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
-using RSBingo_Framework.Exceptions.CSV;
-using System.Runtime.ExceptionServices;
+using RSBingoBot.CSV.Exceptions;
 
 /// <summary>
 /// Reads and parses a CSV file.
@@ -36,7 +35,7 @@ public class CSVReader
             }
 
             using (StreamReader reader = new(filePath))
-            return ParseFile<LineType>(reader);
+                return ParseFile<LineType>(reader);
         }
         catch (CSVReaderException e)
         {

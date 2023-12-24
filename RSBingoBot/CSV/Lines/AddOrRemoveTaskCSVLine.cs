@@ -2,10 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV.Lines;
+namespace RSBingoBot.CSV.Lines;
 
-using RSBingo_Framework.Exceptions;
-using RSBingo_Framework.Interfaces;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 
 public abstract class AddOrRemoveTasksCSVLine : CSVLine

@@ -8,7 +8,6 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
-using DiscordLibrary.RequestHandlers;
 using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -54,7 +53,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), new ChangeTilesToSelectRequest(dto));
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConclueInteractionButtonRequest(this));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConcludeInteractionButtonRequest(this));
 
         response.AddComponents(changeFrom);
         response.AddComponents(changeTo);

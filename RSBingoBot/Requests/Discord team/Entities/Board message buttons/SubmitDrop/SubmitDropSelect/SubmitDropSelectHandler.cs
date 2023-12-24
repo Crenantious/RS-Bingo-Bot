@@ -5,7 +5,7 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
 
 internal class SubmitDropSelectHandler : SelectComponentHandler<SubmitDropSelectRequest>

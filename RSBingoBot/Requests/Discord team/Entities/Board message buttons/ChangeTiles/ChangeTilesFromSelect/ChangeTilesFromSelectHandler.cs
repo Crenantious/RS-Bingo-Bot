@@ -5,7 +5,7 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 
 internal class ChangeTilesFromSelectHandler : SelectComponentHandler<ChangeTilesFromSelectRequest>
 {

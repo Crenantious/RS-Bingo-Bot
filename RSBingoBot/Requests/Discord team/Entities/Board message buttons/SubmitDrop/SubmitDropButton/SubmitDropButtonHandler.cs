@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
-using DiscordLibrary.RequestHandlers;
+using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
@@ -45,7 +45,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         SubmitDropButtonDTO dto = new(response);
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new SubmitDropSubmitButtonRequest(dto, evidenceType));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConclueInteractionButtonRequest(this));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConcludeInteractionButtonRequest(this));
 
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
         response.AddComponents(submit, cancel);

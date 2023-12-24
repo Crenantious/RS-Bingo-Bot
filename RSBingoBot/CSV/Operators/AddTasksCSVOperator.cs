@@ -2,19 +2,20 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
+using DiscordLibrary.DiscordServices;
 using FluentResults;
 using RSBingo_Common;
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
+using RSBingoBot.CSV.Lines;
+using RSBingoBot.CSV.Operators.Warnings;
 using static RSBingo_Common.Paths;
 
 /// <inheritdoc/>
 public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
 {
-    IWebServices webServices;
+    private IWebServices webServices;
 
     public AddTasksCSVOperator(IDataWorker dataWorker) : base(dataWorker)
     {
@@ -22,15 +23,15 @@ public class AddTasksCSVOperator : CSVOperator<AddTasksCSVLine>
     }
 
     /// <inheritdoc/>
-    protected override void OperateOnLine(AddTasksCSVLine line)
+    protected override async Task OperateOnLine(AddTasksCSVLine line)
     {
         string imagePath = GetTaskImagePath(line.TaskName.Value);
 
         // The image will be used elsewhere.
         Result result = await webServices.DownloadFile(line.TaskUrl.Value, imagePath);
-        if (result.IsFaulted)
+        if (result.IsFailed)
         {
-            AddWarning(new UnableToDownloadImageWarning(result.Error, line.TaskUrl.ValueIndex, line.LineNumber));
+            AddWarning(new UnableToDownloadImageWarning(result.Errors, line.TaskUrl.ValueIndex, line.LineNumber));
             return;
         }
 

@@ -2,11 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV;
+namespace RSBingoBot.CSV;
 
 using RSBingo_Common;
-using RSBingo_Framework.Exceptions.CSV;
-using RSBingo_Framework.Interfaces;
+using RSBingoBot.CSV.Exceptions;
 
 ///<inheritdoc/>
 public abstract class CSVValue<ValueType> : ICSVValue

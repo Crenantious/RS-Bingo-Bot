@@ -11,6 +11,5 @@ using DSharpPlus.EventArgs;
 internal record ViewEvidenceSelectRequest() : ISelectComponentRequest
 {
     public SelectComponent Component { get; set; } = null!;
-
-    public InteractionCreateEventArgs InteractionArgs { get; set; } = null!;
+    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
 }

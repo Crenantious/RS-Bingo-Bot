@@ -2,11 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework.CSV.Operators.Warnings;
+namespace RSBingoBot.CSV.Operators.Warnings;
 
-using RSBingo_Framework.Exceptions;
-
-public class UnableToReachWebsiteException : RSBingoException
+public class UnableToReachWebsiteException : Exception
 {
     public UnableToReachWebsiteException(string message) : base(message) { }
 }
