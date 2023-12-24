@@ -13,8 +13,6 @@ public interface IDiscordServices
 {
     public Task<Result<DiscordMember>> GetMember(ulong id);
 
-    public Task<Result<DiscordMember>> GetMember(DiscordUser user);
-
     public Task<Result<DiscordRole>> CreateRole(string name);
 
     public Task<Result<DiscordRole>> GetRole(ulong id);

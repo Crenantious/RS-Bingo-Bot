@@ -40,7 +40,7 @@ internal class RemoveUserFromTeamHandler : RequestHandler<RemoveUserFromTeamRequ
 
     private async Task RevokeRole(RemoveUserFromTeamRequest request)
     {
-        Result<DiscordMember> member = await discordServices.GetMember(request.User);
+        Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
         if (member.IsFailed)
         {
             AddError(new RemoveUserFromTeamError());
