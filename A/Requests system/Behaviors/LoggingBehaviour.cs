@@ -4,27 +4,33 @@
 
 namespace DiscordLibrary.Behaviours;
 
-using MediatR;
 using FluentResults;
-using System.Diagnostics;
-using DiscordLibrary.Interfaces;
+using MediatR;
 using Microsoft.Extensions.Logging;
+using RSBingo_Common;
+using System.Diagnostics;
+using System.Text;
 
-public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, Result>
-    where TRequest : IValidatable<TResult>
+public class LoggingBehaviour<TRequest> : IPipelineBehavior<TRequest, Result>
+    where TRequest : IResultBase
 {
-    private const string BeganHandlingRequest = "Began handling request '{0}'.";
+    private const string BeganHandlingRequest = "Began handling request of type '{0}'. No additional information found.";
+    private const string BeganHandlingRequestWithInfo = "Began handling request of type '{0}'.{1}{2}";
     private const string RequestSucceeded = "The request '{0}' was completed successfully after {1} ms.";
     private const string RequestFailed = "The request '{0}' failed after {1} ms with the following errors:";
 
-    private readonly ILogger<LoggingBehaviour<TRequest, TResult>> logger;
+    private readonly ILogger<LoggingBehaviour<TRequest>> logger;
+    private readonly AdditionalLogInfoForRequest additionalRequestInfo;
 
-    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResult>> logger) =>
+    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest>> logger, AdditionalLogInfoForRequest additionalRequestInfo)
+    {
         this.logger = logger;
+        this.additionalRequestInfo = additionalRequestInfo;
+    }
 
     public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
     {
-        logger.LogInformation(BeganHandlingRequest.FormatConst(request.GetType()));
+        LogBeginHandling(request);
 
         Stopwatch stopwatch = Stopwatch.StartNew();
         Result result = await next();
@@ -33,21 +39,34 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, R
         if (result.IsFailed)
         {
             logger.LogInformation(RequestFailed.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
-            LogErrors(result);
+            logger.LogError(CompileReasons(result.Errors));
         }
         else
         {
             logger.LogInformation(RequestSucceeded.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
+            logger.LogInformation(CompileReasons(result.Successes));
         }
 
         return result;
     }
 
-    private void LogErrors(Result result)
+    private void LogBeginHandling(TRequest request)
     {
-        foreach (IError error in result.Errors)
+        string info = additionalRequestInfo.GetInfo(request);
+        if (string.IsNullOrEmpty(info))
         {
-            logger.LogError(error.Message, error.Metadata);
+            logger.LogInformation(BeganHandlingRequest.FormatConst(request.GetType()));
         }
+        else
+        {
+            logger.LogInformation(BeganHandlingRequest.FormatConst(request.GetType(), Environment.NewLine, info));
+        }
+    }
+
+    private string CompileReasons<T>(List<T> reasons) where T : IReason
+    {
+        StringBuilder sb = new();
+        reasons.ForEach(r => sb.AppendLine($"Message: {r.Message}, Metadata: {r.Metadata}"));
+        return sb.ToString();
     }
 }

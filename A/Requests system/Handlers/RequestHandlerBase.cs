@@ -29,11 +29,6 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
 
     public int Id { get; private set; }
 
-    /// <returns>
-    /// Notable information about the request such has the origin.
-    /// </returns>
-    public abstract string GetLogInfo(TRequest request);
-
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
         Logger = General.LoggingInstance<RequestHandlerBase<TRequest, TResult>>();

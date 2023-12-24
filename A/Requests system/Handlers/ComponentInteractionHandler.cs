@@ -11,6 +11,5 @@ public abstract class ComponentInteractionHandler<TRequest, TComponent> : Intera
     where TRequest : IComponentInteractionRequest<TComponent>
     where TComponent : IComponent
 {
-    public override string GetLogInfo(TRequest request) =>
-        $"Component interaction with component name '{request.Component.Name}' and id '{request.Component.CustomId}'.";
+
 }

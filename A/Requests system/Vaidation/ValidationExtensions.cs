@@ -9,12 +9,11 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-public static class ValidationExtensions
+internal static class ValidationExtensions
 {
-    public static MediatRServiceConfiguration AddValidation<TRequest, TResult>(this MediatRServiceConfiguration config)
-        where TRequest : IRequest<TResult>
-        where TResult : Result
+    public static MediatRServiceConfiguration AddValidation<TRequest, TResponse>(this MediatRServiceConfiguration config)
+        where TRequest : IRequest<Result<TResponse>>
     {
-        return config.AddBehavior<IPipelineBehavior<RequestContext<TRequest, TResult>, TResult>, ValidationBehavior<TRequest, TResult>>();
+        return config.AddBehavior<IPipelineBehavior<TRequest, Result<TResponse>>, ValidationBehavior<TRequest, TResponse>>();
     }
 }

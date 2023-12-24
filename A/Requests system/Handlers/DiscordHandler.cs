@@ -15,10 +15,6 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
-    // TODO: JR - flesh this out.
-    public override string GetLogInfo(TRequest request) =>
-        $"Discord request.";
-
     public DiscordHandler()
     {
         // TODO: JR - find out what errors can occur and add messages for them.

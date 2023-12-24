@@ -35,12 +35,6 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
         this.handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
     }
 
-    public override string GetLogInfo(TRequest request) =>
-        $"Interaction created by '{request.InteractionArgs.Interaction.User.Username}' " +
-        $"in channel '{request.InteractionArgs.Interaction.Channel}' " +
-        $"with interaction id '{request.InteractionArgs.Interaction.Id}' " +
-        $"and type '{request.InteractionArgs.Interaction.Type}'.";
-
     private protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         InteractionArgs = request.InteractionArgs;

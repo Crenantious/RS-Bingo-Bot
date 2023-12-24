@@ -9,6 +9,5 @@ using DiscordLibrary.DiscordComponents;
 public abstract class ButtonHandler<TRequest> : ComponentInteractionHandler<TRequest, Button>
     where TRequest : IButtonRequest
 {
-    public override string GetLogInfo(TRequest request) =>
-        $"Button with name {request.Component.Name} and id '{request.Component.CustomId}'.";
+
 }
