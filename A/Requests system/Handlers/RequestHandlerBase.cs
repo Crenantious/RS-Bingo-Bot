@@ -6,17 +6,11 @@ namespace DiscordLibrary.Requests;
 
 using FluentResults;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using RSBingo_Common;
-using System.Text;
 
 public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>, IRequestHandler
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
 {
-    private const string BeginHandlingRequest = "Handling request {0} with id {1}.";
-    private const string RequestSucceeded = "Successfully handled request {0} with id {1}.";
-    private const string RequestFailed = "Failed handling request {0} with id {1}.";
     private const string UnexpectedError = "An unexpected error occurred.";
 
     private static int requestId = 0;
@@ -25,25 +19,19 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
-    protected ILogger<RequestHandlerBase<TRequest, TResult>> Logger { get; private set; } = null!;
-
     public int Id { get; private set; }
 
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
-        Logger = General.LoggingInstance<RequestHandlerBase<TRequest, TResult>>();
         Id = requestId++;
 
         try
         {
-            LogRequestBegin(request, Id);
             TResult result = await ProcessRequest(request, cancellationToken);
-            LogRequestEnd(request, result, Id);
             return result;
         }
         catch (Exception ex)
         {
-            LogReqestException(request, ex, Id);
             string error = exceptionMessages.ContainsKey(ex.GetType()) ?
                 exceptionMessages[ex.GetType()] :
                 UnexpectedError;
@@ -123,46 +111,6 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     /// </summary>
     protected void AddErrors(IEnumerable<IError> errors) =>
         errors.Concat(errors);
-
-    #endregion
-
-    #region Logging
-
-    private void LogRequestBegin(TRequest request, int id)
-    {
-        Logger.LogInformation(BeginHandlingRequest.FormatConst(request.GetType().Name, id));
-    }
-
-    private void LogRequestEnd(TRequest request, Result<TResult> result, int id)
-    {
-        string prefix = result.IsFailed ?
-            RequestFailed.FormatConst(request.GetType().Name, id) :
-            RequestSucceeded.FormatConst(request.GetType().Name, id);
-
-        StringBuilder sb = new(prefix);
-        IEnumerable<IReason> reasons = result.IsFailed ? result.Errors : result.Successes;
-        GetResultInfo(sb, reasons);
-
-        Logger.LogInformation(sb.ToString());
-    }
-
-    private void LogReqestException(TRequest request, Exception exception, int id)
-    {
-        // TODO: look at: https://rehansaeed.com/logging-with-serilog-exceptions/
-        string message = RequestFailed.FormatConst(request.GetType().Name, id);
-        Logger.LogError(exception, message);
-    }
-
-    // TODO: JR - check how this logs meta data.
-    private static void GetResultInfo(StringBuilder sb, IEnumerable<IReason> reasons)
-    {
-        foreach (IReason reason in reasons)
-        {
-            sb.Append(reason.Message);
-            sb.Append("Meta data:");
-            sb.Append(reason.Metadata);
-        }
-    }
 
     #endregion
 }

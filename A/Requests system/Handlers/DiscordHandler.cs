@@ -11,7 +11,7 @@ using MediatR;
 /// Used for sending any requests to Discord (send message, create channel etc.) to ensure any Discord errors are handled.
 /// </summary>
 public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
-    where TRequest : IRequest<Result>
+    where TRequest : IDiscordRequest
 {
     private Dictionary<Type, Error> errorOverrides = new();
 
@@ -24,7 +24,7 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
 }
 
 public abstract class DiscordHandler<TRequest, TResult> : RequestHandler<TRequest, TResult>
-    where TRequest : IRequest<Result<TResult>>
+    where TRequest : IDiscordRequest<TResult>
 {
     private Dictionary<Type, Error> errorOverrides = new();
 

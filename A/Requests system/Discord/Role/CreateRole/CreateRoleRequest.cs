@@ -4,8 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
-using FluentResults;
-using MediatR;
 
-public record CreateRoleRequest(string Name) : IRequest<Result<DiscordRole>>;
+public record CreateRoleRequest(string Name) : IDiscordRequest<DiscordRole>;

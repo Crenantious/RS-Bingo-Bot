@@ -47,8 +47,7 @@ public class AdditionalLogInfoForRequest
 
     private void DiscordInfo(IDiscordRequest request)
     {
-        // Maybe; may not need any info other than it being a Discord request.
-        AddInfo("Discord request type", request.RequestTpye);
+
     }
 
     private void MessageCreatedInfo(IMessageCreatedRequest request)
