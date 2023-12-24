@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.Requests;
+namespace DiscordLibrary.Requests.Validation;
 
 using DiscordLibrary.Behaviours;
 using FluentResults;
