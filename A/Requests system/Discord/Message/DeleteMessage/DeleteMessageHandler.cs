@@ -2,17 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
-
-using DiscordLibrary.Requests;
-
-internal class DeleteMessageHandler : RequestHandler<DeleteMessageRequest>
+namespace DiscordLibrary.Requests;
+internal class DeleteMessageHandler : DiscordHandler<DeleteMessageRequest>
 {
-    public DeleteMessageHandler()
-    {
-
-    }
-
     protected override async Task Process(DeleteMessageRequest request, CancellationToken cancellationToken)
     {
         await request.Message.DiscordMessage.DeleteAsync();

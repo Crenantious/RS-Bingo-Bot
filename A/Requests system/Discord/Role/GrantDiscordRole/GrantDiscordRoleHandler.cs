@@ -2,10 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
-
-using DiscordLibrary.DiscordServices;
-using DiscordLibrary.Requests;
+namespace DiscordLibrary.Requests;
 
 internal class GrantDiscordRoleHandler : DiscordHandler<GrantDiscordRoleRequest>
 {

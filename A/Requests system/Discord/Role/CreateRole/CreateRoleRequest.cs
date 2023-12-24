@@ -2,9 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
 public record CreateRoleRequest(string Name) : IDiscordRequest<DiscordRole>;

@@ -2,12 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
-internal class SendMessageHandler : RequestHandler<SendMessageRequest>
+internal class SendMessageHandler : DiscordHandler<SendMessageRequest>
 {
     protected override async Task Process(SendMessageRequest request, CancellationToken cancellationToken)
     {

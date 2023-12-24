@@ -2,9 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
-
-using DiscordLibrary.Requests;
+namespace DiscordLibrary.Requests;
 
 internal class DeleteChannelHandler : RequestHandler<DeleteChannelRequest>
 {

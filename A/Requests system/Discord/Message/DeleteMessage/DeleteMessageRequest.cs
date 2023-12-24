@@ -2,10 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
-using DSharpPlus.Entities;
-using FluentResults;
-using MediatR;
+using DiscordLibrary.DiscordEntities;
 
-internal record DeleteMessageRequest(DiscordMessage Message) : IRequest<Result>;
+internal record DeleteMessageRequest(Message Message) : IDiscordRequest;

@@ -2,13 +2,12 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 
-internal class CreateChannelHandler : RequestHandler<CreateChannelRequest, DiscordChannel>
+internal class CreateChannelHandler : DiscordHandler<CreateChannelRequest, DiscordChannel>
 {
     protected override async Task<DiscordChannel> Process(CreateChannelRequest request, CancellationToken cancellationToken)
     {

@@ -2,10 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
-using FluentResults;
-using MediatR;
 
-internal record GetDiscordMemberRequest(ulong Id) : IRequest<Result<DiscordMember?>>;
+internal record GetDiscordMemberRequest(ulong Id) : IDiscordRequest<DiscordMember>;
