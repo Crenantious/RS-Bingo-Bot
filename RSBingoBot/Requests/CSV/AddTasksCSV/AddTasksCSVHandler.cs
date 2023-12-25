@@ -3,8 +3,9 @@
 // </copyright>
 
 namespace RSBingoBot.Requests;
-using RSBingo_Framework.CSV;
-using RSBingo_Framework.CSV.Lines;
+
+using RSBingoBot.CSV;
+using RSBingoBot.CSV.Lines;
 
 internal class AddTasksCSVHandler : CSVHandler<AddTasksCSVRequest, AddTasksCSVLine>
 {

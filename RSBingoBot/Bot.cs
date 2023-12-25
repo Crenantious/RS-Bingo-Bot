@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingoBot.BingoCommands;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Factories;
 using RSBingoBot.Leaderboard;
@@ -50,7 +49,7 @@ public class Bot : BackgroundService
     {
         discordClient.UseInteractivity();
 
-        CommandController.RegisterSlashCommands(discordClient);
+        //CommandController.RegisterSlashCommands(discordClient);
 
         await discordClient.ConnectAsync();
         await CreateExistingTeams();

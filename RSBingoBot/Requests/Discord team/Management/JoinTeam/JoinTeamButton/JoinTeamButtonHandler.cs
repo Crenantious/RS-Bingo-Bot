@@ -22,7 +22,7 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
     protected override async Task Process(JoinTeamButtonRequest request, CancellationToken cancellationToken)
     {
         SelectComponent selectComponent = selectComponentFactory.Create(new("Select a team", GetSelectOptions()),
-                                                                        new JoinTeamSelectRequest(request.User));
+                                                                        new JoinTeamSelectRequest(request.InteractionArgs.User));
         var response = new InteractionMessage(InteractionArgs.Interaction)
                            .AddComponents(selectComponent)
                            .AsEphemeral(true);

@@ -98,7 +98,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     public void UserOnTeam(Func<TRequest, (DiscordUser, int)> func)
     {
         RuleFor(r => func(r).Item1)
-            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, DataWorker.Teams.GetTeamByID(func(r))));
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
     }
 
     public void UserOnTeam(Func<TRequest, (DiscordUser, Team)> func)

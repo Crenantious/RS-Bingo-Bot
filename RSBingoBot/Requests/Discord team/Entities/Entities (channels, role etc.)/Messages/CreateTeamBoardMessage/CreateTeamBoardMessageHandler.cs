@@ -22,19 +22,28 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
     protected override async Task<Message> Process(CreateTeamBoardMessageRequest request, CancellationToken cancellationToken)
     {
         // TODO: send a request to get the board image.
-        Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"));
-        Button submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit evidence"));
-        Button submitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit drop"));
-        Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"));
-        Button clearEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Clear evidence"));
-        Button completeNextTileEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Complete next tile"));
+        Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"),
+            new ChangeTilesButtonRequest(request.DiscordTeam.Team.RowId));
+
+        Button submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit evidence"),
+            new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
+            Math.Min(General.MaxTilesOnABoard, General.MaxOptionsPerSelectMenu)));
+
+        Button submitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit drop"),
+            new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
+
+        Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"),
+            new ViewEvidenceButtonRequest(request.DiscordTeam.Team));
 
         Message message = new();
         message.AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence);
 
-#if DEBUG
-        message.AddComponents(clearEvidence, completeNextTileEvidence);
-#endif
+        // TODO: JR - implement
+//#if DEBUG
+//        Button clearEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Clear evidence"));
+//        Button completeNextTileEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Complete next tile"));
+//        message.AddComponents(clearEvidence, completeNextTileEvidence);
+//#endif
 
         AddSuccess(new CreateTeamBoardMessageSuccess());
         return message;

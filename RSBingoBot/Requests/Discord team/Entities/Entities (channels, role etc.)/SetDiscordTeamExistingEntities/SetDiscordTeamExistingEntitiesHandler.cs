@@ -12,11 +12,13 @@ using FluentResults;
 
 internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscordTeamExistingEntitiesRequest>
 {
-    private readonly IDiscordServices services;
+    private readonly IDiscordServices discordServices;
+    private readonly IDiscordMessageServices messageServices;
 
-    public SetDiscordTeamExistingEntitiesHandler(IDiscordServices services)
+    public SetDiscordTeamExistingEntitiesHandler(IDiscordServices discordServices, IDiscordMessageServices messageServices)
     {
-        this.services = services;
+        this.discordServices = discordServices;
+        this.messageServices = messageServices;
     }
 
     protected override async Task Process(SetDiscordTeamExistingEntitiesRequest request, CancellationToken cancellationToken)
@@ -33,7 +35,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetRole(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordRole> role = await services.GetRole(request.DiscordTeam.Team.RoleId);
+        Result<DiscordRole> role = await discordServices.GetRole(request.DiscordTeam.Team.RoleId);
         if (role.IsSuccess)
         {
             request.DiscordTeam.SetRole(role.Value);
@@ -42,7 +44,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetCategoryChannel(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordChannel> channel = await services.GetChannel(request.DiscordTeam.Team.CategoryChannelId);
+        Result<DiscordChannel> channel = await discordServices.GetChannel(request.DiscordTeam.Team.CategoryChannelId);
         if (channel.IsSuccess)
         {
             request.DiscordTeam.SetCategoryChannel(channel.Value);
@@ -51,7 +53,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetBoardChannel(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordChannel> channel = await services.GetChannel(request.DiscordTeam.Team.BoardChannelId);
+        Result<DiscordChannel> channel = await discordServices.GetChannel(request.DiscordTeam.Team.BoardChannelId);
         if (channel.IsSuccess)
         {
             request.DiscordTeam.SetBoardChannel(channel.Value);
@@ -60,7 +62,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetGeneralChannel(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordChannel> channel = await services.GetChannel(request.DiscordTeam.Team.GeneralChannelId);
+        Result<DiscordChannel> channel = await discordServices.GetChannel(request.DiscordTeam.Team.GeneralChannelId);
         if (channel.IsSuccess)
         {
             request.DiscordTeam.SetGeneralChannel(channel.Value);
@@ -69,7 +71,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetEvidenceChannel(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordChannel> channel = await services.GetChannel(request.DiscordTeam.Team.EvidenceChannelId);
+        Result<DiscordChannel> channel = await discordServices.GetChannel(request.DiscordTeam.Team.EvidenceChannelId);
         if (channel.IsSuccess)
         {
             request.DiscordTeam.SetEvidenceChannel(channel.Value);
@@ -78,7 +80,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private async Task SetVoiceChannel(SetDiscordTeamExistingEntitiesRequest request)
     {
-        Result<DiscordChannel> channel = await services.GetChannel(request.DiscordTeam.Team.VoiceChannelId);
+        Result<DiscordChannel> channel = await discordServices.GetChannel(request.DiscordTeam.Team.VoiceChannelId);
         if (channel.IsSuccess)
         {
             request.DiscordTeam.SetVoiceChannel(channel.Value);
@@ -92,7 +94,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
             return;
         }
 
-        Result<Message> message = await services.GetMessage(request.DiscordTeam.Team.BoardMessageId, request.DiscordTeam.BoardChannel);
+        Result<Message> message = await messageServices.Get(request.DiscordTeam.Team.BoardMessageId, request.DiscordTeam.BoardChannel);
         if (message.IsSuccess)
         {
             request.DiscordTeam.SetBoardMessage(message.Value);

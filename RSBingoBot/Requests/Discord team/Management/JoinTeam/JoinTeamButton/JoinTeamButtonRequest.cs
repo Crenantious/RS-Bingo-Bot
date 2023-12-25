@@ -6,10 +6,9 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-internal record JoinTeamButtonRequest(DiscordUser User) : IButtonRequest
+internal record JoinTeamButtonRequest() : IButtonRequest
 {
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
     public Button Component { get; set; } = null!;

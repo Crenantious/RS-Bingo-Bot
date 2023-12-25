@@ -7,9 +7,9 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using FluentResults;
-using RSBingo_Framework.CSV;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using RSBingoBot.CSV;
 
 internal abstract class CSVHandler<TRequest, LineType> : RequestHandler<TRequest>
     where TRequest : ICSVRequest

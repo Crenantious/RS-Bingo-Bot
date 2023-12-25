@@ -10,6 +10,6 @@ internal class JoinTeamButtonValidator : BingoValidator<JoinTeamButtonRequest>
 {
     public JoinTeamButtonValidator()
     {
-        UserNotNull(r => r.User);
+
     }
 }

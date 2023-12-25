@@ -4,12 +4,12 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.Requests.Validation;
+using RSBingoBot.Requests.Validation;
 
-internal class CreateMissingDiscordTeamEntitiesValidator : Validator<CreateMissingDiscordTeamEntitiesRequest>
+internal class CreateMissingDiscordTeamEntitiesValidator : BingoValidator<CreateMissingDiscordTeamEntitiesRequest>
 {
     public CreateMissingDiscordTeamEntitiesValidator()
     {
-        TeamExists(r => r.DiscordTeam);
+        TeamExists(r => r.DiscordTeam.Team);
     }
 }

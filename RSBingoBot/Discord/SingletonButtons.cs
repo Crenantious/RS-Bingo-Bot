@@ -6,6 +6,7 @@ namespace RSBingoBot.DiscordComponents;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Factories;
+using RSBingoBot.Requests;
 
 public class SingletonButtons
 {
@@ -18,7 +19,7 @@ public class SingletonButtons
     {
         this.buttonFactory = buttonFactory;
 
-        CreateTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Create team", "CreateTeamButton"));
-        JoinTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Join team", "JoinTeamButton"));
+        CreateTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Create team", "CreateTeamButton"), new CreateTeamButtonRequest());
+        JoinTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Join team", "JoinTeamButton"), new JoinTeamButtonRequest());
     }
 }

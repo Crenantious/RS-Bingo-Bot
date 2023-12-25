@@ -4,9 +4,9 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.Requests.Validation;
+using RSBingoBot.Requests.Validation;
 
-internal class CreateTeamRoleValidator : Validator<CreateTeamRoleRequest>
+internal class CreateTeamRoleValidator : BingoValidator<CreateTeamRoleRequest>
 {
     public CreateTeamRoleValidator()
     {
