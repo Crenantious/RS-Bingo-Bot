@@ -8,4 +8,4 @@ using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record AddUserToTeamRequest(DiscordUser User, RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result>;
+public record AddUserToTeamRequest(DiscordUser User, RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result>;

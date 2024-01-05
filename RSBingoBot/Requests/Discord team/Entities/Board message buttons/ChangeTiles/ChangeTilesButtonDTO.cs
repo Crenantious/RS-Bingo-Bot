@@ -6,7 +6,7 @@ namespace RSBingoBot.Requests;
 
 using RSBingo_Framework.Models;
 
-internal class ChangeTilesButtonDTO
+public class ChangeTilesButtonDTO
 {
     public int? TileBoardIndex { get; set; }
     public BingoTask? Task { get; set; }

@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record RenameChannelRequest(DiscordChannel Channel, string NewName) : IDiscordRequest;
+public record RenameChannelRequest(DiscordChannel Channel, string NewName) : IDiscordRequest;

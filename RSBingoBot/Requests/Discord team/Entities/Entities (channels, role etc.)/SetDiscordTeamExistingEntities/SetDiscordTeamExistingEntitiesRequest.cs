@@ -8,4 +8,4 @@ using FluentResults;
 using MediatR;
 using RSBingoBot.Discord;
 
-internal record SetDiscordTeamExistingEntitiesRequest(DiscordTeam DiscordTeam) : IRequest<Result>;
+public record SetDiscordTeamExistingEntitiesRequest(DiscordTeam DiscordTeam) : IRequest<Result>;

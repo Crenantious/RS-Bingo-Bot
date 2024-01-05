@@ -9,4 +9,4 @@ using FluentResults;
 using MediatR;
 using RSBingoBot.Discord;
 
-internal record CreateTeamBoardMessageRequest(DiscordTeam DiscordTeam) : IRequest<Result<Message>>;
+public record CreateTeamBoardMessageRequest(DiscordTeam DiscordTeam) : IRequest<Result<Message>>;

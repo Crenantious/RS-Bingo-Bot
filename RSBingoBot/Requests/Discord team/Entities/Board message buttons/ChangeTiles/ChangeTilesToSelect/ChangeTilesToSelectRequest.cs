@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-internal record ChangeTilesToSelectRequest(ChangeTilesButtonDTO DTO) : ISelectComponentRequest
+public record ChangeTilesToSelectRequest(ChangeTilesButtonDTO DTO) : ISelectComponentRequest
 {
     public SelectComponent Component { get; set; } = null!;
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;

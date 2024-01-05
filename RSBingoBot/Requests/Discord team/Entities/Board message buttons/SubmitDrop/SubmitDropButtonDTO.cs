@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 using RSBingo_Framework.Models;
 using System.Text;
 
-internal class SubmitDropButtonDTO
+public class SubmitDropButtonDTO
 {
     public string MessageContentPrefix { get; }
     public Message Message { get; set; }

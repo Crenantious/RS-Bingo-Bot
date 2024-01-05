@@ -27,6 +27,11 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
         this.logger = logger;
     }
 
+    public DiscordInteractionMessagingServices()
+    {
+
+    }
+
     /// <summary>
     /// Sends a modal to Discord in response to an interaction.
     /// </summary>

@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record DeleteChannelRequest(DiscordChannel Channel) : IDiscordRequest;
+public record DeleteChannelRequest(DiscordChannel Channel) : IDiscordRequest;

@@ -8,4 +8,4 @@ using FluentResults;
 using MediatR;
 using RSBingoBot.Discord;
 
-internal record DeleteTeamRequest(DiscordTeam DiscordTeam) : IRequest<Result>;
+public record DeleteTeamRequest(DiscordTeam DiscordTeam) : IRequest<Result>;

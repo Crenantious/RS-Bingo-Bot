@@ -9,11 +9,30 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-internal static class ValidationExtensions
+public static class ValidationExtensions
 {
-    public static MediatRServiceConfiguration AddValidation<TRequest, TResponse>(this MediatRServiceConfiguration config)
-        where TRequest : IRequest<Result<TResponse>>
+    public static MediatRServiceConfiguration AddValidation<TRequest, TResponse>(
+        this MediatRServiceConfiguration config, IServiceCollection services) where TRequest : IRequest<Result<TResponse>>
     {
-        return config.AddBehavior<IPipelineBehavior<TRequest, Result<TResponse>>, ValidationBehavior<TRequest, TResponse>>();
+        Type validatorType = GetValidatorType<TRequest>();
+
+        services.AddTransient(typeof(Validator<TRequest>), validatorType);
+        return config.AddBehavior<IPipelineBehavior<TRequest, Result<TResponse>>, ValidationBehavior<TRequest, Result<TResponse>>>();
+    }
+
+    public static MediatRServiceConfiguration AddValidation<TRequest>(
+        this MediatRServiceConfiguration config, IServiceCollection services) where TRequest : IRequest<Result>
+    {
+        Type validatorType = GetValidatorType<TRequest>();
+
+        services.AddTransient(typeof(Validator<TRequest>), validatorType);
+        return config.AddBehavior<IPipelineBehavior<TRequest, Result>, ValidationBehavior<TRequest, Result>>();
+    }
+
+    private static Type GetValidatorType<TRequest>() where TRequest : IBaseRequest
+    {
+        Type validatorBaseType = typeof(Validator<TRequest>);
+        return typeof(TRequest).Assembly.GetTypes()
+            .First(t => validatorBaseType.IsAssignableFrom(t));
     }
 }

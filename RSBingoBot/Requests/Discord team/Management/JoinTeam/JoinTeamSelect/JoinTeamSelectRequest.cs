@@ -9,7 +9,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-internal record JoinTeamSelectRequest(DiscordUser User) : ISelectComponentRequest
+public record JoinTeamSelectRequest(DiscordUser User) : ISelectComponentRequest
 {
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
     public SelectComponent Component { get; set; } = null!;

@@ -7,5 +7,5 @@ namespace DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-internal record CreateChannelRequest(string Name, ChannelType ChannelType, DiscordChannel? Parent = null,
+public record CreateChannelRequest(string Name, ChannelType ChannelType, DiscordChannel? Parent = null,
         IEnumerable<DiscordOverwriteBuilder>? Overwrites = null) : IDiscordRequest<DiscordChannel>;

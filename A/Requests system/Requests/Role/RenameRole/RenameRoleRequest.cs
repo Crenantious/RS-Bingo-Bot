@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record RenameRoleRequest(DiscordRole Role, string NewName) : IDiscordRequest;
+public record RenameRoleRequest(DiscordRole Role, string NewName) : IDiscordRequest;

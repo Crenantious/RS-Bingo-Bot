@@ -8,4 +8,4 @@ using FluentResults;
 using MediatR;
 using RSBingoBot.Discord;
 
-internal record RenameTeamRequest(DiscordTeam DiscordTeam, string NewName) : IRequest<Result>;
+public record RenameTeamRequest(DiscordTeam DiscordTeam, string NewName) : IRequest<Result>;

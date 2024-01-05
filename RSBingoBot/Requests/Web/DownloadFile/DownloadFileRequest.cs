@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using FluentResults;
 using MediatR;
 
-internal record DownloadFileRequest(string Url, string Path) : IRequest<Result>;
+public record DownloadFileRequest(string Url, string Path) : IRequest<Result>;

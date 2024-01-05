@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record DeleteRoleRequest(DiscordRole Role) : IDiscordRequest;
+public record DeleteRoleRequest(DiscordRole Role) : IDiscordRequest;

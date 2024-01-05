@@ -8,4 +8,4 @@ using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 
-internal record GetChannelRequest(ulong Id) : IRequest<Result<DiscordChannel>>;
+public record GetChannelRequest(ulong Id) : IRequest<Result<DiscordChannel>>;

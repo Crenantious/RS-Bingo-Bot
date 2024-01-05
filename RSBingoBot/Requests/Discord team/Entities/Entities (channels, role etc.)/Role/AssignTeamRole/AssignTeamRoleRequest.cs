@@ -9,4 +9,4 @@ using FluentResults;
 using MediatR;
 using RSBingo_Framework.Models;
 
-internal record AssignTeamRoleRequest(Team Team, DiscordRole Role) : IRequest<Result>;
+public record AssignTeamRoleRequest(Team Team, DiscordRole Role) : IRequest<Result>;

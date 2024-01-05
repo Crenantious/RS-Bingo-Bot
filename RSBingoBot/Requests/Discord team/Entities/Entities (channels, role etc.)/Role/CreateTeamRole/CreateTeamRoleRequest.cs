@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
-internal record CreateTeamRoleRequest(RSBingoBot.Discord.DiscordTeam DiscordTeam) : IDiscordRequest<DiscordRole>;
+public record CreateTeamRoleRequest(RSBingoBot.Discord.DiscordTeam DiscordTeam) : IDiscordRequest<DiscordRole>;

@@ -9,7 +9,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using RSBingo_Framework.Records;
 
-internal record SubmitDropSubmitButtonRequest(SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) : IButtonRequest
+public record SubmitDropSubmitButtonRequest(SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) : IButtonRequest
 {
     public Button Component { get; set; } = null!;
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;

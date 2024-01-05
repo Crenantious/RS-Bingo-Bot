@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record GrantDiscordRoleRequest(DiscordMember Member, DiscordRole Role) : IDiscordRequest;
+public record GrantDiscordRoleRequest(DiscordMember Member, DiscordRole Role) : IDiscordRequest;

@@ -7,4 +7,4 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
-internal record GetMessageRequest(ulong Id, DiscordChannel Channel) : IDiscordRequest<Message>;
+public record GetMessageRequest(ulong Id, DiscordChannel Channel) : IDiscordRequest<Message>;

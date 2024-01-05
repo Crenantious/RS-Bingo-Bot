@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
 
-internal record RevokeRoleRequest(DiscordMember Member, DiscordRole Role) : IDiscordRequest;
+public record RevokeRoleRequest(DiscordMember Member, DiscordRole Role) : IDiscordRequest;

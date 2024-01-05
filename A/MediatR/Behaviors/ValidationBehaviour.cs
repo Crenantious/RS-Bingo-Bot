@@ -10,15 +10,16 @@ using FluentResults;
 using FluentValidation.Results;
 using MediatR;
 
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, Result<TResponse>>
-    where TRequest : IRequest<Result<TResponse>>
+public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
+    where TRequest : IRequest<TResult>
+    where TResult : ResultBase<TResult>, new()
 {
     private readonly Validator<TRequest> validator;
 
     public ValidationBehavior(Validator<TRequest> validator) =>
         this.validator = validator;
 
-    public async Task<Result<TResponse>> Handle(TRequest request, RequestHandlerDelegate<Result<TResponse>> next, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         if (validator is null)
         {
@@ -34,7 +35,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         if (!validationResult.IsValid)
         {
-            return Result.Fail<TResponse>(validationResult.Errors.Select(e => new ValidationError(e.ErrorMessage)));
+            return new TResult().WithErrors(validationResult.Errors.Select(e => new ValidationError(e.ErrorMessage)));
         }
 
         var result = await next();

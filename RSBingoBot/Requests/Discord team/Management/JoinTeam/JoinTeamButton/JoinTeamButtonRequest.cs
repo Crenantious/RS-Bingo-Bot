@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-internal record JoinTeamButtonRequest() : IButtonRequest
+public record JoinTeamButtonRequest() : IButtonRequest
 {
     public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
     public Button Component { get; set; } = null!;

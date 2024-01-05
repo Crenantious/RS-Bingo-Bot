@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-internal record SubmitDropMessageRequest(SubmitDropButtonDTO DTO) : IMessageCreatedRequest
+public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO) : IMessageCreatedRequest
 {
     public MessageCreateEventArgs MessageArgs { get; set; } = null!;
     public Message Message { get; set; } = null!;
