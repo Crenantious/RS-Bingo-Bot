@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Exceptions;
+using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
 using RSBingo_Common;
 using SixLabors.ImageSharp;
@@ -92,8 +93,10 @@ public static class MessageExtensions
     private static T AddComponentsCommon<T>(this T message, IEnumerable<DiscordComponent> components)
         where T : Message
     {
+        ComponentFactory componentFactory = (ComponentFactory)General.DI.GetService(typeof(ComponentFactory))!;
+
         ValidateAddComponents(message, components);
-        message.Components.AddRow(components.Select(c => Component.FromDiscordComponent(c)));
+        message.Components.AddRow(components.Select(c => componentFactory.Create(c)));
         return message;
     }
 

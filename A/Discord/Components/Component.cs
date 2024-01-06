@@ -20,10 +20,4 @@ public abstract class Component : IComponent
     {
         CustomId = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
     }
-
-    internal static Component FromDiscordComponent(DiscordComponent component)
-    {
-        // TODO: JR - implement
-        throw new NotImplementedException();
-    }
 }

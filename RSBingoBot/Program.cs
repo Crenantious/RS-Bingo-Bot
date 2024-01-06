@@ -150,6 +150,7 @@ public class Program
                 services.AddSingleton<ButtonFactory>();
                 services.AddSingleton<SelectComponentFactory>();
                 services.AddSingleton<TextInputFactory>();
+                services.AddSingleton<ComponentFactory>();
 
                 services.AddSingleton<ComponentInteractionDEH>();
                 services.AddSingleton<MessageReactionAddedDEH>();
