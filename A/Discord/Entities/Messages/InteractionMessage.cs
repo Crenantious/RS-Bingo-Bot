@@ -18,14 +18,14 @@ public class InteractionMessage : Message
         Interaction = interaction;
     }
 
-    public virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
+    internal virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
     {
         var builder = GetBaseMessageBuilder(new DiscordInteractionResponseBuilder());
         builder.IsEphemeral = IsEphemeral;
         return builder;
     }
 
-    public DiscordFollowupMessageBuilder GetFollowupMessageBuilder()
+    internal DiscordFollowupMessageBuilder GetFollowupMessageBuilder()
     {
         var builder = GetBaseMessageBuilder(new DiscordFollowupMessageBuilder());
         builder.IsEphemeral = IsEphemeral;

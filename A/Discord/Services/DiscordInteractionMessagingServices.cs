@@ -123,29 +123,31 @@ public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingS
         try
         {
             await request();
-            Log(interaction, requestType, true);
+            //Log(interaction, requestType, true);
             return true;
         }
         catch
         {
-            Log(interaction, requestType, false);
+            //Log(interaction, requestType, false);
             return false;
         }
     }
 
-    private void Log(DiscordInteraction interaction, RequestType requestType, bool wasSuccessful)
-    {
-        // TODO: JR - check if this information is sufficient. Remove from here and use an IPipelineBehaviour.
-        string outcome = wasSuccessful ? "successfully" : "unsuccessfully";
-        string information = $"Interaction response was {requestType} {outcome}. " +
-                             $"Id: {interaction.Id}, type: {interaction.Type}, name: {interaction.Data.Name}.";
+    // TODO: JR - move to LogginBehaviour.
 
-        if (wasSuccessful)
-        {
-            logger.LogInformation(information);
-            return;
-        }
+    //private void Log(DiscordInteraction interaction, RequestType requestType, bool wasSuccessful)
+    //{
+    //    // TODO: JR - check if this information is sufficient. Remove from here and use an IPipelineBehaviour.
+    //    string outcome = wasSuccessful ? "successfully" : "unsuccessfully";
+    //    string information = $"Interaction response was {requestType} {outcome}. " +
+    //                         $"Id: {interaction.Id}, type: {interaction.Type}, name: {interaction.Data.Name}.";
 
-        logger.LogError(information);
-    }
+    //    if (wasSuccessful)
+    //    {
+    //        logger.LogInformation(information);
+    //        return;
+    //    }
+
+    //    logger.LogError(information);
+    //}
 }

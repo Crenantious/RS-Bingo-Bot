@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingoBot.Commands;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Factories;
 using RSBingoBot.Leaderboard;
@@ -18,12 +19,13 @@ using static RSBingo_Framework.DAL.DataFactory;
 /// <summary>
 /// Class for storing code related to the long running discord bot service.
 /// </summary>
-public class Bot : BackgroundService
+internal class Bot : BackgroundService
 {
     private readonly ILogger logger;
     private readonly DiscordClient discordClient;
     private readonly DiscordTeamFactory teamFactory;
     private readonly SingletonButtons singletonButtons;
+    private readonly CommandController commandController;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -32,7 +34,8 @@ public class Bot : BackgroundService
     /// <param name="logger">The logger the instance will log to.</param>
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamFactory teamFactory, SingletonButtons singletonButtons)
+    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamFactory teamFactory, SingletonButtons singletonButtons,
+        CommandController commandController)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -42,6 +45,7 @@ public class Bot : BackgroundService
         // TODO: JR - make the buttons themselves injected or make SingletonButtons eager loaded so
         // injecting here is unnecessary.
         this.singletonButtons = singletonButtons;
+        this.commandController = commandController;
     }
 
     /// <inheritdoc/>
@@ -49,7 +53,7 @@ public class Bot : BackgroundService
     {
         discordClient.UseInteractivity();
 
-        //CommandController.RegisterSlashCommands(discordClient);
+        commandController.RegisterSlashCommands(discordClient);
 
         await discordClient.ConnectAsync();
         await CreateExistingTeams();

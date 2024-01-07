@@ -24,7 +24,7 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
         var modal = new Modal("Create team", request.InteractionArgs.Interaction)
             .AddComponents(textInputFactory.Create(new("Team name", ModalTeamNameKey)));
 
-        ResponseMessages.Add(modal);
+        await modal.Send(new CreateTeamModalRequest());
         AddSuccess(new CreateTeamButtonSuccess());
     }
 }

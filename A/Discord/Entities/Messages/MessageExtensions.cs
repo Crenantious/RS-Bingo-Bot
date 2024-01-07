@@ -18,10 +18,33 @@ public static class MessageExtensions
     private const int MaxComponentColumns = 5;
     private const int MaxComponentRows = 5;
 
-    public static T WithContent<T>(this T message, string content)
+    /// <summary>
+    /// Appends <paramref name="content"/> to the current message content.
+    /// </summary>
+    /// <param name="lineSeparationCount">The amount of lines between the current content and <paramref name="content"/>.</param>
+    public static T WithContent<T>(this T message, string content, int lineSeparationCount = 1)
         where T : Message
     {
-        message.Content = content;
+        for (int i = 0; i < lineSeparationCount; i++)
+        {
+            message.Content += Environment.NewLine;
+        }
+        message.Content += content;
+        return message;
+    }
+
+    /// <summary>
+    /// Appends each item in <paramref name="content"/> to the current message content.
+    /// </summary>
+    /// <param name="lineSeparationCount">The amount of lines between each message in <paramref name="content"/>.
+    /// This amount is also appended to the current message content before adding the new <paramref name="content"/>.</param>
+    public static T WithContent<T>(this T message, IEnumerable<string> content, int lineSeparationCount = 1)
+        where T : Message
+    {
+        foreach (string item in content)
+        {
+            WithContent(message, item, lineSeparationCount);
+        }
         return message;
     }
 

@@ -24,6 +24,7 @@ public static class DataFactory
     private const string DefaultDBVersion = "8.0.30-mysql";
     private const string GuildIdKey = "GuildId";
     private const string HostRoleIdKey = "HostRoleId";
+    private const string TeamSignUpChannelIdKey = "TeamSignUpChannelId";
     private const string PendingEvidenceChannelIdKey = "PendingEvidenceChannelId";
     private const string VerifiedEvidenceChannelIdKey = "VerifiedEvidenceChannelId";
     private const string RejectedEvidenceChannelIdKey = "RejectedEvidenceChannelId";
@@ -43,6 +44,7 @@ public static class DataFactory
 
     private static DiscordGuild guild = null!;
     private static ulong hostRoleId;
+    private static DiscordChannel teamSignUpChannel = null!;
     private static DiscordChannel pendingEvidenceChannel = null!;
     private static DiscordChannel verifiedEvidenceChannel = null!;
     private static DiscordChannel rejectedEvidenceChannel = null!;
@@ -71,24 +73,10 @@ public static class DataFactory
 
     public static ulong HostRole => hostRoleId;
 
-    /// <summary>
-    /// Gets the "pending-evidence" channel.
-    /// </summary>
+    public static DiscordChannel TeamSignUpChannel => teamSignUpChannel;
     public static DiscordChannel PendingReviewEvidenceChannel => pendingEvidenceChannel;
-
-    /// <summary>
-    /// Gets the "verified-evidence" channel.
-    /// </summary>
     public static DiscordChannel VerifiedEvidenceChannel => verifiedEvidenceChannel;
-
-    /// <summary>
-    /// Gets the "rejected-evidence" channel.
-    /// </summary>
     public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;
-
-    /// <summary>
-    /// Gets the "leaderboard" channel.
-    /// </summary>
     public static DiscordChannel LeaderboardChannel => leaderboardChannel;
 
     /// <summary>
@@ -190,6 +178,7 @@ public static class DataFactory
         hostRoleId = Config_Get<ulong>(HostRoleIdKey);
 
         enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
+        teamSignUpChannel= guild.GetChannel(Config_Get<ulong>(TeamSignUpChannelIdKey));
         pendingEvidenceChannel = guild.GetChannel(Config_Get<ulong>(PendingEvidenceChannelIdKey));
         verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));

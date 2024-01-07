@@ -15,6 +15,8 @@ public class Message : IMessage
     /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DiscordMessage"/>.
     /// </summary>
     public DiscordMessage DiscordMessage { get; internal set; }
+
+    // TODO: JR - change to a StringBuilder and only build when the message builder is requested.
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
 
@@ -52,18 +54,26 @@ public class Message : IMessage
     {
         if (string.IsNullOrEmpty(Content) is false) { builder.Content = Content; }
 
-        Components.GetRows().ForEach(r =>
-            builder.AddComponents(
-                r.Select(c => c.DiscordComponent)
-                    .ToArray()));
+        foreach (var componentRow in Components.GetRows())
+        {
+            if (componentRow.Count > 0)
+            {
+                builder.AddComponents(GetComponents(componentRow));
+            }
+        }
 
         return builder;
     }
+
+    private static IEnumerable<DiscordComponent> GetComponents(List<IComponent> row) =>
+        row.Select(c => c.DiscordComponent);
 
     public static Message operator +(Message prefix, Message suffix)
     {
         // TODO: JR - implement.
         // Use this to append messages. Combines content, components etc.
-        throw new NotImplementedException();
+
+        prefix.WithContent(suffix.Content);
+        return prefix;
     }
 }

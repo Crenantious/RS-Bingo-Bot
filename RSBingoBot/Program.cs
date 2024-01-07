@@ -34,6 +34,7 @@ using RSBingoBot.Web;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
+using RSBingoBot.Commands;
 
 /// <summary>
 /// Entry point to the bot.
@@ -144,7 +145,7 @@ public class Program
 
                 RegisterMediatR(services);
 
-                //services.AddScoped<CommandController>();
+                services.AddScoped<CommandController>();
 
                 services.AddSingleton<DiscordTeamFactory>();
                 services.AddSingleton<ButtonFactory>();
@@ -235,6 +236,9 @@ public class Program
             .AddValidation<RemoveUserFromTeamRequest>(services)
             .AddValidation<RenameTeamRequest>(services)
             .AddValidation<DownloadFileRequest>(services)
+
+            // Commands
+            .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
         );
     }
 }

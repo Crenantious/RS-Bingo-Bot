@@ -18,7 +18,8 @@ public class Modal : InteractionMessage, IInteractable
         CustomId = string.IsNullOrEmpty(customId) ? Guid.NewGuid().ToString() : customId;
     }
 
-    public override DiscordInteractionResponseBuilder GetInteractionResponseBuilder() =>
+    internal override DiscordInteractionResponseBuilder GetInteractionResponseBuilder() =>
         base.GetInteractionResponseBuilder()
-            .WithTitle(Title);
+            .WithTitle(Title)
+            .WithCustomId(CustomId);
 }
