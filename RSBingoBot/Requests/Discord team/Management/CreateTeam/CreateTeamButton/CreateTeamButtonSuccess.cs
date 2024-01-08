@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 
 internal class CreateTeamButtonSuccess : Success

@@ -52,7 +52,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         if (tile.IsCompleteAsBool())
         {
             // It's possible the tile was marked as complete after the select component was create.
-            AddError(new SubmitDropSubmitButtonTileAlreadyCompleteError(tile));
+            AddErrorResponse(new SubmitDropSubmitButtonTileAlreadyCompleteError(tile));
             return;
         }
 
@@ -64,7 +64,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 
         if (result.IsFailed)
         {
-            AddError(new SubmitDropSubmitButtonEvidenceSubmissionError(tile));
+            AddErrorResponse(new SubmitDropSubmitButtonEvidenceSubmissionError(tile));
             return;
         }
 
@@ -86,7 +86,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         evidence.Status = EvidenceRecord.EvidenceStatusLookup.Get(EvidenceRecord.EvidenceStatus.PendingReview);
         evidence.DiscordMessageId = pendingReviewMessage.DiscordMessage.Id;
 
-        AddSuccess(new SubmitDropSubmitButtonSuccess(tile));
+        AddSuccessResponse(new SubmitDropSubmitButtonSuccess(tile));
     }
 
     private async Task DeleteExistingPendingReviewMessage(Evidence evidence)

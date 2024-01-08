@@ -69,8 +69,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     #region Add result responses
 
     public InteractionMessage AddResponses(ResultBase result, bool addToLastResponse = true) =>
-        AddSuccesses(result.Successes.GetDiscordResponses(), addToLastResponse) +
-        AddErrors(result.Errors.GetDiscordResponses(), addToLastResponse);
+        AddSuccessResponses(result.Successes.GetDiscordResponses(), addToLastResponse) +
+        AddErrorResponses(result.Errors.GetDiscordResponses(), addToLastResponse);
 
     /// <summary>
     /// Adds the <paramref name="success"/> according to <see cref="RequestHandlerBase{TRequest, TResult}.AddSuccess(ISuccess)"/>,
@@ -79,7 +79,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddSuccess(ISuccess success, bool addToLastResponse = true)
+    protected InteractionMessage AddSuccessResponse<T>(T success, bool addToLastResponse = true)
+        where T : class, ISuccess, IDiscordResponse
     {
         base.AddSuccess(success);
         return AddResponseCommon(success.Message, addToLastResponse);
@@ -92,7 +93,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddSuccesses(IEnumerable<ISuccess> successes, bool addToLastResponse = true)
+    protected InteractionMessage AddSuccessResponses<T>(IEnumerable<T> successes, bool addToLastResponse = true)
+        where T : class, ISuccess, IDiscordResponse
     {
         base.AddSuccesses(successes);
         return AddResponseCommon(successes, addToLastResponse);
@@ -105,7 +107,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddWarning(IWarning warning, bool addToLastResponse = true)
+    protected InteractionMessage AddWarningResponse<T>(T warning, bool addToLastResponse = true)
+        where T : class, IWarning, IDiscordResponse
     {
         base.AddWarning(warning);
         return AddResponseCommon(warning.Message, addToLastResponse);
@@ -118,7 +121,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddWarnings(IEnumerable<IWarning> warnings, bool addToLastResponse = true)
+    protected InteractionMessage AddWarningResponses<T>(IEnumerable<T> warnings, bool addToLastResponse = true)
+        where T : class, IWarning, IDiscordResponse
     {
         base.AddWarnings(warnings);
         return AddResponseCommon(warnings, addToLastResponse);
@@ -131,7 +135,8 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddError(IError error, bool addToLastResponse = true)
+    protected InteractionMessage AddErrorResponse<T>(T error, bool addToLastResponse = true)
+        where T : class, IError, IDiscordResponse
     {
         base.AddError(error);
         return AddResponseCommon(error.Message, addToLastResponse);
@@ -144,7 +149,20 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     /// <param name="addToLastResponse"><see langword="true"/>: either appends the <see cref="InteractionMessage"/>
     /// to the last message in <see cref="ResponseMessages"/> or adds it if there are no responses yet.<br/>
     /// <see langword="false"/>: nothing.</param>
-    protected InteractionMessage AddErrors(IEnumerable<IError> errors, bool addToLastResponse = true)
+    protected InteractionMessage AddErrorResponses<T>(IEnumerable<T> errors, bool addToLastResponse = true)
+        where T : class, IError, IDiscordResponse
+    {
+        base.AddErrors(errors);
+        return AddResponseCommon(errors, addToLastResponse);
+    }
+
+    private InteractionMessage AddSuccessResponses(IEnumerable<ISuccess> successes, bool addToLastResponse = true)
+    {
+        base.AddSuccesses(successes);
+        return AddResponseCommon(successes, addToLastResponse);
+    }
+
+    private InteractionMessage AddErrorResponses(IEnumerable<IError> errors, bool addToLastResponse = true)
     {
         base.AddErrors(errors);
         return AddResponseCommon(errors, addToLastResponse);

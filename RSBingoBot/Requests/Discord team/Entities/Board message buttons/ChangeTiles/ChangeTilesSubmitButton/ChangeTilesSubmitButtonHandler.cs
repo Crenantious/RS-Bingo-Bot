@@ -30,23 +30,23 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
             if (tile2 is null)
             {
                 Tile newTile = dataWorker.Tiles.Create(team, request.DTO.Task!, (int)request.DTO.TileBoardIndex!);
-                AddSuccess(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
+                AddSuccessResponse(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
                 return;
             }
 
             tile2.BoardIndex = (int)request.DTO.TileBoardIndex!;
-            AddSuccess(new ChangeTilesSubmitButtonMoveTileOnBoardSuccess(tile2));
+            AddSuccessResponse(new ChangeTilesSubmitButtonMoveTileOnBoardSuccess(tile2));
             return;
         }
 
         if (tile2 is null)
         {
             tile1.Task = request.DTO.Task!;
-            AddSuccess(new ChangeTilesSubmitButtonAddedTaskToBoardSuccess(tile1.Task));
+            AddSuccessResponse(new ChangeTilesSubmitButtonAddedTaskToBoardSuccess(tile1.Task));
             return;
         }
 
         tile1.SwapTasks(tile2, dataWorker);
-        AddSuccess(new ChangeTilesSubmitButtonSwappedTilesSuccess(tile1, tile2));
+        AddSuccessResponse(new ChangeTilesSubmitButtonSwappedTilesSuccess(tile1, tile2));
     }
 }

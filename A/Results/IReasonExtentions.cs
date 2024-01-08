@@ -8,6 +8,7 @@ using FluentResults;
 
 public static class IReasonExtentions
 {
-    public static IEnumerable<T> GetDiscordResponses<T>(this IEnumerable<T> reasons) where T : IReason =>
+    public static IEnumerable<TReason> GetDiscordResponses<TReason>(this IEnumerable<TReason> reasons) 
+        where TReason : IReason =>
         reasons.Where(r => typeof(IDiscordResponse).IsAssignableFrom(r.GetType()));
 }

@@ -21,10 +21,10 @@ internal class ViewEvidenceSelectHandler : SelectComponentHandler<ViewEvidenceSe
         Evidence? evidence = tile.Evidence.FirstOrDefault(e => e.DiscordUserId == request.InteractionArgs.Interaction.User.Id);
         if (evidence is null)
         {
-            AddError(new EvidenceMissingError(tile));
+            AddErrorResponse(new EvidenceMissingError(tile));
             return;
         }
 
-        AddSuccess(new EvidenceFoundSuccess(evidence));
+        AddSuccessResponse(new EvidenceFoundSuccess(evidence));
     }
 }

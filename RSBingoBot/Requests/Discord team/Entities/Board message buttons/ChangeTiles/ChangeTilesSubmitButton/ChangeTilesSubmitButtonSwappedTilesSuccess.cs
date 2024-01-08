@@ -4,10 +4,11 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class ChangeTilesSubmitButtonSwappedTilesSuccess : Success
+internal class ChangeTilesSubmitButtonSwappedTilesSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Swapped '{0}' and '{1}'.";
 

@@ -4,10 +4,11 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class ChangeTilesSubmitButtonAddedTileToBoardSuccess : Success
+internal class ChangeTilesSubmitButtonAddedTileToBoardSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Added '{0}' to the board.";
 
