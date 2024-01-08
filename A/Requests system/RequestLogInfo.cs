@@ -11,11 +11,12 @@ using FluentResults;
 using MediatR;
 using System.Text;
 
-public class RequestLogInfo<TResponse>
+public class RequestLogInfo<TResult>
+    where TResult : ResultBase<TResult>, new()
 {
     private StringBuilder info = new();
 
-    public string GetInfo(IRequest<Result<TResponse>> request)
+    public string GetInfo(IRequest<TResult> request)
     {
         TryAddInfo<ISelectComponentRequest>(request, SelectComponentInfo);
         TryAddInfo<IButtonRequest>(request, ButtonInfo);
@@ -66,7 +67,7 @@ public class RequestLogInfo<TResponse>
         AddInfo("Interaction type", args.Interaction.Type);
     }
 
-    private void TryAddInfo<T>(IRequest<Result<TResponse>> request, Action<T> addInfo)
+    private void TryAddInfo<T>(IRequest<TResult> request, Action<T> addInfo)
     {
         if (IsType<T>(request))
         {
@@ -80,6 +81,6 @@ public class RequestLogInfo<TResponse>
         info.AppendLine($"{category}: {value}.");
     }
 
-    private bool IsType<T>(IRequest<Result<TResponse>> request) =>
+    private bool IsType<T>(IRequest<TResult> request) =>
         typeof(T).IsAssignableFrom(request.GetType());
 }

@@ -11,29 +11,30 @@ using RSBingo_Common;
 using System.Diagnostics;
 using System.Text;
 
-public class LoggingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, Result<TResponse>>
-    where TRequest : IRequest<Result<TResponse>>
+public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
+    where TRequest : IRequest<TResult>
+    where TResult : ResultBase<TResult>, new()
 {
-    private const string BeganHandlingRequest = "Began handling request of type '{0}'. No additional information found.";
+    private const string BeganHandlingRequest = "Began handling request of type '{0}'.";
     private const string BeganHandlingRequestWithInfo = "Began handling request of type '{0}'.{1}{2}";
     private const string RequestSucceeded = "The request '{0}' was completed successfully after {1} ms.";
     private const string RequestFailed = "The request '{0}' failed after {1} ms with the following errors:";
 
-    private readonly ILogger<LoggingBehaviour<TRequest, TResponse>> logger;
-    private readonly RequestLogInfo<TResponse> additionalRequestInfo;
+    private readonly ILogger<LoggingBehaviour<TRequest, TResult>> logger;
+    private readonly RequestLogInfo<TResult> additionalRequestInfo;
 
-    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResponse>> logger, RequestLogInfo<TResponse> additionalRequestInfo)
+    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResult>> logger, RequestLogInfo<TResult> additionalRequestInfo)
     {
         this.logger = logger;
         this.additionalRequestInfo = additionalRequestInfo;
     }
 
-    public async Task<Result<TResponse>> Handle(TRequest request, RequestHandlerDelegate<Result<TResponse>> next, CancellationToken cancellationToken)
+    public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         LogBeginHandling(request);
 
         Stopwatch stopwatch = Stopwatch.StartNew();
-        Result<TResponse> result = await next();
+        TResult result = await next();
         stopwatch.Stop();
 
         if (result.IsFailed)

@@ -15,7 +15,6 @@ using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Validation;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using MediatR;
 using FluentValidation;
 //using FluentValidation.DependencyInjectionExtensions;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
+using RSBingoBot.Commands;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Factories;
 using RSBingoBot.Imaging;
@@ -34,7 +34,6 @@ using RSBingoBot.Web;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
-using RSBingoBot.Commands;
 
 /// <summary>
 /// Entry point to the bot.
@@ -146,6 +145,7 @@ public class Program
                 RegisterMediatR(services);
 
                 services.AddScoped<CommandController>();
+                services.AddScoped(typeof(RequestLogInfo<>));
 
                 services.AddSingleton<DiscordTeamFactory>();
                 services.AddSingleton<ButtonFactory>();
@@ -164,9 +164,9 @@ public class Program
                 services.AddSingleton<RequestSemaphores>();
 
                 services.AddSingleton<SetDiscordTeamExistingEntitiesValidator>();
-                
-                services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
-                services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+                //services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+                //services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
                 services.AddSingleton(typeof(IDiscordServices), typeof(DiscordServices));
                 services.AddSingleton(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
@@ -186,32 +186,55 @@ public class Program
     {
         services.AddValidatorsFromAssembly(typeof(DiscordLibraryMediatRRegistrationMarker).Assembly);
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<DiscordLibraryMediatRRegistrationMarker>()
-            .AddValidation<CreateMissingDiscordTeamEntitiesRequest>(services)
+
+            // Behaviors
+            .AddOpenBehavior(typeof(LoggingBehaviour<,>))
+            .AddOpenBehavior(typeof(ValidationBehavior<,>))
+
+            // Channel requests
             .AddValidation<CreateChannelRequest, DiscordChannel>(services)
-            .AddValidation<DeleteChannelRequest>(services)
             .AddValidation<GetChannelRequest, DiscordChannel>(services)
             .AddValidation<RenameChannelRequest>(services)
-            .AddValidation<ConcludeInteractionButtonRequest>(services)
-            .AddValidation<DeleteMessageRequest>(services)
-            .AddValidation<GetMessageRequest, Message>(services)
+            .AddValidation<DeleteChannelRequest>(services)
+
+            // Message requests
             .AddValidation<SendMessageRequest>(services)
+            .AddValidation<GetMessageRequest, Message>(services)
+            .AddValidation<DeleteMessageRequest>(services)
+
+            // Role requests
             .AddValidation<CreateRoleRequest, DiscordRole>(services)
-            .AddValidation<DeleteRoleRequest>(services)
             .AddValidation<GetRoleRequest, DiscordRole>(services)
             .AddValidation<GrantDiscordRoleRequest>(services)
-            .AddValidation<RenameRoleRequest>(services)
             .AddValidation<RevokeRoleRequest>(services)
+            .AddValidation<RenameRoleRequest>(services)
+            .AddValidation<DeleteRoleRequest>(services)
+
+            // Other requests
             .AddValidation<GetDiscordMemberRequest, DiscordMember>(services)
+            .AddValidation<ConcludeInteractionButtonRequest>(services)
             );
 
         services.AddSingleton<InteractionHandlersTracker>();
         services.AddValidatorsFromAssembly(typeof(RSBingoBotMediatRRegistrationMarker).Assembly);
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<RSBingoBotMediatRRegistrationMarker>()
+
+            // CSV requests
             .AddValidation<AddTaskRestrictionsCSVRequest>(services)
             .AddValidation<AddTasksCSVRequest>(services)
             .AddValidation<RemoveTaskRestrictionsCSVRequest>(services)
             .AddValidation<RemoveTasksCSVRequest>(services)
+
+            // Database requests
             .AddValidation<UpdateDatabaseRequest>(services)
+
+            // Web requests
+            .AddValidation<DownloadFileRequest>(services)
+
+            // Commands
+            .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
+
+            // Other requests
             .AddValidation<ChangeTilesButtonRequest>(services)
             .AddValidation<ChangeTilesFromSelectRequest>(services)
             .AddValidation<ChangeTilesSubmitButtonRequest>(services)
@@ -235,10 +258,6 @@ public class Program
             .AddValidation<JoinTeamSelectRequest>(services)
             .AddValidation<RemoveUserFromTeamRequest>(services)
             .AddValidation<RenameTeamRequest>(services)
-            .AddValidation<DownloadFileRequest>(services)
-
-            // Commands
-            .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
         );
     }
 }
