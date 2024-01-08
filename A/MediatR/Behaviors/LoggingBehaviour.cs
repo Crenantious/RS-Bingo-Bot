@@ -11,6 +11,8 @@ using RSBingo_Common;
 using System.Diagnostics;
 using System.Text;
 
+// TODO: JR - add RequestType to requests (Command, UserEndpoint, Database, Discord etc.) and colour code
+// logging based on them to make it easier to read where each request section lies.
 public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()

@@ -89,15 +89,16 @@ public static class MessageExtensions
         throw new NotImplementedException();
     }
 
-    public static void Send(this Message message, DiscordChannel channel)
+    public static async Task Send(this Message message, DiscordChannel channel)
     {
         var service = (IDiscordMessageServices)General.DI.GetService(typeof(IDiscordMessageServices))!;
-        service.Send(message, channel);
+        await service.Send(message, channel);
     }
 
-    public static void Delete(this Message message)
+    public static async Task Delete(this Message message)
     {
-        throw new NotImplementedException();
+        var service = (IDiscordMessageServices)General.DI.GetService(typeof(IDiscordMessageServices))!;
+        await service.Delete(message);
     }
 
     public static void DeleteByTag(this Message message)

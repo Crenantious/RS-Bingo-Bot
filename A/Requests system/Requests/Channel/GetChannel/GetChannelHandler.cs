@@ -13,7 +13,14 @@ internal class GetChannelHandler : RequestHandler<GetChannelRequest, DiscordChan
     protected override async Task<DiscordChannel> Process(GetChannelRequest request, CancellationToken cancellationToken)
     {
         DiscordChannel channel = DataFactory.Guild.GetChannel(request.Id);
-        AddSuccess(new GetChannelSuccess(channel));
-        return channel;
+        if (channel is null)
+        {
+            AddError(new GetChannelError(request.Id));
+        }
+        else
+        {
+            AddSuccess(new GetChannelSuccess(channel));
+        }
+        return channel!;
     }
 }

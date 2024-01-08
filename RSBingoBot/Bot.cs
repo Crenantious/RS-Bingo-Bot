@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Commands;
+using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Factories;
 using RSBingoBot.Leaderboard;
@@ -72,7 +73,11 @@ internal class Bot : BackgroundService
     {
         foreach (Team team in dataWorker.Teams.GetTeams())
         {
-            teamFactory.CreateFromExisting(team);
+            var result = await teamFactory.CreateFromExisting(team);
+            if (result.IsSuccess)
+            {
+                DiscordTeam.ExistingTeams.Add(result.Value.Team.Name, result.Value);
+            }
         }
     }
 }

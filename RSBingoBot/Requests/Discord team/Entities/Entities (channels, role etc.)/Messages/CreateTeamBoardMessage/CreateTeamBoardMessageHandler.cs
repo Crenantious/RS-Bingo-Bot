@@ -35,8 +35,9 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
         Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"),
             new ViewEvidenceButtonRequest(request.DiscordTeam.Team));
 
-        Message message = new();
-        message.AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence);
+        var message = new Message()
+            .WithContent("Your board")
+            .AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence);
 
         // TODO: JR - implement
 //#if DEBUG

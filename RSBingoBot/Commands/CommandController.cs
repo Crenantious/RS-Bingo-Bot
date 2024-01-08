@@ -11,6 +11,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using RSBingo_Framework.DAL;
 using RSBingoBot.BingoCommands.Attributes;
+using RSBingoBot.Discord;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -37,14 +38,20 @@ internal class CommandController : ApplicationCommandModule
 
     #region Channel initialisation
 
-    /// <summary>
-    /// Posts a message in the channel the command was run in with buttons to create and join a team.
-    /// </summary>
     [SlashCommand("InitializeTeamSignUpChannel", "Posts a message in the current channel with buttons to create and join a team.")]
     [RequireRole("Host")]
     public async Task InitializeTeamSignUpChannel(InteractionContext ctx)
     {
         await RequestRunner.Run(new PostTeamSignUpChannelMessageRequest(DataFactory.TeamSignUpChannel));
+    }
+
+    [SlashCommand("DeleteTeam", "Deletes a team.")]
+    [RequireRole("Host")]
+    public async Task DeleteTeam(InteractionContext ctx,
+        [ChoiceProvider(typeof(AllDiscordTeamsChoiceProvider))][Option("name", "name")] string name)
+    {
+        // TODO: JR - fix the choice provider. This may be a database issue.
+        await RequestRunner.Run(new DeleteTeamRequest(DiscordTeam.ExistingTeams[name]));
     }
 
     //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
