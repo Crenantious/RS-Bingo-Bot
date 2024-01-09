@@ -10,30 +10,30 @@ using DSharpPlus.Entities;
 using FluentResults;
 using RSBingoBot.Requests;
 
-public class DiscordServices : IDiscordServices
+public class DiscordServices : RequestService, IDiscordServices
 {
     public async Task<Result<DiscordMember>> GetMember(ulong id) =>
-        await RequestRunner.Run<GetDiscordMemberRequest, DiscordMember>(new GetDiscordMemberRequest(id));
+        await RunRequest<GetDiscordMemberRequest, DiscordMember>(new GetDiscordMemberRequest(id));
 
     #region role
 
     public async Task<Result<DiscordRole>> CreateRole(string name) =>
-        await RequestRunner.Run<CreateRoleRequest, DiscordRole>(new CreateRoleRequest(name));
+        await RunRequest<CreateRoleRequest, DiscordRole>(new CreateRoleRequest(name));
 
     public async Task<Result<DiscordRole>> GetRole(ulong id) =>
-        await RequestRunner.Run<GetRoleRequest, DiscordRole>(new GetRoleRequest(id));
+        await RunRequest<GetRoleRequest, DiscordRole>(new GetRoleRequest(id));
 
     public async Task<Result> RenameRole(DiscordRole role, string newName) =>
-        await RequestRunner.Run(new RenameRoleRequest(role, newName));
+        await RunRequest(new RenameRoleRequest(role, newName));
 
     public async Task<Result> GrantRole(DiscordMember member, DiscordRole role) =>
-        await RequestRunner.Run(new GrantDiscordRoleRequest(member, role));
+        await RunRequest(new GrantDiscordRoleRequest(member, role));
 
     public async Task<Result> RevokeRole(DiscordMember member, DiscordRole role) =>
-        await RequestRunner.Run(new RevokeRoleRequest(member, role));
+        await RunRequest(new RevokeRoleRequest(member, role));
 
     public async Task<Result> DeleteRole(DiscordRole role) =>
-        await RequestRunner.Run(new DeleteRoleRequest(role));
+        await RunRequest(new DeleteRoleRequest(role));
 
     #endregion
 
@@ -41,19 +41,19 @@ public class DiscordServices : IDiscordServices
 
     public async Task<Result<DiscordChannel>> CreateChannel(string name, ChannelType channelType, DiscordChannel? parent = null,
         IEnumerable<DiscordOverwriteBuilder>? overwrites = null) =>
-        await RequestRunner.Run<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
+        await RunRequest<CreateChannelRequest, DiscordChannel>(new CreateChannelRequest(name, channelType, parent, overwrites));
 
     public Task<Result<DiscordChannel>> CreateChannel(ChannelInfo info) =>
         CreateChannel(info.Name, info.ChannelType, info.Parent, info.Overwrites);
 
     public async Task<Result<DiscordChannel>> GetChannel(ulong id) =>
-        await RequestRunner.Run<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
+        await RunRequest<GetChannelRequest, DiscordChannel>(new GetChannelRequest(id));
 
     public async Task<Result> RenameChannel(DiscordChannel channel, string newName) =>
-        await RequestRunner.Run(new RenameChannelRequest(channel, newName));
+        await RunRequest(new RenameChannelRequest(channel, newName));
 
     public async Task<Result> DeleteChannel(DiscordChannel channel) =>
-        await RequestRunner.Run(new DeleteChannelRequest(channel));
+        await RunRequest(new DeleteChannelRequest(channel));
 
     #endregion
 }

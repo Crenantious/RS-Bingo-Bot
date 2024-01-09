@@ -9,7 +9,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
-public class DiscordInteractionMessagingServices : IDiscordInteractionMessagingServices
+public class DiscordInteractionMessagingServices : RequestService, IDiscordInteractionMessagingServices
 {
     private static readonly HashSet<ulong> InteractionsRespondedTo = new();
 

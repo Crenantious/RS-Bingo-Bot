@@ -11,7 +11,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using FluentResults;
 
-public class DiscordMessageServices : IDiscordMessageServices
+public class DiscordMessageServices : RequestService, IDiscordMessageServices
 {
     private readonly MessageCreatedDEH messageCreatedDEH;
 
@@ -21,26 +21,26 @@ public class DiscordMessageServices : IDiscordMessageServices
     }
 
     public async Task<Result> Send(Message message, DiscordChannel channel) =>
-        await RequestRunner.Run(new SendMessageRequest(message, channel));
+        await RunRequest(new SendMessageRequest(message, channel));
 
     public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
-        await RequestRunner.Run<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
+        await RunRequest<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 
     public async Task<Result> Delete(Message message) =>
-        await RequestRunner.Run(new DeleteMessageRequest(message.DiscordMessage));
+        await RunRequest(new DeleteMessageRequest(message.DiscordMessage));
 
     public async Task<Result> Delete(DiscordMessage message) =>
-        await RequestRunner.Run(new DeleteMessageRequest(message));
+        await RunRequest(new DeleteMessageRequest(message));
 
     public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints)
     {
         messageCreatedDEH.Subscribe(constraints, (client, args) => OnMessageCreated(request, args));
     }
 
-    private static async Task OnMessageCreated(IMessageCreatedRequest request, MessageCreateEventArgs args)
+    private async Task OnMessageCreated(IMessageCreatedRequest request, MessageCreateEventArgs args)
     {
         request.MessageArgs = args;
         request.Message = new Message(args.Message);
-        Result result = await RequestRunner.Run(request);
+        Result result = await RunRequest(request);
     }
 }

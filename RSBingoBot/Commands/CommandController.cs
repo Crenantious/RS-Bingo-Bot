@@ -42,7 +42,7 @@ internal class CommandController : ApplicationCommandModule
     [RequireRole("Host")]
     public async Task InitializeTeamSignUpChannel(InteractionContext ctx)
     {
-        await RequestRunner.Run(new PostTeamSignUpChannelMessageRequest(DataFactory.TeamSignUpChannel));
+        await RequestRunner.Run(new PostTeamSignUpChannelMessageRequest(DataFactory.TeamSignUpChannel), null);
     }
 
     [SlashCommand("DeleteTeam", "Deletes a team.")]
@@ -51,7 +51,7 @@ internal class CommandController : ApplicationCommandModule
         [ChoiceProvider(typeof(AllDiscordTeamsChoiceProvider))][Option("name", "name")] string name)
     {
         // TODO: JR - fix the choice provider. This may be a database issue.
-        await RequestRunner.Run(new DeleteTeamRequest(DiscordTeam.ExistingTeams[name]));
+        await RequestRunner.Run(new DeleteTeamRequest(DiscordTeam.ExistingTeams[name]), null);
     }
 
     //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]

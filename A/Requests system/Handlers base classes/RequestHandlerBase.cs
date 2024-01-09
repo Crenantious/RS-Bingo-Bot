@@ -4,8 +4,10 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DiscordServices;
 using FluentResults;
 using MediatR;
+using RSBingo_Common;
 
 public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>, IRequestHandler
     where TRequest : IRequest<TResult>
@@ -15,6 +17,7 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
 
     private static int requestId = 0;
 
+    private TRequest request = default!;
     private Dictionary<Type, string> exceptionMessages = new();
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
@@ -23,6 +26,7 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
 
     public async Task<TResult> Handle(TRequest request, CancellationToken cancellationToken)
     {
+        this.request = request;
         Id = requestId++;
 
         try
@@ -37,6 +41,14 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
                 UnexpectedError;
             return new TResult().WithError(error);
         }
+    }
+
+    protected TService GetRequestService<TService>()
+        where TService : RequestService
+    {
+        var service = (TService)General.DI.GetService(typeof(TService))!;
+        service.Initialise(request);
+        return service;
     }
 
     /// <summary>

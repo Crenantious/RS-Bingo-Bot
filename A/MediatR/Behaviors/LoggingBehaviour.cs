@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Behaviours;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -24,33 +25,60 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
 
     private readonly ILogger<LoggingBehaviour<TRequest, TResult>> logger;
     private readonly RequestLogInfo<TResult> additionalRequestInfo;
+    private readonly RequestsTracker requestsTracker;
 
-    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResult>> logger, RequestLogInfo<TResult> additionalRequestInfo)
+    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResult>> logger, RequestLogInfo<TResult> additionalRequestInfo,
+        RequestsTracker requestsTracker)
     {
         this.logger = logger;
         this.additionalRequestInfo = additionalRequestInfo;
+        this.requestsTracker = requestsTracker;
     }
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
-        LogBeginHandling(request);
-
-        Stopwatch stopwatch = Stopwatch.StartNew();
         TResult result = await next();
-        stopwatch.Stop();
+        var tracker = requestsTracker.Trackers[request];
+        tracker.Completed(result);
 
-        if (result.IsFailed)
+        // Only log the top level request since all its children get recursively logged here.
+        if (tracker.ParentRequest is null)
         {
-            logger.LogInformation(RequestFailed.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
-            logger.LogError(CompileReasons(result.Errors));
+            StringBuilder info = new();
+            AppendTrackerInfo(tracker, info);
+            logger.LogInformation(info.ToString());
         }
-        else
-        {
-            logger.LogInformation(RequestSucceeded.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
-            logger.LogInformation(CompileReasons(result.Successes));
-        }
+
+        //LogBeginHandling(request);
+
+        //Stopwatch stopwatch = Stopwatch.StartNew();
+        //stopwatch.Stop();
+
+        //if (result.IsFailed)
+        //{
+        //    logger.LogInformation(RequestFailed.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
+        //    logger.LogError(CompileReasons(result.Errors));
+        //}
+        //else
+        //{
+        //    logger.LogInformation(RequestSucceeded.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
+        //    logger.LogInformation(CompileReasons(result.Successes));
+        //}
 
         return result;
+    }
+
+    private void AppendTrackerInfo(RequestTracker tracker, StringBuilder info)
+    {
+        string parent = tracker.ParentRequest is null ? "None" :
+                        requestsTracker.Trackers[tracker.ParentRequest].RequestId.ToString();
+
+        info.AppendLine($"Request: {tracker.Request.GetType()}, id: {tracker.RequestId}, parent request: {parent}, " +
+            $"created: {tracker.CreationTimeStamp}, finished: {tracker.CompletionTimeStamp}, " +
+            $"elapsed: {(tracker.CompletionTimeStamp - tracker.CreationTimeStamp).Milliseconds}ms, " +
+            $"success: {tracker.IsSuccess}.");
+
+        tracker.Trackers.ForEach(t => AppendTrackerInfo(t, info));
     }
 
     private void LogBeginHandling(TRequest request)

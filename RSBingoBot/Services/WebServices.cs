@@ -4,13 +4,12 @@
 
 namespace DiscordLibrary.DiscordServices;
 
-using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingoBot.Requests;
 
-public class WebServices : IWebServices
+public class WebServices : RequestService, IWebServices
 {
     /// <param name="path">The local path to save the file to.</param>
     public async Task<Result> DownloadFile(string url, string path) =>
-        await RequestRunner.Run(new DownloadFileRequest(url, path));
+        await RunRequest(new DownloadFileRequest(url, path));
 }

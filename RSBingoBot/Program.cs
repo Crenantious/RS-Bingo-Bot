@@ -35,15 +35,10 @@ using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
 
-/// <summary>
-/// Entry point to the bot.
-/// </summary>
+// TODO: JR - move DiscordLibrary specific DI registering to DiscordLibrary so classes
+// that should be internal don't need to be public.
 public class Program
 {
-    /// <summary>
-    /// Entry point to the program.
-    /// </summary>
-    /// <param name="args">Argument array.</param>
     public static void Main(string[] args)
     {
         LoggingStart();
@@ -146,7 +141,8 @@ public class Program
 
                 services.AddScoped<CommandController>();
                 services.AddScoped(typeof(RequestLogInfo<>));
-
+                services.AddScoped(typeof(RequestsTracker));
+                
                 services.AddSingleton<DiscordTeamFactory>();
                 services.AddSingleton<ButtonFactory>();
                 services.AddSingleton<SelectComponentFactory>();

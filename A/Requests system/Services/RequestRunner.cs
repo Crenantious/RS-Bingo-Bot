@@ -10,40 +10,53 @@ using RSBingo_Common;
 
 public static class RequestRunner
 {
+    private const string RequestAlreadyRunningError = "The request of type {0} with id {1} is already running.";
+
     private static readonly IMediator mediator;
+    private static readonly RequestsTracker requestsTracker;
 
     static RequestRunner()
     {
         mediator = (IMediator)General.DI.GetService(typeof(IMediator))!;
+        requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
     }
 
-    public static async Task<Result<TResult>> Run<TRequest, TResult>(TRequest request,
-        Action<Result<TResult>>? onSuccess = null, Action<List<IError>>? onFailure = null)
+    public static async Task<Result<TResult>> Run<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest)
         where TRequest : IRequest<Result<TResult>>
     {
-        Result<TResult> result = await RunRequest<TRequest, TResult>(request);
-        return RunCommon(onSuccess, onFailure, result);
-    }
-
-    public static async Task<Result> Run<TRequest>(TRequest request,
-        Action<Result>? onSuccess = null, Action<List<IError>>? onFailure = null)
-        where TRequest : IRequest<Result>
-    {
-        Result result = await RunRequest<TRequest>(request);
-        return RunCommon(onSuccess, onFailure, result);
-    }
-
-    private static T RunCommon<T>(Action<T>? onSuccess, Action<List<IError>>? onFailure, T result)
-        where T : ResultBase
-    {
-        if (result.IsSuccess)
+        var result = AddTracker<TRequest, Result<TResult>>(request, parentRequest);
+        if (result.IsFailed)
         {
-            onSuccess?.Invoke(result);
             return result;
         }
 
-        onFailure?.Invoke(result.Errors);
-        return result;
+        return await RunRequest<TRequest, TResult>(request);
+    }
+
+    public static async Task<Result> Run<TRequest>(TRequest request, IBaseRequest? parentRequest)
+        where TRequest : IRequest<Result>
+    {
+        var result = AddTracker<TRequest, Result>(request, parentRequest);
+        if (result.IsFailed)
+        {
+            return result;
+        }
+
+        return await RunRequest<TRequest>(request);
+    }
+
+    private static TResult AddTracker<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest)
+        where TRequest : IBaseRequest
+        where TResult : ResultBase<TResult>, new()
+    {
+        if (requestsTracker.Trackers.ContainsKey(request))
+        {
+            return new TResult().WithError(RequestAlreadyRunningError
+                .FormatConst(request, requestsTracker.Trackers[request].RequestId));
+        }
+
+        requestsTracker.Trackers.Add(request, new(request, parentRequest));
+        return new TResult();
     }
 
     private static async Task<Result<TResult>> RunRequest<TRequest, TResult>(TRequest request)
