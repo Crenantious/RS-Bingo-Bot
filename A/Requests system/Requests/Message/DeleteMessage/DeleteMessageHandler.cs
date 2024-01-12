@@ -9,6 +9,6 @@ internal class DeleteMessageHandler : DiscordHandler<DeleteMessageRequest>
     protected override async Task Process(DeleteMessageRequest request, CancellationToken cancellationToken)
     {
         await request.Message.DeleteAsync();
-        AddSuccess(new DeleteMessageSuccess(request.Message, request.Message.Channel));
+        AddSuccess(new DeleteMessageSuccess(request.Message));
     }
 }

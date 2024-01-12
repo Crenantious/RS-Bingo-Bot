@@ -8,7 +8,6 @@ using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingoBot.Requests;
 
 public class DiscordServices : RequestService, IDiscordServices
 {

@@ -5,14 +5,13 @@
 namespace DiscordLibrary.DiscordServices;
 
 using DiscordLibrary.DiscordEntities;
-using DSharpPlus;
+using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
+using FluentResults;
 using Microsoft.Extensions.Logging;
 
 public class DiscordInteractionMessagingServices : RequestService, IDiscordInteractionMessagingServices
 {
-    private static readonly HashSet<ulong> InteractionsRespondedTo = new();
-
     private readonly Logger<DiscordInteractionMessagingServices> logger;
 
     private enum RequestType
@@ -37,15 +36,15 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     /// </summary>
     /// <returns>If the message was sent successfully.</returns>
     // TODO: JR - check if this works. I believe a modal can only be an original response.
-    public async Task<bool> Send(Modal modal) =>
-        await Send(modal, InteractionResponseType.Modal);
+    public async Task<Result> Send(Modal modal) =>
+        await Send(modal, new SendModalRequest(modal));
 
     /// <summary>
     /// Sends a message to Discord in response to an interaction.
     /// </summary>
     /// <returns>If the message was sent successfully.</returns>
-    public async Task<bool> Send(InteractionMessage message) =>
-        await Send(message, InteractionResponseType.ChannelMessageWithSource);
+    public async Task<Result> Send(InteractionMessage message) =>
+        await Send(message, new SendInteractionMessageRequest(message));
 
     /// <summary>
     /// Edits the Discord message to update it to the new contents of <paramref name="message"/>.
@@ -73,38 +72,17 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
         return succeeded;
     }
 
-    private async Task<bool> Send(InteractionMessage message, InteractionResponseType responseType)
+    private async Task<Result> Send(InteractionMessage message, IDiscordRequest request)
     {
-        bool succeeded;
+        var result = await RunRequest(request);
 
-        if (InteractionsRespondedTo.Contains(message.Interaction.Id))
-        {
-            succeeded = await Followup(message.Interaction, message.GetFollowupMessageBuilder());
-        }
-        else
-        {
-            succeeded = await CreateOriginalResponse(message.Interaction, message.GetInteractionResponseBuilder(), responseType);
-            if (succeeded)
-            {
-                InteractionsRespondedTo.Add(message.Interaction.Id);
-            }
-        }
-
-        if (succeeded)
+        if (result.IsSuccess)
         {
             MessageTagTracker.Add(message);
         }
-        return succeeded;
+
+        return result;
     }
-
-    private async Task<bool> CreateOriginalResponse(DiscordInteraction interaction, DiscordInteractionResponseBuilder builder,
-        InteractionResponseType responseType) =>
-        await SendRequest(interaction,
-            async () => await interaction.CreateResponseAsync(responseType, builder),
-            RequestType.Send);
-
-    private async Task<bool> Followup(DiscordInteraction interaction, DiscordFollowupMessageBuilder builder) =>
-        await SendRequest(interaction, async () => await interaction.CreateFollowupMessageAsync(builder), RequestType.Send);
 
     private async Task<bool> EditOriginalResponse(DiscordInteraction interaction, DiscordWebhookBuilder builder) =>
         await SendRequest(interaction, async () => await interaction.EditOriginalResponseAsync(builder), RequestType.Edit);

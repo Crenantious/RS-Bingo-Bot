@@ -9,7 +9,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
 
-public interface IDiscordServices
+public interface IDiscordServices : IRequestService
 {
     public Task<Result<DiscordMember>> GetMember(ulong id);
 

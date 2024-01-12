@@ -5,7 +5,6 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.Requests.Validation;
-using RSBingoBot.Requests;
 
 internal class GetRoleValidator : Validator<GetRoleRequest>
 {

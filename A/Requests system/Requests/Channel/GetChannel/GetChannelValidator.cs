@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.Requests.Validation;
-using RSBingoBot.Requests;
 
 internal class GetChannelValidator : Validator<GetChannelRequest>
 {

@@ -2,10 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
 using DSharpPlus.Entities;
-using FluentResults;
-using MediatR;
 
-public record GetChannelRequest(ulong Id) : IRequest<Result<DiscordChannel>>;
+public record GetChannelRequest(ulong Id) : IDiscordRequest<DiscordChannel>;

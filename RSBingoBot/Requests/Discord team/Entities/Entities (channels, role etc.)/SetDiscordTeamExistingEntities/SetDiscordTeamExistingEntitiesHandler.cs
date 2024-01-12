@@ -12,17 +12,14 @@ using FluentResults;
 
 internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscordTeamExistingEntitiesRequest>
 {
-    private readonly IDiscordServices discordServices;
-    private readonly IDiscordMessageServices messageServices;
-
-    public SetDiscordTeamExistingEntitiesHandler(IDiscordServices discordServices, IDiscordMessageServices messageServices)
-    {
-        this.discordServices = discordServices;
-        this.messageServices = messageServices;
-    }
+    private IDiscordServices discordServices = null!;
+    private IDiscordMessageServices messageServices = null!;
 
     protected override async Task Process(SetDiscordTeamExistingEntitiesRequest request, CancellationToken cancellationToken)
     {
+        discordServices = GetRequestService<IDiscordServices>();
+        messageServices = GetRequestService<IDiscordMessageServices>();
+
         await SetRole(request);
         await SetCategoryChannel(request);
         await SetBoardChannel(request);

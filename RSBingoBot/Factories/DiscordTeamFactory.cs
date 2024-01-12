@@ -18,6 +18,7 @@ public class DiscordTeamFactory
     public DiscordTeamFactory(IDiscordTeamServices teamServices)
     {
         this.discordServices = teamServices;
+        teamServices.Initialise(null);
     }
 
     public async Task<Result<DiscordTeam>> CreateNew(string name, IDataWorker dataWorker)

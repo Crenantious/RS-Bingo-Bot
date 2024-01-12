@@ -5,12 +5,12 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using DSharpPlus.Entities;
 
 internal class GetMessageSuccess : MessageSuccess
 {
-    public GetMessageSuccess(Message message, DiscordChannel channel) :
-        base("Retrieved a message", message.DiscordMessage, channel)
+    public GetMessageSuccess(Message message) :
+        base("Retrieved a message", message.DiscordMessage)
     {
+
     }
 }

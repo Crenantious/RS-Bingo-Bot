@@ -7,6 +7,7 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordServices;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using RSBingo_Common;
 
 public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TRequest, TResult>, IRequestHandler
@@ -14,6 +15,7 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     where TResult : ResultBase<TResult>, new()
 {
     private const string UnexpectedError = "An unexpected error occurred.";
+    private const string GetServiceOperationError = "{0} must be called when processing the request. Handler type {1}.";
 
     private static int requestId = 0;
 
@@ -44,8 +46,16 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     }
 
     protected TService GetRequestService<TService>()
-        where TService : RequestService
+        where TService : IRequestService
     {
+        if (request is null)
+        {
+            var logger = (ILogger<RequestHandlerBase<TRequest, TResult>>)General.DI.GetService(typeof(ILogger<RequestHandlerBase<TRequest, TResult>>))!;
+            string error = GetServiceOperationError.FormatConst(nameof(GetRequestService), GetType());
+            logger.LogError(error);
+            throw new InvalidOperationException(error);
+        }
+
         var service = (TService)General.DI.GetService(typeof(TService))!;
         service.Initialise(request);
         return service;

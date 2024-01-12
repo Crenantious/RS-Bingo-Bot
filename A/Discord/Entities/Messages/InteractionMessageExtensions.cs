@@ -5,6 +5,7 @@
 namespace DiscordLibrary.DiscordEntities;
 
 using DiscordLibrary.DiscordServices;
+using FluentResults;
 using RSBingo_Common;
 
 public static class InteractionMessageExtensions
@@ -16,7 +17,7 @@ public static class InteractionMessageExtensions
         return message;
     }
 
-    public static async Task<bool> Send(this InteractionMessage message) =>
+    public static async Task<Result> Send(this InteractionMessage message) =>
         await GetMessageService().Send(message);
 
     public static async Task<bool> Update(this InteractionMessage message) =>
@@ -24,7 +25,7 @@ public static class InteractionMessageExtensions
 
     public static async Task<bool> Delete(this InteractionMessage message) =>
         await GetMessageService().Delete(message);
-   
+
     private static IDiscordInteractionMessagingServices GetMessageService() =>
         (IDiscordInteractionMessagingServices)General.DI.GetService(typeof(IDiscordInteractionMessagingServices))!;
 }

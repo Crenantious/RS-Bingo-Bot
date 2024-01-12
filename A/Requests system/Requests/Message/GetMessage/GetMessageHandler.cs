@@ -13,7 +13,7 @@ internal class GetMessageHandler : DiscordHandler<GetMessageRequest, Message>
     {
         DiscordMessage discordMessage = await request.Channel.GetMessageAsync(request.Id);
         Message message = new(discordMessage);
-        AddSuccess(new GetMessageSuccess(message, request.Channel));
+        AddSuccess(new GetMessageSuccess(message));
         return message;
     }
 }

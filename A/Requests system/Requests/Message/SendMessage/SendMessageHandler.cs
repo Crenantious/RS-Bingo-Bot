@@ -12,6 +12,6 @@ internal class SendMessageHandler : DiscordHandler<SendMessageRequest>
     {
         DiscordMessage message = await request.Channel.SendMessageAsync(request.Message.GetMessageBuilder());
         request.Message.DiscordMessage = message;
-        AddSuccess(new SendMessageSuccess(request.Message, request.Channel));
+        AddSuccess(new SendMessageSuccess(request.Message));
     }
 }

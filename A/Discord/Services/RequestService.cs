@@ -7,13 +7,21 @@ namespace DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using RSBingo_Common;
 
-public class RequestService
+public class RequestService : IRequestService
 {
-    private const string UninitalisedError = "The RequestService must be initalised before running a request.";
+    private const string UninitalisedError = "The RequestService {0} must be initalised before running a request. Request type: {1}.";
 
+    private ILogger<RequestService> logger;
     private bool isInitialised = false;
     private IBaseRequest? parentRequest;
+
+    public RequestService()
+    {
+        logger = (ILogger<RequestService>)General.DI.GetService(typeof(ILogger<RequestService>))!;
+    }
 
     public void Initialise(IBaseRequest? parentRequest)
     {
@@ -26,7 +34,9 @@ public class RequestService
     {
         if (isInitialised is false)
         {
-            return new Result<TResult>().WithError(UninitalisedError);
+            string error = UninitalisedError.FormatConst(GetType(), request.GetType());
+            logger.LogError(error);
+            return new Result<TResult>().WithError(error);
         }
         return await RequestRunner.Run<TRequest, TResult>(request, parentRequest);
     }
@@ -36,7 +46,9 @@ public class RequestService
     {
         if (isInitialised is false)
         {
-            return new Result().WithError(UninitalisedError);
+            string error = UninitalisedError.FormatConst(GetType(), request.GetType());
+            logger.LogError(error);
+            return new Result().WithError(error);
         }
         return await RequestRunner.Run<TRequest>(request, parentRequest);
     }

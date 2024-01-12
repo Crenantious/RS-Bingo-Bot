@@ -9,7 +9,6 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RSBingo_Common;
-using System.Diagnostics;
 using System.Text;
 
 // TODO: JR - add RequestType to requests (Command, UserEndpoint, Database, Discord etc.) and colour code
@@ -18,6 +17,8 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
 {
+    private const string LogPrefix = "----Begin request chain----";
+    private const string LogSuffix = "----End request chain----";
     private const string BeganHandlingRequest = "Began handling request of type '{0}'.";
     private const string BeganHandlingRequestWithInfo = "Began handling request of type '{0}'.{1}{2}";
     private const string RequestSucceeded = "The request '{0}' was completed successfully after {1} ms.";
@@ -45,25 +46,11 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
         if (tracker.ParentRequest is null)
         {
             StringBuilder info = new();
+            info.AppendLine(LogPrefix);
             AppendTrackerInfo(tracker, info);
+            info.AppendLine(LogSuffix);
             logger.LogInformation(info.ToString());
         }
-
-        //LogBeginHandling(request);
-
-        //Stopwatch stopwatch = Stopwatch.StartNew();
-        //stopwatch.Stop();
-
-        //if (result.IsFailed)
-        //{
-        //    logger.LogInformation(RequestFailed.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
-        //    logger.LogError(CompileReasons(result.Errors));
-        //}
-        //else
-        //{
-        //    logger.LogInformation(RequestSucceeded.FormatConst(request.GetType(), stopwatch.Elapsed.Milliseconds));
-        //    logger.LogInformation(CompileReasons(result.Successes));
-        //}
 
         return result;
     }
@@ -73,10 +60,16 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
         string parent = tracker.ParentRequest is null ? "None" :
                         requestsTracker.Trackers[tracker.ParentRequest].RequestId.ToString();
 
-        info.AppendLine($"Request: {tracker.Request.GetType()}, id: {tracker.RequestId}, parent request: {parent}, " +
-            $"created: {tracker.CreationTimeStamp}, finished: {tracker.CompletionTimeStamp}, " +
+        info.AppendLine(
+            $"Request: {tracker.Request.GetType()}, " +
+            $"id: {tracker.RequestId}, " +
+            $"parent id: {parent}, " +
+            $"created: {tracker.CreationTimeStamp}, " +
+            $"finished: {tracker.CompletionTimeStamp}, " +
             $"elapsed: {(tracker.CompletionTimeStamp - tracker.CreationTimeStamp).Milliseconds}ms, " +
-            $"success: {tracker.IsSuccess}.");
+            $"success: {tracker.RequestResult.IsSuccess}, " +
+            $"successes: {{ {string.Join(", ", tracker.RequestResult.Successes.Select(s => s.Message))} }}, " +
+            $"errors: {{ {string.Join(", ", tracker.RequestResult.Errors.Select(e => e.Message))} }}.");
 
         tracker.Trackers.ForEach(t => AppendTrackerInfo(t, info));
     }

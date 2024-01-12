@@ -10,7 +10,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 
-public interface IDiscordMessageServices
+public interface IDiscordMessageServices : IRequestService
 {
     public Task<Result> Send(Message message, DiscordChannel channel);
     public Task<Result<Message>> Get(ulong id, DiscordChannel channel);

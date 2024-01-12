@@ -7,18 +7,19 @@ namespace DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
+using FluentResults;
 using RSBingo_Common;
 
 public static class ModalExtensions
 {
-    public static async Task<bool> Send(this Modal modal, IModalRequest request)
+    public static async Task<Result> Send(this Modal modal, IModalRequest request)
     {
-        if (await GetMessageService().Send(modal))
+        var result = await GetMessageService().Send(modal);
+        if (result.IsSuccess)
         {
             modal.Register(request);
-            return true;
         }
-        return false;
+        return result;
     }
 
     private static IDiscordInteractionMessagingServices GetMessageService() =>

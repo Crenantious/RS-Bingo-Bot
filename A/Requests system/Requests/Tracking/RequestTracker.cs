@@ -12,9 +12,10 @@ using System.Text;
 // TODO: JR use a semaphore to ensure the ids are unique.
 public class RequestTracker
 {
+    private const string RequestNotCompletedError = "The request failed to complete, this is an internal error.";
+
     private static RequestsTracker requestsTracker;
     private static int CurrentRequestId = 0;
-
 
     private StringBuilder logInfo = new();
     private List<RequestTracker> trackers = new();
@@ -24,7 +25,7 @@ public class RequestTracker
     public int RequestId { get; }
     public DateTime CreationTimeStamp { get; }
     public DateTime CompletionTimeStamp { get; private set; }
-    public bool IsSuccess { get; set; }
+    public IResultBase RequestResult { get; set; } = Result.Fail(RequestNotCompletedError);
     public IReadOnlyList<RequestTracker> Trackers { get; }
 
     static RequestTracker()
@@ -49,7 +50,7 @@ public class RequestTracker
 
     public void Completed(IResultBase result)
     {
-        IsSuccess = result.IsSuccess;
+        RequestResult = result;
         CompletionTimeStamp = DateTime.UtcNow;
     }
 }
