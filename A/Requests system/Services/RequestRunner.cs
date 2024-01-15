@@ -68,7 +68,9 @@ public static class RequestRunner
         }
         catch (Exception ex)
         {
-            return new Result<TResult>().WithError(ex.Message);
+            var result = new Result<TResult>().WithError(ex.Message);
+            requestsTracker.Trackers[request].RequestResult = result;
+            return result;
         }
     }
 
@@ -81,7 +83,9 @@ public static class RequestRunner
         }
         catch (Exception ex)
         {
-            return new Result().WithError(ex.Message);
+            var result = new Result().WithError(ex.Message);
+            requestsTracker.Trackers[request].RequestResult = result;
+            return result;
         }
     }
 }

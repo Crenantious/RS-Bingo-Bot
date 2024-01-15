@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
 
-internal record SendModalRequest(Modal Modal) : IDiscordRequest;
+public record SendModalRequest(Modal Modal) : IDiscordRequest;

@@ -5,6 +5,7 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 
@@ -21,10 +22,11 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
 
     protected override async Task Process(CreateTeamButtonRequest request, CancellationToken cancellationToken)
     {
+        var modalService = GetRequestService<IDiscordInteractionMessagingServices>();
         var modal = new Modal("Create team", request.InteractionArgs.Interaction)
             .AddComponents(textInputFactory.Create(new("Team name", ModalTeamNameKey)));
 
-        await modal.Send(new CreateTeamModalRequest());
+        await modalService.Send(modal, new CreateTeamModalRequest());
         AddSuccess(new CreateTeamButtonSuccess());
     }
 }

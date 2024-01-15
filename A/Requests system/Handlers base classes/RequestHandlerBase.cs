@@ -38,10 +38,11 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         }
         catch (Exception ex)
         {
+            // TODO: JR - move the exceptionMessages to InteractionHandler.
             string error = exceptionMessages.ContainsKey(ex.GetType()) ?
                 exceptionMessages[ex.GetType()] :
                 UnexpectedError;
-            return new TResult().WithError(error);
+            return new TResult().WithError(ex.Message);
         }
     }
 

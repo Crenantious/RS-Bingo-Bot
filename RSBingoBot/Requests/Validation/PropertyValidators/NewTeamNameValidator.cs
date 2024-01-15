@@ -24,10 +24,8 @@ public class NewTeamNameValidator<T> : IPropertyValidator<T, string>
     public NewTeamNameValidator(IDataWorker dataWorker) =>
         this.dataWorker = dataWorker;
 
-    public string GetDefaultMessageTemplate(string errorCode)
-    {
-        throw new NotImplementedException();
-    }
+    public string GetDefaultMessageTemplate(string errorCode) =>
+        "Team name is invalid.";
 
     // TODO: JR - don't allow only white space and convert white space to a "-".
     private static bool ContainsSpecialCharacters(string name) =>

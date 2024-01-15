@@ -6,7 +6,7 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.Requests.Validation;
 
-internal class SendModalValidator : Validator<SendInteractionMessageRequest>
+internal class SendModalValidator : Validator<SendModalRequest>
 {
     public SendModalValidator()
     {

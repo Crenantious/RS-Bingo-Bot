@@ -10,6 +10,7 @@ using FluentResults;
 using FluentValidation.Results;
 using MediatR;
 
+// TODO: JR - add a ResponseBehaviour.
 public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
@@ -21,11 +22,6 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
-        if (validator is null)
-        {
-            return await next();
-        }
-
         foreach (SemaphoreSlim semaphore in validator.Semaphores)
         {
             await semaphore.WaitAsync();

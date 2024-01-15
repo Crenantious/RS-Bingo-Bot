@@ -5,15 +5,13 @@
 namespace DiscordLibrary.DiscordServices;
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
-using Microsoft.Extensions.Logging;
 
 public class DiscordInteractionMessagingServices : RequestService, IDiscordInteractionMessagingServices
 {
-    private readonly Logger<DiscordInteractionMessagingServices> logger;
-
     private enum RequestType
     {
         Send,
@@ -21,23 +19,19 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
         Delete
     }
 
-    private DiscordInteractionMessagingServices(Logger<DiscordInteractionMessagingServices> logger)
-    {
-        this.logger = logger;
-    }
-
-    public DiscordInteractionMessagingServices()
-    {
-
-    }
-
     /// <summary>
-    /// Sends a modal to Discord in response to an interaction.
+    /// Sends a modal to Discord in response to an interaction. The interaction must not have been responded to already.
     /// </summary>
     /// <returns>If the message was sent successfully.</returns>
-    // TODO: JR - check if this works. I believe a modal can only be an original response.
-    public async Task<Result> Send(Modal modal) =>
-        await Send(modal, new SendModalRequest(modal));
+    public async Task<Result> Send(Modal modal, IModalRequest request)
+    {
+        var result = await Send(modal, new SendModalRequest(modal));
+        if (result.IsSuccess)
+        {
+            modal.Register(request);
+        }
+        return result;
+    }
 
     /// <summary>
     /// Sends a message to Discord in response to an interaction.
@@ -76,7 +70,7 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     {
         var result = await RunRequest(request);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && message is not Modal)
         {
             MessageTagTracker.Add(message);
         }
@@ -101,31 +95,11 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
         try
         {
             await request();
-            //Log(interaction, requestType, true);
             return true;
         }
         catch
         {
-            //Log(interaction, requestType, false);
             return false;
         }
     }
-
-    // TODO: JR - move to LogginBehaviour.
-
-    //private void Log(DiscordInteraction interaction, RequestType requestType, bool wasSuccessful)
-    //{
-    //    // TODO: JR - check if this information is sufficient. Remove from here and use an IPipelineBehaviour.
-    //    string outcome = wasSuccessful ? "successfully" : "unsuccessfully";
-    //    string information = $"Interaction response was {requestType} {outcome}. " +
-    //                         $"Id: {interaction.Id}, type: {interaction.Type}, name: {interaction.Data.Name}.";
-
-    //    if (wasSuccessful)
-    //    {
-    //        logger.LogInformation(information);
-    //        return;
-    //    }
-
-    //    logger.LogError(information);
-    //}
 }

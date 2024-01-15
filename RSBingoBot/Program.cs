@@ -195,9 +195,10 @@ public class Program
 
             // Message requests
             .AddValidation<SendMessageRequest>(services)
+            .AddValidation<SendModalRequest>(services)
             .AddValidation<GetMessageRequest, Message>(services)
             .AddValidation<DeleteMessageRequest>(services)
-
+            
             // Role requests
             .AddValidation<CreateRoleRequest, DiscordRole>(services)
             .AddValidation<GetRoleRequest, DiscordRole>(services)

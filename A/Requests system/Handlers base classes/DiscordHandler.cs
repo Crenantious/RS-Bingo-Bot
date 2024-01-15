@@ -5,7 +5,6 @@
 namespace DiscordLibrary.Requests;
 
 using FluentResults;
-using MediatR;
 
 /// <summary>
 /// Used for sending any requests to Discord (send message, create channel etc.) to ensure any Discord errors are handled.
@@ -14,6 +13,8 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
     where TRequest : IDiscordRequest
 {
     private Dictionary<Type, Error> errorOverrides = new();
+
+    protected const int InteractionRespondedToCode = 40060;
 
     public DiscordHandler()
     {
