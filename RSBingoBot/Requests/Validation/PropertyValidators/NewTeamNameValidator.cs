@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.Validators;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
+using System.Text;
 
 public class NewTeamNameValidator<T> : IPropertyValidator<T, string>
 {
@@ -18,6 +19,7 @@ public class NewTeamNameValidator<T> : IPropertyValidator<T, string>
     private readonly IDataWorker dataWorker;
 
     private bool isValid = true;
+    private StringBuilder ErrorMessage = new();
 
     public string Name => "NewTeamNameValidator";
 
@@ -25,7 +27,7 @@ public class NewTeamNameValidator<T> : IPropertyValidator<T, string>
         this.dataWorker = dataWorker;
 
     public string GetDefaultMessageTemplate(string errorCode) =>
-        "Team name is invalid.";
+        ErrorMessage.ToString();
 
     // TODO: JR - don't allow only white space and convert white space to a "-".
     private static bool ContainsSpecialCharacters(string name) =>
@@ -43,6 +45,6 @@ public class NewTeamNameValidator<T> : IPropertyValidator<T, string>
     private void AddFailure(ValidationContext<T> context, string failure)
     {
         isValid = false;
-        context.AddFailure(failure);
+        ErrorMessage.AppendLine(failure);
     }
 }

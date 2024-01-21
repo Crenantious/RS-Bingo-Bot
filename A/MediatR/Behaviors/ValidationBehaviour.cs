@@ -10,7 +10,6 @@ using FluentResults;
 using FluentValidation.Results;
 using MediatR;
 
-// TODO: JR - add a ResponseBehaviour.
 public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()

@@ -11,7 +11,7 @@ internal class SendInteractionMessageSuccess : MessageSuccess
 {
     private const string SuccessMessage = "Sent an interaction {0}";
 
-    public SendInteractionMessageSuccess(InteractionMessage message, string responseType) :
+    public SendInteractionMessageSuccess(string responseType, InteractionMessage message) :
         base(SuccessMessage.FormatConst(responseType), message.DiscordMessage, message.Interaction)
     {
 

@@ -4,37 +4,76 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 internal class SendInteractionMessageHandler : DiscordHandler<SendInteractionMessageRequest>
 {
     protected override async Task Process(SendInteractionMessageRequest request, CancellationToken cancellationToken)
     {
-        if (await HasResponse(request.Message.Interaction))
+        if (await SendOriginalResponse(request.Message))
         {
-            await request.Message.Interaction.CreateFollowupMessageAsync(request.Message.GetFollowupMessageBuilder());
-            AddSuccess(new SendInteractionMessageSuccess(request.Message, "followup"));
+            await OriginalResponsePostProcess(request.Message);
         }
         else
         {
-            await request.Message.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
-                request.Message.GetInteractionResponseBuilder());
-            AddSuccess(new SendInteractionMessageSuccess(request.Message, "response"));
+            DiscordMessage discordMessage = await SendFollowupMessage(request);
+            FollowupMessagePostProcess(request, discordMessage);
         }
     }
 
-    private async Task<bool> HasResponse(DiscordInteraction interaction)
+    private async Task<bool> SendOriginalResponse(InteractionMessage message)
     {
-        // TODO: JR - check the specific exception.
         try
         {
-            await interaction.GetOriginalResponseAsync();
+            await message.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
+                message.GetInteractionResponseBuilder());
             return true;
+        }
+        catch (BadRequestException e)
+        {
+            if (e.Code == InteractionRespondedToCode)
+            {
+                return false;
+            }
+            throw;
+        }
+    }
+
+    private async Task OriginalResponsePostProcess(InteractionMessage message)
+    {
+        DiscordMessage? discordMessage = await GetOriginalResponse(message);
+        if (discordMessage is null)
+        {
+            AddSuccess(new SendInteractionMessageWarning("response", message));
+            return;
+        }
+        message.DiscordMessage = discordMessage;
+        AddSuccess(new SendInteractionMessageSuccess("response", message));
+    }
+
+    private static async Task<DiscordMessage?> GetOriginalResponse(InteractionMessage message)
+    {
+        try
+        {
+            return await message.Interaction.GetOriginalResponseAsync();
         }
         catch
         {
-            return false;
+            return null;
         }
     }
 
+    private static async Task<DiscordMessage> SendFollowupMessage(SendInteractionMessageRequest request)
+    {
+        return await request.Message.Interaction.CreateFollowupMessageAsync(
+            request.Message.GetFollowupMessageBuilder());
+    }
+
+    private void FollowupMessagePostProcess(SendInteractionMessageRequest request, DiscordMessage discordMessage)
+    {
+        request.Message.DiscordMessage = discordMessage;
+        AddSuccess(new SendInteractionMessageSuccess("followup", request.Message));
+    }
 }

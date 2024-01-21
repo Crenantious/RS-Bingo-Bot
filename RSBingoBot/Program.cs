@@ -53,7 +53,6 @@ public class Program
             InitaliseScoring();
             Paths.Initialise();
 
-            // Tell the DataFactory we want it to create connections in default mode
             DataFactory.SetupDataFactory();
             BoardImage.Initialise();
             CompetitionStart.Setup();
@@ -141,51 +140,42 @@ public class Program
 
                 services.AddScoped<CommandController>();
                 services.AddScoped(typeof(RequestLogInfo<>));
-                services.AddScoped(typeof(RequestsTracker));
-                
-                services.AddSingleton<DiscordTeamFactory>();
-                services.AddSingleton<ButtonFactory>();
-                services.AddSingleton<SelectComponentFactory>();
-                services.AddSingleton<TextInputFactory>();
-                services.AddSingleton<ComponentFactory>();
+                services.AddScoped<RequestsTracker>();
+
+                services.AddSingleton<InteractionHandlersTracker>();
+                services.AddSingleton<RequestSemaphores>();
 
                 services.AddSingleton<ComponentInteractionDEH>();
                 services.AddSingleton<MessageReactionAddedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
 
+                services.AddSingleton<DiscordTeamFactory>();
+                services.AddSingleton<ButtonFactory>();
+                services.AddSingleton<SelectComponentFactory>();
+                services.AddSingleton<TextInputFactory>();
+                services.AddSingleton<ComponentFactory>();
+
                 services.AddSingleton<SingletonButtons>();
-
-                services.AddSingleton<InteractionHandlersTracker>();
-                services.AddSingleton<RequestSemaphores>();
-
-                services.AddSingleton<SetDiscordTeamExistingEntitiesValidator>();
-
-                //services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
-                //services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
                 services.AddSingleton(typeof(IDiscordServices), typeof(DiscordServices));
                 services.AddSingleton(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
                 services.AddSingleton(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
                 services.AddSingleton(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
             })
+
             // Swap out the DI factory for Autofac as it has more features
             .UseServiceProviderFactory<ContainerBuilder>(new AutofacServiceProviderFactory())
             .ConfigureContainer((Action<ContainerBuilder>)(builder =>
             {
-                // Register types that contain factories here
-                //builder.RegisterType<DiscordTeamOld>();
+
             }));
     }
 
     private static void RegisterMediatR(IServiceCollection services)
     {
-        services.AddValidatorsFromAssembly(typeof(DiscordLibraryMediatRRegistrationMarker).Assembly);
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<DiscordLibraryMediatRRegistrationMarker>()
-
-            // Behaviors
             .AddOpenBehavior(typeof(LoggingBehaviour<,>))
-            .AddOpenBehavior(typeof(ValidationBehavior<,>))
 
             // Channel requests
             .AddValidation<CreateChannelRequest, DiscordChannel>(services)
@@ -195,10 +185,11 @@ public class Program
 
             // Message requests
             .AddValidation<SendMessageRequest>(services)
+            .AddValidation<SendInteractionMessageRequest>(services)
             .AddValidation<SendModalRequest>(services)
             .AddValidation<GetMessageRequest, Message>(services)
             .AddValidation<DeleteMessageRequest>(services)
-            
+
             // Role requests
             .AddValidation<CreateRoleRequest, DiscordRole>(services)
             .AddValidation<GetRoleRequest, DiscordRole>(services)
@@ -212,8 +203,6 @@ public class Program
             .AddValidation<ConcludeInteractionButtonRequest>(services)
             );
 
-        services.AddSingleton<InteractionHandlersTracker>();
-        services.AddValidatorsFromAssembly(typeof(RSBingoBotMediatRRegistrationMarker).Assembly);
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<RSBingoBotMediatRRegistrationMarker>()
 
             // CSV requests
@@ -231,17 +220,7 @@ public class Program
             // Commands
             .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
 
-            // Other requests
-            .AddValidation<ChangeTilesButtonRequest>(services)
-            .AddValidation<ChangeTilesFromSelectRequest>(services)
-            .AddValidation<ChangeTilesSubmitButtonRequest>(services)
-            .AddValidation<ChangeTilesToSelectRequest>(services)
-            .AddValidation<SubmitDropButtonRequest>(services)
-            .AddValidation<SubmitDropMessageRequest>(services)
-            .AddValidation<SubmitDropSelectRequest>(services)
-            .AddValidation<SubmitDropSubmitButtonRequest>(services)
-            .AddValidation<ViewEvidenceButtonRequest>(services)
-            .AddValidation<ViewEvidenceSelectRequest>(services)
+            // Team management requests
             .AddValidation<CreateMissingDiscordTeamEntitiesRequest>(services)
             .AddValidation<CreateTeamBoardMessageRequest, Message>(services)
             .AddValidation<AssignTeamRoleRequest>(services)
@@ -255,6 +234,18 @@ public class Program
             .AddValidation<JoinTeamSelectRequest>(services)
             .AddValidation<RemoveUserFromTeamRequest>(services)
             .AddValidation<RenameTeamRequest>(services)
+
+            // Team channels requests
+            .AddValidation<ChangeTilesButtonRequest>(services)
+            .AddValidation<ChangeTilesFromSelectRequest>(services)
+            .AddValidation<ChangeTilesSubmitButtonRequest>(services)
+            .AddValidation<ChangeTilesToSelectRequest>(services)
+            .AddValidation<SubmitDropButtonRequest>(services)
+            .AddValidation<SubmitDropMessageRequest>(services)
+            .AddValidation<SubmitDropSelectRequest>(services)
+            .AddValidation<SubmitDropSubmitButtonRequest>(services)
+            .AddValidation<ViewEvidenceButtonRequest>(services)
+            .AddValidation<ViewEvidenceSelectRequest>(services)
         );
     }
 }

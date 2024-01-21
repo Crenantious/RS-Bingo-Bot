@@ -6,4 +6,4 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
 
-internal record SendInteractionMessageRequest(InteractionMessage Message) : IDiscordRequest;
+public record SendInteractionMessageRequest(InteractionMessage Message) : IDiscordRequest;
