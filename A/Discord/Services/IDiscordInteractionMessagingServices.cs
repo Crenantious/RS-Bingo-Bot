@@ -12,6 +12,5 @@ public interface IDiscordInteractionMessagingServices : IRequestService
 {
     public Task<Result> Send(Modal modal, IModalRequest request);
     public Task<Result> Send(InteractionMessage message);
-    public Task<bool> Update(InteractionMessage message);
-    public Task<bool> Delete(InteractionMessage message);
+    public Task<Result> Delete(InteractionMessage message);
 }

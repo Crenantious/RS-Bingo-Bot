@@ -20,10 +20,7 @@ public static class InteractionMessageExtensions
     public static async Task<Result> Send(this InteractionMessage message) =>
         await GetMessageService().Send(message);
 
-    public static async Task<bool> Update(this InteractionMessage message) =>
-        await GetMessageService().Update(message);
-
-    public static async Task<bool> Delete(this InteractionMessage message) =>
+    public static async Task<Result> Delete(this InteractionMessage message) =>
         await GetMessageService().Delete(message);
 
     private static IDiscordInteractionMessagingServices GetMessageService() =>
