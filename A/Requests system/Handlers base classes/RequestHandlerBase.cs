@@ -14,7 +14,6 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
 {
-    private const string UnexpectedError = "An unexpected error occurred.";
     private const string GetServiceOperationError = "{0} must be called when processing the request. Handler type {1}.";
 
     private static int requestId = 0;
@@ -38,11 +37,18 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         }
         catch (Exception ex)
         {
+            var result = new TResult();
+
             // TODO: JR - move the exceptionMessages to InteractionHandler.
-            string error = exceptionMessages.ContainsKey(ex.GetType()) ?
-                exceptionMessages[ex.GetType()] :
-                UnexpectedError;
-            return new TResult().WithError(ex.Message);
+            if (exceptionMessages.ContainsKey(ex.GetType()))
+            {
+                result.WithError(exceptionMessages[ex.GetType()]);
+            }
+            else
+            {
+                result.WithError(new InternalError());
+            }
+            return new TResult();
         }
     }
 

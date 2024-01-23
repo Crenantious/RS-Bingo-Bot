@@ -28,6 +28,7 @@ internal class SendModalHandler : DiscordHandler<SendModalRequest>
                 throw;
             }
             AddError(new SendModalError(request.Modal));
+            AddError(new InternalError());
         }
     }
 }

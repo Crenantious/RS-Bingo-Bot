@@ -6,7 +6,6 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
 
 internal class SendInteractionMessageHandler : DiscordHandler<SendInteractionMessageRequest>
 {
@@ -23,23 +22,12 @@ internal class SendInteractionMessageHandler : DiscordHandler<SendInteractionMes
         }
     }
 
-    private async Task<bool> SendOriginalResponse(InteractionMessage message)
-    {
-        try
+    private async Task<bool> SendOriginalResponse(InteractionMessage message) =>
+        await BadRequestCheck(InteractionRespondedToCode, () =>
         {
-            await message.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
+            return message.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
                 message.GetInteractionResponseBuilder());
-            return true;
-        }
-        catch (BadRequestException e)
-        {
-            if (e.Code == InteractionRespondedToCode)
-            {
-                return false;
-            }
-            throw;
-        }
-    }
+        });
 
     private async Task OriginalResponsePostProcess(InteractionMessage message)
     {

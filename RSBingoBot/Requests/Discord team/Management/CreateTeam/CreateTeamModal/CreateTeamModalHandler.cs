@@ -15,17 +15,17 @@ using RSBingoBot.Factories;
 internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
 {
     private readonly DiscordTeamFactory discordTeamFactory;
-    private readonly IDiscordTeamServices teamServices;
 
-    public CreateTeamModalHandler(DiscordTeamFactory discordTeamFactory, IDiscordTeamServices teamServices)
+    public CreateTeamModalHandler(DiscordTeamFactory discordTeamFactory)
     {
         this.discordTeamFactory = discordTeamFactory;
-        this.teamServices = teamServices;
     }
 
     protected override async Task Process(CreateTeamModalRequest request, CancellationToken cancellationToken)
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
+        var teamServices = GetRequestService<IDiscordTeamServices>();
+
         Result<DiscordTeam> discordTeam = await discordTeamFactory.CreateNew(
             InteractionArgs.Values[CreateTeamButtonHandler.ModalTeamNameKey],
             dataWorker);

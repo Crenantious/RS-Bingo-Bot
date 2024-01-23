@@ -6,6 +6,7 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.DiscordServices;
 using DSharpPlus.EventArgs;
 using FluentResults;
 using RSBingo_Common;
@@ -23,6 +24,10 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
     private bool isConcluded = false;
     private InteractionHandlerInstanceInfo<TRequest, TArgs> instanceInfo = null!;
 
+    /// <summary>
+    /// If true, automatically responds to the interaction with an empty keep alive message. The use sees a "thinking" state.
+    /// </summary>
+    protected virtual bool SendKeepAliveMessage => true;
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
     protected TArgs InteractionArgs { get; set; } = null!;
 
@@ -35,18 +40,17 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
         this.handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
     }
 
-    private protected override Task PreProcess(TRequest request, CancellationToken cancellationToken)
+    private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         InteractionArgs = request.InteractionArgs;
         instanceInfo = new(request, this);
         handlersTracker.Add(instanceInfo);
-        return Task.CompletedTask;
-    }
 
-    private protected override Task PostProcess(TRequest request, CancellationToken cancellationToken)
-    {
-        ResponseMessages.ForEach(async m => await m.Send());
-        return Task.CompletedTask;
+        if (SendKeepAliveMessage)
+        {
+            var service = GetRequestService<IDiscordInteractionMessagingServices>();
+            await service.SendKeepAlive(InteractionArgs.Interaction);
+        }
     }
 
     protected User? GetUser() =>

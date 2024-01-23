@@ -7,6 +7,7 @@ namespace DiscordLibrary.DiscordServices;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
+using DSharpPlus.Entities;
 using FluentResults;
 
 public class DiscordInteractionMessagingServices : RequestService, IDiscordInteractionMessagingServices
@@ -21,7 +22,6 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     /// <summary>
     /// Sends a modal to Discord in response to an interaction. The interaction must not have been responded to already.
     /// </summary>
-    /// <returns>If the message was sent successfully.</returns>
     public async Task<Result> Send(Modal modal, IModalRequest request)
     {
         var result = await Send(modal, new SendModalRequest(modal));
@@ -35,14 +35,18 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     /// <summary>
     /// Sends a message to Discord in response to an interaction.
     /// </summary>
-    /// <returns>If the message was sent successfully.</returns>
     public async Task<Result> Send(InteractionMessage message) =>
         await Send(message, new SendInteractionMessageRequest(message));
 
     /// <summary>
+    /// Sends an empty message with a "thinking state" to Discord in response to an interaction.
+    /// </summary>
+    public async Task<Result> SendKeepAlive(DiscordInteraction interaction) =>
+        await RunRequest(new SendKeepAliveInteractionMessageRequest(interaction));
+
+    /// <summary>
     /// Deletes the Discord message.
     /// </summary>
-    /// <returns>If the message was deleted successfully.</returns>
     public async Task<Result> Delete(InteractionMessage message)
     {
         var result = await RunRequest(new DeleteInteractionMessageRequest(message));

@@ -15,6 +15,8 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
 
     private readonly TextInputFactory textInputFactory;
 
+    protected override bool SendKeepAliveMessage => false;
+
     public CreateTeamButtonHandler(TextInputFactory textInputFactory) : base()
     {
         this.textInputFactory = textInputFactory;

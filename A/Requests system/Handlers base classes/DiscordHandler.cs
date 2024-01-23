@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
+using DSharpPlus.Exceptions;
 using FluentResults;
 
 /// <summary>
@@ -20,7 +21,34 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
     {
         // TODO: JR - find out what errors can occur and add messages for them.
         // Determine if errorOverrides is needed.
+        // Use DiscordError.
         //SetExceptionMessage<>();
+    }
+
+    // TODO: JR - make this nicer to use and easier to read.
+    /// <summary>
+    /// Invokes <paramref name="action"/>, catches on <see cref="BadRequestException"/> and compares its error code with <paramref name="code"/>.
+    /// Throws if the code doesn't match.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the action was successful.<br/>
+    /// <see langword="false"/> if <see cref="BadRequestException"/> was thrown with the code: <paramref name="code"/>.
+    /// </returns>
+    protected async Task<bool> BadRequestCheck(int code, Func<Task> action)
+    {
+        try
+        {
+            await action();
+            return true;
+        }
+        catch (BadRequestException e)
+        {
+            if (e.Code == InteractionRespondedToCode)
+            {
+                return false;
+            }
+            throw;
+        }
     }
 }
 

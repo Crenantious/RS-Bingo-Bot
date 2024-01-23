@@ -17,8 +17,9 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
-        TryAddValidationResponseBehaviours<TRequest, Result<TResponse>>(config);
+        TryAddValidationResponseBehaviours<TRequest, Result<TResponse>>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
+        TryAddValidationResponseBehaviours<TRequest, Result<TResponse>>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -27,27 +28,29 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result>
     {
-        TryAddValidationResponseBehaviours<TRequest, Result>(config);
+        TryAddValidationResponseBehaviours<TRequest, Result>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result>(config);
+        TryAddValidationResponseBehaviours<TRequest, Result>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
         AddValidator<TRequest, Result>(services);
         return config;
     }
 
-    private static void TryAddValidationResponseBehaviours<TRequest, TResponse>(MediatRServiceConfiguration config)
+    private static void TryAddValidationResponseBehaviours<TRequest, TResponse>(MediatRServiceConfiguration config,
+        string responseTypeName)
         where TRequest : IRequest<TResponse>
     {
-        TryAddValidationResponseBehaviour<TRequest, ComponentInteractionCreateEventArgs>(config);
-        TryAddValidationResponseBehaviour<TRequest, ModalSubmitEventArgs>(config);
+        TryAddValidationResponseBehaviour<TRequest, ComponentInteractionCreateEventArgs>(config, responseTypeName);
+        TryAddValidationResponseBehaviour<TRequest, ModalSubmitEventArgs>(config, responseTypeName);
     }
 
-    private static void TryAddValidationResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config)
+    private static void TryAddValidationResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config, string responseTypeName)
         where TRequest : IBaseRequest
         where TArgs : InteractionCreateEventArgs
     {
         if (typeof(IInteractionRequest<TArgs>).IsAssignableFrom(typeof(TRequest)))
         {
             // TODO: JR - find a nicer way to do this.
-            MethodInfo method = typeof(ValidationExtensions).GetMethod(nameof(ValidationExtensions.AddValidationResponseBehaviour), BindingFlags.Static | BindingFlags.NonPublic)!;
+            MethodInfo method = typeof(ValidationExtensions).GetMethod(responseTypeName, BindingFlags.Static | BindingFlags.NonPublic)!;
             MethodInfo generic = method.MakeGenericMethod(typeof(TRequest), typeof(TArgs));
             generic.Invoke(null, new object[] { config });
         }
@@ -57,6 +60,11 @@ public static class ValidationExtensions
         where TRequest : IInteractionRequest<TArgs>
         where TArgs : InteractionCreateEventArgs =>
         config.AddBehavior<IPipelineBehavior<TRequest, Result>, ValidationResponseBehaviour<TRequest, TArgs>>();
+
+    private static void AddInteractionResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config)
+        where TRequest : IInteractionRequest<TArgs>
+        where TArgs : InteractionCreateEventArgs =>
+        config.AddBehavior<IPipelineBehavior<TRequest, Result>, InteractionResponseBehaviour<TRequest, TArgs>>();
 
     private static void AddValidationBehaviour<TRequest, TResponse>(MediatRServiceConfiguration config)
         where TRequest : IRequest<TResponse>

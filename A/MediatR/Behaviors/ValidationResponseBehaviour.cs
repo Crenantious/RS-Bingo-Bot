@@ -13,7 +13,6 @@ using FluentResults;
 using MediatR;
 using RSBingo_Common;
 
-// TODO: JR - add a ResponseBehaviour.
 public class ValidationResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<TRequest, Result>
     where TRequest : IInteractionRequest<TArgs>
     where TArgs : InteractionCreateEventArgs
@@ -32,7 +31,7 @@ public class ValidationResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<TR
 
         var services = GetMessageServices(request);
         result.Reasons
-            .Where(r => r is IDiscordResponse or ValidationError)
+            .Where(r => r is ValidationError)
             .Where(r => string.IsNullOrEmpty(r.Message) is false)
             .ForEach(r => response.WithContent(r.Message));
 
