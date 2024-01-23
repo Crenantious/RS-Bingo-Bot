@@ -53,7 +53,20 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
 
         if (result.IsSuccess && message is not Modal)
         {
-            MessageTagTracker.Remove(message);
+            MessageTagTracker.Add(message);
+        }
+
+        return result;
+    }
+
+    public async Task<Result<InteractionMessage>> DeleteOriginalResponse(DiscordInteraction interaction)
+    {
+        var result = await RunRequest<DeleteOriginalInteractionMessageRequest, InteractionMessage>(
+            new DeleteOriginalInteractionMessageRequest(interaction));
+
+        if (result.IsSuccess && result.Value is not Modal)
+        {
+            MessageTagTracker.Remove(result.Value);
         }
 
         return result;

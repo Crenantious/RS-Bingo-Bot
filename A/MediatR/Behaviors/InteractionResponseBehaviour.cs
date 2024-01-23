@@ -17,6 +17,8 @@ public class InteractionResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<T
     where TRequest : IInteractionRequest<TArgs>
     where TArgs : InteractionCreateEventArgs
 {
+    private const string DefaultResponse = "Process completed.";
+
     private readonly Validator<TRequest> validator;
     private readonly RequestsTracker requestsTracker;
 
@@ -36,17 +38,11 @@ public class InteractionResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<T
         RequestTracker requestTracker = requestsTracker.Trackers[request];
         AddResponses(requestTracker, response);
 
-        // TODO: JR - get all IDiscordResponses from the result and all from all child results of the request.
-        // This is to ensure errors like IInternalError and IDiscordError get sent to the use if the InteractionHandler
-        // has not dealt with them, it also makes the process in the handlers much easier and streamlined since response
-        // errors are automatically dealt with rather than the handlers having to catch all results and concac them
-        // which is not only tedious but prone to errors and forgetting.
-
-
-        if (string.IsNullOrEmpty(response.Content) is false)
+        if (string.IsNullOrEmpty(response.Content))
         {
-            await GetMessageServices(request).Send(response);
+            response.WithContent(DefaultResponse);
         }
+        await GetMessageServices(request).Send(response);
 
         return result;
     }

@@ -15,4 +15,5 @@ public interface IDiscordInteractionMessagingServices : IRequestService
     public Task<Result> Send(InteractionMessage message);
     public Task<Result> SendKeepAlive(DiscordInteraction interaction);
     public Task<Result> Delete(InteractionMessage message);
+    public Task<Result<InteractionMessage>> DeleteOriginalResponse(DiscordInteraction interaction);
 }

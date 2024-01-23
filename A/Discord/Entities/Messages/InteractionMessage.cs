@@ -18,6 +18,11 @@ public class InteractionMessage : Message
         Interaction = interaction;
     }
 
+    public InteractionMessage(DiscordInteraction interaction, DiscordMessage message) : base(message)
+    {
+        Interaction = interaction;
+    }
+
     internal virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
     {
         var builder = GetBaseMessageBuilder(new DiscordInteractionResponseBuilder());
