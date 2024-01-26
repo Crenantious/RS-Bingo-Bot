@@ -21,11 +21,14 @@ public class InteractionResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<T
 
     private readonly Validator<TRequest> validator;
     private readonly RequestsTracker requestsTracker;
+    private readonly InteractionResponseTracker responseTracker;
 
-    public InteractionResponseBehaviour(Validator<TRequest> validator, RequestsTracker requestsTracker)
+    public InteractionResponseBehaviour(Validator<TRequest> validator, RequestsTracker requestsTracker,
+        InteractionResponseTracker responseTracker)
     {
         this.validator = validator;
         this.requestsTracker = requestsTracker;
+        this.responseTracker = responseTracker;
     }
 
     public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
@@ -38,7 +41,8 @@ public class InteractionResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<T
         RequestTracker requestTracker = requestsTracker.Trackers[request];
         AddResponses(requestTracker, response);
 
-        if (string.IsNullOrEmpty(response.Content))
+        if (string.IsNullOrEmpty(response.Content) &&
+            responseTracker.HasResponse(request.InteractionArgs.Interaction) is false)
         {
             response.WithContent(DefaultResponse);
         }

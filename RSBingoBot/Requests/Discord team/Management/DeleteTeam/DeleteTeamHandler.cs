@@ -12,22 +12,18 @@ using RSBingo_Framework.Interfaces;
 
 internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 {
-    private const string TeamSuccessfullyDeletedMessage = "Team '{0}' deleted successfully.";
+    private const string TeamSuccessfullyDeletedMessage = "Team '{0}' deleted.";
 
     private static readonly SemaphoreSlim semaphore = new(1, 1);
 
-    private readonly IDiscordServices discordServices;
-    private readonly IDatabaseServices databaseServices;
-
-    public DeleteTeamHandler(IDiscordServices discordServices, IDatabaseServices databaseServices)
-    {
-        this.discordServices = discordServices;
-        this.databaseServices = databaseServices;
-    }
+    private IDiscordServices discordServices = null!;
+    private IDatabaseServices databaseServices = null!;
 
     protected override async Task Process(DeleteTeamRequest request, CancellationToken cancellationToken)
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
+        var discordServices = GetRequestService<IDiscordServices>();
+        var databaseServices = GetRequestService<IDatabaseServices>();
 
         await DeleteRole(request);
         await DeleteChannels(request);

@@ -67,12 +67,28 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
             $"created: {tracker.CreationTimeStamp}, " +
             $"finished: {tracker.CompletionTimeStamp}, " +
             $"elapsed: {(tracker.CompletionTimeStamp - tracker.CreationTimeStamp).Milliseconds}ms, " +
-            $"success: {tracker.RequestResult.IsSuccess}, " +
-            $"successes: {{ {string.Join(", ", tracker.RequestResult.Successes.Select(s => s.Message))} }}, " +
-            $"errors: {{ {string.Join(", ", tracker.RequestResult.Errors.Select(e => e.Message))} }}.");
+            $"success: {tracker.RequestResult.IsSuccess},{Environment.NewLine}" +
+            $"successes: {GetReasonsAsString(tracker.RequestResult.Successes)},{Environment.NewLine}" +
+            $"errors: {GetReasonsAsString(tracker.RequestResult.Errors)}.{Environment.NewLine}");
 
         tracker.Trackers.ForEach(t => AppendTrackerInfo(t, info));
     }
+
+    private string GetReasonsAsString(IEnumerable<IReason> reasons)
+    {
+        if (reasons.Any() is false)
+        {
+            return "{ }";
+        }
+
+        string reasonsString = $"{Environment.NewLine}{{{Environment.NewLine}";
+        reasonsString += string.Join(Environment.NewLine, reasons.Select(r => GetReasonLogMessage(r)));
+        reasonsString += Environment.NewLine + "}";
+        return reasonsString;
+    }
+
+    private static string GetReasonLogMessage(IReason reason) =>
+        $"\tType: {reason.GetType()}, message: {reason.Message}";
 
     private void LogBeginHandling(TRequest request)
     {

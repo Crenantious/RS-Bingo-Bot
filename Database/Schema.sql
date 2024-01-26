@@ -8,6 +8,7 @@ CREATE TABLE Team (
     VoiceChannelID bigint UNSIGNED NOT NULL,
     BoardMessageID bigint UNSIGNED NOT NULL,
     RoleID bigint UNSIGNED NOT NULL,
+    Code varchar(4) NOT NULL UNIQUE,
     Score int NOT NULL
 );
 
@@ -26,8 +27,8 @@ CREATE TABLE Task (
 
 CREATE TABLE Restriction (
     RowID int PRIMARY KEY AUTO_INCREMENT,
-    Name varchar(50) NOT NULL,
-    Description varchar(50) NOT NULL UNIQUE
+    Name varchar(50) NOT NULL UNIQUE,
+    Description varchar(50) NOT NULL
 );
 
 CREATE TABLE TaskRestriction (

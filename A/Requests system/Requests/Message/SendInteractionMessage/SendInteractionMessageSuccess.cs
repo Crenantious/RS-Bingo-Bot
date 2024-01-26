@@ -5,14 +5,13 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using RSBingo_Common;
 
 internal class SendInteractionMessageSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Sent an interaction {0}";
+    private const string SuccessMessage = "Sent an interaction message";
 
-    public SendInteractionMessageSuccess(string responseType, InteractionMessage message) :
-        base(SuccessMessage.FormatConst(responseType), message.DiscordMessage, message.Interaction)
+    public SendInteractionMessageSuccess(InteractionMessage message) :
+        base(SuccessMessage, message.DiscordMessage, message.Interaction)
     {
 
     }

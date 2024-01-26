@@ -7,7 +7,7 @@ namespace DiscordLibrary.DiscordServices;
 using FluentResults;
 using RSBingo_Framework.Interfaces;
 
-public interface IDatabaseServices
+public interface IDatabaseServices : IRequestService
 {
     public Task<Result> Update(IDataWorker dataWorker);
 }

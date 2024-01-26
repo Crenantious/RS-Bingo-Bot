@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using DSharpPlus.Entities;
-
 namespace DiscordLibrary.Requests;
+
+using DSharpPlus.Entities;
 
 internal class SendKeepAliveInteractionMessageHandler : DiscordHandler<SendKeepAliveInteractionMessageRequest>
 {
@@ -18,7 +18,7 @@ internal class SendKeepAliveInteractionMessageHandler : DiscordHandler<SendKeepA
         }
         else
         {
-            AddError(new SendKeepAliveInteractionMessageError(request.Interaction));
+            AddError(new SendKeepAliveInteractionMessageAlreadyRespondedError(request.Interaction));
         }
     }
 

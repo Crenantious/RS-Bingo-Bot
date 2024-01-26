@@ -8,10 +8,9 @@ using DSharpPlus.Entities;
 
 public class InteractionMessage : Message
 {
-    internal ulong FollowupMessageId { get; set; } = 0;
-
     public bool IsEphemeral { get; set; }
     public DiscordInteraction Interaction { get; }
+    public bool IsKeepAliveResponse { get; internal set; } = false;
 
     public InteractionMessage(DiscordInteraction interaction)
     {

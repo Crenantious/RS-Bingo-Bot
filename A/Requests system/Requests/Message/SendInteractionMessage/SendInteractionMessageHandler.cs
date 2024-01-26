@@ -4,64 +4,35 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordEntities;
-using DSharpPlus.Entities;
+using DiscordLibrary.DiscordServices;
+using DSharpPlus;
 
 internal class SendInteractionMessageHandler : DiscordHandler<SendInteractionMessageRequest>
 {
     protected override async Task Process(SendInteractionMessageRequest request, CancellationToken cancellationToken)
     {
-        if (await SendOriginalResponse(request.Message))
-        {
-            await OriginalResponsePostProcess(request.Message);
-        }
-        else
-        {
-            DiscordMessage discordMessage = await SendFollowupMessage(request);
-            FollowupMessagePostProcess(request, discordMessage);
-        }
-    }
+        var messageServices = GetRequestService<IDiscordInteractionMessagingServices>();
+        var originalMessageResult = await messageServices.SendOriginalResponse(InteractionResponseType.ChannelMessageWithSource, request.Message);
 
-    private async Task<bool> SendOriginalResponse(InteractionMessage message) =>
-        await BadRequestCheck(InteractionRespondedToCode, () =>
+        if (originalMessageResult.IsSuccess)
         {
-            return message.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.ChannelMessageWithSource,
-                message.GetInteractionResponseBuilder());
-        });
-
-    private async Task OriginalResponsePostProcess(InteractionMessage message)
-    {
-        DiscordMessage? discordMessage = await GetOriginalResponse(message);
-        if (discordMessage is null)
-        {
-            AddSuccess(new SendInteractionMessageWarning("response", message));
+            AddSuccess(new SendInteractionMessageSuccess(request.Message));
             return;
         }
-        message.DiscordMessage = discordMessage;
-        AddSuccess(new SendInteractionMessageSuccess("response", message));
-    }
 
-    private static async Task<DiscordMessage?> GetOriginalResponse(InteractionMessage message)
-    {
-        try
+        if (originalMessageResult.HasError<SendInteractionOriginalResponseAlreadyRespondedError>())
         {
-            return await message.Interaction.GetOriginalResponseAsync();
-        }
-        catch
-        {
-            return null;
+            await SendFollowupMessage(request, messageServices);
+            return;
         }
     }
 
-    private static async Task<DiscordMessage> SendFollowupMessage(SendInteractionMessageRequest request)
+    private async Task SendFollowupMessage(SendInteractionMessageRequest request, IDiscordInteractionMessagingServices messageServices)
     {
-        return await request.Message.Interaction.CreateFollowupMessageAsync(
-            request.Message.GetFollowupMessageBuilder());
-    }
-
-    private void FollowupMessagePostProcess(SendInteractionMessageRequest request, DiscordMessage discordMessage)
-    {
-        request.Message.DiscordMessage = discordMessage;
-        AddSuccess(new SendInteractionMessageSuccess("followup", request.Message));
+        var followUpMessageResult = await messageServices.SendFollowUp(request.Message);
+        if (followUpMessageResult.IsSuccess)
+        {
+            AddSuccess(new SendInteractionMessageSuccess(request.Message));
+        }
     }
 }

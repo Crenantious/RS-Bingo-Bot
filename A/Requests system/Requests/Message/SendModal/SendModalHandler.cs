@@ -4,30 +4,27 @@
 
 namespace DiscordLibrary.Requests;
 
-using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
+using DiscordLibrary.DiscordServices;
 
 internal class SendModalHandler : DiscordHandler<SendModalRequest>
 {
+    private readonly InteractionResponseTracker responseTracker;
+
+    public SendModalHandler(InteractionResponseTracker responseTracker) =>
+        this.responseTracker = responseTracker;
+
     protected override async Task Process(SendModalRequest request, CancellationToken cancellationToken)
     {
-        try
+        var messageService = GetRequestService<IDiscordInteractionMessagingServices>();
+        var result = await messageService.SendOriginalResponse(DSharpPlus.InteractionResponseType.Modal, request.Modal);
+
+        if (result.IsSuccess)
         {
-            await request.Modal.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.Modal,
-                request.Modal.GetInteractionResponseBuilder());
-
-            DiscordMessage message = await request.Modal.Interaction.GetOriginalResponseAsync();
-            request.Modal.DiscordMessage = message;
-
             AddSuccess(new SendModalSuccess(request.Modal));
         }
-        catch (BadRequestException e)
+        else if (result.HasError<SendInteractionOriginalResponseAlreadyRespondedError>())
         {
-            if (e.Code != InteractionRespondedToCode)
-            {
-                throw;
-            }
-            AddError(new SendModalError(request.Modal));
+            AddError(new SendModalAlreadyRespondedError(request.Modal));
             AddError(new InternalError());
         }
     }

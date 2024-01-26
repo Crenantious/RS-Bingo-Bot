@@ -7,18 +7,12 @@ namespace DiscordLibrary.DiscordServices;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentResults;
 
 public class DiscordInteractionMessagingServices : RequestService, IDiscordInteractionMessagingServices
 {
-    private enum RequestType
-    {
-        Send,
-        Edit,
-        Delete
-    }
-
     /// <summary>
     /// Sends a modal to Discord in response to an interaction. The interaction must not have been responded to already.
     /// </summary>
@@ -37,6 +31,18 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     /// </summary>
     public async Task<Result> Send(InteractionMessage message) =>
         await Send(message, new SendInteractionMessageRequest(message));
+
+    /// <summary>
+    /// Sends a message to Discord in response to an interaction.
+    /// </summary>
+    public async Task<Result> SendOriginalResponse(InteractionResponseType responseType, InteractionMessage message) =>
+        await Send(message, new SendInteractionOriginalResponseRequest(responseType, message));
+
+    /// <summary>
+    /// Sends a message to Discord in response to an interaction.
+    /// </summary>
+    public async Task<Result> SendFollowUp(InteractionMessage message) =>
+        await Send(message, new SendInteractionFollowUpRequest(message));
 
     /// <summary>
     /// Sends an empty message with a "thinking state" to Discord in response to an interaction.
