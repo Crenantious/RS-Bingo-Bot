@@ -30,16 +30,21 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
 
         if (!validationResult.IsValid)
         {
+            ReleaseSemaphores();
             return new TResult().WithErrors(validationResult.Errors.Select(e => new ValidationError(e.ErrorMessage)));
         }
 
         var result = await next();
+        ReleaseSemaphores();
 
+        return result;
+    }
+
+    private void ReleaseSemaphores()
+    {
         foreach (SemaphoreSlim semaphore in validator.Semaphores)
         {
             semaphore.Release();
         }
-
-        return result;
     }
 }

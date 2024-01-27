@@ -4,7 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
-internal class DeleteChannelHandler : RequestHandler<DeleteChannelRequest>
+internal class DeleteChannelHandler : DiscordHandler<DeleteChannelRequest>
 {
     protected override async Task Process(DeleteChannelRequest request, CancellationToken cancellationToken)
     {

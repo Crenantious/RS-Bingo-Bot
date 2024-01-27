@@ -35,20 +35,21 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
             TResult result = await ProcessRequest(request, cancellationToken);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
             var result = new TResult();
 
             // TODO: JR - move the exceptionMessages to InteractionHandler.
-            if (exceptionMessages.ContainsKey(ex.GetType()))
+            if (exceptionMessages.ContainsKey(e.GetType()))
             {
-                result.WithError(exceptionMessages[ex.GetType()]);
+                result.WithError(exceptionMessages[e.GetType()]);
             }
             else
             {
+                result.WithError(new ExceptionError(e));
                 result.WithError(new InternalError());
             }
-            return new TResult();
+            return result;
         }
     }
 

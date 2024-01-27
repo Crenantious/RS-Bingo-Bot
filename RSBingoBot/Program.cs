@@ -163,6 +163,7 @@ public class Program
                 services.AddSingleton(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
                 services.AddSingleton(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
                 services.AddSingleton(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
+                services.AddSingleton(typeof(IDatabaseServices), typeof(DatabaseServices));
             })
 
             // Swap out the DI factory for Autofac as it has more features

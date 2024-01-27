@@ -4,9 +4,10 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 
-internal class CreateMissingDiscordTeamEntitiesRoleError : Error
+internal class CreateMissingDiscordTeamEntitiesRoleError : Error, IDiscordResponse
 {
     private const string ErrorMessage = "Unable to create the team's role thus cannot create any channels " +
         "as their permissions must be set for the role.";

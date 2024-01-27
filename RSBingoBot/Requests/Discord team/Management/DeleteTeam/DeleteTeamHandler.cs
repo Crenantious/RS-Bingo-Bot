@@ -12,10 +12,6 @@ using RSBingo_Framework.Interfaces;
 
 internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 {
-    private const string TeamSuccessfullyDeletedMessage = "Team '{0}' deleted.";
-
-    private static readonly SemaphoreSlim semaphore = new(1, 1);
-
     private IDiscordServices discordServices = null!;
     private IDatabaseServices databaseServices = null!;
 
@@ -31,6 +27,8 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
         // TODO: JR - handle deleting of the DiscordTeam.
         dataWorker.Teams.Remove(request.DiscordTeam.Team);
         await databaseServices.Update(dataWorker);
+
+        AddSuccess(new DeleteTeamSuccess(request.DiscordTeam));
     }
 
     private async Task DeleteRole(DeleteTeamRequest request)

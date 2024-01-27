@@ -11,15 +11,10 @@ using FluentResults;
 
 internal class CreateTeamRoleHandler : DiscordHandler<CreateTeamRoleRequest, DiscordRole>
 {
-    private readonly IDiscordServices userServices;
-
-    public CreateTeamRoleHandler(IDiscordServices discordServices)
-    {
-        this.userServices = discordServices;
-    }
-
     protected override async Task<DiscordRole> Process(CreateTeamRoleRequest request, CancellationToken cancellationToken)
     {
+        var userServices = GetRequestService<IDiscordServices>();
+
         Result<DiscordRole> role = await userServices.CreateRole(request.DiscordTeam.RoleName);
         if (role.IsSuccess)
         {

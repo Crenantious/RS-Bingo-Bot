@@ -50,6 +50,7 @@ internal class CommandController : ApplicationCommandModule
     public async Task DeleteTeam(InteractionContext ctx,
         [ChoiceProvider(typeof(AllDiscordTeamsChoiceProvider))][Option("name", "name")] string name)
     {
+
         // TODO: JR - fix the choice provider. This may be a database issue.
         await RequestRunner.Run(new DeleteTeamRequest(DiscordTeam.ExistingTeams[name]), null);
     }
