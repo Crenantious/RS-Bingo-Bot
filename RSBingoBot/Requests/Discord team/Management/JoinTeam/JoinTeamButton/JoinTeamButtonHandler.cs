@@ -23,7 +23,7 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
     {
         SelectComponent selectComponent = selectComponentFactory.Create(new("Select a team", GetSelectOptions()),
                                                                         new JoinTeamSelectRequest(request.InteractionArgs.User));
-        var response = new InteractionMessage(InteractionArgs.Interaction)
+        var response = new InteractionMessage(Interaction)
                            .AddComponents(selectComponent)
                            .AsEphemeral(true);
         ResponseMessages.Add(response);

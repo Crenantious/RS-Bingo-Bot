@@ -5,6 +5,7 @@
 namespace RSBingoBot.Commands;
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
@@ -52,7 +53,7 @@ internal class CommandController : ApplicationCommandModule
     {
 
         // TODO: JR - fix the choice provider. This may be a database issue.
-        await RequestRunner.Run(new DeleteTeamRequest(DiscordTeam.ExistingTeams[name]), null);
+        await DiscordInteractionServices.RegisterCommand(new DeleteTeamCommandRequest(DiscordTeam.ExistingTeams[name]), ctx);
     }
 
     //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]

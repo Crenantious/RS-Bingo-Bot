@@ -25,4 +25,7 @@ public class DiscordTeamServices : RequestService, IDiscordTeamServices
 
     public async Task<Result> AddUserToTeam(DiscordUser user, RSBingoBot.Discord.DiscordTeam team) =>
         await RunRequest(new AddUserToTeamRequest(user, team));
+
+    public async Task<Result> Delete(RSBingoBot.Discord.DiscordTeam team) =>
+        await RunRequest(new DeleteTeamRequest(team));
 }

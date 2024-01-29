@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DataStructures;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
@@ -27,6 +28,7 @@ public class RequestTracker
     public DateTime CompletionTimeStamp { get; private set; }
     public IResultBase RequestResult { get; set; } = Result.Fail(RequestNotCompletedError);
     public IReadOnlyList<RequestTracker> Trackers { get; }
+    public RequestMetaData MetaData { get; } = new();
 
     static RequestTracker()
     {

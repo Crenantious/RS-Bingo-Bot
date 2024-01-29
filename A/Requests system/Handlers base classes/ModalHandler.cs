@@ -4,9 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
-using DSharpPlus.EventArgs;
-
-public abstract class ModalHandler<TRequest> : InteractionHandler<TRequest, ModalSubmitEventArgs>
+public abstract class ModalHandler<TRequest> : InteractionHandler<TRequest>
     where TRequest : IModalRequest
 {
 

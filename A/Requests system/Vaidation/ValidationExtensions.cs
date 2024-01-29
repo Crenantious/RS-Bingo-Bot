@@ -5,7 +5,6 @@
 namespace DiscordLibrary.Requests.Validation;
 
 using DiscordLibrary.Behaviours;
-using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,9 +16,9 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
-        TryAddValidationResponseBehaviours<TRequest, Result<TResponse>>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
-        TryAddValidationResponseBehaviours<TRequest, Result<TResponse>>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -28,43 +27,32 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result>
     {
-        TryAddValidationResponseBehaviours<TRequest, Result>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result>(config);
-        TryAddValidationResponseBehaviours<TRequest, Result>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
         AddValidator<TRequest, Result>(services);
         return config;
     }
 
-    private static void TryAddValidationResponseBehaviours<TRequest, TResponse>(MediatRServiceConfiguration config,
-        string responseTypeName)
-        where TRequest : IRequest<TResponse>
-    {
-        TryAddValidationResponseBehaviour<TRequest, ComponentInteractionCreateEventArgs>(config, responseTypeName);
-        TryAddValidationResponseBehaviour<TRequest, ModalSubmitEventArgs>(config, responseTypeName);
-    }
-
-    private static void TryAddValidationResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config, string responseTypeName)
+    private static void TryAddValidationResponseBehaviour<TRequest>(MediatRServiceConfiguration config, string responseTypeName)
         where TRequest : IBaseRequest
-        where TArgs : InteractionCreateEventArgs
     {
-        if (typeof(IInteractionRequest<TArgs>).IsAssignableFrom(typeof(TRequest)))
+        if (typeof(IInteractionRequest).IsAssignableFrom(typeof(TRequest)))
         {
             // TODO: JR - find a nicer way to do this.
             MethodInfo method = typeof(ValidationExtensions).GetMethod(responseTypeName, BindingFlags.Static | BindingFlags.NonPublic)!;
-            MethodInfo generic = method.MakeGenericMethod(typeof(TRequest), typeof(TArgs));
+            MethodInfo generic = method.MakeGenericMethod(typeof(TRequest));
             generic.Invoke(null, new object[] { config });
         }
     }
 
-    private static void AddValidationResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config)
-        where TRequest : IInteractionRequest<TArgs>
-        where TArgs : InteractionCreateEventArgs =>
-        config.AddBehavior<IPipelineBehavior<TRequest, Result>, ValidationResponseBehaviour<TRequest, TArgs>>();
+    private static void AddValidationResponseBehaviour<TRequest>(MediatRServiceConfiguration config)
+        where TRequest : IInteractionRequest =>
+        config.AddBehavior<IPipelineBehavior<TRequest, Result>, ValidationResponseBehaviour<TRequest>>();
 
-    private static void AddInteractionResponseBehaviour<TRequest, TArgs>(MediatRServiceConfiguration config)
-        where TRequest : IInteractionRequest<TArgs>
-        where TArgs : InteractionCreateEventArgs =>
-        config.AddBehavior<IPipelineBehavior<TRequest, Result>, InteractionResponseBehaviour<TRequest, TArgs>>();
+    private static void AddInteractionResponseBehaviour<TRequest>(MediatRServiceConfiguration config)
+        where TRequest : IInteractionRequest =>
+        config.AddBehavior<IPipelineBehavior<TRequest, Result>, InteractionHandlerResponseBehaviour<TRequest>>();
 
     private static void AddValidationBehaviour<TRequest, TResponse>(MediatRServiceConfiguration config)
         where TRequest : IRequest<TResponse>
@@ -75,10 +63,7 @@ public static class ValidationExtensions
         where TRequest : IRequest<TResponse> =>
         services.AddTransient(typeof(Validator<TRequest>), GetValidatorType<TRequest>());
 
-    private static Type GetValidatorType<TRequest>() where TRequest : IBaseRequest
-    {
-        Type validatorBaseType = typeof(Validator<TRequest>);
-        return typeof(TRequest).Assembly.GetTypes()
-            .First(t => validatorBaseType.IsAssignableFrom(t));
-    }
+    private static Type GetValidatorType<TRequest>() where TRequest : IBaseRequest =>
+        typeof(TRequest).Assembly.GetTypes()
+            .First(t => typeof(Validator<TRequest>).IsAssignableFrom(t));
 }

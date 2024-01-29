@@ -28,14 +28,14 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     protected override async Task Process(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
-        DiscordUser discordUser = InteractionArgs.Interaction.User;
+        DiscordUser discordUser = Interaction.User;
         User user = discordUser.GetDBUser(DataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
         var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, new ConcludeInteractionButtonRequest(this));
 
         ResponseMessages.Add(
-            new InteractionMessage(InteractionArgs.Interaction)
+            new InteractionMessage(Interaction)
                 .WithContent(ResponseContent.FormatConst(discordUser.Mention))
                 .AddComponents(selectComponent)
                 .AddComponents(closeButton));

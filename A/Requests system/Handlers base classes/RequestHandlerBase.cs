@@ -5,6 +5,7 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordServices;
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -29,15 +30,15 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     {
         this.request = request;
         Id = requestId++;
+        TResult result;
 
         try
         {
-            TResult result = await ProcessRequest(request, cancellationToken);
-            return result;
+            result = await ProcessRequest(request, cancellationToken);
         }
         catch (Exception e)
         {
-            var result = new TResult();
+            result = new TResult();
 
             // TODO: JR - move the exceptionMessages to InteractionHandler.
             if (exceptionMessages.ContainsKey(e.GetType()))
@@ -49,8 +50,10 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
                 result.WithError(new ExceptionError(e));
                 result.WithError(new InternalError());
             }
-            return result;
         }
+
+        request.GetTracker().RequestResult = result;
+        return result;
     }
 
     protected TService GetRequestService<TService>()

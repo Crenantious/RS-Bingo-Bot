@@ -4,19 +4,17 @@
 
 namespace DiscordLibrary.Requests;
 
-using DSharpPlus.EventArgs;
 using MediatR;
 using System;
 
-internal class InteractionHandlerInstanceInfo<TRequest, TArgs> : IInteractionHandlerInstanceInfo
-    where TRequest : IInteractionRequest<TArgs>
-    where TArgs : InteractionCreateEventArgs
+internal class InteractionHandlerInstanceInfo<TRequest> : IInteractionHandlerInstanceInfo
+    where TRequest : IInteractionRequest
 {
     public Type RequestType { get; }
     public IBaseRequest Request { get; }
     public object Handler { get; }
 
-    public InteractionHandlerInstanceInfo(TRequest request, InteractionHandler<TRequest, TArgs> handler)
+    public InteractionHandlerInstanceInfo(TRequest request, InteractionHandler<TRequest> handler)
     {
         RequestType = typeof(TRequest);
         Request = request;

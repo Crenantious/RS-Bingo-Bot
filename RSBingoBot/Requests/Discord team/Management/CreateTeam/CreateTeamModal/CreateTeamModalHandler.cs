@@ -6,6 +6,7 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
@@ -27,7 +28,7 @@ internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
         var teamServices = GetRequestService<IDiscordTeamServices>();
 
         Result<DiscordTeam> discordTeam = await discordTeamFactory.CreateNew(
-            InteractionArgs.Values[CreateTeamButtonHandler.ModalTeamNameKey],
+            request.GetInteractionArgs().Values[CreateTeamButtonHandler.ModalTeamNameKey],
             dataWorker);
 
         AddResponses(discordTeam);

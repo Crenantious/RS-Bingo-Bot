@@ -4,15 +4,10 @@
 
 namespace DiscordLibrary.Requests;
 
-using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
 
-public interface IInteractionRequest<TArgs> : IRequest<Result>
-    where TArgs : InteractionCreateEventArgs
+public interface IInteractionRequest : IRequest<Result>
 {
-    /// <summary>
-    /// Value will be set by the framework.
-    /// </summary>
-    public TArgs InteractionArgs { get; set; }
+    internal const string DiscordInteractionMetaDataKey = "DiscordInteraction";
 }

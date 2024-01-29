@@ -15,4 +15,5 @@ public interface IDiscordTeamServices : IRequestService
     public Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result> AddUserToTeam(DiscordUser discordUser, RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result> Delete(RSBingoBot.Discord.DiscordTeam team);
 }

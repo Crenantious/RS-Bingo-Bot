@@ -39,7 +39,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         user = GetUser()!;
         evidenceType = request.EvidenceType;
 
-        var response = new InteractionMessage(InteractionArgs.Interaction)
+        var response = new InteractionMessage(Interaction)
              .WithContent(GetResponsePrefix())
              .AsEphemeral(true);
         SubmitDropButtonDTO dto = new(response);
@@ -51,7 +51,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         response.AddComponents(submit, cancel);
         ResponseMessages.Add(response);
 
-        messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto), new(InteractionArgs.Channel, InteractionArgs.User, 1));
+        messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto), new(Interaction.Channel, Interaction.User, 1));
     }
 
     private string GetResponsePrefix() =>

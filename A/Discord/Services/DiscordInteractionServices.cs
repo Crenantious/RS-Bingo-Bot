@@ -8,10 +8,10 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
-using FluentResults;
+using DSharpPlus.SlashCommands;
 using RSBingo_Common;
 
-internal static class DiscordInteractionServices
+public static class DiscordInteractionServices
 {
     private static ComponentInteractionDEH componentInteractionDEH;
     private static ModalSubmittedDEH modalDEH;
@@ -33,18 +33,25 @@ internal static class DiscordInteractionServices
         modalDEH.Subscribe(constraints, (client, args) => OnModalSubmitted(request, args));
     }
 
+    public static async Task RegisterCommand(ICommandRequest request, InteractionContext context)
+    {
+        await RequestRunner.Run(request, null,
+            (ICommandRequest.InteractionContextMetaDataKey, context),
+            (IInteractionRequest.DiscordInteractionMetaDataKey, context.Interaction));
+    }
+
     private static async Task OnComponentInteraction<T>(IComponentInteractionRequest<T> request, ComponentInteractionCreateEventArgs args)
         where T : IComponent
     {
-        request.InteractionArgs = args;
-        Result result = await RequestRunner.Run(request, null);
+        await RequestRunner.Run(request, null,
+            (IComponentInteractionRequest<T>.InteractionArgsMetaDataKey, args),
+            (IInteractionRequest.DiscordInteractionMetaDataKey, args.Interaction));
     }
 
     private static async Task OnModalSubmitted(IModalRequest request, ModalSubmitEventArgs args)
     {
-        request.InteractionArgs = args;
-        Result result = await RequestRunner.Run(request, null);
+        await RequestRunner.Run(request, null,
+            (IModalRequest.InteractionArgsMetaDataKey, args),
+            (IInteractionRequest.DiscordInteractionMetaDataKey, args.Interaction));
     }
-
-    // TODO: implement registration for a command
 }

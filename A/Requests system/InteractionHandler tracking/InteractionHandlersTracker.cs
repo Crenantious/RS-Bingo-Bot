@@ -3,9 +3,6 @@
 // </copyright>
 
 namespace DiscordLibrary.Requests;
-
-using DSharpPlus.EventArgs;
-
 public class InteractionHandlersTracker
 {
     private Dictionary<Type, List<IInteractionHandlerInstanceInfo>> activeHandlers = new();
@@ -33,9 +30,8 @@ public class InteractionHandlersTracker
         return false;
     }
 
-    internal void Add<TRequest, TArgs>(InteractionHandlerInstanceInfo<TRequest, TArgs> handlerInfo)
-        where TRequest : IInteractionRequest<TArgs>
-        where TArgs : InteractionCreateEventArgs
+    internal void Add<TRequest>(InteractionHandlerInstanceInfo<TRequest> handlerInfo)
+        where TRequest : IInteractionRequest
     {
         if (activeHandlers.ContainsKey(handlerInfo.RequestType) is false)
         {
@@ -44,9 +40,8 @@ public class InteractionHandlersTracker
         activeHandlers[handlerInfo.RequestType].Add(handlerInfo);
     }
 
-    internal void Remove<TRequest, TArgs>(InteractionHandlerInstanceInfo<TRequest, TArgs> handlerInfo)
-        where TRequest : IInteractionRequest<TArgs>
-        where TArgs : InteractionCreateEventArgs
+    internal void Remove<TRequest>(InteractionHandlerInstanceInfo<TRequest> handlerInfo)
+        where TRequest : IInteractionRequest
     {
         if (activeHandlers.ContainsKey(handlerInfo.RequestType))
         {

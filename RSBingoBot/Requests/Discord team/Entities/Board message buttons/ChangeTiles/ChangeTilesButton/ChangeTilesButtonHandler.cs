@@ -44,7 +44,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
     {
         user = GetUser()!;
 
-        var response = new InteractionMessage(InteractionArgs.Interaction)
+        var response = new InteractionMessage(Interaction)
             .WithContent(GetResponseContent(request))
             .AsEphemeral(true);
         ChangeTilesButtonDTO dto = new();

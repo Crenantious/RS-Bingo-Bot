@@ -7,8 +7,8 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordComponents;
 using DSharpPlus.EventArgs;
 
-public interface IComponentInteractionRequest<TComponent> : IComponentRequest<TComponent>, IInteractionRequest<ComponentInteractionCreateEventArgs>
+public interface IComponentInteractionRequest<TComponent> : IComponentRequest<TComponent>, IInteractionRequest
     where TComponent : IComponent
 {
-
+    internal const string InteractionArgsMetaDataKey = "ComponentInteractionCreateEventArgs";
 }

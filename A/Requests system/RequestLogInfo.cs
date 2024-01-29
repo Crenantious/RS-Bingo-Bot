@@ -6,9 +6,10 @@ namespace DiscordLibrary.Behaviours;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
+using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
 public class RequestLogInfo<TResult>
@@ -31,7 +32,7 @@ public class RequestLogInfo<TResult>
         AddInfo("Component type", nameof(SelectComponent));
         AddInfo("Component name", request.Component.Name);
         AddInfo("Component id", request.Component.CustomId);
-        AddInteractionInfo(request.InteractionArgs);
+        AddInteractionInfo(request.GetDiscordInteraction());
     }
 
     private void ButtonInfo(IButtonRequest request)
@@ -39,12 +40,12 @@ public class RequestLogInfo<TResult>
         AddInfo("Component type", nameof(Button));
         AddInfo("Component name", request.Component.Name);
         AddInfo("Component id", request.Component.CustomId);
-        AddInteractionInfo(request.InteractionArgs);
+        AddInteractionInfo(request.GetDiscordInteraction());
     }
 
     private void ModalInfo(IModalRequest request)
     {
-        AddInfo("Modal submission values", request.InteractionArgs.Values);
+        AddInfo("Modal submission values", request.GetInteractionArgs().Values);
     }
 
     private void DiscordInfo(IDiscordRequest request)
@@ -59,12 +60,12 @@ public class RequestLogInfo<TResult>
         AddInfo("Message id", request.Message.DiscordMessage.Id);
     }
 
-    private void AddInteractionInfo(InteractionCreateEventArgs args)
+    private void AddInteractionInfo(DiscordInteraction interaction)
     {
-        AddInfo("Interaction created by", args.Interaction.User.Username);
-        AddInfo("Channel", args.Interaction.Channel.Name);
-        AddInfo("Interaction id", args.Interaction.Id);
-        AddInfo("Interaction type", args.Interaction.Type);
+        AddInfo("Interaction created by", interaction.User.Username);
+        AddInfo("Channel", interaction.Channel.Name);
+        AddInfo("Interaction id", interaction.Id);
+        AddInfo("Interaction type", interaction.Type);
     }
 
     private void TryAddInfo<T>(IRequest<TResult> request, Action<T> addInfo)

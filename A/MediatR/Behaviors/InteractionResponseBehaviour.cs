@@ -7,62 +7,58 @@ namespace DiscordLibrary.Behaviours;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
-using DiscordLibrary.Requests.Validation;
-using DSharpPlus.EventArgs;
+using DiscordLibrary.Requests.Extensions;
+using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
+using System.Threading;
 
-public class InteractionResponseBehaviour<TRequest, TArgs> : IPipelineBehavior<TRequest, Result>
-    where TRequest : IInteractionRequest<TArgs>
-    where TArgs : InteractionCreateEventArgs
+public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior<TRequest, Result>
+    where TRequest : IInteractionRequest
 {
-    private const string DefaultResponse = "Process completed.";
-
-    private readonly Validator<TRequest> validator;
     private readonly RequestsTracker requestsTracker;
-    private readonly InteractionResponseTracker responseTracker;
 
-    public InteractionResponseBehaviour(Validator<TRequest> validator, RequestsTracker requestsTracker,
-        InteractionResponseTracker responseTracker)
+    protected DiscordInteraction Interaction { get; private set; } = null!;
+
+    public InteractionResponseBehaviour()
     {
-        this.validator = validator;
-        this.requestsTracker = requestsTracker;
-        this.responseTracker = responseTracker;
+        this.requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
     }
 
-    public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
-    {
-        var result = await next();
+    public abstract Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken);
 
-        var response = new InteractionMessage(request.InteractionArgs.Interaction)
+    protected InteractionMessage GetResponse(TRequest request, params Type[] responseTypes)
+    {
+        Interaction = request.GetDiscordInteraction();
+
+        var response = new InteractionMessage(Interaction)
             .AsEphemeral(true);
 
         RequestTracker requestTracker = requestsTracker.Trackers[request];
-        AddResponses(requestTracker, response);
+        AddResponses(requestTracker, response, responseTypes);
 
-        if (string.IsNullOrEmpty(response.Content) &&
-            responseTracker.HasResponse(request.InteractionArgs.Interaction) is false)
-        {
-            response.WithContent(DefaultResponse);
-        }
-        await GetMessageServices(request).Send(response);
-
-        return result;
+        return response;
     }
 
-    private void AddResponses(RequestTracker tracker, InteractionMessage response)
+    private void AddResponses(RequestTracker tracker, InteractionMessage response, params Type[] responseTypes)
     {
         foreach (RequestTracker childTracker in tracker.Trackers)
         {
-            AddResponses(childTracker, response);
+            AddResponses(childTracker, response, responseTypes);
         }
 
         tracker.RequestResult.Reasons
-            .Where(r => r is IDiscordResponse)
+            .Where(r => DoesInherit(r, responseTypes))
             .Where(r => string.IsNullOrEmpty(r.Message) is false)
             .ForEach(r => response.WithContent(r.Message));
     }
+
+    private static bool DoesInherit(IReason r, Type[] responseTypes) =>
+        responseTypes.Any(t => t.IsAssignableFrom(r.GetType()));
+
+    protected async Task<Result> SendResponse(TRequest request, InteractionMessage response) =>
+        await GetMessageServices(request).Send(response);
 
     private static IDiscordInteractionMessagingServices GetMessageServices(TRequest request)
     {

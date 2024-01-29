@@ -221,6 +221,7 @@ public class Program
 
             // Commands
             .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
+            .AddValidation<DeleteTeamCommandRequest>(services)
 
             // Team management requests
             .AddValidation<CreateMissingDiscordTeamEntitiesRequest>(services)

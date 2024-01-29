@@ -5,6 +5,7 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.Requests.Extensions;
 
 public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest
@@ -32,14 +33,15 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
 
     private List<SelectComponentOption> GetSelectedOptions(TRequest request)
     {
-        List<SelectComponentOption> options = new(InteractionArgs.Values.Length);
+        var values = request.GetInteractionArgs().Values;
+        List<SelectComponentOption> options = new(values.Length);
         int index;
 
-        for (int i = 0; i < InteractionArgs.Values.Length; i++)
+        for (int i = 0; i < values.Length; i++)
         {
             try
             {
-                index = int.Parse(InteractionArgs.Values[i]);
+                index = int.Parse(values[i]);
                 options.Add(request.Component.selectOptions.ElementAt(index));
             }
             catch

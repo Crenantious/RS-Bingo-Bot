@@ -9,6 +9,7 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RSBingo_Common;
+using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
 // TODO: JR - add RequestType to requests (Command, UserEndpoint, Database, Discord etc.) and colour code
@@ -26,20 +27,18 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
 
     private readonly ILogger<LoggingBehaviour<TRequest, TResult>> logger;
     private readonly RequestLogInfo<TResult> additionalRequestInfo;
-    private readonly RequestsTracker requestsTracker;
 
     public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResult>> logger, RequestLogInfo<TResult> additionalRequestInfo,
         RequestsTracker requestsTracker)
     {
         this.logger = logger;
         this.additionalRequestInfo = additionalRequestInfo;
-        this.requestsTracker = requestsTracker;
     }
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         TResult result = await next();
-        var tracker = requestsTracker.Trackers[request];
+        var tracker = request.GetTracker();
         tracker.Completed(result);
 
         // Only log the top level request since all its children get recursively logged here.
@@ -57,8 +56,7 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
 
     private void AppendTrackerInfo(RequestTracker tracker, StringBuilder info)
     {
-        string parent = tracker.ParentRequest is null ? "None" :
-                        requestsTracker.Trackers[tracker.ParentRequest].RequestId.ToString();
+        string parent = tracker.ParentRequest is null ? "None" : tracker.RequestId.ToString();
 
         info.AppendLine(
             $"Request: {tracker.Request.GetType()}, " +

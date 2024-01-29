@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
@@ -21,7 +22,8 @@ public static class RequestRunner
         requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
     }
 
-    public static async Task<Result<TResult>> Run<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest)
+    public static async Task<Result<TResult>> Run<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest,
+        params (string key, object value)[] metaData)
         where TRequest : IRequest<Result<TResult>>
     {
         var result = AddTracker<TRequest, Result<TResult>>(request, parentRequest);
@@ -30,10 +32,12 @@ public static class RequestRunner
             return result;
         }
 
-        return await RunRequest<TRequest, TResult>(request);
+        request.GetTracker().MetaData.Add(metaData);
+        return await RunRequest<TRequest, Result<TResult>>(request);
     }
 
-    public static async Task<Result> Run<TRequest>(TRequest request, IBaseRequest? parentRequest)
+    public static async Task<Result> Run<TRequest>(TRequest request, IBaseRequest? parentRequest,
+        params (string key, object value)[] metaData)
         where TRequest : IRequest<Result>
     {
         var result = AddTracker<TRequest, Result>(request, parentRequest);
@@ -42,7 +46,8 @@ public static class RequestRunner
             return result;
         }
 
-        return await RunRequest<TRequest>(request);
+        request.GetTracker().MetaData.Add(metaData);
+        return await RunRequest<TRequest, Result>(request);
     }
 
     private static TResult AddTracker<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest)
@@ -59,8 +64,9 @@ public static class RequestRunner
         return new TResult();
     }
 
-    private static async Task<Result<TResult>> RunRequest<TRequest, TResult>(TRequest request)
-        where TRequest : IRequest<Result<TResult>>
+    private static async Task<TResult> RunRequest<TRequest, TResult>(TRequest request)
+        where TRequest : IRequest<TResult>
+        where TResult : ResultBase<TResult>, new()
     {
         try
         {
@@ -68,24 +74,7 @@ public static class RequestRunner
         }
         catch (Exception ex)
         {
-            var result = new Result<TResult>().WithError(ex.Message);
-            requestsTracker.Trackers[request].RequestResult = result;
-            return result;
-        }
-    }
-
-    private static async Task<Result> RunRequest<TRequest>(TRequest request)
-        where TRequest : IRequest<Result>
-    {
-        try
-        {
-            return await mediator.Send(request);
-        }
-        catch (Exception ex)
-        {
-            var result = new Result().WithError(ex.Message);
-            requestsTracker.Trackers[request].RequestResult = result;
-            return result;
+            return new TResult().WithError(ex.Message);
         }
     }
 }

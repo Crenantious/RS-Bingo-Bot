@@ -7,31 +7,29 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
-using DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 using FluentResults;
 using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
-public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequest>, IInteractionHandler
-    where TRequest : IInteractionRequest<TArgs>
-    where TArgs : InteractionCreateEventArgs
+public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
+    where TRequest : IInteractionRequest
 {
     private readonly InteractionHandlersTracker handlersTracker;
 
     private bool isConcluded = false;
-    private InteractionHandlerInstanceInfo<TRequest, TArgs> instanceInfo = null!;
+    private InteractionHandlerInstanceInfo<TRequest> instanceInfo = null!;
 
     /// <summary>
     /// If true, automatically responds to the interaction with an empty keep alive message. The use sees a "thinking" state.
     /// </summary>
     protected virtual bool SendKeepAliveMessage => true;
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
-    protected TArgs InteractionArgs { get; set; } = null!;
-
-    internal IInteractionHandler ParentHandler { get; set; } = null!;
+    protected DiscordInteraction Interaction { get; set; } = null!;
 
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
@@ -42,19 +40,19 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
 
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
-        InteractionArgs = request.InteractionArgs;
+        Interaction = request.GetDiscordInteraction();
         instanceInfo = new(request, this);
         handlersTracker.Add(instanceInfo);
 
         if (SendKeepAliveMessage)
         {
             var service = GetRequestService<IDiscordInteractionMessagingServices>();
-            await service.SendKeepAlive(InteractionArgs.Interaction);
+            await service.SendKeepAlive(Interaction);
         }
     }
 
     protected User? GetUser() =>
-        InteractionArgs.Interaction.User.GetDBUser(DataWorker);
+        Interaction.User.GetDBUser(DataWorker);
 
     public virtual Task Conclude()
     {
@@ -174,7 +172,7 @@ public abstract class InteractionHandler<TRequest, TArgs> : RequestHandler<TRequ
 
     private InteractionMessage AddResponseCommon(string content, bool addToLastResponse)
     {
-        var message = new InteractionMessage(InteractionArgs.Interaction).WithContent(content);
+        var message = new InteractionMessage(Interaction).WithContent(content);
 
         if (addToLastResponse)
         {

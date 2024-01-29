@@ -7,7 +7,6 @@ namespace DiscordLibrary.Behaviours;
 using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Validation;
 using FluentResults;
-using FluentValidation.Results;
 using MediatR;
 
 public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
@@ -26,12 +25,12 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
             await semaphore.WaitAsync();
         }
 
-        ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var errors = await Validate(request, cancellationToken);
 
-        if (!validationResult.IsValid)
+        if (errors.Any())
         {
             ReleaseSemaphores();
-            return new TResult().WithErrors(validationResult.Errors.Select(e => new ValidationError(e.ErrorMessage)));
+            return new TResult().WithErrors(errors);
         }
 
         var result = await next();
@@ -45,6 +44,19 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
         foreach (SemaphoreSlim semaphore in validator.Semaphores)
         {
             semaphore.Release();
+        }
+    }
+
+    private async Task<IEnumerable<IError>> Validate(TRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await validator.ValidateAsync(request, cancellationToken);
+            return result.Errors.Select(e => new ValidationError(e.ErrorMessage));
+        }
+        catch
+        {
+            return new IError[] { new ValidationInternalError() };
         }
     }
 }

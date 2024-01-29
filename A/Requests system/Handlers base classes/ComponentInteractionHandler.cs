@@ -5,9 +5,8 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordComponents;
-using DSharpPlus.EventArgs;
 
-public abstract class ComponentInteractionHandler<TRequest, TComponent> : InteractionHandler<TRequest, ComponentInteractionCreateEventArgs>
+public abstract class ComponentInteractionHandler<TRequest, TComponent> : InteractionHandler<TRequest>
     where TRequest : IComponentInteractionRequest<TComponent>
     where TComponent : IComponent
 {
