@@ -9,5 +9,5 @@ using MediatR;
 
 public interface IInteractionRequest : IRequest<Result>
 {
-    internal const string DiscordInteractionMetaDataKey = "DiscordInteraction";
+
 }

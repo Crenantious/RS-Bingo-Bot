@@ -29,7 +29,7 @@ public class RequestService : IRequestService
         isInitialised = true;
     }
 
-    protected async Task<Result<TResult>> RunRequest<TRequest, TResult>(TRequest request)
+    protected async Task<Result<TResult>> RunRequest<TRequest, TResult>(TRequest request, params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result<TResult>>
     {
         if (isInitialised is false)
@@ -38,10 +38,10 @@ public class RequestService : IRequestService
             logger.LogError(error);
             return new Result<TResult>().WithError(error);
         }
-        return await RequestRunner.Run<TRequest, TResult>(request, parentRequest);
+        return await RequestRunner.Run<TRequest, TResult>(request, parentRequest, metaData);
     }
 
-    protected async Task<Result> RunRequest<TRequest>(TRequest request)
+    protected async Task<Result> RunRequest<TRequest>(TRequest request, params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result>
     {
         if (isInitialised is false)
@@ -50,6 +50,6 @@ public class RequestService : IRequestService
             logger.LogError(error);
             return new Result().WithError(error);
         }
-        return await RequestRunner.Run<TRequest>(request, parentRequest);
+        return await RequestRunner.Run<TRequest>(request, parentRequest, metaData);
     }
 }

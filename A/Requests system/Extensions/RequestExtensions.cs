@@ -5,6 +5,7 @@
 namespace DiscordLibrary.Requests.Extensions;
 
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -32,6 +33,13 @@ public static class RequestExtensions
     public static ComponentInteractionCreateEventArgs GetInteractionArgs<TComponent>(this IComponentInteractionRequest<TComponent> request)
         where TComponent : Component =>
         request.Get<ComponentInteractionCreateEventArgs>();
+
+    public static TComponent GetComponent<TComponent>(this IComponentRequest<TComponent> request)
+        where TComponent : Component =>
+        request.Get<TComponent>();
+
+    public static Message GetMessage(this IMessageCreatedRequest request) =>
+        request.Get<Message>();
 
     private static T Get<T>(this IBaseRequest request) =>
         tracker.Trackers[request].MetaData.Get<T>();

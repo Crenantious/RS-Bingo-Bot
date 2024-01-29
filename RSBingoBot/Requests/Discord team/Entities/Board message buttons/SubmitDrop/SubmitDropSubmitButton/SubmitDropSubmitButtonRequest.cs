@@ -4,13 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 using RSBingo_Framework.Records;
 
-public record SubmitDropSubmitButtonRequest(SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) : IButtonRequest
-{
-    public Button Component { get; set; } = null!;
-    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-}
+public record SubmitDropSubmitButtonRequest(SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) : IButtonRequest;

@@ -42,7 +42,7 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
             try
             {
                 index = int.Parse(values[i]);
-                options.Add(request.Component.selectOptions.ElementAt(index));
+                options.Add(request.GetComponent().selectOptions.ElementAt(index));
             }
             catch
             {

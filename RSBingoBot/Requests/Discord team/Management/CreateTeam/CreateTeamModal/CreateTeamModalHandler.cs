@@ -38,7 +38,7 @@ internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
             return;
         }
 
-        Result addToTeam = await teamServices.AddUserToTeam(request.InteractionArgs.Interaction.User, discordTeam.Value);
+        Result addToTeam = await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam.Value);
         AddResponses(addToTeam);
     }
 }

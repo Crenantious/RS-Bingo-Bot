@@ -4,12 +4,6 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
-public record CreateTeamButtonRequest() : IButtonRequest
-{
-    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-    public Button Component { get; set; } = null!;
-}
+public record CreateTeamButtonRequest() : IButtonRequest;

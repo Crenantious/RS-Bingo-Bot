@@ -4,12 +4,13 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using RSBingoBot.Requests.Validation;
 
 internal class CreateTeamModalValidator : BingoValidator<CreateTeamModalRequest>
 {
     public CreateTeamModalValidator()
     {
-        NewTeamName(r => r.InteractionArgs.Values[CreateTeamButtonHandler.ModalTeamNameKey]);
+        NewTeamName(r => r.GetInteractionArgs().Values[CreateTeamButtonHandler.ModalTeamNameKey]);
     }
 }

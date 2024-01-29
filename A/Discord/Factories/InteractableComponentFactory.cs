@@ -22,8 +22,7 @@ public abstract class InteractableComponentFactory<TComponent, TRequest>
     {
         TComponent component = Create();
 
-        request.Component = component;
-        component.Register(request);
+        component.Register(request, component);
         return component;
     }
 
@@ -46,8 +45,7 @@ public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TReq
     {
         TComponent component = Create(createInfo);
 
-        request.Component = component;
-        component.Register(request);
+        component.Register(request, component);
         return component;
     }
 

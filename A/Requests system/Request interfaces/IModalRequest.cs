@@ -6,5 +6,5 @@ namespace DiscordLibrary.Requests;
 
 public interface IModalRequest : IInteractionRequest
 {
-    internal const string InteractionArgsMetaDataKey = "ModalSubmitEventArgs";
+
 }

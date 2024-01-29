@@ -4,12 +4,13 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using RSBingoBot.Requests.Validation;
 
 internal class ChangeTilesButtonValidator : BingoValidator<ChangeTilesButtonRequest>
 {
     public ChangeTilesButtonValidator()
     {
-        UserOnTeam(r => (r.InteractionArgs.User, r.TeamId));
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId));
     }
 }

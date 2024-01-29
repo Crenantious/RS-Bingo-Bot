@@ -39,8 +39,8 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
 
     private async Task OnMessageCreated(IMessageCreatedRequest request, MessageCreateEventArgs args)
     {
-        request.MessageArgs = args;
-        request.Message = new Message(args.Message);
-        Result result = await RunRequest(request);
+        Result result = await RunRequest(request,
+            (null, args),
+            (null, new Message(args.Message)));
     }
 }

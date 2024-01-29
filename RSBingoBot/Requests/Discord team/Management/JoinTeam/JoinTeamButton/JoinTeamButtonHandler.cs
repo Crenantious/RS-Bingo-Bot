@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using RSBingo_Framework.Models;
 
 internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
@@ -22,7 +23,7 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
     protected override async Task Process(JoinTeamButtonRequest request, CancellationToken cancellationToken)
     {
         SelectComponent selectComponent = selectComponentFactory.Create(new("Select a team", GetSelectOptions()),
-                                                                        new JoinTeamSelectRequest(request.InteractionArgs.User));
+                                                                        new JoinTeamSelectRequest(request.GetDiscordInteraction().User));
         var response = new InteractionMessage(Interaction)
                            .AddComponents(selectComponent)
                            .AsEphemeral(true);

@@ -7,6 +7,7 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
@@ -25,7 +26,7 @@ internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequ
     protected override async Task OnItemSelectedAsync(IEnumerable<SelectComponentItem> items, JoinTeamSelectRequest request, CancellationToken cancellationToken)
     {
         DiscordTeam discordTeam = (DiscordTeam)items.ElementAt(0).Value!;
-        Result addToTeam = await teamServices.AddUserToTeam(request.InteractionArgs.Interaction.User, discordTeam);
+        Result addToTeam = await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam);
         AddResponses(addToTeam);
     }
 }

@@ -4,13 +4,10 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordEntities;
-using DSharpPlus.EventArgs;
 using FluentResults;
 using MediatR;
 
 public interface IMessageCreatedRequest : IRequest<Result>
 {
-    public MessageCreateEventArgs MessageArgs { get; set; }
-    public Message Message { get; set; }
+
 }

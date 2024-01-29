@@ -4,8 +4,10 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 
 internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessageRequest>
 {
@@ -18,8 +20,9 @@ internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessag
 
     protected override async Task Process(SubmitDropMessageRequest request, CancellationToken cancellationToken)
     {
-        request.DTO.EvidenceUrl = request.MessageArgs.Message.Attachments.ElementAt(0).Url;
-        request.Message.Content = request.DTO.GetMessageContent();
-        await messageServices.Delete(request.MessageArgs.Message);
+        Message message = request.GetMessage();
+        request.DTO.EvidenceUrl = message.DiscordMessage.Attachments.ElementAt(0).Url;
+        message.Content = request.DTO.GetMessageContent();
+        await messageServices.Delete(message);
     }
 }

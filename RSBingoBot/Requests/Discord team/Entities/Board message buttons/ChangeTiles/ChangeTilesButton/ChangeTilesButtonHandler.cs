@@ -9,6 +9,7 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
@@ -68,7 +69,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
     }
 
     private static string GetResponseContent(ChangeTilesButtonRequest request) =>
-        ResponseContent.FormatConst(request.InteractionArgs.User.Mention);
+        ResponseContent.FormatConst(request.GetDiscordInteraction().User.Mention);
 
     private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, ISelectComponentRequest request) =>
         selectFactory.Create(new SelectComponentInfo(name, options), request);

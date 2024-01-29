@@ -4,12 +4,6 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
-public record ChangeTilesSubmitButtonRequest(int TeamId, ChangeTilesButtonDTO DTO) : IButtonRequest
-{
-    public Button Component { get; set; } = null!;
-    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-}
+public record ChangeTilesSubmitButtonRequest(int TeamId, ChangeTilesButtonDTO DTO) : IButtonRequest;

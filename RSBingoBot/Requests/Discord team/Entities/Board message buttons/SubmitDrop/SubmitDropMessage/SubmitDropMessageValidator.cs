@@ -4,13 +4,14 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using RSBingoBot.Requests.Validation;
 
 internal class SubmitDropMessageValidator : BingoValidator<SubmitDropMessageRequest>
 {
     public SubmitDropMessageValidator()
     {
-        DiscordMessageExists(r => r.Message);
-        IsImage(r => r.MessageArgs.Message.Attachments.ElementAt(0));
+        DiscordMessageExists(r => r.GetMessage());
+        IsImage(r => r.GetMessage().DiscordMessage.Attachments.ElementAt(0));
     }
 }

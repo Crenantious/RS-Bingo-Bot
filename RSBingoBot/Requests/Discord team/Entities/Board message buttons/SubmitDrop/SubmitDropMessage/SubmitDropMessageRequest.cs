@@ -4,12 +4,6 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
-public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO) : IMessageCreatedRequest
-{
-    public MessageCreateEventArgs MessageArgs { get; set; } = null!;
-    public Message Message { get; set; } = null!;
-}
+public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO) : IMessageCreatedRequest;

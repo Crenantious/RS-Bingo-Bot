@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 
 internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
 {
@@ -25,7 +26,7 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
     protected override async Task Process(CreateTeamButtonRequest request, CancellationToken cancellationToken)
     {
         var modalService = GetRequestService<IDiscordInteractionMessagingServices>();
-        var modal = new Modal("Create team", request.InteractionArgs.Interaction)
+        var modal = new Modal("Create team", request.GetDiscordInteraction())
             .AddComponents(textInputFactory.Create(new("Team name", ModalTeamNameKey)));
 
         await modalService.Send(modal, new CreateTeamModalRequest());

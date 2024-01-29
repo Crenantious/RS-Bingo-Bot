@@ -7,6 +7,7 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
@@ -99,6 +100,6 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
     }
 
     private static string GetPendingReviewMessagePrefix(SubmitDropSubmitButtonRequest request, Tile tile) =>
-        new(PendingReviewMessagePrefix.FormatConst(request.InteractionArgs.User.Mention, request.EvidenceType,
+        new(PendingReviewMessagePrefix.FormatConst(request.GetDiscordInteraction().User.Mention, request.EvidenceType,
             tile.Task.Name, Environment.NewLine, request.DTO.EvidenceUrl!));
 }

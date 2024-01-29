@@ -6,5 +6,5 @@ namespace DiscordLibrary.Requests;
 
 public interface ICommandRequest : IInteractionRequest
 {
-    internal const string InteractionContextMetaDataKey = "InteractionContext";
+
 }

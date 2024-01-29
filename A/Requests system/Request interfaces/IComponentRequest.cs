@@ -11,8 +11,5 @@ using MediatR;
 public interface IComponentRequest<TComponent> : IRequest<Result>
     where TComponent : IComponent
 {
-    /// <summary>
-    /// Value will be set by the framework.
-    /// </summary>
-    public TComponent Component { get; set; }
+
 }

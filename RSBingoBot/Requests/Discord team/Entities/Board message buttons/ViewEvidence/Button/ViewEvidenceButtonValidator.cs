@@ -5,6 +5,7 @@
 namespace RSBingoBot.Requests.Validation;
 
 using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.Requests.Extensions;
 using FluentValidation;
 using RSBingoBot.Requests;
 
@@ -15,8 +16,8 @@ internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRe
     public ViewEvidenceButtonValidator()
     {
         TeamExists(r => r.Team);
-        UserOnTeam(r => (r.InteractionArgs.Interaction.User, r.Team));
-        RuleFor(r => r.InteractionArgs.Interaction.User.GetDBUser(DataWorker)!.Evidence)
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.Team));
+        RuleFor(r => r.GetDiscordInteraction().User.GetDBUser(DataWorker)!.Evidence)
             .NotEmpty()
             .WithMessage(NoTilesFoundError);
     }

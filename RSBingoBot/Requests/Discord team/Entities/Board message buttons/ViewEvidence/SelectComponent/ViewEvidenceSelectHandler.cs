@@ -6,6 +6,7 @@ namespace RSBingoBot.RequestHandlers;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
 
@@ -18,7 +19,7 @@ internal class ViewEvidenceSelectHandler : SelectComponentHandler<ViewEvidenceSe
         // Not sure if it will be updated after being deleted from another data worker or if it needs
         // to be retrieved like so to check if it still exists.
         Tile tile = (Tile)(items.ElementAt(0).Value!);
-        Evidence? evidence = tile.Evidence.FirstOrDefault(e => e.DiscordUserId == request.InteractionArgs.Interaction.User.Id);
+        Evidence? evidence = tile.Evidence.FirstOrDefault(e => e.DiscordUserId == request.GetDiscordInteraction().User.Id);
         if (evidence is null)
         {
             AddErrorResponse(new EvidenceMissingError(tile));

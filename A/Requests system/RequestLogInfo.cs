@@ -6,10 +6,10 @@ namespace DiscordLibrary.Behaviours;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
-using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
 public class RequestLogInfo<TResult>
@@ -30,16 +30,16 @@ public class RequestLogInfo<TResult>
     private void SelectComponentInfo(ISelectComponentRequest request)
     {
         AddInfo("Component type", nameof(SelectComponent));
-        AddInfo("Component name", request.Component.Name);
-        AddInfo("Component id", request.Component.CustomId);
+        AddInfo("Component name", request.GetComponent().Name);
+        AddInfo("Component id", request.GetComponent().CustomId);
         AddInteractionInfo(request.GetDiscordInteraction());
     }
 
     private void ButtonInfo(IButtonRequest request)
     {
         AddInfo("Component type", nameof(Button));
-        AddInfo("Component name", request.Component.Name);
-        AddInfo("Component id", request.Component.CustomId);
+        AddInfo("Component name", request.GetComponent().Name);
+        AddInfo("Component id", request.GetComponent().CustomId);
         AddInteractionInfo(request.GetDiscordInteraction());
     }
 
@@ -56,8 +56,8 @@ public class RequestLogInfo<TResult>
     private void MessageCreatedInfo(IMessageCreatedRequest request)
     {
         // TODO: JR - use the message info that contains all the images and components etc.
-        AddInfo("Message content", request.Message.Content);
-        AddInfo("Message id", request.Message.DiscordMessage.Id);
+        AddInfo("Message content", request.GetMessage().Content);
+        AddInfo("Message id", request.GetMessage().DiscordMessage.Id);
     }
 
     private void AddInteractionInfo(DiscordInteraction interaction)

@@ -8,8 +8,4 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 
-public record ChangeTilesButtonRequest(int TeamId) : IButtonRequest
-{
-    public Button Component { get; set; } = null!;
-    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-}
+public record ChangeTilesButtonRequest(int TeamId) : IButtonRequest;

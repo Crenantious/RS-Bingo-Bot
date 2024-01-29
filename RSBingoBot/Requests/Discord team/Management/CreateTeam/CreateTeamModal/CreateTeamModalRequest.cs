@@ -5,9 +5,5 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
-public record CreateTeamModalRequest() : IModalRequest
-{
-    public ModalSubmitEventArgs InteractionArgs { get; set; } = null!;
-}
+public record CreateTeamModalRequest() : IModalRequest;

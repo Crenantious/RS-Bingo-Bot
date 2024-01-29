@@ -23,7 +23,7 @@ public static class RequestRunner
     }
 
     public static async Task<Result<TResult>> Run<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest,
-        params (string key, object value)[] metaData)
+        params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result<TResult>>
     {
         var result = AddTracker<TRequest, Result<TResult>>(request, parentRequest);
@@ -37,7 +37,7 @@ public static class RequestRunner
     }
 
     public static async Task<Result> Run<TRequest>(TRequest request, IBaseRequest? parentRequest,
-        params (string key, object value)[] metaData)
+        params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result>
     {
         var result = AddTracker<TRequest, Result>(request, parentRequest);
