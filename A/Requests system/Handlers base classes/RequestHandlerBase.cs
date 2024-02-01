@@ -52,7 +52,6 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
             }
         }
 
-        request.GetTracker().RequestResult = result;
         return result;
     }
 

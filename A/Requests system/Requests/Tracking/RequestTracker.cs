@@ -46,7 +46,7 @@ public class RequestTracker
 
         if (parentRequest is not null)
         {
-            requestsTracker.Trackers[parentRequest].trackers.Add(this);
+            requestsTracker.GetActive(parentRequest).trackers.Add(this);
         }
     }
 

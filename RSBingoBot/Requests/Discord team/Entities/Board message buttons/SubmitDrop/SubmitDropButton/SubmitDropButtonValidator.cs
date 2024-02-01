@@ -18,7 +18,11 @@ internal class SubmitDropButtonValidator : BingoValidator<SubmitDropButtonReques
         SetSemaphores(semaphores.UpdateEvidence);
 
         // TODO: JR - check against the change tile request when it is made.
-        RequestHandlerInstanceExists<ChangeTilesButtonRequest>((r, c) => r.DiscordTeam.Team.RowId == c.TeamId, ActiveChangeTileInstanceError);
+        RequestHandlerInstanceExists<ChangeTilesButtonRequest>(
+            (r, c) => r.DiscordTeam.Team.RowId == c.TeamId,
+            ActiveChangeTileInstanceError,
+            1);
+
         RuleFor(r => r.DiscordTeam.Team.Tiles.Any())
             .Equal(true)
             .WithMessage(NoTilesError);

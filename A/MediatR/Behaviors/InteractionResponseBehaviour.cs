@@ -35,7 +35,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
         var response = new InteractionMessage(Interaction)
             .AsEphemeral(true);
 
-        RequestTracker requestTracker = requestsTracker.Trackers[request];
+        RequestTracker requestTracker = request.GetTracker();
         AddResponses(requestTracker, response, responseTypes);
 
         return response;

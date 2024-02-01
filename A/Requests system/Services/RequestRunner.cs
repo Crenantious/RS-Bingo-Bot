@@ -4,7 +4,6 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
@@ -26,13 +25,7 @@ public static class RequestRunner
         params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result<TResult>>
     {
-        var result = AddTracker<TRequest, Result<TResult>>(request, parentRequest);
-        if (result.IsFailed)
-        {
-            return result;
-        }
-
-        request.GetTracker().MetaData.Add(metaData);
+        AddTracker(request, parentRequest, metaData);
         return await RunRequest<TRequest, Result<TResult>>(request);
     }
 
@@ -40,28 +33,15 @@ public static class RequestRunner
         params (string? key, object value)[] metaData)
         where TRequest : IRequest<Result>
     {
-        var result = AddTracker<TRequest, Result>(request, parentRequest);
-        if (result.IsFailed)
-        {
-            return result;
-        }
-
-        request.GetTracker().MetaData.Add(metaData);
+        AddTracker(request, parentRequest, metaData);
         return await RunRequest<TRequest, Result>(request);
     }
 
-    private static TResult AddTracker<TRequest, TResult>(TRequest request, IBaseRequest? parentRequest)
-        where TRequest : IBaseRequest
-        where TResult : ResultBase<TResult>, new()
+    private static void AddTracker(IBaseRequest request, IBaseRequest? parentRequest, (string? key, object value)[] metaData)
     {
-        if (requestsTracker.Trackers.ContainsKey(request))
-        {
-            return new TResult().WithError(RequestAlreadyRunningError
-                .FormatConst(request, requestsTracker.Trackers[request].RequestId));
-        }
-
-        requestsTracker.Trackers.Add(request, new(request, parentRequest));
-        return new TResult();
+        RequestTracker tracker = new(request, parentRequest);
+        tracker.MetaData.Add(metaData);
+        requestsTracker.AddPending(tracker);
     }
 
     private static async Task<TResult> RunRequest<TRequest, TResult>(TRequest request)

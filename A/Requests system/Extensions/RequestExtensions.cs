@@ -14,33 +14,33 @@ using RSBingo_Common;
 
 public static class RequestExtensions
 {
-    private static readonly RequestsTracker tracker;
+    private static readonly RequestsTracker trackers;
 
     static RequestExtensions()
     {
-        tracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
+        trackers = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
     }
 
     internal static RequestTracker GetTracker(this IBaseRequest request) =>
-        tracker.Trackers[request];
+        trackers.GetActive(request);
 
     public static DiscordInteraction GetDiscordInteraction(this IInteractionRequest request) =>
-        request.Get<DiscordInteraction>();
+        request.GetFromMetaData<DiscordInteraction>();
 
     public static ModalSubmitEventArgs GetInteractionArgs(this IModalRequest request) =>
-        request.Get<ModalSubmitEventArgs>();
+        request.GetFromMetaData<ModalSubmitEventArgs>();
 
     public static ComponentInteractionCreateEventArgs GetInteractionArgs<TComponent>(this IComponentInteractionRequest<TComponent> request)
         where TComponent : Component =>
-        request.Get<ComponentInteractionCreateEventArgs>();
+        request.GetFromMetaData<ComponentInteractionCreateEventArgs>();
 
     public static TComponent GetComponent<TComponent>(this IComponentRequest<TComponent> request)
         where TComponent : Component =>
-        request.Get<TComponent>();
+        request.GetFromMetaData<TComponent>();
 
     public static Message GetMessage(this IMessageCreatedRequest request) =>
-        request.Get<Message>();
+        request.GetFromMetaData<Message>();
 
-    private static T Get<T>(this IBaseRequest request) =>
-        tracker.Trackers[request].MetaData.Get<T>();
+    private static T GetFromMetaData<T>(this IBaseRequest request) =>
+        trackers.GetActive(request).MetaData.Get<T>();
 }

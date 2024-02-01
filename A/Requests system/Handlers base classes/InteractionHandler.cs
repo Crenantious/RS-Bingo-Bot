@@ -7,22 +7,18 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
+using DiscordLibrary.Requests.Extensions;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
 public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
     where TRequest : IInteractionRequest
 {
-    private readonly InteractionHandlersTracker handlersTracker;
-
     private bool isConcluded = false;
-    private InteractionHandlerInstanceInfo<TRequest> instanceInfo = null!;
 
     /// <summary>
     /// If true, automatically responds to the interaction with an empty keep alive message. The use sees a "thinking" state.
@@ -33,16 +29,9 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
-    protected InteractionHandler()
-    {
-        this.handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
-    }
-
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         Interaction = request.GetDiscordInteraction();
-        instanceInfo = new(request, this);
-        handlersTracker.Add(instanceInfo);
 
         if (SendKeepAliveMessage)
         {
@@ -56,10 +45,6 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     public virtual Task Conclude()
     {
-        if (isConcluded is false)
-        {
-            handlersTracker.Remove(instanceInfo);
-        }
         return Task.CompletedTask;
     }
 

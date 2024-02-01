@@ -16,9 +16,10 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
-        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
-        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -27,14 +28,15 @@ public static class ValidationExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result>
     {
-        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result>(config);
-        TryAddValidationResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result>(config);
         AddValidator<TRequest, Result>(services);
         return config;
     }
 
-    private static void TryAddValidationResponseBehaviour<TRequest>(MediatRServiceConfiguration config, string responseTypeName)
+    private static void TryAddResponseBehaviour<TRequest>(MediatRServiceConfiguration config, string responseTypeName)
         where TRequest : IBaseRequest
     {
         if (typeof(IInteractionRequest).IsAssignableFrom(typeof(TRequest)))
@@ -58,6 +60,11 @@ public static class ValidationExtensions
         where TRequest : IRequest<TResponse>
         where TResponse : ResultBase<TResponse>, new() =>
         config.AddBehavior<IPipelineBehavior<TRequest, TResponse>, ValidationBehavior<TRequest, TResponse>>();
+
+    private static void AddTrackerBehaviour<TRequest, TResponse>(MediatRServiceConfiguration config)
+        where TRequest : IRequest<TResponse>
+        where TResponse : ResultBase<TResponse>, new() =>
+        config.AddBehavior<IPipelineBehavior<TRequest, TResponse>, RequestTrackerBehaviour<TRequest, TResponse>>();
 
     private static void AddValidator<TRequest, TResponse>(IServiceCollection services)
         where TRequest : IRequest<TResponse> =>

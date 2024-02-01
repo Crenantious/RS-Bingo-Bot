@@ -21,18 +21,45 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
 
     public override async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
     {
-        var result = await next();
+        Result result;
+        string error = string.Empty;
+
+        try
+        {
+            result = await next();
+        }
+        catch (Exception e)
+        {
+            error = InternalError.ErrorMessage;
+            result = new Result()
+                .WithError(new ExceptionError(e))
+                .WithError(new InternalError());
+        }
 
         var response = GetResponse(request, typeof(IDiscordResponse));
 
+        TryAddErrorResponse(error, response);
+        TrySetDefaultResponse(response);
+
+        await SendResponse(request, response);
+
+        return result;
+    }
+
+    private static void TryAddErrorResponse(string error, InteractionMessage response)
+    {
+        if (string.IsNullOrEmpty(error) is false)
+        {
+            response.WithContent(error);
+        }
+    }
+
+    private void TrySetDefaultResponse(InteractionMessage response)
+    {
         if (string.IsNullOrEmpty(response.Content) &&
             responseTracker.HasResponse(Interaction) is false)
         {
             response.WithContent(DefaultResponse);
         }
-
-        await SendResponse(request, response);
-
-        return result;
     }
 }

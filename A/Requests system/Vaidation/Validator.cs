@@ -13,7 +13,7 @@ using RSBingo_Common;
 public class Validator<TRequest> : AbstractValidator<TRequest>
     where TRequest : IBaseRequest
 {
-    private readonly InteractionHandlersTracker handlersTracker;
+    private readonly RequestsTracker requestsTracker;
 
     // TODO: JR - decide how to word this.
     protected const string ObjectIsNull = "{0} cannot be null.";
@@ -27,7 +27,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
 
     public Validator()
     {
-        handlersTracker = (InteractionHandlersTracker)General.DI.GetService(typeof(InteractionHandlersTracker))!;
+        requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
     }
 
     protected void SetSemaphores(params SemaphoreSlim[] semaphores)
@@ -78,10 +78,11 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     }
 
     /// <inheritdoc cref="InteractionHandlersTracker.IsActive{TRequest}(Func{TRequest, bool})"/>
-    protected void RequestHandlerInstanceExists<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message)
+    /// <param name="max">The maximum amount that can be active at once.</param>
+    protected void RequestHandlerInstanceExists<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message, int max)
     {
         RuleFor<Func<TCompareRequest, bool>>(r => (compareRequest) => constraints(r, compareRequest))
-            .Must(f => handlersTracker.IsActive(f))
+            .Must(f => requestsTracker.ActiveCount(f) < max)
             .WithMessage(message);
     }
 }

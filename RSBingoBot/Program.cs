@@ -143,7 +143,6 @@ public class Program
                 services.AddScoped<RequestsTracker>();
                 services.AddScoped<InteractionResponseTracker>();
 
-                services.AddSingleton<InteractionHandlersTracker>();
                 services.AddSingleton<RequestSemaphores>();
 
                 services.AddSingleton<ComponentInteractionDEH>();

@@ -39,7 +39,6 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
     {
         TResult result = await next();
         var tracker = request.GetTracker();
-        tracker.Completed(result);
 
         // Only log the top level request since all its children get recursively logged here.
         if (tracker.ParentRequest is null)
