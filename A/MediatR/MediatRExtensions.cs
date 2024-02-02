@@ -1,36 +1,37 @@
-﻿// <copyright file="ValidationExtensions.cs" company="PlaceholderCompany">
+﻿// <copyright file="MediatRExtensions.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.Requests.Validation;
+namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.Behaviours;
+using DiscordLibrary.Requests.Validation;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-public static class ValidationExtensions
+public static class MediatRExtensions
 {
-    public static MediatRServiceConfiguration AddValidation<TRequest, TResponse>(
+    public static MediatRServiceConfiguration AddRequest<TRequest, TResponse>(
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
-        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
-        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
         AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
 
-    public static MediatRServiceConfiguration AddValidation<TRequest>(
+    public static MediatRServiceConfiguration AddRequest<TRequest>(
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result>
     {
-        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
         AddValidationBehaviour<TRequest, Result>(config);
-        TryAddResponseBehaviour<TRequest>(config, nameof(ValidationExtensions.AddInteractionResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
         AddTrackerBehaviour<TRequest, Result>(config);
         AddValidator<TRequest, Result>(services);
         return config;
@@ -42,7 +43,7 @@ public static class ValidationExtensions
         if (typeof(IInteractionRequest).IsAssignableFrom(typeof(TRequest)))
         {
             // TODO: JR - find a nicer way to do this.
-            MethodInfo method = typeof(ValidationExtensions).GetMethod(responseTypeName, BindingFlags.Static | BindingFlags.NonPublic)!;
+            MethodInfo method = typeof(MediatRExtensions).GetMethod(responseTypeName, BindingFlags.Static | BindingFlags.NonPublic)!;
             MethodInfo generic = method.MakeGenericMethod(typeof(TRequest));
             generic.Invoke(null, new object[] { config });
         }

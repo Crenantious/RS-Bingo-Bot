@@ -12,13 +12,13 @@ using DiscordLibrary.Requests;
 
 internal static class InteractableExtensions
 {
-    public static void Register<T, K>(this T interactable, K request, T component)
+    public static void Register<T, K>(this T interactable, Func<K> getRequest, T component)
         where T : IComponent, IInteractable
         where K : IComponentInteractionRequest<T>
     {
         // TODO: JR - remove the need for constraints.
         ComponentInteractionDEH.Constraints constraints = new(new(), interactable.CustomId);
-        DiscordInteractionServices.RegisterInteractionHandler(request, component, constraints);
+        DiscordInteractionServices.RegisterInteractionHandler(getRequest, component, constraints);
     }
 
     public static void Register(this Modal modal, IModalRequest request)

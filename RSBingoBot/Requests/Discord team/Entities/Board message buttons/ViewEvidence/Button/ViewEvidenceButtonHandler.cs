@@ -32,7 +32,7 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         User user = discordUser.GetDBUser(DataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
-        var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, new ConcludeInteractionButtonRequest(this));
+        var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(this));
 
         ResponseMessages.Add(
             new InteractionMessage(Interaction)
@@ -49,7 +49,7 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
     private SelectComponent CreateSelectComponent(User user) =>
         selectComponentFactory.Create(
             new SelectComponentInfo("Select a tile", GetSelectOptions(user)),
-            new ViewEvidenceSelectRequest());
+            () => new ViewEvidenceSelectRequest());
 
     private IEnumerable<SelectComponentOption> GetSelectOptions(User user) =>
         user.Evidence.Select(e => CreateSelectOption(e));

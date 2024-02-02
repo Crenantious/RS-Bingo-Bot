@@ -19,7 +19,7 @@ public class SingletonButtons
     {
         this.buttonFactory = buttonFactory;
 
-        CreateTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Create team", "CreateTeamButton"), new CreateTeamButtonRequest());
-        JoinTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Join team", "JoinTeamButton"), new JoinTeamButtonRequest());
+        CreateTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Create team", "CreateTeamButton"), () => new CreateTeamButtonRequest());
+        JoinTeam = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Join team", "JoinTeamButton"), () => new JoinTeamButtonRequest());
     }
 }

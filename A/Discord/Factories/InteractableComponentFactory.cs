@@ -18,11 +18,11 @@ public abstract class InteractableComponentFactory<TComponent, TRequest>
 
     }
 
-    public TComponent Create(TRequest request)
+    public TComponent Create(Func<TRequest> getRequest)
     {
         TComponent component = Create();
 
-        component.Register(request, component);
+        component.Register(getRequest, component);
         return component;
     }
 
@@ -41,11 +41,11 @@ public abstract class InteractableComponentFactory<TCreateInfo, TComponent, TReq
 
     }
 
-    public TComponent Create(TCreateInfo createInfo, TRequest request)
+    public TComponent Create(TCreateInfo createInfo, Func<TRequest> getRequest)
     {
         TComponent component = Create(createInfo);
 
-        component.Register(request, component);
+        component.Register(getRequest, component);
         return component;
     }
 

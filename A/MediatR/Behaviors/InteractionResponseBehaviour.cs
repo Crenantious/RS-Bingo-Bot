@@ -19,6 +19,8 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
 {
     private readonly RequestsTracker requestsTracker;
 
+    private bool hasInternalError = false;
+
     protected DiscordInteraction Interaction { get; private set; } = null!;
 
     public InteractionResponseBehaviour()
@@ -48,10 +50,29 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
             AddResponses(childTracker, response, responseTypes);
         }
 
+        CheckInternalError(tracker, response);
+
         tracker.RequestResult.Reasons
             .Where(r => DoesInherit(r, responseTypes))
             .Where(r => string.IsNullOrEmpty(r.Message) is false)
+            .Where(r => r is not InternalError)
             .ForEach(r => response.WithContent(r.Message));
+    }
+
+    private void CheckInternalError(RequestTracker tracker, InteractionMessage response)
+    {
+        if (hasInternalError)
+        {
+            // The user only needs to be sent one message stating an internal error even if there's multiple.
+            return;
+        }
+
+        var internalError = tracker.RequestResult.Reasons.FirstOrDefault(r => r is InternalError);
+        if (internalError != default)
+        {
+            hasInternalError = true;
+            response.WithContent(internalError.Message);
+        }
     }
 
     private static bool DoesInherit(IReason r, Type[] responseTypes) =>

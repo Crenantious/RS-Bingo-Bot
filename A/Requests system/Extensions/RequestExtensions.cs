@@ -24,6 +24,9 @@ public static class RequestExtensions
     internal static RequestTracker GetTracker(this IBaseRequest request) =>
         trackers.GetActive(request);
 
+    internal static bool TryGetTracker(this IBaseRequest request, out RequestTracker tracker) =>
+        trackers.TryGetActive(request, out tracker);
+
     public static DiscordInteraction GetDiscordInteraction(this IInteractionRequest request) =>
         request.GetFromMetaData<DiscordInteraction>();
 

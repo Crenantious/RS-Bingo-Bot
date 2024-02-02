@@ -24,11 +24,12 @@ public static class DiscordInteractionServices
         modalDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH))!;
     }
 
-    public static void RegisterInteractionHandler<T>(IComponentInteractionRequest<T> request,
+    public static void RegisterInteractionHandler<T, K>(Func<K> getRequest,
         T component, ComponentInteractionDEH.Constraints constraints)
-        where T : IComponent
+        where T : IComponent, IInteractable
+        where K : IComponentInteractionRequest<T>
     {
-        componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(request, component, args));
+        componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(getRequest(), component, args));
     }
 
     public static void RegisterModal(IModalRequest request, ModalSubmittedDEH.Constraints constraints)

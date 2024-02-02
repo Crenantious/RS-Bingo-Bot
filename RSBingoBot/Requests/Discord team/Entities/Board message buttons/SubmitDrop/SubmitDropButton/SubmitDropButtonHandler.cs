@@ -44,8 +44,8 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
              .AsEphemeral(true);
         SubmitDropButtonDTO dto = new(response);
 
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new SubmitDropSubmitButtonRequest(dto, evidenceType));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConcludeInteractionButtonRequest(this));
+        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new SubmitDropSubmitButtonRequest(dto, evidenceType));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(this));
 
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
         response.AddComponents(submit, cancel);
@@ -60,7 +60,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
     private SelectComponent CreateSelectComponent(int maxOptions, SubmitDropButtonDTO dto) =>
         selectFactory.Create(
             new SelectComponentInfo("Select a tile", GetSelectOptions(), MaxOptions: maxOptions),
-            new SubmitDropSelectRequest(dto));
+            () => new SubmitDropSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>
         user.Team.Tiles

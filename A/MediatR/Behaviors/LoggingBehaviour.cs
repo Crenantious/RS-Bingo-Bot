@@ -5,11 +5,11 @@
 namespace DiscordLibrary.Behaviours;
 
 using DiscordLibrary.Requests;
+using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RSBingo_Common;
-using DiscordLibrary.Requests.Extensions;
 using System.Text;
 
 // TODO: JR - add RequestType to requests (Command, UserEndpoint, Database, Discord etc.) and colour code
@@ -24,7 +24,8 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
     private const string BeganHandlingRequestWithInfo = "Began handling request of type '{0}'.{1}{2}";
     private const string RequestSucceeded = "The request '{0}' was completed successfully after {1} ms.";
     private const string RequestFailed = "The request '{0}' failed after {1} ms with the following errors:";
-
+    private const string FailedToGetTrackerError = "The request tracker for the a request of type {0} does not exist" +
+        "so not additional information can be logged.";
     private readonly ILogger<LoggingBehaviour<TRequest, TResult>> logger;
     private readonly RequestLogInfo<TResult> additionalRequestInfo;
 
@@ -38,7 +39,12 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         TResult result = await next();
-        var tracker = request.GetTracker();
+        bool trackerExists = request.TryGetTracker(out RequestTracker tracker);
+        if (trackerExists is false)
+        {
+            logger.LogInformation(FailedToGetTrackerError.FormatConst(request.GetType()));
+            return result;
+        }
 
         // Only log the top level request since all its children get recursively logged here.
         if (tracker.ParentRequest is null)
@@ -55,7 +61,11 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
 
     private void AppendTrackerInfo(RequestTracker tracker, StringBuilder info)
     {
-        string parent = tracker.ParentRequest is null ? "None" : tracker.RequestId.ToString();
+        string parent = tracker.ParentRequest is null ?
+            "none" :
+            (tracker.ParentRequest.TryGetTracker(out RequestTracker parentTracker) ?
+                parentTracker.RequestId.ToString() :
+                "unable to retrieve tracker");
 
         info.AppendLine(
             $"Request: {tracker.Request.GetType()}, " +

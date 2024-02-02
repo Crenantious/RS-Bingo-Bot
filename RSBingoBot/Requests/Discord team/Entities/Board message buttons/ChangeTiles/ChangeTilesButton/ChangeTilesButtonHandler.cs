@@ -50,11 +50,11 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
             .AsEphemeral(true);
         ChangeTilesButtonDTO dto = new();
 
-        SelectComponent changeFrom = CreateSelectComponent("Change from", GetFromSelectOptions(), new ChangeTilesFromSelectRequest(dto));
-        SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), new ChangeTilesToSelectRequest(dto));
+        SelectComponent changeFrom = CreateSelectComponent("Change from", GetFromSelectOptions(), () => new ChangeTilesFromSelectRequest(dto));
+        SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), () => new ChangeTilesToSelectRequest(dto));
 
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), new ConcludeInteractionButtonRequest(this));
+        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(this));
 
         response.AddComponents(changeFrom);
         response.AddComponents(changeTo);
@@ -71,7 +71,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
     private static string GetResponseContent(ChangeTilesButtonRequest request) =>
         ResponseContent.FormatConst(request.GetDiscordInteraction().User.Mention);
 
-    private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, ISelectComponentRequest request) =>
+    private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, Func<ISelectComponentRequest> request) =>
         selectFactory.Create(new SelectComponentInfo(name, options), request);
 
     private IEnumerable<SelectComponentOption> GetFromSelectOptions()

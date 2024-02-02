@@ -176,78 +176,81 @@ public class Program
     private static void RegisterMediatR(IServiceCollection services)
     {
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<DiscordLibraryMediatRRegistrationMarker>()
+            .AddOpenBehavior(typeof(RequestTrackerCleanupBehaviour<,>))
             .AddOpenBehavior(typeof(LoggingBehaviour<,>))
 
             // Channel requests
-            .AddValidation<CreateChannelRequest, DiscordChannel>(services)
-            .AddValidation<GetChannelRequest, DiscordChannel>(services)
-            .AddValidation<RenameChannelRequest>(services)
-            .AddValidation<DeleteChannelRequest>(services)
+            .AddRequest<CreateChannelRequest, DiscordChannel>(services)
+            .AddRequest<GetChannelRequest, DiscordChannel>(services)
+            .AddRequest<RenameChannelRequest>(services)
+            .AddRequest<DeleteChannelRequest>(services)
 
             // Message requests
-            .AddValidation<SendMessageRequest>(services)
-            .AddValidation<SendInteractionMessageRequest>(services)
-            .AddValidation<SendModalRequest>(services)
-            .AddValidation<GetMessageRequest, Message>(services)
-            .AddValidation<DeleteMessageRequest>(services)
+            .AddRequest<SendMessageRequest>(services)
+            .AddRequest<SendInteractionMessageRequest>(services)
+            .AddRequest<SendInteractionOriginalResponseRequest>(services)
+            .AddRequest<SendInteractionFollowUpRequest>(services)
+            .AddRequest<SendModalRequest>(services)
+            .AddRequest<GetMessageRequest, Message>(services)
+            .AddRequest<DeleteMessageRequest>(services)
 
             // Role requests
-            .AddValidation<CreateRoleRequest, DiscordRole>(services)
-            .AddValidation<GetRoleRequest, DiscordRole>(services)
-            .AddValidation<GrantDiscordRoleRequest>(services)
-            .AddValidation<RevokeRoleRequest>(services)
-            .AddValidation<RenameRoleRequest>(services)
-            .AddValidation<DeleteRoleRequest>(services)
+            .AddRequest<CreateRoleRequest, DiscordRole>(services)
+            .AddRequest<GetRoleRequest, DiscordRole>(services)
+            .AddRequest<GrantDiscordRoleRequest>(services)
+            .AddRequest<RevokeRoleRequest>(services)
+            .AddRequest<RenameRoleRequest>(services)
+            .AddRequest<DeleteRoleRequest>(services)
 
             // Other requests
-            .AddValidation<GetDiscordMemberRequest, DiscordMember>(services)
-            .AddValidation<ConcludeInteractionButtonRequest>(services)
+            .AddRequest<GetDiscordMemberRequest, DiscordMember>(services)
+            .AddRequest<ConcludeInteractionButtonRequest>(services)
             );
 
         services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<RSBingoBotMediatRRegistrationMarker>()
 
             // CSV requests
-            .AddValidation<AddTaskRestrictionsCSVRequest>(services)
-            .AddValidation<AddTasksCSVRequest>(services)
-            .AddValidation<RemoveTaskRestrictionsCSVRequest>(services)
-            .AddValidation<RemoveTasksCSVRequest>(services)
+            .AddRequest<AddTaskRestrictionsCSVRequest>(services)
+            .AddRequest<AddTasksCSVRequest>(services)
+            .AddRequest<RemoveTaskRestrictionsCSVRequest>(services)
+            .AddRequest<RemoveTasksCSVRequest>(services)
 
             // Database requests
-            .AddValidation<UpdateDatabaseRequest>(services)
+            .AddRequest<UpdateDatabaseRequest>(services)
 
             // Web requests
-            .AddValidation<DownloadFileRequest>(services)
+            .AddRequest<DownloadFileRequest>(services)
 
             // Commands
-            .AddValidation<PostTeamSignUpChannelMessageRequest>(services)
-            .AddValidation<DeleteTeamCommandRequest>(services)
+            .AddRequest<PostTeamSignUpChannelMessageRequest>(services)
+            .AddRequest<DeleteTeamCommandRequest>(services)
 
             // Team management requests
-            .AddValidation<CreateMissingDiscordTeamEntitiesRequest>(services)
-            .AddValidation<CreateTeamBoardMessageRequest, Message>(services)
-            .AddValidation<AssignTeamRoleRequest>(services)
-            .AddValidation<CreateTeamRoleRequest, DiscordRole>(services)
-            .AddValidation<SetDiscordTeamExistingEntitiesRequest>(services)
-            .AddValidation<CreateTeamButtonRequest>(services)
-            .AddValidation<CreateTeamModalRequest>(services)
-            .AddValidation<DeleteTeamRequest>(services)
-            .AddValidation<AddUserToTeamRequest>(services)
-            .AddValidation<JoinTeamButtonRequest>(services)
-            .AddValidation<JoinTeamSelectRequest>(services)
-            .AddValidation<RemoveUserFromTeamRequest>(services)
-            .AddValidation<RenameTeamRequest>(services)
+            .AddRequest<CreateMissingDiscordTeamEntitiesRequest>(services)
+            .AddRequest<CreateTeamBoardMessageRequest, Message>(services)
+            .AddRequest<AssignTeamRoleRequest>(services)
+            .AddRequest<CreateTeamRoleRequest, DiscordRole>(services)
+            .AddRequest<SetDiscordTeamExistingEntitiesRequest>(services)
+            .AddRequest<CreateTeamButtonRequest>(services)
+            .AddRequest<CreateTeamModalRequest>(services)
+            .AddRequest<DeleteTeamRequest>(services)
+            .AddRequest<AddUserToTeamRequest>(services)
+            .AddRequest<JoinTeamButtonRequest>(services)
+            .AddRequest<JoinTeamSelectRequest>(services)
+            .AddRequest<RemoveUserFromTeamRequest>(services)
+            .AddRequest<RenameTeamRequest>(services)
 
             // Team channels requests
-            .AddValidation<ChangeTilesButtonRequest>(services)
-            .AddValidation<ChangeTilesFromSelectRequest>(services)
-            .AddValidation<ChangeTilesSubmitButtonRequest>(services)
-            .AddValidation<ChangeTilesToSelectRequest>(services)
-            .AddValidation<SubmitDropButtonRequest>(services)
-            .AddValidation<SubmitDropMessageRequest>(services)
-            .AddValidation<SubmitDropSelectRequest>(services)
-            .AddValidation<SubmitDropSubmitButtonRequest>(services)
-            .AddValidation<ViewEvidenceButtonRequest>(services)
-            .AddValidation<ViewEvidenceSelectRequest>(services)
+            .AddRequest<ChangeTilesButtonRequest>(services)
+            .AddRequest<ChangeTilesFromSelectRequest>(services)
+            .AddRequest<ChangeTilesSubmitButtonRequest>(services)
+            .AddRequest<ChangeTilesToSelectRequest>(services)
+            .AddRequest<SubmitDropButtonRequest>(services)
+            .AddRequest<SubmitDropMessageRequest>(services)
+            .AddRequest<SubmitDropSelectRequest>(services)
+            .AddRequest<SubmitDropSubmitButtonRequest>(services)
+            .AddRequest<ViewEvidenceButtonRequest>(services)
+            .AddRequest<ViewEvidenceSelectRequest>(services)
         );
     }
 }
