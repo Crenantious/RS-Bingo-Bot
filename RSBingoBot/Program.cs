@@ -12,7 +12,6 @@ using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
-using DiscordLibrary.Requests.Validation;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentValidation;
@@ -162,6 +161,7 @@ public class Program
                 services.AddSingleton(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
                 services.AddSingleton(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
                 services.AddSingleton(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
+                services.AddSingleton(typeof(IBehaviourServices), typeof(BehaviourServices));
                 services.AddSingleton(typeof(IDatabaseServices), typeof(DatabaseServices));
             })
 
@@ -190,6 +190,7 @@ public class Program
             .AddRequest<SendInteractionMessageRequest>(services)
             .AddRequest<SendInteractionOriginalResponseRequest>(services)
             .AddRequest<SendInteractionFollowUpRequest>(services)
+            .AddRequest<SendRequestResultResponsesRequest>(services)
             .AddRequest<SendModalRequest>(services)
             .AddRequest<GetMessageRequest, Message>(services)
             .AddRequest<DeleteMessageRequest>(services)

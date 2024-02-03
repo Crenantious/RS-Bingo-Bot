@@ -27,7 +27,7 @@ public class RequestTrackerBehaviour<TRequest, TResult> : IPipelineBehavior<TReq
         }
 
         result = await next();
-        requestsTracker.GetActive(request).Completed(result);
+        requestsTracker.Get(request).Completed(result);
 
         return result;
     }

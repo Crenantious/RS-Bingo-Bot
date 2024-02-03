@@ -78,12 +78,19 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
     private static bool DoesInherit(IReason r, Type[] responseTypes) =>
         responseTypes.Any(t => t.IsAssignableFrom(r.GetType()));
 
-    protected async Task<Result> SendResponse(TRequest request, InteractionMessage response) =>
-        await GetMessageServices(request).Send(response);
-
-    private static IDiscordInteractionMessagingServices GetMessageServices(TRequest request)
+    protected async Task<Result> SendResponse(TRequest request, InteractionMessage response)
     {
-        IDiscordInteractionMessagingServices services = (IDiscordInteractionMessagingServices)General.DI.GetService(typeof(IDiscordInteractionMessagingServices))!;
+        if (string.IsNullOrWhiteSpace(response.Content))
+        {
+            return new Result();
+        }
+
+        return await GetMessageServices(request).SendRequestResultsResponse(response);
+    }
+
+    private static IBehaviourServices GetMessageServices(TRequest request)
+    {
+        IBehaviourServices services = (IBehaviourServices)General.DI.GetService(typeof(IBehaviourServices))!;
         services.Initialise(request);
         return services;
     }

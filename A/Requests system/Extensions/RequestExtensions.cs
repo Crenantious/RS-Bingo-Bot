@@ -22,7 +22,7 @@ public static class RequestExtensions
     }
 
     internal static RequestTracker GetTracker(this IBaseRequest request) =>
-        trackers.GetActive(request);
+        trackers.Get(request);
 
     internal static bool TryGetTracker(this IBaseRequest request, out RequestTracker tracker) =>
         trackers.TryGetActive(request, out tracker);
@@ -45,5 +45,5 @@ public static class RequestExtensions
         request.GetFromMetaData<Message>();
 
     private static T GetFromMetaData<T>(this IBaseRequest request) =>
-        trackers.GetActive(request).MetaData.Get<T>();
+        trackers.Get(request).MetaData.Get<T>();
 }

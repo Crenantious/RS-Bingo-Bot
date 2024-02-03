@@ -18,9 +18,9 @@ public static class MediatRExtensions
         where TRequest : IRequest<Result<TResponse>>
     {
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -30,9 +30,9 @@ public static class MediatRExtensions
         where TRequest : IRequest<Result>
     {
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result>(config);
         AddValidationBehaviour<TRequest, Result>(config);
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        AddTrackerBehaviour<TRequest, Result>(config);
         AddValidator<TRequest, Result>(services);
         return config;
     }

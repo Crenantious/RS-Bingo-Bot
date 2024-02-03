@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.Exceptions;
 using FluentResults;
 using MediatR;
 using System.Text;
@@ -55,20 +56,45 @@ public class RequestsTracker
     /// <summary>
     /// Tries to get the tracker of an active request.
     /// </summary>
-    internal RequestTracker GetActive(IBaseRequest request) =>
-        ActiveTrackers[request];
+    internal RequestTracker Get(IBaseRequest request)
+    {
+        if (PendingTrackers.ContainsKey(request))
+        {
+            return PendingTrackers[request];
+        }
+
+        if (ActiveTrackers.ContainsKey(request))
+        {
+
+            return ActiveTrackers[request];
+        }
+
+        throw new RequestTrackerNotFoundException(request);
+    }
 
     /// <summary>
     /// Get the tracker of an active request.
     /// </summary>
-    internal bool TryGetActive(IBaseRequest request, out RequestTracker tracker) =>
-        ActiveTrackers.TryGetValue(request, out tracker);
+    internal bool TryGetActive(IBaseRequest request, out RequestTracker tracker)
+    {
+        if (PendingTrackers.ContainsKey(request))
+        {
+            return PendingTrackers.TryGetValue(request, out tracker);
+        }
+        return ActiveTrackers.TryGetValue(request, out tracker);
+    }
 
     /// <summary>
     /// Try and remove a request tracker. This should be called when the request has been completed.
     /// </summary>
     internal bool TryRemove(IBaseRequest request)
     {
+        // Just in case an error occurred such the request was never made active.
+        if (PendingTrackers.ContainsKey(request))
+        {
+            PendingTrackers.Remove(request);
+        }
+
         if (ActiveTrackers.ContainsKey(request))
         {
             ActiveTrackers.Remove(request);
