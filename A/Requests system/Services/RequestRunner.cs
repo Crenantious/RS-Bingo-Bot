@@ -41,7 +41,7 @@ public static class RequestRunner
     {
         RequestTracker tracker = new(request, parentRequest);
         tracker.MetaData.Add(metaData);
-        requestsTracker.AddPending(tracker);
+        requestsTracker.Add(tracker);
     }
 
     private static async Task<TResult> RunRequest<TRequest, TResult>(TRequest request)

@@ -19,16 +19,8 @@ public class RequestTrackerBehaviour<TRequest, TResult> : IPipelineBehavior<TReq
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
-        TResult result = requestsTracker.ChangePendingToActive<TResult>(request);
-        if (result.IsFailed)
-        {
-            result.WithError(new InternalError());
-            return result;
-        }
-
-        result = await next();
+        var result = await next();
         requestsTracker.Get(request).Completed(result);
-
         return result;
     }
 }
