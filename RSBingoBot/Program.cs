@@ -25,7 +25,6 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.DiscordComponents;
-using RSBingoBot.Factories;
 using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 using RSBingoBot.Requests.Validation;
@@ -149,7 +148,6 @@ public class Program
                 services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
 
-                services.AddSingleton<DiscordTeamFactory>();
                 services.AddSingleton<ButtonFactory>();
                 services.AddSingleton<SelectComponentFactory>();
                 services.AddSingleton<TextInputFactory>();
@@ -157,12 +155,14 @@ public class Program
 
                 services.AddSingleton<SingletonButtons>();
 
-                services.AddSingleton(typeof(IDiscordServices), typeof(DiscordServices));
-                services.AddSingleton(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
-                services.AddSingleton(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
-                services.AddSingleton(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
-                services.AddSingleton(typeof(IBehaviourServices), typeof(BehaviourServices));
-                services.AddSingleton(typeof(IDatabaseServices), typeof(DatabaseServices));
+                services.AddTransient(typeof(IDiscordServices), typeof(DiscordServices));
+                services.AddTransient(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
+                services.AddTransient(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
+                services.AddTransient(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
+                services.AddTransient(typeof(IBehaviourServices), typeof(BehaviourServices));
+                services.AddTransient(typeof(IDatabaseServices), typeof(DatabaseServices));
+
+                services.AddTransient<DiscordTeamChannelsInfo>();
             })
 
             // Swap out the DI factory for Autofac as it has more features
@@ -227,17 +227,22 @@ public class Program
             .AddRequest<DeleteTeamCommandRequest>(services)
 
             // Team management requests
-            .AddRequest<CreateMissingDiscordTeamEntitiesRequest>(services)
-            .AddRequest<CreateTeamBoardMessageRequest, Message>(services)
-            .AddRequest<AssignTeamRoleRequest>(services)
-            .AddRequest<CreateTeamRoleRequest, DiscordRole>(services)
-            .AddRequest<SetDiscordTeamExistingEntitiesRequest>(services)
             .AddRequest<CreateTeamButtonRequest>(services)
             .AddRequest<CreateTeamModalRequest>(services)
-            .AddRequest<DeleteTeamRequest>(services)
-            .AddRequest<AddUserToTeamRequest>(services)
+
+            .AddRequest<CreateNewTeamRequest, RSBingoBot.Discord.DiscordTeam>(services)
+            .AddRequest<CreateExistingTeamRequest, RSBingoBot.Discord.DiscordTeam>(services)
+            .AddRequest<CreateMissingDiscordTeamEntitiesRequest>(services)
+            .AddRequest<SetDiscordTeamExistingEntitiesRequest>(services)
+            .AddRequest<CreateTeamRoleRequest, DiscordRole>(services)
+            .AddRequest<CreateTeamBoardMessageRequest, Message>(services)
+
             .AddRequest<JoinTeamButtonRequest>(services)
             .AddRequest<JoinTeamSelectRequest>(services)
+            .AddRequest<AddUserToTeamRequest>(services)
+            .AddRequest<AssignTeamRoleRequest>(services)
+
+            .AddRequest<DeleteTeamRequest>(services)
             .AddRequest<RemoveUserFromTeamRequest>(services)
             .AddRequest<RenameTeamRequest>(services)
 

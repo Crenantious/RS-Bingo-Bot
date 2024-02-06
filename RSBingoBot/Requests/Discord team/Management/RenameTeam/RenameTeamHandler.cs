@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using static DiscordTeamChannelsInfo;
 
 internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 {
@@ -17,11 +18,13 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 
     private readonly IDiscordServices discordServices;
     private readonly IDatabaseServices databaseServices;
+    private readonly DiscordTeamChannelsInfo channelsInfo;
 
-    public RenameTeamHandler(IDiscordServices discordServices, IDatabaseServices databaseServices)
+    public RenameTeamHandler(IDiscordServices discordServices, IDatabaseServices databaseServices, DiscordTeamChannelsInfo channelsInfo)
     {
         this.discordServices = discordServices;
         this.databaseServices = databaseServices;
+        this.channelsInfo = channelsInfo;
     }
 
     protected override async Task Process(RenameTeamRequest request, CancellationToken cancellationToken)
@@ -45,20 +48,20 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 
     private async Task RenameChannels(RenameTeamRequest request)
     {
-        DiscordTeamChannelsInfo channelsInfo = new(request.DiscordTeam);
-        await RenameChannel(request.DiscordTeam.CategoryChannel!, channelsInfo.Category.Name, "category");
-        await RenameChannel(request.DiscordTeam.BoardChannel!, channelsInfo.Board.Name, "board");
-        await RenameChannel(request.DiscordTeam.GeneralChannel!, channelsInfo.General.Name, "general");
-        await RenameChannel(request.DiscordTeam.EvidenceChannel!, channelsInfo.Evidence.Name, "evidence");
-        await RenameChannel(request.DiscordTeam.VoiceChannel!, channelsInfo.Voice.Name, "voice");
+        await RenameChannel(request.DiscordTeam.CategoryChannel!, request, Channel.Category);
+        await RenameChannel(request.DiscordTeam.BoardChannel!, request, Channel.Board);
+        await RenameChannel(request.DiscordTeam.GeneralChannel!, request, Channel.General);
+        await RenameChannel(request.DiscordTeam.EvidenceChannel!, request, Channel.Evidence);
+        await RenameChannel(request.DiscordTeam.VoiceChannel!, request, Channel.Voice);
     }
 
-    private async Task RenameChannel(DiscordChannel channel, string name, string typeName)
+    private async Task RenameChannel(DiscordChannel channel, RenameTeamRequest request, Channel channelType)
     {
-        Result result = await discordServices.RenameChannel(channel, name);
+        string newName = channelsInfo.GetInfo(request.DiscordTeam, channelType).Name;
+        Result result = await discordServices.RenameChannel(channel, newName);
         if (result.IsFailed)
         {
-            AddWarning(new RenameTeamChannelWarning(typeName));
+            AddWarning(new RenameTeamChannelWarning(channelType.ToString().ToLower()));
         }
     }
 

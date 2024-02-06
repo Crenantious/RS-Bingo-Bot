@@ -7,18 +7,9 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using FluentResults;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 
 internal class AddUserToTeamHandler : RequestHandler<AddUserToTeamRequest>
 {
-    private readonly IDiscordServices discordServices;
-
-    public AddUserToTeamHandler(IDiscordServices discordServices)
-    {
-        this.discordServices = discordServices;
-    }
-
     protected override async Task Process(AddUserToTeamRequest request, CancellationToken cancellationToken)
     {
         AddUserToDB(request);
@@ -27,26 +18,20 @@ internal class AddUserToTeamHandler : RequestHandler<AddUserToTeamRequest>
 
     private void AddUserToDB(AddUserToTeamRequest request)
     {
-        IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        dataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
-        dataWorker.SaveChanges();
-        AddSuccess(new JoinTeamSelectAddedToTeamSuccess(request.User));
+        request.DataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
+        AddSuccess(new AddUserToTeamSuccess(request.DiscordTeam));
     }
 
     private async Task GrantRole(AddUserToTeamRequest request)
     {
+        var discordServices = GetRequestService<IDiscordServices>();
+
         Result<DSharpPlus.Entities.DiscordMember> member = await discordServices.GetMember(request.User.Id);
         if (member.IsFailed)
         {
-            AddErrors(member.Errors);
             return;
         }
 
-        Result result = await discordServices.GrantRole(member.Value, request.DiscordTeam.Role!);
-        if (result.IsFailed)
-        {
-            AddErrors(result.Errors);
-            return;
-        }
+        await discordServices.GrantRole(member.Value, request.DiscordTeam.Role!);
     }
 }

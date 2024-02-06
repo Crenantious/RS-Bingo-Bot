@@ -4,12 +4,13 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using RSBingoBot.Requests.Validation;
 
 internal class JoinTeamButtonValidator : BingoValidator<JoinTeamButtonRequest>
 {
     public JoinTeamButtonValidator()
     {
-
+        UserNotOnATeam(r => r.GetDiscordInteraction().User, true);
     }
 }

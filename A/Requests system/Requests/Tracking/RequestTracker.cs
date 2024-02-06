@@ -44,9 +44,9 @@ public class RequestTracker
         Trackers = trackers.AsReadOnly();
         CreationTimeStamp = DateTime.UtcNow;
 
-        if (parentRequest is not null)
+        if (parentRequest is not null && requestsTracker.TryGet(parentRequest, out RequestTracker parentTracker))
         {
-            requestsTracker.Get(parentRequest).trackers.Add(this);
+            parentTracker.trackers.Add(this);
         }
     }
 

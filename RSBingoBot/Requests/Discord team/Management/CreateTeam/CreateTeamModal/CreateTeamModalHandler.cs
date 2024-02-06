@@ -11,34 +11,25 @@ using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingoBot.Discord;
-using RSBingoBot.Factories;
 
 internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
 {
-    private readonly DiscordTeamFactory discordTeamFactory;
-
-    public CreateTeamModalHandler(DiscordTeamFactory discordTeamFactory)
-    {
-        this.discordTeamFactory = discordTeamFactory;
-    }
-
     protected override async Task Process(CreateTeamModalRequest request, CancellationToken cancellationToken)
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var teamServices = GetRequestService<IDiscordTeamServices>();
+        var dbServices = GetRequestService<IDatabaseServices>();
 
-        Result<DiscordTeam> discordTeam = await discordTeamFactory.CreateNew(
-            request.GetInteractionArgs().Values[CreateTeamButtonHandler.ModalTeamNameKey],
-            dataWorker);
+        Result<DiscordTeam> discordTeam = await teamServices.CreateNewTeam(GetTeamName(request), dataWorker);
 
-        AddResponses(discordTeam);
-
-        if (discordTeam.IsFailed)
+        if (discordTeam.IsSuccess)
         {
-            return;
+            await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam.Value, dataWorker);
         }
 
-        Result addToTeam = await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam.Value);
-        AddResponses(addToTeam);
+        await dbServices.Update(dataWorker);
     }
+
+    private static string GetTeamName(CreateTeamModalRequest request) =>
+        request.GetInteractionArgs().Values[CreateTeamButtonHandler.ModalTeamNameKey];
 }

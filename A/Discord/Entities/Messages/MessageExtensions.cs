@@ -6,7 +6,6 @@ namespace DiscordLibrary.DiscordEntities;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordExtensions;
-using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Exceptions;
 using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
@@ -87,18 +86,6 @@ public static class MessageExtensions
         where T : Message
     {
         throw new NotImplementedException();
-    }
-
-    public static async Task Send(this Message message, DiscordChannel channel)
-    {
-        var service = (IDiscordMessageServices)General.DI.GetService(typeof(IDiscordMessageServices))!;
-        await service.Send(message, channel);
-    }
-
-    public static async Task Delete(this Message message)
-    {
-        var service = (IDiscordMessageServices)General.DI.GetService(typeof(IDiscordMessageServices))!;
-        await service.Delete(message);
     }
 
     public static void DeleteByTag(this Message message)

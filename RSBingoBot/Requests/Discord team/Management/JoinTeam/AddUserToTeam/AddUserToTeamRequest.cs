@@ -7,5 +7,6 @@ namespace RSBingoBot.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
+using RSBingo_Framework.Interfaces;
 
-public record AddUserToTeamRequest(DiscordUser User, RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result>;
+public record AddUserToTeamRequest(DiscordUser User, RSBingoBot.Discord.DiscordTeam DiscordTeam, IDataWorker DataWorker) : IRequest<Result>;

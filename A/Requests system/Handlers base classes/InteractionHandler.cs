@@ -27,6 +27,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
     protected DiscordInteraction Interaction { get; set; } = null!;
 
+    // TODO: JR - remove this as not all handlers need it thus it should not be made.
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)

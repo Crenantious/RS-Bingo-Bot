@@ -9,23 +9,30 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
+using static DiscordTeamChannelsInfo;
 
 internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMissingDiscordTeamEntitiesRequest>
 {
-    private readonly IDiscordTeamServices teamServices;
-    private readonly IDiscordServices discordServices;
+    private readonly DiscordTeamChannelsInfo channelsInfo;
+
+    private IDiscordTeamServices teamServices = null!;
+    private IDiscordServices discordServices = null!;
+    private IDiscordMessageServices messageServices = null!;
 
     private RSBingoBot.Discord.DiscordTeam team = null!;
 
-    public CreateMissingDiscordTeamEntitiesHandler(IDiscordTeamServices teamServices, IDiscordServices discordServices)
+    public CreateMissingDiscordTeamEntitiesHandler(DiscordTeamChannelsInfo channelsInfo)
     {
-        this.teamServices = teamServices;
-        this.discordServices = discordServices;
+        this.channelsInfo = channelsInfo;
     }
 
     protected override async Task Process(CreateMissingDiscordTeamEntitiesRequest request, CancellationToken cancellationToken)
     {
+
         this.team = request.DiscordTeam;
+        teamServices = GetRequestService<IDiscordTeamServices>();
+        discordServices = GetRequestService<IDiscordServices>();
+        messageServices = GetRequestService<IDiscordMessageServices>();
 
         if (team.Role is null && await CreateRole() is false)
         {
@@ -33,18 +40,16 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
             return;
         }
 
-        DiscordTeamChannelsInfo channelsInfo = new(team);
-
-        if (team.CategoryChannel is null && await CreateChannel(channelsInfo.Category, c => team.SetCategoryChannel(c)) is false)
+        if (team.CategoryChannel is null && await CreateChannel(request, Channel.Category, c => team.SetCategoryChannel(c)) is false)
         {
             AddError(new CreateMissingDiscordTeamEntitiesCategoryError());
             return;
         }
 
-        await CreateChannel(channelsInfo.Board, c => team.SetBoardChannel(c));
-        await CreateChannel(channelsInfo.General, c => team.SetGeneralChannel(c));
-        await CreateChannel(channelsInfo.Evidence, c => team.SetEvidenceChannel(c));
-        await CreateChannel(channelsInfo.Voice, c => team.SetVoiceChannel(c));
+        await CreateChannel(request, Channel.Board, c => team.SetBoardChannel(c));
+        await CreateChannel(request, Channel.General, c => team.SetGeneralChannel(c));
+        await CreateChannel(request, Channel.Evidence, c => team.SetEvidenceChannel(c));
+        await CreateChannel(request, Channel.Voice, c => team.SetVoiceChannel(c));
         await CreateBoardChannelMessage();
 
         AddSuccess(new CreateMissingDiscordTeamEntitiesSuccess());
@@ -61,9 +66,10 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
         return true;
     }
 
-    private async Task<bool> CreateChannel(ChannelInfo creationInfo, Action<DiscordChannel> onCreation)
+    private async Task<bool> CreateChannel(CreateMissingDiscordTeamEntitiesRequest request, Channel channelType, Action<DiscordChannel> onCreation)
     {
-        Result<DiscordChannel> channel = await discordServices.CreateChannel(creationInfo);
+        ChannelInfo info = channelsInfo.GetInfo(request.DiscordTeam, channelType);
+        Result<DiscordChannel> channel = await discordServices.CreateChannel(info);
         if (channel.IsSuccess)
         {
             onCreation(channel.Value);
@@ -77,7 +83,7 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
         if (message.IsSuccess)
         {
-            await message.Value.Send(team.BoardChannel!);
+            await messageServices.Send(message.Value, team.BoardChannel!);
             team.SetBoardMessage(message.Value);
         }
     }

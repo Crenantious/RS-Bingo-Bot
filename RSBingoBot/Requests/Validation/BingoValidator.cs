@@ -19,6 +19,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
 {
     // TODO: JR - decide how to word this.
     protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
+    protected const string UserIsAlreadyOnATeamUserPerspectiveResponse = "You are already on a team.";
     protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
 
@@ -82,11 +83,11 @@ public class BingoValidator<TRequest> : Validator<TRequest>
             .WithMessage(r => UserIsNotOnATeamResponse.FormatConst(func(r).Username));
     }
 
-    public void UserNotOnATeam(Func<TRequest, DiscordUser> func)
+    public void UserNotOnATeam(Func<TRequest, DiscordUser> func, bool userPerspective)
     {
         RuleFor(r => func(r))
             .Must(u => u.IsOnATeam(DataWorker) is false)
-            .WithMessage(r => UserIsAlreadyOnATeamResponse.FormatConst(func(r).Username));
+            .WithMessage(r => GetUserOnTeamError(func(r), userPerspective));
     }
 
     public void UserOnTeam(Func<TRequest, (DiscordUser, string)> func)
@@ -120,4 +121,10 @@ public class BingoValidator<TRequest> : Validator<TRequest>
             .Must(t => mediaTypes.Contains(t))
             .WithMessage(NotAValidImage);
     }
+
+    private string GetUserOnTeamError(DiscordUser user, bool userPerspective) =>
+        userPerspective ?
+            UserIsAlreadyOnATeamUserPerspectiveResponse :
+            UserIsAlreadyOnATeamResponse.FormatConst(user.Username);
+
 }

@@ -4,10 +4,11 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingoBot.Discord;
 
-internal class AddUserToTeamSuccess : Success
+internal class AddUserToTeamSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "You have been added to the team '{0}'.";
 

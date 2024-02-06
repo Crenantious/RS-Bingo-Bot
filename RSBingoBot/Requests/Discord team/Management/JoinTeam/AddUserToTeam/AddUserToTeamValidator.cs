@@ -11,6 +11,6 @@ internal class AddUserToTeamValidator : BingoValidator<AddUserToTeamRequest>
     public AddUserToTeamValidator()
     {
         UserNotNull(r => r.User);
-        UserNotOnATeam(r => r.User);
+        UserNotOnATeam(r => r.User, true);
     }
 }

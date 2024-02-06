@@ -4,6 +4,7 @@
 
 namespace RSBingoBot;
 
+using DiscordLibrary.DiscordServices;
 using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +14,6 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
-using RSBingoBot.Factories;
 using RSBingoBot.Leaderboard;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -24,7 +24,6 @@ internal class Bot : BackgroundService
 {
     private readonly ILogger logger;
     private readonly DiscordClient discordClient;
-    private readonly DiscordTeamFactory teamFactory;
     private readonly SingletonButtons singletonButtons;
     private readonly CommandController commandController;
     private readonly IDataWorker dataWorker = CreateDataWorker();
@@ -35,12 +34,10 @@ internal class Bot : BackgroundService
     /// <param name="logger">The logger the instance will log to.</param>
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-    public Bot(ILogger<Bot> logger, DiscordClient client, DiscordTeamFactory teamFactory, SingletonButtons singletonButtons,
-        CommandController commandController)
+    public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController)
     {
         this.logger = logger;
         this.discordClient = client;
-        this.teamFactory = teamFactory;
 
         // Injected with DI so this is enough for all the buttons to be created.
         // TODO: JR - make the buttons themselves injected or make SingletonButtons eager loaded so
@@ -71,9 +68,12 @@ internal class Bot : BackgroundService
 
     private async Task CreateExistingTeams()
     {
+        var teamServices = (IDiscordTeamServices)General.DI.GetService(typeof(IDiscordTeamServices))!;
+        teamServices.Initialise(null);
+
         foreach (Team team in dataWorker.Teams.GetTeams())
         {
-            var result = await teamFactory.CreateFromExisting(team);
+            var result = await teamServices.CreateExistingTeam(team);
             if (result.IsSuccess)
             {
                 DiscordTeam.ExistingTeams.Add(result.Value.Team.Name, result.Value);
