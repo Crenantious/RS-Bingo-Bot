@@ -10,5 +10,5 @@ using DSharpPlus.SlashCommands;
 internal class AllDiscordTeamsChoiceProvider : IChoiceProvider
 {
     public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider() =>
-        RSBingoBot.Discord.DiscordTeam.ExistingTeams.Select(t => new DiscordApplicationCommandOptionChoice(t.Key, t.Value.Team.Name));
+        RSBingoBot.Discord.DiscordTeam.ExistingTeams.Select(t => new DiscordApplicationCommandOptionChoice(t.Key, t.Key));
 }

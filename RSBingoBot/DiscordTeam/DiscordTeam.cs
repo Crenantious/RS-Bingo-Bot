@@ -16,65 +16,75 @@ public class DiscordTeam
     /// </summary>
     public static Dictionary<string, DiscordTeam> ExistingTeams { get; } = new();
 
-    // TODO: JR - check if Team can be used or if its id is required; data workers may need to get a
-    // refreshed version since the team may have been created by a different dw and be out of sync.
-    public Team Team { get; }
-    public string RoleName => Team.Name;
+    public string Name { get; private set; }
+
+    /// <summary>
+    /// The row id in the database.
+    /// </summary>
+    public int Id { get; }
+    public string RoleName => Name;
 
     // TODO: JR - have a list of all channels to make it easy to manipulate (create, rename, delete etc.) all
     // channels together and make it very simple to add/remove channels from the list and have it affect all manipulators.
+    public DiscordRole? Role { get; private set; }
     public DiscordChannel? CategoryChannel { get; private set; }
     public DiscordChannel? GeneralChannel { get; private set; }
     public DiscordChannel? BoardChannel { get; private set; }
     public DiscordChannel? EvidenceChannel { get; private set; }
     public DiscordChannel? VoiceChannel { get; private set; }
     public Message? BoardMessage { get; private set; }
-    public DiscordRole? Role { get; private set; }
 
     public DiscordTeam(Team team)
     {
-        Team = team;
+        Name = team.Name;
+        Id = team.RowId;
     }
 
-    public void SetCategoryChannel(DiscordChannel channel)
+    public void SetName(string name, Team team)
     {
-        CategoryChannel = channel;
-        Team.CategoryChannelId = channel.Id;
+        Name = name;
+        team.Name = name;
     }
 
-    public void SetBoardChannel(DiscordChannel channel)
-    {
-        BoardChannel = channel;
-        Team.BoardChannelId = channel.Id;
-    }
-
-    public void SetGeneralChannel(DiscordChannel channel)
-    {
-        GeneralChannel = channel;
-        Team.GeneralChannelId = channel.Id;
-    }
-
-    public void SetEvidenceChannel(DiscordChannel channel)
-    {
-        EvidenceChannel = channel;
-        Team.EvidenceChannelId = channel.Id;
-    }
-
-    public void SetVoiceChannel(DiscordChannel channel)
-    {
-        VoiceChannel = channel;
-        Team.VoiceChannelId = channel.Id;
-    }
-
-    public void SetBoardMessage(Message message)
-    {
-        BoardMessage = message;
-        Team.BoardMessageId = message.DiscordMessage.Id;
-    }
-
-    public void SetRole(DiscordRole role)
+    public void SetRole(DiscordRole role, Team team)
     {
         Role = role;
-        Team.RoleId = role.Id;
+        team.RoleId = role.Id;
+    }
+
+    public void SetCategoryChannel(DiscordChannel channel, Team team)
+    {
+        CategoryChannel = channel;
+        team.CategoryChannelId = channel.Id;
+    }
+
+    public void SetBoardChannel(DiscordChannel channel, Team team)
+    {
+        BoardChannel = channel;
+        team.BoardChannelId = channel.Id;
+    }
+
+    public void SetGeneralChannel(DiscordChannel channel, Team team)
+    {
+        GeneralChannel = channel;
+        team.GeneralChannelId = channel.Id;
+    }
+
+    public void SetEvidenceChannel(DiscordChannel channel, Team team)
+    {
+        EvidenceChannel = channel;
+        team.EvidenceChannelId = channel.Id;
+    }
+
+    public void SetVoiceChannel(DiscordChannel channel, Team team)
+    {
+        VoiceChannel = channel;
+        team.VoiceChannelId = channel.Id;
+    }
+
+    public void SetBoardMessage(Message message, Team team)
+    {
+        BoardMessage = message;
+        team.BoardMessageId = message.DiscordMessage.Id;
     }
 }

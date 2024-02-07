@@ -31,20 +31,20 @@ internal class DiscordTeamChannelsInfo
 
         return channel switch
         {
-            Channel.Category => new(discordTeam.Team.Name, ChannelType.Category, Overwrites:
+            Channel.Category => new(discordTeam.Name, ChannelType.Category, Overwrites:
                 GetOverwrites(discordTeam.Role!, Permissions.None, Permissions.AccessChannels)),
 
-            Channel.Board => new($"{discordTeam.Team.Name}-board", ChannelType.Text, discordTeam.CategoryChannel,
+            Channel.Board => new($"{discordTeam.Name}-board", ChannelType.Text, discordTeam.CategoryChannel,
                 GetOverwrites(discordTeam.Role!, Permissions.SendMessages | Permissions.SendMessagesInThreads, Permissions.SendMessages)),
 
-            Channel.General => new($"{discordTeam.Team.Name}-general", ChannelType.Text, discordTeam.CategoryChannel,
+            Channel.General => new($"{discordTeam.Name}-general", ChannelType.Text, discordTeam.CategoryChannel,
                 GetOverwrites(discordTeam.Role!, Permissions.AccessChannels, Permissions.AccessChannels)),
 
-            Channel.Evidence => new($"{discordTeam.Team.Name}-evidence", ChannelType.Text, discordTeam.CategoryChannel,
+            Channel.Evidence => new($"{discordTeam.Name}-evidence", ChannelType.Text, discordTeam.CategoryChannel,
                 GetOverwrites(discordTeam.Role!, Permissions.AccessChannels | Permissions.SendMessages | Permissions.SendMessagesInThreads,
                 Permissions.AccessChannels)),
 
-            Channel.Voice => new($"{discordTeam.Team.Name}-voice", ChannelType.Voice, discordTeam.CategoryChannel,
+            Channel.Voice => new($"{discordTeam.Name}-voice", ChannelType.Voice, discordTeam.CategoryChannel,
                 GetOverwrites(discordTeam.Role!, Permissions.AccessChannels, Permissions.AccessChannels)),
 
             _ => throw new ArgumentOutOfRangeException("")

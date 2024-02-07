@@ -29,7 +29,7 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
 
     protected override async Task Process(RenameTeamRequest request, CancellationToken cancellationToken)
     {
-        string oldName = request.DiscordTeam.Team.Name;
+        string oldName = request.DiscordTeam.Name;
 
         if (await UpdateDatabase(request) is false)
         {
@@ -68,7 +68,7 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
     private async Task<bool> UpdateDatabase(RenameTeamRequest request)
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        request.DiscordTeam.Team.Name = request.NewName;
+        request.DiscordTeam.SetName(request.NewName, dataWorker.Teams.Find(request.DiscordTeam.Id)!);
 
         Result result = await databaseServices.Update(dataWorker);
         return result.IsSuccess;

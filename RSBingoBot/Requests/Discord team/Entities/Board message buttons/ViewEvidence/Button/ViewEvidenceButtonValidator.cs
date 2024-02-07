@@ -15,8 +15,8 @@ internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRe
 
     public ViewEvidenceButtonValidator()
     {
-        TeamExists(r => r.Team);
-        UserOnTeam(r => (r.GetDiscordInteraction().User, r.Team));
+        TeamExists(r => r.TeamId);
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId));
         RuleFor(r => r.GetDiscordInteraction().User.GetDBUser(DataWorker)!.Evidence)
             .NotEmpty()
             .WithMessage(NoTilesFoundError);

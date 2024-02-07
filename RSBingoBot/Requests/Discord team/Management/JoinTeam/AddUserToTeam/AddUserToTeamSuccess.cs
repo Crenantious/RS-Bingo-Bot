@@ -12,7 +12,7 @@ internal class AddUserToTeamSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "You have been added to the team '{0}'.";
 
-    public AddUserToTeamSuccess(DiscordTeam discordTeam) : base(SuccessMessage.FormatConst(discordTeam.Team.Name))
+    public AddUserToTeamSuccess(DiscordTeam discordTeam) : base(SuccessMessage.FormatConst(discordTeam.Name))
     {
 
     }

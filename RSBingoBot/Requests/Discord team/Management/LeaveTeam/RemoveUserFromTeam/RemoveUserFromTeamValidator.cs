@@ -10,7 +10,7 @@ internal class RemoveUserFromTeamValidator : BingoValidator<RemoveUserFromTeamRe
 {
     public RemoveUserFromTeamValidator()
     {
-        TeamExists(r => r.DiscordTeam.Team);
-        UserOnTeam(r => (r.User, r.DiscordTeam.Team.Name));
+        TeamExists(r => r.DiscordTeam.Id);
+        UserOnTeam(r => (r.User, r.DiscordTeam.Id));
     }
 }

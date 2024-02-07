@@ -25,7 +25,7 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
         await DeleteChannels(request);
 
         // TODO: JR - handle deleting of the DiscordTeam.
-        dataWorker.Teams.Remove(request.DiscordTeam.Team);
+        dataWorker.Teams.Remove(dataWorker.Teams.Find(request.DiscordTeam.Id)!);
         await databaseServices.Update(dataWorker);
 
         AddSuccess(new DeleteTeamSuccess(request.DiscordTeam));

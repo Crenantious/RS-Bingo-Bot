@@ -10,6 +10,6 @@ internal class CreateMissingDiscordTeamEntitiesValidator : BingoValidator<Create
 {
     public CreateMissingDiscordTeamEntitiesValidator()
     {
-        TeamExists(r => r.DiscordTeam.Team);
+        TeamExists(r => r.DiscordTeam.Id);
     }
 }

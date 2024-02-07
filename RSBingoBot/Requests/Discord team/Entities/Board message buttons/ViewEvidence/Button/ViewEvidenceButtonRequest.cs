@@ -5,6 +5,5 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
-using RSBingo_Framework.Models;
 
-public record ViewEvidenceButtonRequest(Team Team) : IButtonRequest;
+public record ViewEvidenceButtonRequest(int TeamId) : IButtonRequest;

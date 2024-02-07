@@ -76,7 +76,7 @@ internal class Bot : BackgroundService
             var result = await teamServices.CreateExistingTeam(team);
             if (result.IsSuccess)
             {
-                DiscordTeam.ExistingTeams.Add(result.Value.Team.Name, result.Value);
+                DiscordTeam.ExistingTeams.Add(team.Name, result.Value);
             }
         }
     }

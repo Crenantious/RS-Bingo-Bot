@@ -10,7 +10,7 @@ internal class RenameTeamValidator : BingoValidator<RenameTeamRequest>
 {
     public RenameTeamValidator()
     {
-        TeamExists(r => r.DiscordTeam.Team);
+        TeamExists(r => r.DiscordTeam.Id);
         NewTeamName(r => r.NewName);
     }
 }

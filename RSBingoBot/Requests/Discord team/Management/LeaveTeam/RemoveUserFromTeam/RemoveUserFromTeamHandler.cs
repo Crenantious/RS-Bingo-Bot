@@ -35,7 +35,7 @@ internal class RemoveUserFromTeamHandler : RequestHandler<RemoveUserFromTeamRequ
         User user = dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.User.Id)!;
         dataWorker.Users.Remove(user);
         await databaseServices.Update(dataWorker);
-        AddSuccess(new RemoveUserFromTeamRemovedSuccess(request.User, request.DiscordTeam.Team));
+        AddSuccess(new RemoveUserFromTeamRemovedSuccess(request.User, request.DiscordTeam.Name));
     }
 
     private async Task RevokeRole(RemoveUserFromTeamRequest request)

@@ -23,7 +23,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
     {
         // TODO: send a request to get the board image.
         Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"),
-            () => new ChangeTilesButtonRequest(request.DiscordTeam.Team.RowId));
+            () => new ChangeTilesButtonRequest(request.DiscordTeam.Id));
 
         Button submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit evidence"),
             () => new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
@@ -33,7 +33,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
             () => new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
 
         Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"),
-            () => new ViewEvidenceButtonRequest(request.DiscordTeam.Team));
+            () => new ViewEvidenceButtonRequest(request.DiscordTeam.Id));
 
         var message = new Message()
             .WithContent("Your board")

@@ -10,6 +10,6 @@ internal class DeleteTeamValidator : BingoValidator<DeleteTeamRequest>
 {
     public DeleteTeamValidator()
     {
-        TeamExists(r => r.DiscordTeam.Team);
+        TeamExists(r => r.DiscordTeam.Id);
     }
 }

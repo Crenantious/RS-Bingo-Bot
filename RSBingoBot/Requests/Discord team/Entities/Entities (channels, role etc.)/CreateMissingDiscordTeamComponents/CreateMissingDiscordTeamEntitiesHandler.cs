@@ -9,6 +9,9 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using static DiscordTeamChannelsInfo;
 
 internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMissingDiscordTeamEntitiesRequest>
@@ -19,7 +22,8 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
     private IDiscordServices discordServices = null!;
     private IDiscordMessageServices messageServices = null!;
 
-    private RSBingoBot.Discord.DiscordTeam team = null!;
+    private RSBingoBot.Discord.DiscordTeam discordTeam = null!;
+    private Team team = null!;
 
     public CreateMissingDiscordTeamEntitiesHandler(DiscordTeamChannelsInfo channelsInfo)
     {
@@ -28,28 +32,31 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
     protected override async Task Process(CreateMissingDiscordTeamEntitiesRequest request, CancellationToken cancellationToken)
     {
+        this.discordTeam = request.DiscordTeam;
+        IDataWorker dataWorker = DataFactory.CreateDataWorker();
+        team = dataWorker.Teams.Find(request.DiscordTeam.Id)!;
 
-        this.team = request.DiscordTeam;
         teamServices = GetRequestService<IDiscordTeamServices>();
         discordServices = GetRequestService<IDiscordServices>();
         messageServices = GetRequestService<IDiscordMessageServices>();
 
-        if (team.Role is null && await CreateRole() is false)
+        if (discordTeam.Role is null && await CreateRole() is false)
         {
             AddError(new CreateMissingDiscordTeamEntitiesRoleError());
             return;
         }
 
-        if (team.CategoryChannel is null && await CreateChannel(request, Channel.Category, c => team.SetCategoryChannel(c)) is false)
+        if (discordTeam.CategoryChannel is null &&
+            await CreateChannel(request, Channel.Category, c => discordTeam.SetCategoryChannel(c, team)) is false)
         {
             AddError(new CreateMissingDiscordTeamEntitiesCategoryError());
             return;
         }
 
-        await CreateChannel(request, Channel.Board, c => team.SetBoardChannel(c));
-        await CreateChannel(request, Channel.General, c => team.SetGeneralChannel(c));
-        await CreateChannel(request, Channel.Evidence, c => team.SetEvidenceChannel(c));
-        await CreateChannel(request, Channel.Voice, c => team.SetVoiceChannel(c));
+        await CreateChannel(request, Channel.Board, c => discordTeam.SetBoardChannel(c, team));
+        await CreateChannel(request, Channel.General, c => discordTeam.SetGeneralChannel(c, team));
+        await CreateChannel(request, Channel.Evidence, c => discordTeam.SetEvidenceChannel(c, team));
+        await CreateChannel(request, Channel.Voice, c => discordTeam.SetVoiceChannel(c, team));
         await CreateBoardChannelMessage();
 
         AddSuccess(new CreateMissingDiscordTeamEntitiesSuccess());
@@ -57,12 +64,12 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
     private async Task<bool> CreateRole()
     {
-        Result<DiscordRole> role = await teamServices.CreateTeamRole(team);
+        Result<DiscordRole> role = await teamServices.CreateTeamRole(discordTeam);
         if (role.IsFailed)
         {
             return false;
         }
-        team.SetRole(role.Value);
+        discordTeam.SetRole(role.Value, team);
         return true;
     }
 
@@ -79,12 +86,12 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
     private async Task CreateBoardChannelMessage()
     {
-        Result<Message> message = await teamServices.CreateBoardMessage(team);
+        Result<Message> message = await teamServices.CreateBoardMessage(discordTeam);
 
         if (message.IsSuccess)
         {
-            await messageServices.Send(message.Value, team.BoardChannel!);
-            team.SetBoardMessage(message.Value);
+            await messageServices.Send(message.Value, discordTeam.BoardChannel!);
+            discordTeam.SetBoardMessage(message.Value, team);
         }
     }
 }

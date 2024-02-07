@@ -22,6 +22,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     protected const string UserIsAlreadyOnATeamUserPerspectiveResponse = "You are already on a team.";
     protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
     protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
+    protected const string NoTilesError = "The team has no tiles to submit evidence for.";
 
     // CSV
     protected const string CsvMediaType = "text/csv";
@@ -107,6 +108,17 @@ public class BingoValidator<TRequest> : Validator<TRequest>
         RuleFor(r => func(r).Item1)
             .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
     }
+
+    public void TeamHasTiles(Func<TRequest, int> func)
+    {
+        TeamExists(r => func(r));
+        RuleFor(r => GetTeam(func(r)).Tiles.Any())
+                    .Equal(true)
+                    .WithMessage(NoTilesError);
+    }
+
+    private Team GetTeam(int id) =>
+        DataWorker.Teams.FirstOrDefault(t => t.RowId == id)!;
 
     public void IsCSVFile(Func<TRequest, DiscordAttachment> func)
     {

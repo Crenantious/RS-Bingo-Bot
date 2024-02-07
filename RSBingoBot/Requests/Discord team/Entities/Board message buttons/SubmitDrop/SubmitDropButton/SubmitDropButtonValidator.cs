@@ -3,15 +3,12 @@
 // </copyright>
 
 namespace RSBingoBot.Requests;
-
-using FluentValidation;
 using RSBingoBot.Requests.Validation;
 
 internal class SubmitDropButtonValidator : BingoValidator<SubmitDropButtonRequest>
 {
     // TODO: JR - get the button name from somewhere.
     private const string ActiveChangeTileInstanceError = "This cannot be used while the 'Change tile' button is being used.";
-    private const string NoTilesError = "Your team has no tiles to submit evidence for.";
 
     public SubmitDropButtonValidator(RequestSemaphores semaphores)
     {
@@ -19,12 +16,10 @@ internal class SubmitDropButtonValidator : BingoValidator<SubmitDropButtonReques
 
         // TODO: JR - check against the change tile request when it is made.
         RequestHandlerInstanceExists<ChangeTilesButtonRequest>(
-            (r, c) => r.DiscordTeam.Team.RowId == c.TeamId,
+            (r, c) => r.DiscordTeam.Id == c.TeamId,
             ActiveChangeTileInstanceError,
             1);
 
-        RuleFor(r => r.DiscordTeam.Team.Tiles.Any())
-            .Equal(true)
-            .WithMessage(NoTilesError);
+        TeamHasTiles(r => r.DiscordTeam.Id);
     }
 }

@@ -4,7 +4,6 @@
 
 namespace RSBingoBot.Requests.Validation;
 
-using DiscordLibrary.Requests.Validation;
 using RSBingoBot.Requests;
 
 internal class CreateTeamBoardMessageValidator : BingoValidator<CreateTeamBoardMessageRequest>
@@ -12,7 +11,7 @@ internal class CreateTeamBoardMessageValidator : BingoValidator<CreateTeamBoardM
     public CreateTeamBoardMessageValidator()
     {
         DiscordTeamNotNull(r => r.DiscordTeam);
-        TeamExists(r => r.DiscordTeam.Team);
+        TeamExists(r => r.DiscordTeam.Id);
         ChannelNotNull(r => r.DiscordTeam.BoardChannel);
     }
 }

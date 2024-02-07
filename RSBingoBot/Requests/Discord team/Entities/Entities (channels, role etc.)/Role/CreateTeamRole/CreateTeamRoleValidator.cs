@@ -11,6 +11,6 @@ internal class CreateTeamRoleValidator : BingoValidator<CreateTeamRoleRequest>
     public CreateTeamRoleValidator()
     {
         DiscordTeamNotNull(r => r.DiscordTeam);
-        TeamExists(r => r.DiscordTeam.Team);
+        TeamExists(r => r.DiscordTeam.Id);
     }
 }

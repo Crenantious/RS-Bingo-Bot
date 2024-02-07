@@ -11,5 +11,6 @@ internal class SetDiscordTeamExistingEntitiesValidator : BingoValidator<SetDisco
     public SetDiscordTeamExistingEntitiesValidator()
     {
         DiscordTeamNotNull(r => r.DiscordTeam);
+        TeamExists(r => r.DiscordTeam.Id);
     }
 }
