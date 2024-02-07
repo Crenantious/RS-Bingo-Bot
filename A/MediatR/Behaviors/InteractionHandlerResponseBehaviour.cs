@@ -12,8 +12,6 @@ using MediatR;
 public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponseBehaviour<TRequest>
     where TRequest : IInteractionRequest
 {
-    private const string DefaultResponse = "Process completed.";
-
     private readonly InteractionResponseTracker responseTracker;
 
     public InteractionHandlerResponseBehaviour(InteractionResponseTracker responseTracker) =>
@@ -39,9 +37,7 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
         var response = GetResponse(request, typeof(IDiscordResponse));
 
         TryAddErrorResponse(error, response);
-        TrySetDefaultResponse(response);
-
-        await SendResponse(request, response);
+        await TrySendResponse(request, response);
 
         return result;
     }
@@ -54,12 +50,12 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
         }
     }
 
-    private void TrySetDefaultResponse(InteractionMessage response)
+    private async Task TrySendResponse(TRequest request, InteractionMessage response)
     {
-        if (string.IsNullOrEmpty(response.Content) &&
-            responseTracker.HasResponse(Interaction) is false)
+        if (string.IsNullOrWhiteSpace(response.Content))
         {
-            response.WithContent(DefaultResponse);
+            return;
         }
+        await SendResponse(request, response);
     }
 }

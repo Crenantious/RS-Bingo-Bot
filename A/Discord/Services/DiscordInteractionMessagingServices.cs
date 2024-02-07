@@ -47,8 +47,8 @@ public class DiscordInteractionMessagingServices : RequestService, IDiscordInter
     /// <summary>
     /// Sends an empty message with a "thinking state" to Discord in response to an interaction.
     /// </summary>
-    public async Task<Result> SendKeepAlive(DiscordInteraction interaction) =>
-        await RunRequest(new SendKeepAliveInteractionMessageRequest(interaction));
+    public async Task<Result> SendKeepAlive(DiscordInteraction interaction, bool isEphemeral) =>
+        await RunRequest(new SendKeepAliveInteractionMessageRequest(interaction, isEphemeral));
 
     /// <summary>
     /// Deletes the Discord message.

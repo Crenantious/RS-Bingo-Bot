@@ -21,9 +21,16 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     private bool isConcluded = false;
 
     /// <summary>
-    /// If true, automatically responds to the interaction with an empty keep alive message. The use sees a "thinking" state.
+    /// If true, automatically responds to the interaction with an empty keep alive message. The user sees a "thinking" state.
     /// </summary>
     protected virtual bool SendKeepAliveMessage => true;
+
+    /// <summary>
+    /// The next response sent to the interaction will use this value, regardless of what the builder says (how Discord workss).
+    /// </summary>
+    protected virtual bool SendKeepAliveMessageIsEphemeral => true;
+
+    // TODO: JR - remove this as responses should be sent directly via a request service or a pipeline behaviour.
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
     protected DiscordInteraction Interaction { get; set; } = null!;
 
@@ -37,7 +44,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
         if (SendKeepAliveMessage)
         {
             var service = GetRequestService<IDiscordInteractionMessagingServices>();
-            await service.SendKeepAlive(Interaction);
+            await service.SendKeepAlive(Interaction, SendKeepAliveMessageIsEphemeral);
         }
     }
 

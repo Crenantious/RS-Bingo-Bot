@@ -18,7 +18,7 @@ internal class AddUserToTeamHandler : RequestHandler<AddUserToTeamRequest>
 
     private void AddUserToDB(AddUserToTeamRequest request)
     {
-        request.DataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team);
+        request.DataWorker.Users.Create(request.User.Id, request.DiscordTeam.Team.Name);
         AddSuccess(new AddUserToTeamSuccess(request.DiscordTeam));
     }
 

@@ -2,8 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using DSharpPlus.Entities;
-
 namespace DiscordLibrary.Requests;
 
-public record SendKeepAliveInteractionMessageRequest(DiscordInteraction Interaction) : IDiscordRequest;
+using DSharpPlus.Entities;
+
+public record SendKeepAliveInteractionMessageRequest(DiscordInteraction Interaction, bool IsEphemeral) : IDiscordRequest;

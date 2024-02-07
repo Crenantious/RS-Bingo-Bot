@@ -51,6 +51,7 @@ public static class MessageExtensions
     // Set the limits based on component types, probably using IComponentRowLimit for example.
     // So this method would not take SelectComponent but a new method, AddComponent, would.
     /// <summary>
+    /// Adds a row of components.
     /// Note that <see cref="SelectComponent"/> cannot be put on a row with other components.
     /// </summary>
     /// <exception cref="MessageComponentRowsExceededException"></exception>
@@ -116,7 +117,7 @@ public static class MessageExtensions
     {
         ValidateAddComponentsCommon(message, components);
 
-        if (components.Any(c => c is SelectComponent))
+        if (components.Count() > 1 && components.Any(c => c is SelectComponent))
         {
             throw new MessageAddSelectComponentException();
         }
@@ -127,7 +128,7 @@ public static class MessageExtensions
     {
         ValidateAddComponentsCommon(message, components);
 
-        if (components.Any(c => c.IsSelect()))
+        if (components.Count() > 1 && components.Any(c => c.IsSelect()))
         {
             throw new MessageAddSelectComponentException();
         }

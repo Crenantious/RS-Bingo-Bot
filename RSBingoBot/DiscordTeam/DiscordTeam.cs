@@ -10,6 +10,10 @@ using RSBingo_Framework.Models;
 
 public class DiscordTeam
 {
+    // TODO: JR - move to a dedicated tracker.
+    /// <summary>
+    /// (Name, team).
+    /// </summary>
     public static Dictionary<string, DiscordTeam> ExistingTeams { get; } = new();
 
     // TODO: JR - check if Team can be used or if its id is required; data workers may need to get a

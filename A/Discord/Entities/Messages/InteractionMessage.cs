@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 
 public class InteractionMessage : Message
 {
-    public bool IsEphemeral { get; set; }
+    public bool IsEphemeral { get; set; } = false;
     public DiscordInteraction Interaction { get; }
     public bool IsKeepAliveResponse { get; internal set; } = false;
 

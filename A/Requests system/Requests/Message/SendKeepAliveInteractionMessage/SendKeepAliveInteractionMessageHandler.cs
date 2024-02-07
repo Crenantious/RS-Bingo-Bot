@@ -24,8 +24,8 @@ internal class SendKeepAliveInteractionMessageHandler : DiscordHandler<SendKeepA
 
     private static async Task SendMessage(SendKeepAliveInteractionMessageRequest request)
     {
-        var builder = new DiscordInteractionResponseBuilder()
-            .AsEphemeral();
+        var builder = new DiscordInteractionResponseBuilder();
+        builder.IsEphemeral = request.IsEphemeral;
         await request.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredChannelMessageWithSource, builder);
     }
 }
