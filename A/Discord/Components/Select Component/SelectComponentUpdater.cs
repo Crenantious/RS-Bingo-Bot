@@ -71,7 +71,7 @@ internal static class SelectComponentUpdater
         int maxOptions = (int)MathF.Min(selectComponent.MaxOptions, selectComponent.discordOptions.Count());
 
         // For maxOptions, the number cannot exceed the amount of discordOptions or there'll be an error
-        selectComponent.DiscordSelectComponent = new DiscordSelectComponent(
+        selectComponent.DiscordComponent = new DiscordSelectComponent(
             selectComponent.CustomId,
             selectComponent.placeholder ?? selectComponent.InitialPlaceholder,
             selectComponent.discordOptions,

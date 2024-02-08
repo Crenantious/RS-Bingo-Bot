@@ -66,7 +66,7 @@ public class Message : IMessage
     }
 
     private static IEnumerable<DiscordComponent> GetComponents(List<IComponent> row) =>
-        row.Select(c => c.DiscordComponent);
+        row.Select(c => c.GetDiscordComponent());
 
     public static Message operator +(Message prefix, Message suffix)
     {

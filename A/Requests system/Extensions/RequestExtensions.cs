@@ -34,11 +34,11 @@ public static class RequestExtensions
         request.GetFromMetaData<ModalSubmitEventArgs>();
 
     public static ComponentInteractionCreateEventArgs GetInteractionArgs<TComponent>(this IComponentInteractionRequest<TComponent> request)
-        where TComponent : Component =>
+        where TComponent : IComponent =>
         request.GetFromMetaData<ComponentInteractionCreateEventArgs>();
 
     public static TComponent GetComponent<TComponent>(this IComponentRequest<TComponent> request)
-        where TComponent : Component =>
+        where TComponent : IComponent =>
         request.GetFromMetaData<TComponent>();
 
     public static Message GetMessage(this IMessageCreatedRequest request) =>

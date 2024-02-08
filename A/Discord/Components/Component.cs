@@ -7,9 +7,10 @@ namespace DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
-public abstract class Component : IComponent
+public abstract class Component<TDiscordComponent> : IComponent
+    where TDiscordComponent : DiscordComponent
 {
-    public abstract DiscordComponent DiscordComponent { get; }
+    public TDiscordComponent DiscordComponent { get; internal set; }
     public IMessage? Message { get; internal set; }
 
     public string CustomId { get; }
@@ -20,4 +21,7 @@ public abstract class Component : IComponent
     {
         CustomId = string.IsNullOrEmpty(id) ? Guid.NewGuid().ToString() : id;
     }
+
+    public DiscordComponent GetDiscordComponent() =>
+        DiscordComponent;
 }

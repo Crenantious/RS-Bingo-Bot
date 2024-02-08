@@ -77,12 +77,18 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
             .WithMessage(DiscordMessageDoesNotExist);
     }
 
-    /// <inheritdoc cref="InteractionHandlersTracker.IsActive{TRequest}(Func{TRequest, bool})"/>
-    /// <param name="max">The maximum amount that can be active at once.</param>
-    protected void RequestHandlerInstanceExists<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message, int max)
+    ///<summary>
+    /// Verifies that the amount of active requests that satisfies <paramref name="constraints"/> is at most <paramref name="max"/>.<br/>
+    ///</summary>
+    /// <param name="message">The message to send if this is invalid.</param>
+    /// <param name="max">The maximum amount that can be active at once for this to be valid.</param>
+    protected void ActiveRequestInstances<TCompareRequest>(Func<TRequest, TCompareRequest, bool> constraints, string message, int max)
+        where TCompareRequest : IBaseRequest
     {
+        // TODO : JR - this doesn't work for interaction instances since the request completes
+        // but the message for the user to interact with still exists, thus won't count as an active instance.
         RuleFor<Func<TCompareRequest, bool>>(r => (compareRequest) => constraints(r, compareRequest))
-            .Must(f => requestsTracker.ActiveCount(f) < max)
+            .Must(f => requestsTracker.ActiveCount(f) <= max)
             .WithMessage(message);
     }
 }

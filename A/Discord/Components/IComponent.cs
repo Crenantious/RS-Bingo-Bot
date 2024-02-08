@@ -10,11 +10,6 @@ using DSharpPlus.Entities;
 public interface IComponent
 {
     /// <summary>
-    /// The component to send to Discord.
-    /// </summary>
-    public DiscordComponent DiscordComponent { get; }
-
-    /// <summary>
     /// The Discord message this component is attached to.
     /// </summary>
     public IMessage? Message { get; }
@@ -29,4 +24,6 @@ public interface IComponent
     /// For logging purposes.
     /// </summary>
     public string Name { get; }
+
+    public DiscordComponent GetDiscordComponent();
 }

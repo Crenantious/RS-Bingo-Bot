@@ -57,6 +57,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
 
     }
 
+    // TODO: JR - change this to take a DiscordTeam and format with the name not the id. Remove all other TeamExists methods.
     public void TeamExists(Func<TRequest, int> func)
     {
         RuleFor(r => func(r))

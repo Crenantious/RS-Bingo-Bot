@@ -6,9 +6,8 @@ namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-public class TextInput : Component, IInteractable
+public class TextInput : Component<TextInputComponent>, IInteractable
 {
-    public override DiscordComponent DiscordComponent { get; }
     public override string Name { get; protected set; }
 
     public TextInput(TextInputComponent textInput) : base(textInput.CustomId)

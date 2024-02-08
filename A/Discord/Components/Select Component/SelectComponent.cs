@@ -6,9 +6,8 @@ namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-public class SelectComponent : Component, IInteractable
+public class SelectComponent : Component<DiscordSelectComponent>, IInteractable
 {
-    internal DiscordSelectComponent DiscordSelectComponent { get; set; } = null!;
     internal string? placeholder { get; set; } = null;
     internal List<DiscordSelectComponentOption> discordOptions { get; set; } = new();
     internal HashSet<SelectComponentItem> SelectedItemsHashSet { get; set; } = new();
@@ -16,7 +15,6 @@ public class SelectComponent : Component, IInteractable
     internal List<SelectComponentOption> selectOptions { get; set; } = new();
     internal SelectComponentPageName PageName { get; set; }
 
-    public override DiscordComponent DiscordComponent => DiscordSelectComponent;
     public override string Name { get; protected set; }
 
     public string InitialPlaceholder { get; } = null!;

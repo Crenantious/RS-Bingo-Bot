@@ -52,7 +52,8 @@ public class RequestsTracker
     /// Checks the active request handlers with a request that satisfies <paramref name="constraints"/>.
     /// </summary>
     /// <returns>The amount of active handlers that have request satisfying <paramref name="constraints"/>.</returns>
-    internal int ActiveCount<TRequest>(Func<TRequest, bool> constraints) =>
+    internal int ActiveCount<TRequest>(Func<TRequest, bool> constraints)
+        where TRequest : IBaseRequest =>
         trackers.Where(t => t.Key.GetType() == typeof(TRequest))
             .Where(t => constraints((TRequest)t.Key))
             .Count();

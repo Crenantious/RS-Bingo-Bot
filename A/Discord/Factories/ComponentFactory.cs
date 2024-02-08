@@ -26,7 +26,7 @@ public class ComponentFactory
     /// Currently only supports <see cref="Button"/>s.
     /// </summary>
     /// <exception cref="NotSupportedException"></exception>
-    public Component Create(DiscordComponent discordComponent) =>
+    public IComponent Create(DiscordComponent discordComponent) =>
         discordComponent.Type switch
         {
             ComponentType.Button => CreateButton((DiscordButtonComponent)discordComponent),
