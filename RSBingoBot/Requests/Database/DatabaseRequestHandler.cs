@@ -11,25 +11,19 @@ using Microsoft.EntityFrameworkCore;
 public abstract class DatabaseRequestHandler<TRequest, TResult> : RequestHandler<TRequest, TResult>
     where TRequest : IDatabaseRequest<TResult>
 {
-    private const string UpdateError = "There was an error updating the database." +
-        "Please try again shortly or contact the administrator if this persists.";
-
     public DatabaseRequestHandler()
     {
-        SetExceptionMessage<DbUpdateException>(UpdateError);
-        SetExceptionMessage<DbUpdateConcurrencyException>(UpdateError);
+        SetExceptionMessage<DbUpdateException>(new UpdateDatabaseRequestError());
+        SetExceptionMessage<DbUpdateConcurrencyException>(new UpdateDatabaseRequestError());
     }
 }
 
 public abstract class DatabaseRequestHandler<TRequest> : RequestHandler<TRequest>
     where TRequest : IDatabaseRequest
 {
-    private const string UpdateError = "There was an error updating the database." +
-        "Please try again shortly or contact the administrator if this persists.";
-
     public DatabaseRequestHandler()
     {
-        SetExceptionMessage<DbUpdateException>(UpdateError);
-        SetExceptionMessage<DbUpdateConcurrencyException>(UpdateError);
+        SetExceptionMessage<DbUpdateException>(new UpdateDatabaseRequestError());
+        SetExceptionMessage<DbUpdateConcurrencyException>(new UpdateDatabaseRequestError());
     }
 }

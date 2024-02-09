@@ -6,5 +6,7 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
 using RSBingo_Framework.Records;
+using RSBingoBot.Discord;
 
-public record SubmitDropSubmitButtonRequest(SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) : IButtonRequest;
+public record SubmitDropSubmitButtonRequest(DiscordTeam DiscordTeam, SubmitDropButtonDTO DTO, EvidenceRecord.EvidenceType EvidenceType) :
+    IButtonRequest;

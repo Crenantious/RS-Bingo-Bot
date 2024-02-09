@@ -35,6 +35,12 @@ public class BingoValidator<TRequest> : Validator<TRequest>
 
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();
 
+    public override IEnumerable<SemaphoreSlim> GetSemaphores(TRequest request) =>
+        GetSemaphores(request, (RequestSemaphores)General.DI.GetService(typeof(RequestSemaphores))!);
+
+    protected virtual IEnumerable<SemaphoreSlim> GetSemaphores(TRequest request, RequestSemaphores semaphores) =>
+        new List<SemaphoreSlim>();
+
     public void UserNotNull(Func<TRequest, User?> func)
     {
         RuleFor(r => func(r))

@@ -20,28 +20,33 @@ public class ValidationBehavior<TRequest, TResult> : IPipelineBehavior<TRequest,
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
-        foreach (SemaphoreSlim semaphore in validator.Semaphores)
-        {
-            await semaphore.WaitAsync();
-        }
+        await WaitSemaphores(request);
 
         var errors = await Validate(request, cancellationToken);
 
         if (errors.Any())
         {
-            ReleaseSemaphores();
+            ReleaseSemaphores(request);
             return new TResult().WithErrors(errors);
         }
 
         var result = await next();
-        ReleaseSemaphores();
+        ReleaseSemaphores(request);
 
         return result;
     }
 
-    private void ReleaseSemaphores()
+    private async Task WaitSemaphores(TRequest request)
     {
-        foreach (SemaphoreSlim semaphore in validator.Semaphores)
+        foreach (SemaphoreSlim semaphore in validator.GetSemaphores(request))
+        {
+            await semaphore.WaitAsync();
+        }
+    }
+
+    private void ReleaseSemaphores(TRequest request)
+    {
+        foreach (SemaphoreSlim semaphore in validator.GetSemaphores(request))
         {
             semaphore.Release();
         }

@@ -20,7 +20,7 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     private static int requestId = 0;
 
     private TRequest request = default!;
-    private Dictionary<Type, string> exceptionMessages = new();
+    private Dictionary<Type, IError> exceptionsResponses = new();
     private List<ISuccess> sucesses = new();
     private List<IError> errors = new();
 
@@ -41,9 +41,9 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
             result = new TResult();
 
             // TODO: JR - move the exceptionMessages to InteractionHandler.
-            if (exceptionMessages.ContainsKey(e.GetType()))
+            if (exceptionsResponses.ContainsKey(e.GetType()))
             {
-                result.WithError(exceptionMessages[e.GetType()]);
+                result.WithError(exceptionsResponses[e.GetType()]);
             }
             else
             {
@@ -75,10 +75,10 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
     /// <paramref name="message"/> will be added as an error if the exception type is thrown during <see cref="Process(TRequest, CancellationToken)"/>.
     /// <br/>If the type was already set, it will be overridden.
     /// </summary>
-    protected void SetExceptionMessage<TException>(string message)
+    protected void SetExceptionMessage<TException>(IError error)
         where TException : Exception
     {
-        exceptionMessages[typeof(TException)] = message;
+        exceptionsResponses[typeof(TException)] = error;
     }
 
     private protected virtual async Task PreProcess(TRequest request, CancellationToken cancellationToken) { }

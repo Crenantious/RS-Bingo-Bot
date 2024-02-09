@@ -44,7 +44,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
              .AsEphemeral(true);
         SubmitDropButtonDTO dto = new(response);
 
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new SubmitDropSubmitButtonRequest(dto, evidenceType));
+        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new SubmitDropSubmitButtonRequest(request.DiscordTeam, dto, evidenceType));
         Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(this));
 
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
