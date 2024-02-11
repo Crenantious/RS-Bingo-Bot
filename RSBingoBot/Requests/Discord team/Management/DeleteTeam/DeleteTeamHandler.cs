@@ -18,13 +18,13 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
     protected override async Task Process(DeleteTeamRequest request, CancellationToken cancellationToken)
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        var discordServices = GetRequestService<IDiscordServices>();
-        var databaseServices = GetRequestService<IDatabaseServices>();
+        discordServices = GetRequestService<IDiscordServices>();
+        databaseServices = GetRequestService<IDatabaseServices>();
 
         await DeleteRole(request);
         await DeleteChannels(request);
 
-        // TODO: JR - handle deleting of the DiscordTeam.
+        RSBingoBot.Discord.DiscordTeam.ExistingTeams.Remove(request.DiscordTeam.Name);
         dataWorker.Teams.Remove(dataWorker.Teams.Find(request.DiscordTeam.Id)!);
         await databaseServices.Update(dataWorker);
 

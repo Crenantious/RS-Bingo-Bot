@@ -9,8 +9,6 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static DiscordTeamChannelsInfo;
 
@@ -33,8 +31,7 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
     protected override async Task Process(CreateMissingDiscordTeamEntitiesRequest request, CancellationToken cancellationToken)
     {
         this.discordTeam = request.DiscordTeam;
-        IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        team = dataWorker.Teams.Find(request.DiscordTeam.Id)!;
+        team = request.DataWorker.Teams.Find(request.DiscordTeam.Id)!;
 
         teamServices = GetRequestService<IDiscordTeamServices>();
         discordServices = GetRequestService<IDiscordServices>();

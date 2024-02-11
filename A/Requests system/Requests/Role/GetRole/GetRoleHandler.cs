@@ -12,7 +12,16 @@ internal class GetRoleHandler : DiscordHandler<GetRoleRequest, DiscordRole>
     protected override async Task<DiscordRole> Process(GetRoleRequest request, CancellationToken cancellationToken)
     {
         DiscordRole role = DataFactory.Guild.GetRole(request.Id);
-        AddSuccess(new GetRoleSuccess(role));
-        return role;
+        if (role is null)
+        {
+            AddError(new GetRoleError(request.Id));
+        }
+        else
+        {
+            AddSuccess(new GetRoleSuccess(role));
+        }
+
+        // Don't care if it's null since we've added an error so the consumer should check that first.
+        return role!;
     }
 }

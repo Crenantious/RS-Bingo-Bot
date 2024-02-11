@@ -19,8 +19,8 @@ public class DiscordTeamServices : RequestService, IDiscordTeamServices
     public async Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateExistingTeam(Team team) =>
         await RunRequest<CreateExistingTeamRequest, RSBingoBot.Discord.DiscordTeam>(new CreateExistingTeamRequest(team));
 
-    public async Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team) =>
-        await RunRequest(new CreateMissingDiscordTeamEntitiesRequest(team));
+    public async Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team, IDataWorker dataWorker) =>
+        await RunRequest(new CreateMissingDiscordTeamEntitiesRequest(team, dataWorker));
 
     public async Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam team) =>
         await RunRequest(new SetDiscordTeamExistingEntitiesRequest(team));

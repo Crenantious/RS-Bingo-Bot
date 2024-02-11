@@ -37,7 +37,7 @@ public static class DiscordInteractionServices
         modalDEH.Subscribe(constraints, (client, args) => OnModalSubmitted(request, args));
     }
 
-    public static async Task RegisterCommand(ICommandRequest request, InteractionContext context)
+    public static async Task RunCommand(ICommandRequest request, InteractionContext context)
     {
         await RequestRunner.Run(request, null,
             (null, context),

@@ -12,7 +12,7 @@ internal class DeleteTeamSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Team '{0}' deleted.";
 
-    public DeleteTeamSuccess(DiscordTeam team) : base(SuccessMessage.FormatConst(team))
+    public DeleteTeamSuccess(DiscordTeam team) : base(SuccessMessage.FormatConst(team.Name))
     {
 
     }

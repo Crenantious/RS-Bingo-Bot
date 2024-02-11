@@ -4,12 +4,12 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.Requests.Validation;
+using RSBingoBot.Requests.Validation;
 
-internal class DeleteTeamCommandValidator : Validator<DeleteTeamCommandRequest>
+internal class DeleteTeamCommandValidator : BingoValidator<DeleteTeamCommandRequest>
 {
     public DeleteTeamCommandValidator()
     {
-
+        TeamExists(r => r.TeamName);
     }
 }

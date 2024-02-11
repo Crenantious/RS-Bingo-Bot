@@ -6,12 +6,13 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using RSBingoBot.Discord;
 
 internal class DeleteTeamCommandHandler : RequestHandler<DeleteTeamCommandRequest>
 {
     protected override async Task Process(DeleteTeamCommandRequest request, CancellationToken cancellationToken)
     {
         var teamServices = GetRequestService<IDiscordTeamServices>();
-        await teamServices.Delete(request.Team);
+        await teamServices.Delete(DiscordTeam.ExistingTeams[request.TeamName]);
     }
 }

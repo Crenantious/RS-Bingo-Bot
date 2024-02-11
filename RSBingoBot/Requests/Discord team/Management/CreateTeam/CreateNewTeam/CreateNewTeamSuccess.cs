@@ -9,7 +9,7 @@ using FluentResults;
 
 internal class CreateNewTeamSuccess : Success, IDiscordResponse
 {
-    private const string SuccessMessage = "The team {0} has been created.";
+    private const string SuccessMessage = "The team '{0}' has been created.";
 
     public CreateNewTeamSuccess(string teamName) : base(SuccessMessage.FormatConst(teamName))
     {

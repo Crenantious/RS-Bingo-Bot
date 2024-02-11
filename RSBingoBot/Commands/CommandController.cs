@@ -48,12 +48,9 @@ internal class CommandController : ApplicationCommandModule
 
     [SlashCommand("DeleteTeam", "Deletes a team.")]
     [RequireRole("Host")]
-    public async Task DeleteTeam(InteractionContext ctx,
-        [ChoiceProvider(typeof(AllDiscordTeamsChoiceProvider))][Option("name", "name")] string name)
+    public async Task DeleteTeam(InteractionContext ctx, [Option("name", "name")] string name)
     {
-
-        // TODO: JR - fix the choice provider. This may be a database issue.
-        await DiscordInteractionServices.RegisterCommand(new DeleteTeamCommandRequest(DiscordTeam.ExistingTeams[name]), ctx);
+        await DiscordInteractionServices.RunCommand(new DeleteTeamCommandRequest(name), ctx);
     }
 
     //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]

@@ -23,17 +23,18 @@ internal class CreateNewTeamHandler : RequestHandler<CreateNewTeamRequest, Disco
 
         DiscordTeam discordTeam = new(team);
 
-        Result result = await discordServices.CreateMissingEntities(discordTeam);
+        Result result = await discordServices.CreateMissingEntities(discordTeam, request.DataWorker);
         if (result.IsSuccess)
         {
+            DiscordTeam.ExistingTeams.Add(request.Name, discordTeam);
             AddSuccess(new CreateNewTeamSuccess(request.Name));
         }
         else
         {
             request.DataWorker.Teams.Remove(team);
-            await dbServices.Update(request.DataWorker);
             AddError(new CreateNewTeamInitialisationError());
         }
+        await dbServices.Update(request.DataWorker);
 
         return discordTeam;
     }

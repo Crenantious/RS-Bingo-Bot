@@ -5,6 +5,8 @@
 namespace RSBingoBot.Requests;
 
 using RSBingoBot.Requests.Validation;
+using System.Collections.Generic;
+using System.Threading;
 
 internal class DeleteTeamValidator : BingoValidator<DeleteTeamRequest>
 {
@@ -12,4 +14,10 @@ internal class DeleteTeamValidator : BingoValidator<DeleteTeamRequest>
     {
         TeamExists(r => r.DiscordTeam.Id);
     }
+
+    protected override IEnumerable<SemaphoreSlim> GetSemaphores(DeleteTeamRequest request, RequestSemaphores semaphores) =>
+        new List<SemaphoreSlim>()
+        {
+            semaphores.GetTeamDatabase(request.DiscordTeam.Id)
+        };
 }

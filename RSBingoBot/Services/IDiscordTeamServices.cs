@@ -14,7 +14,7 @@ public interface IDiscordTeamServices : IRequestService
 {
     public Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateNewTeam(string name, IDataWorker dataWorker);
     public Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateExistingTeam(Team team);
-    public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team, IDataWorker DataWorker);
     public Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam team);
     public Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam team);

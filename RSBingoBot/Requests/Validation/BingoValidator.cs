@@ -60,21 +60,13 @@ public class BingoValidator<TRequest> : Validator<TRequest>
         RuleFor(r => func(r))
             .Must(t => DataWorker.Teams.DoesTeamExist(t))
             .WithMessage(r => TeamDoesNotExistResponse.FormatConst(func(r)));
-
     }
 
-    // TODO: JR - change this to take a DiscordTeam and format with the name not the id. Remove all other TeamExists methods.
+    // TODO: JR - change this to take a DiscordTeam and format with the name not the id.
     public void TeamExists(Func<TRequest, int> func)
     {
         RuleFor(r => func(r))
             .Must(t => DataWorker.Teams.GetTeamByID(t) is not null)
-            .WithMessage(r => TeamDoesNotExistResponse.FormatConst(func(r)));
-    }
-
-    public void TeamExists(Func<TRequest, Team> func)
-    {
-        RuleFor(r => func(r))
-            .NotNull()
             .WithMessage(r => TeamDoesNotExistResponse.FormatConst(func(r)));
     }
 

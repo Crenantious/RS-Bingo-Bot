@@ -5,6 +5,5 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
-using RSBingoBot.Discord;
 
-internal record DeleteTeamCommandRequest(DiscordTeam Team) : ICommandRequest;
+internal record DeleteTeamCommandRequest(string TeamName) : ICommandRequest;

@@ -7,6 +7,7 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.Exceptions;
 using MediatR;
 
+// TODO: JR - implement an interaction tracker to limit specific concurrent interactions.
 public class RequestsTracker
 {
     private Dictionary<IBaseRequest, RequestTracker> trackers { get; } = new();
