@@ -32,16 +32,18 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         User user = discordUser.GetDBUser(DataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
-        var closeButton = buttonFactory.Create(ButtonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(this));
+        var closeButton = buttonFactory.Create(buttonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(InteractionTracker));
 
         ResponseMessages.Add(
             new InteractionMessage(Interaction)
                 .WithContent(ResponseContent.FormatConst(discordUser.Mention))
                 .AddComponents(selectComponent)
                 .AddComponents(closeButton));
+
+        InteractionTracker.OnConclude += OnConclude;
     }
 
-    public override async Task Conclude()
+    public async Task OnConclude(object? sender, EventArgs args)
     {
         DeleteResponses();
     }

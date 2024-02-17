@@ -9,8 +9,11 @@ using DiscordLibrary.Requests;
 
 public class ButtonFactory : InteractableComponentFactory<ButtonInfo, Button, IButtonRequest>
 {
-    public static ButtonInfo CloseButton => new(DSharpPlus.ButtonStyle.Primary, "Close");
+    public ButtonInfo CloseButton => new(DSharpPlus.ButtonStyle.Primary, "Close");
 
     internal protected override Button Create(ButtonInfo buttonInfo) =>
         new Button(buttonInfo);
+
+    public Button CreateConcludeInteraction(ConcludeInteractionButtonRequest request) =>
+        Create(CloseButton, () => request);
 }

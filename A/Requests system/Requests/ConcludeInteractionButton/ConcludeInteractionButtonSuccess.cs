@@ -9,9 +9,9 @@ using RSBingo_Common;
 
 internal class ConcludeInteractionButtonSuccess : Success
 {
-    private const string SuccessMessage = "Concluded interaction with request handler with id {0}.";
+    private const string SuccessMessage = "Concluded interaction with tracker id {0}.";
 
-    public ConcludeInteractionButtonSuccess(IRequestHandler handler) : base(SuccessMessage.FormatConst(handler.Id))
+    public ConcludeInteractionButtonSuccess(IInteractionTracker tracker) : base(SuccessMessage.FormatConst(tracker.Id))
     {
 
     }

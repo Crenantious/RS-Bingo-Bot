@@ -6,9 +6,5 @@ namespace DiscordLibrary.Requests;
 
 public interface IInteractionHandler : IRequestHandler
 {
-    /// <summary>
-    /// Conclude the interaction such that the user can no longer interact
-    /// with any <see cref="Interactable"/> created by this handler.
-    /// </summary>
-    public Task Conclude();
+
 }

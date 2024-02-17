@@ -11,8 +11,10 @@ public class DynamicGrid<T>
 
     public List<List<T>> Cells { get; }
 
-    public DynamicGrid(int initialColumnCount = 0, int iniitialRowCount = 0) =>
-        Cells = new(initialColumnCount) { new(iniitialRowCount) };
+    public DynamicGrid(int initialColumnCount = 0, int iniitialRowCount = 0)
+    {
+        Cells = Enumerable.Repeat(new List<T>(iniitialRowCount), initialColumnCount).ToList();
+    }
 
     public void SetRow(int rowIndex, T[] rowValues)
     {

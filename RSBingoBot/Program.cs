@@ -139,6 +139,7 @@ public class Program
                 services.AddScoped<CommandController>();
                 services.AddScoped(typeof(RequestLogInfo<>));
                 services.AddScoped<RequestsTracker>();
+                services.AddScoped<InteractionsTracker>();
                 services.AddScoped<InteractionResponseTracker>();
 
                 services.AddSingleton<RequestSemaphores>();

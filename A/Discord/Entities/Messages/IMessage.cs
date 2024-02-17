@@ -8,6 +8,7 @@ using DSharpPlus.Entities;
 using DiscordLibrary.DataStructures;
 using DiscordLibrary.DiscordComponents;
 
+// TODO: JR - change a lot of references of Message to IMessage and ensure IMessage has all of Message's methods.
 public interface IMessage
 {
     public string Content { get; set; }

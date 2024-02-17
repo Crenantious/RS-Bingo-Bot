@@ -54,18 +54,19 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), () => new ChangeTilesToSelectRequest(dto));
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(this));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(InteractionTracker));
 
         response.AddComponents(changeFrom);
         response.AddComponents(changeTo);
         response.AddComponents(submit, cancel);
         ResponseMessages.Add(response);
+
+        InteractionTracker.OnConclude += OnConclude;
     }
 
-    public override Task Conclude()
+    public async Task OnConclude(object? sender, EventArgs args)
     {
         DeleteResponses();
-        return base.Conclude();
     }
 
     private static string GetResponseContent(ChangeTilesButtonRequest request) =>

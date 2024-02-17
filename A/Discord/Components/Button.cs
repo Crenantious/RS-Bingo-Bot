@@ -12,7 +12,7 @@ public class Button : Component<DiscordButtonComponent>, IInteractable
 
     public Button(ButtonInfo info) : base(info.Id)
     {
-        Name = $"({nameof(Button)}) {info.Label}";
+        Name = $"{info.Label} ({nameof(Button)})";
         DiscordComponent = new DiscordButtonComponent(info.Style, CustomId, info.Label, false, info.Emoji!);
     }
 }

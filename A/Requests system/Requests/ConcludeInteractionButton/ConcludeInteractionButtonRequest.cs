@@ -4,11 +4,10 @@
 
 namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.DiscordComponents;
-using DSharpPlus.EventArgs;
+using DiscordLibrary.DiscordEntities;
+using DSharpPlus.Entities;
 
-public record ConcludeInteractionButtonRequest(IInteractionHandler handler) : IButtonRequest
-{
-    public Button Component { get; set; } = null!;
-    public ComponentInteractionCreateEventArgs InteractionArgs { get; set; } = null!;
-}
+/// <param name="User">Only allows interactions from <paramref name="User"/>, unless it's null</param>
+public record ConcludeInteractionButtonRequest(IInteractionTracker Tracker, IEnumerable<Message>? MessagesToDelete = null,
+    DiscordUser? User = null) :
+    IButtonRequest;

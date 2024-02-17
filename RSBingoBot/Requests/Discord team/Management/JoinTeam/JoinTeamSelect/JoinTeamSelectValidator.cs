@@ -11,6 +11,7 @@ internal class JoinTeamSelectValidator : BingoValidator<JoinTeamSelectRequest>
 {
     public JoinTeamSelectValidator()
     {
+        UserInteraction(r => r.User);
         UserNotNull(r => r.User);
     }
 

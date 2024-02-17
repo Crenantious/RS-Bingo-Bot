@@ -24,12 +24,20 @@ public static class MessageExtensions
     public static T WithContent<T>(this T message, string content, int lineSeparationCount = 1)
         where T : Message
     {
+        if (string.IsNullOrEmpty(message.Content) is false)
+        {
+            AddContentBlankLines(message, lineSeparationCount);
+        }
+        message.Content += content;
+        return message;
+    }
+
+    private static void AddContentBlankLines<T>(T message, int lineSeparationCount) where T : Message
+    {
         for (int i = 0; i < lineSeparationCount; i++)
         {
             message.Content += Environment.NewLine;
         }
-        message.Content += content;
-        return message;
     }
 
     /// <summary>

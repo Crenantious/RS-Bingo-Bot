@@ -10,6 +10,6 @@ internal class ConcludeInteractionButtonValidator : Validator<ConcludeInteractio
 {
     public ConcludeInteractionButtonValidator()
     {
-
+        UserInteraction(r => r.User);
     }
 }

@@ -35,7 +35,7 @@ public class SelectComponent : Component<DiscordSelectComponent>, IInteractable
         this.placeholder = info.Placeholder;
         this.InitialPlaceholder = placeholder;
 
-        Name = $"({nameof(SelectComponent)}) {info.Placeholder}";
+        Name = $"{info.Placeholder} ({nameof(SelectComponent)})";
         PageName = info.pageName ?? SelectComponentPageName.FirstToLastOptions();
         SelectOptions = selectOptions.AsReadOnly();
         SelectedItems = selectedItems.AsReadOnly();

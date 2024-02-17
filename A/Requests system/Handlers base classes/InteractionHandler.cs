@@ -10,6 +10,7 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests.Extensions;
 using DSharpPlus.Entities;
 using FluentResults;
+using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
@@ -18,7 +19,11 @@ using System.Text;
 public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
     where TRequest : IInteractionRequest
 {
+    private readonly InteractionsTracker interactionTrackers;
+
     private bool isConcluded = false;
+
+    protected InteractionTracker<TRequest> InteractionTracker = null!;
 
     /// <summary>
     /// If true, automatically responds to the interaction with an empty keep alive message. The user sees a "thinking" state.
@@ -37,9 +42,16 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     // TODO: JR - remove this as not all handlers need it thus it should not be made.
     protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
 
+    public InteractionHandler()
+    {
+        this.interactionTrackers = (InteractionsTracker)General.DI.GetService(typeof(InteractionsTracker))!;
+    }
+
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)
     {
         Interaction = request.GetDiscordInteraction();
+        InteractionTracker = new InteractionTracker<TRequest>(request, Interaction);
+        interactionTrackers.Add(InteractionTracker);
 
         if (SendKeepAliveMessage)
         {
@@ -51,16 +63,13 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     protected User? GetUser() =>
         Interaction.User.GetDBUser(DataWorker);
 
-    public virtual Task Conclude()
-    {
-        return Task.CompletedTask;
-    }
-
+    // TODO: JR - remove.
     protected void DeleteResponses()
     {
         ResponseMessages.ForEach(async m => await m.Delete());
     }
 
+    // TODO: JR - cleanup region and remove old systems.
     #region Add result responses
 
     public InteractionMessage AddResponses(ResultBase result, bool addToLastResponse = true) =>

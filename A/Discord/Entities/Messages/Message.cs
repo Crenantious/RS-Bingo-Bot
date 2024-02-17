@@ -6,17 +6,17 @@ namespace DiscordLibrary.DiscordEntities;
 
 using DiscordLibrary.DataStructures;
 using DiscordLibrary.DiscordComponents;
+using DiscordLibrary.Exceptions;
 using DSharpPlus.Entities;
 
 public class Message : IMessage
 {
     /// <summary>
-    /// The <see cref="DiscordMessage"/> this is associated with.
-    /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DiscordMessage"/>.
+    /// The <see cref="DSharpPlus.Entities.DiscordMessage"/> this is associated with.
+    /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DSharpPlus.Entities.DiscordMessage"/>.
     /// </summary>
     public DiscordMessage DiscordMessage { get; internal set; }
 
-    // TODO: JR - change to a StringBuilder and only build when the message builder is requested.
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
 
@@ -52,17 +52,32 @@ public class Message : IMessage
     /// <param name="builder">A new instance of the builder.</param>
     protected T GetBaseMessageBuilder<T>(T builder) where T : IDiscordMessageBuilder
     {
-        if (string.IsNullOrEmpty(Content) is false) { builder.Content = Content; }
+        builder.Content = Content;
 
         foreach (var componentRow in Components.GetRows())
         {
-            if (componentRow.Count > 0)
-            {
-                builder.AddComponents(GetComponents(componentRow));
-            }
+            ValidateComponentRowForBuilder(componentRow);
+            builder.AddComponents(GetComponents(componentRow));
         }
 
         return builder;
+    }
+
+    private static void ValidateComponentRowForBuilder(List<IComponent> componentRow)
+    {
+        if (componentRow.Count == 0)
+        {
+            throw new MessageComponentRowEmptyException();
+        }
+
+        if (componentRow.ElementAt(0) is SelectComponent)
+        {
+            var selectComponent = (SelectComponent)componentRow.ElementAt(0);
+            if (selectComponent.SelectOptions.Any() is false)
+            {
+                throw new SelectComponentNoOptionsException();
+            }
+        }
     }
 
     private static IEnumerable<DiscordComponent> GetComponents(List<IComponent> row) =>

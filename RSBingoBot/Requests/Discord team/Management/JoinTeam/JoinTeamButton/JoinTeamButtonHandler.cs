@@ -14,25 +14,44 @@ using RSBingoBot.Discord;
 
 internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
 {
-    private const string SelectMessage = "Select a team to join";
+    private const string SelectATeamMessage = "{0} Select a team to join";
+    private const string NoTeamsExistMessage = "{0} No teams exists yet.";
 
     private readonly SelectComponentFactory selectComponentFactory;
+    private readonly ButtonFactory buttonFactory;
 
-    public JoinTeamButtonHandler(SelectComponentFactory selectComponentFactory)
+    private InteractionMessage response;
+
+    protected override bool SendKeepAliveMessageIsEphemeral => false;
+
+    public JoinTeamButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory)
     {
         this.selectComponentFactory = selectComponentFactory;
+        this.buttonFactory = buttonFactory;
     }
 
     protected override async Task Process(JoinTeamButtonRequest request, CancellationToken cancellationToken)
     {
         var messageService = GetRequestService<IDiscordInteractionMessagingServices>();
+        response = new InteractionMessage(request.GetDiscordInteraction());
 
-        var response = new InteractionMessage(request.GetDiscordInteraction())
-            .WithContent(SelectMessage)
-            .AddComponents(GetSelectComponent(request));
+        if (DiscordTeam.ExistingTeams.Any())
+        {
+            response.WithContent(FormatContent(SelectATeamMessage))
+                .AddComponents(GetSelectComponent(request));
+        }
+        else
+        {
+            response.WithContent(FormatContent(NoTeamsExistMessage));
+        }
+
+        response.AddComponents(GetCloseButton());
 
         await messageService.Send(response);
     }
+
+    private string FormatContent(string message) =>
+        message.FormatConst(Interaction.User.Mention);
 
     private SelectComponent GetSelectComponent(JoinTeamButtonRequest request)
     {
@@ -47,4 +66,7 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
         var teams = DiscordTeam.ExistingTeams.OrderBy(kvp => kvp.Key);
         return teams.Select(t => new SelectComponentItem(t.Key, t.Value));
     }
+
+    private Button GetCloseButton() =>
+        buttonFactory.CreateConcludeInteraction(new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 }

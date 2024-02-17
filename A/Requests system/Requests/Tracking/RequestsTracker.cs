@@ -7,7 +7,6 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.Exceptions;
 using MediatR;
 
-// TODO: JR - implement an interaction tracker to limit specific concurrent interactions.
 public class RequestsTracker
 {
     private Dictionary<IBaseRequest, RequestTracker> trackers { get; } = new();
@@ -48,14 +47,4 @@ public class RequestsTracker
         }
         return false;
     }
-
-    /// <summary>
-    /// Checks the active request handlers with a request that satisfies <paramref name="constraints"/>.
-    /// </summary>
-    /// <returns>The amount of active handlers that have request satisfying <paramref name="constraints"/>.</returns>
-    internal int ActiveCount<TRequest>(Func<TRequest, bool> constraints)
-        where TRequest : IBaseRequest =>
-        trackers.Where(t => t.Key.GetType() == typeof(TRequest))
-            .Where(t => constraints((TRequest)t.Key))
-            .Count();
 }

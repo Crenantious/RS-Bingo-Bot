@@ -15,8 +15,8 @@ internal class SubmitDropButtonValidator : BingoValidator<SubmitDropButtonReques
     public SubmitDropButtonValidator(RequestSemaphores semaphores)
     {
         // TODO: JR - check against the change tile request when it is made.
-        ActiveRequestInstances<ChangeTilesButtonRequest>(
-            (r, c) => r.DiscordTeam.Id == c.TeamId,
+        ActiveInteractions<ChangeTilesButtonRequest>(
+            (r, c) => r.DiscordTeam.Id == c.Request.TeamId,
             ActiveChangeTileInstanceError,
             1);
 

@@ -27,6 +27,8 @@ internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
             await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam.Value, dataWorker);
             await dbServices.Update(dataWorker);
         }
+
+        await InteractionTracker.ConcludeInteraction();
     }
 
     private static string GetTeamName(CreateTeamModalRequest request) =>

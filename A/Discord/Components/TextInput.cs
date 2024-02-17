@@ -13,6 +13,6 @@ public class TextInput : Component<TextInputComponent>, IInteractable
     public TextInput(TextInputComponent textInput) : base(textInput.CustomId)
     {
         DiscordComponent = textInput;
-        Name = $"({nameof(TextInput)}) {textInput.Label}";
+        Name = $"{textInput.Label} ({nameof(TextInput)})";
     }
 }
