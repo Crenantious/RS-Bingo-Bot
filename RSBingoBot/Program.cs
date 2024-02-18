@@ -24,6 +24,7 @@ using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
+using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
@@ -155,6 +156,7 @@ public class Program
                 services.AddSingleton<ComponentFactory>();
 
                 services.AddSingleton<SingletonButtons>();
+                services.AddSingleton<DiscordTeamBoardButtons>();
 
                 services.AddTransient(typeof(IDiscordServices), typeof(DiscordServices));
                 services.AddTransient(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));

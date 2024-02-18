@@ -4,10 +4,10 @@
 
 namespace RSBingoBot.RequestHandlers;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using RSBingoBot.Discord;
 using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 
@@ -17,34 +17,24 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
     private const string DropCodeNotSet = "not set";
 
     private readonly ButtonFactory buttonFactory;
+    private readonly DiscordTeamBoardButtons buttons;
 
-    public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory)
+    public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory, DiscordTeamBoardButtons buttons)
     {
         this.buttonFactory = buttonFactory;
+        this.buttons = buttons;
     }
 
     protected override async Task<Message> Process(CreateTeamBoardMessageRequest request, CancellationToken cancellationToken)
     {
         Image boardImage = BoardImage.Create(request.Team);
-
-        Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"),
-            () => new ChangeTilesButtonRequest(request.DiscordTeam.Id));
-
-        Button submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit evidence"),
-            () => new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
-            Math.Min(General.MaxTilesOnABoard, General.MaxOptionsPerSelectMenu)));
-
-        Button submitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Submit drop"),
-            () => new SubmitDropButtonRequest(request.DiscordTeam, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
-
-        Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"),
-            () => new ViewEvidenceButtonRequest(request.DiscordTeam.Id));
+        buttons.Create(request.DiscordTeam);
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
 
         var message = new Message()
             .WithContent(DropCodePrefix.FormatConst(dropCode))
-            .AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence)
+            .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence)
             .AddImage(boardImage);
 
         // TODO: JR - implement

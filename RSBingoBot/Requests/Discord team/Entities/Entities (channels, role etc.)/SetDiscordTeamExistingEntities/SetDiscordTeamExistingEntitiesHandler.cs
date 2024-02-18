@@ -12,12 +12,21 @@ using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingoBot.Discord;
 
 internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscordTeamExistingEntitiesRequest>
 {
+    private readonly DiscordTeamBoardButtons boardButtons;
+
     private IDiscordServices discordServices = null!;
     private IDiscordMessageServices messageServices = null!;
     private Team team = null!;
+
+    public SetDiscordTeamExistingEntitiesHandler(DiscordTeamBoardButtons boardButtons)
+    {
+        this.boardButtons = boardButtons;
+    }
+
     protected override async Task Process(SetDiscordTeamExistingEntitiesRequest request, CancellationToken cancellationToken)
     {
         discordServices = GetRequestService<IDiscordServices>();
@@ -100,6 +109,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
         if (message.IsSuccess)
         {
             request.DiscordTeam.SetBoardMessage(message.Value, team);
+            boardButtons.Create(request.DiscordTeam);
         }
     }
 }
