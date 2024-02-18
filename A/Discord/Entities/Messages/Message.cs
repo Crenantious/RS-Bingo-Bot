@@ -11,6 +11,8 @@ using DSharpPlus.Entities;
 
 public class Message : IMessage
 {
+    internal List<(string path, string name)> files = new();
+
     /// <summary>
     /// The <see cref="DSharpPlus.Entities.DiscordMessage"/> this is associated with.
     /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DSharpPlus.Entities.DiscordMessage"/>.
@@ -54,13 +56,26 @@ public class Message : IMessage
     {
         builder.Content = Content;
 
+        AddBuilderComponents(builder);
+        AddBuilderFiles(builder);
+
+        return builder;
+    }
+
+    private void AddBuilderComponents<T>(T builder) where T : IDiscordMessageBuilder
+    {
         foreach (var componentRow in Components.GetRows())
         {
             ValidateComponentRowForBuilder(componentRow);
             builder.AddComponents(GetComponents(componentRow));
         }
+    }
 
-        return builder;
+    private void AddBuilderFiles<T>(T builder) where T : IDiscordMessageBuilder
+    {
+        Dictionary<string, Stream> streams = new();
+        files.ForEach(f => streams.Add(f.name, new FileStream(f.path, FileMode.Open)));
+        builder.AddFiles(streams);
     }
 
     private static void ValidateComponentRowForBuilder(List<IComponent> componentRow)

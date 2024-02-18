@@ -11,9 +11,11 @@ using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
 using RSBingo_Common;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 
 public static class MessageExtensions
 {
+    private const string NullFileName = "Unknown.png";
     private const int MaxComponentColumns = 5;
     private const int MaxComponentRows = 5;
 
@@ -85,16 +87,20 @@ public static class MessageExtensions
         return AddComponentsCommon(message, components);
     }
 
-    public static T AddFile<T>(this T message)
+    public static T AddFile<T>(this T message, string path, string? name = null)
         where T : Message
     {
-        throw new NotImplementedException();
+        message.files.Add((path, name ?? NullFileName));
+        return message;
     }
 
-    public static T AddImage<T>(this T message, Image image)
+    public static T AddImage<T>(this T message, Image image, string? name = null)
         where T : Message
     {
-        throw new NotImplementedException();
+        string path = Path.GetTempFileName();
+        image.Save(path, new PngEncoder());
+        AddFile(message, path, name);
+        return message;
     }
 
     public static void DeleteByTag(this Message message)

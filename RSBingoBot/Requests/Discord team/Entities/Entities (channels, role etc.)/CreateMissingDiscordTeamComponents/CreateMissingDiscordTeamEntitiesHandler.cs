@@ -83,7 +83,7 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
     private async Task CreateBoardChannelMessage()
     {
-        Result<Message> message = await teamServices.CreateBoardMessage(discordTeam);
+        Result<Message> message = await teamServices.CreateBoardMessage(discordTeam, team);
 
         if (message.IsSuccess)
         {

@@ -8,10 +8,14 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 
 internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMessageRequest, Message>
 {
+    private const string DropCodePrefix = "Drop code: {0}";
+    private const string DropCodeNotSet = "not set";
+
     private readonly ButtonFactory buttonFactory;
 
     public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory)
@@ -21,7 +25,8 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
     protected override async Task<Message> Process(CreateTeamBoardMessageRequest request, CancellationToken cancellationToken)
     {
-        // TODO: send a request to get the board image.
+        Image boardImage = BoardImage.Create(request.Team);
+
         Button changeTile = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Change tile"),
             () => new ChangeTilesButtonRequest(request.DiscordTeam.Id));
 
@@ -35,9 +40,12 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
         Button viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "View evidence"),
             () => new ViewEvidenceButtonRequest(request.DiscordTeam.Id));
 
+        string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
+
         var message = new Message()
-            .WithContent("Your board")
-            .AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence);
+            .WithContent(DropCodePrefix.FormatConst(dropCode))
+            .AddComponents(changeTile, submitEvidence, submitDrop, viewEvidence)
+            .AddImage(boardImage);
 
         // TODO: JR - implement
         //#if DEBUG

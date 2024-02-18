@@ -7,6 +7,7 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordEntities;
 using FluentResults;
 using MediatR;
+using RSBingo_Framework.Models;
 using RSBingoBot.Discord;
 
-public record CreateTeamBoardMessageRequest(DiscordTeam DiscordTeam) : IRequest<Result<Message>>;
+public record CreateTeamBoardMessageRequest(DiscordTeam DiscordTeam, Team Team) : IRequest<Result<Message>>;

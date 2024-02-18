@@ -14,10 +14,10 @@ public interface IDiscordTeamServices : IRequestService
 {
     public Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateNewTeam(string name, IDataWorker dataWorker);
     public Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateExistingTeam(Team team);
-    public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam team, IDataWorker DataWorker);
-    public Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam team);
-    public Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam team);
-    public Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam team);
-    public Task<Result> AddUserToTeam(DiscordUser discordUser, RSBingoBot.Discord.DiscordTeam team, IDataWorker dataWorker);
-    public Task<Result> Delete(RSBingoBot.Discord.DiscordTeam team);
+    public Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam discordTeam, IDataWorker DataWorker);
+    public Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam discordTeam);
+    public Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam discordTeam);
+    public Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam discordTeam, Team team);
+    public Task<Result> AddUserToTeam(DiscordUser discordUser, RSBingoBot.Discord.DiscordTeam discordTeam, IDataWorker dataWorker);
+    public Task<Result> Delete(RSBingoBot.Discord.DiscordTeam discordTeam);
 }
