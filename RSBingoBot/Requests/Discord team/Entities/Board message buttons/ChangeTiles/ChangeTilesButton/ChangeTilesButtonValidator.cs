@@ -5,12 +5,25 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests.Extensions;
+using RSBingoBot.Discord;
 using RSBingoBot.Requests.Validation;
 
 internal class ChangeTilesButtonValidator : BingoValidator<ChangeTilesButtonRequest>
 {
     public ChangeTilesButtonValidator()
     {
-        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId));
+        ClassLevelCascadeMode = FluentValidation.CascadeMode.Stop;
+
+        ActiveInteractions<ChangeTilesButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,
+            GetTooManyInteractionInstancesError(1, DiscordTeamBoardButtons.ChangeTileLabel), 1);
+
+        ActiveInteractions<SubmitDropButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
+            DiscordTeamBoardButtonErrors.ChangeTilesWithActiveSubmitDropOrViewEvidence, 1);
+
+        ActiveInteractions<ViewEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,
+            DiscordTeamBoardButtonErrors.ChangeTilesWithActiveSubmitDropOrViewEvidence, 1);
+
+        TeamExists(r => r.TeamId);
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId), true);
     }
 }

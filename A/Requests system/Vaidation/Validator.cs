@@ -14,7 +14,7 @@ using RSBingo_Common;
 public class Validator<TRequest> : AbstractValidator<TRequest>
     where TRequest : IBaseRequest
 {
-    private const string TooManyInteractionInstances = "You can only interact with {0} instance{1} of '{2}'.";
+    private const string TooManyInteractionInstances = "You can only interact with {0} instance{1} of '{2}' at a time.";
 
     private readonly RequestsTracker requestsTracker;
     private readonly InteractionsTracker interactionTrackers;

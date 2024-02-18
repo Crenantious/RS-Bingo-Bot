@@ -7,6 +7,7 @@ namespace RSBingoBot.Requests.Validation;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Requests.Extensions;
 using FluentValidation;
+using RSBingoBot.Discord;
 using RSBingoBot.Requests;
 
 internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRequest>
@@ -15,8 +16,20 @@ internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRe
 
     public ViewEvidenceButtonValidator()
     {
+        ClassLevelCascadeMode = FluentValidation.CascadeMode.Stop;
+
+        ActiveInteractions<ChangeTilesButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,
+            DiscordTeamBoardButtonErrors.SubmitDropOrViewEvidenceWithActiveChangeTiles, 1);
+
+        // TODO: JR - fix the label name.
+        ActiveInteractions<SubmitDropButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
+            DiscordTeamBoardButtonErrors.ViewEvidenceWithActiveSubmitDrop, 1);
+
+        ActiveInteractions<ViewEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,
+            GetTooManyInteractionInstancesError(1, DiscordTeamBoardButtons.ViewEvidenceLabel), 1);
+
         TeamExists(r => r.TeamId);
-        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId));
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.TeamId), true);
         RuleFor(r => r.GetDiscordInteraction().User.GetDBUser(DataWorker)!.Evidence)
             .NotEmpty()
             .WithMessage(NoTilesFoundError);

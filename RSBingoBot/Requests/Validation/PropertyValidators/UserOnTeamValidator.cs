@@ -13,41 +13,47 @@ using RSBingo_Framework.Models;
 
 public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
 {
-    private const string UserIsNotOnTheTeam = "The user '{0}' is not on that team.";
+    private const string UserIsNotOnTheTeamError = "The user '{0}' must be on the team '{1}'.";
+    private const string UserIsNotOnTheTeamUserPerspectiveError = "You must be on the team '{0}'.";
+    private const string TeamDoesNotExistError = "The team does not exist.";
 
     private readonly IDataWorker dataWorker;
     private readonly Func<T, (DiscordUser, Team)>? userAndTeam;
     private readonly Func<T, (DiscordUser, string)>? userAndTeamName;
     private readonly Func<T, (DiscordUser, int)>? userAndTeamId;
+    private readonly bool isUserPerspective;
 
-    public string Name => "UserOnTeamValidator";
+    private string error = string.Empty;
 
-    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, Team)> func)
+    public string Name => nameof(UserOnTeamValidator<T>);
+
+    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, Team)> func, bool isUserPerspective)
     {
         this.dataWorker = dataWorker;
         this.userAndTeam = func;
+        this.isUserPerspective = isUserPerspective;
     }
 
-    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, string)> func)
+    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, string)> func, bool isUserPerspective)
     {
         this.dataWorker = dataWorker;
         this.userAndTeamName = func;
+        this.isUserPerspective = isUserPerspective;
     }
 
-    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, int)> func)
+    public UserOnTeamValidator(IDataWorker dataWorker, Func<T, (DiscordUser, int)> func, bool isUserPerspective)
     {
         this.dataWorker = dataWorker;
         this.userAndTeamId = func;
+        this.isUserPerspective = isUserPerspective;
     }
 
-    public string GetDefaultMessageTemplate(string errorCode)
-    {
-        throw new NotImplementedException();
-    }
+    public string GetDefaultMessageTemplate(string errorCode) =>
+        error;
 
     public bool IsValid(ValidationContext<T> context, DiscordUser user)
     {
-        Team team;
+        Team? team;
         if (userAndTeam is not null)
         {
             team = userAndTeam(context.InstanceToValidate).Item2;
@@ -63,6 +69,32 @@ public class UserOnTeamValidator<T> : IPropertyValidator<T, DiscordUser>
             team = dataWorker.Teams.GetTeamByID(id);
 
         }
-        return user.IsOnTeam(dataWorker, team);
+
+        if (team is null)
+        {
+            SetTeamErrorMessage();
+            return false;
+        }
+
+        if (user.IsOnTeam(dataWorker, team) is false)
+        {
+            SetUserErrorMessage(user, team);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private void SetTeamErrorMessage()
+    {
+        error = TeamDoesNotExistError;
+    }
+
+    private void SetUserErrorMessage(DiscordUser user, Team team)
+    {
+        error = isUserPerspective ?
+            UserIsNotOnTheTeamUserPerspectiveError.FormatConst(team.Name) :
+            UserIsNotOnTheTeamError.FormatConst(user.Username, team.Name);
     }
 }

@@ -90,22 +90,22 @@ public class BingoValidator<TRequest> : Validator<TRequest>
             .WithMessage(r => GetUserOnTeamError(func(r), userPerspective));
     }
 
-    public void UserOnTeam(Func<TRequest, (DiscordUser, string)> func)
+    public void UserOnTeam(Func<TRequest, (DiscordUser, string)> func, bool isUserPerspective)
     {
         RuleFor(r => func(r).Item1)
-            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func, isUserPerspective));
     }
 
-    public void UserOnTeam(Func<TRequest, (DiscordUser, int)> func)
+    public void UserOnTeam(Func<TRequest, (DiscordUser, int)> func, bool isUserPerspective)
     {
         RuleFor(r => func(r).Item1)
-            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func, isUserPerspective));
     }
 
-    public void UserOnTeam(Func<TRequest, (DiscordUser, Team)> func)
+    public void UserOnTeam(Func<TRequest, (DiscordUser, Team)> func, bool isUserPerspective)
     {
         RuleFor(r => func(r).Item1)
-            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func));
+            .SetValidator(new UserOnTeamValidator<TRequest>(DataWorker, func, isUserPerspective));
     }
 
     public void TeamHasTiles(Func<TRequest, int> func)
