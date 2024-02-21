@@ -20,80 +20,80 @@ using RSBingo_Framework.Records;
 internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest>
 {
     private const string NoTaskName = "No task";
-    private const string ResponseContent = "{0} select tiles to swap. The 'from' selection contains the team's tiles," +
-        "the 'to' selection contains all possible tiles. A tick in the 'to' selection indicates the tile is on the board.";
+    private const string ResponseContent = "{0} Select tiles to swap. The 'Change from' selection contains the team's tiles, " +
+        "the 'Change to' selection contains all possible tiles. A tick in the 'Change to' selection indicates the tile is on the board.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
-    private readonly IDiscordMessageServices messageServices;
     private readonly DiscordClient client;
     private readonly DiscordEmoji taskOnBoardEmoji;
 
     private User user = null!;
 
-    public ChangeTilesButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory, IDiscordMessageServices messageServices,
-        DiscordClient client)
+    protected override bool SendKeepAliveMessage => false;
+
+    public ChangeTilesButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory, DiscordClient client)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
-        this.messageServices = messageServices;
         this.client = client;
         taskOnBoardEmoji = DiscordEmoji.FromUnicode(client, "✅");
     }
 
     protected override async Task Process(ChangeTilesButtonRequest request, CancellationToken cancellationToken)
     {
+        var messageServices = GetRequestService<IDiscordInteractionMessagingServices>();
+        await messageServices.SendKeepAlive(Interaction, false);
+
         user = GetUser()!;
 
         var response = new InteractionMessage(Interaction)
-            .WithContent(GetResponseContent(request))
-            .AsEphemeral(true);
+            .WithContent(GetResponseContent(request));
+
         ChangeTilesButtonDTO dto = new();
 
-        SelectComponent changeFrom = CreateSelectComponent("Change from", GetFromSelectOptions(), () => new ChangeTilesFromSelectRequest(dto));
-        SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), () => new ChangeTilesToSelectRequest(dto));
+        SelectComponent changeFrom = CreateSelectComponent("Change from", GetFromSelectOptions(), () => new ChangeTilesFromSelectRequest(dto),
+            SelectComponentGetPageName.CustomMethod(GetFromSelectPageName));
+        SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), () => new ChangeTilesToSelectRequest(dto),
+            SelectComponentGetPageName.FirstToLastOptions());
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(InteractionTracker));
+        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"),
+            () => new ConcludeInteractionButtonRequest(InteractionTracker, new List<Message>() { response }));
 
-        response.AddComponents(changeFrom);
-        response.AddComponents(changeTo);
-        response.AddComponents(submit, cancel);
-        ResponseMessages.Add(response);
+        response.AddComponents(changeFrom)
+            .AddComponents(changeTo)
+            .AddComponents(submit, cancel);
 
-        InteractionTracker.OnConclude += OnConclude;
-    }
-
-    public async Task OnConclude(object? sender, EventArgs args)
-    {
-        DeleteResponses();
+        await messageServices.Send(response);
     }
 
     private static string GetResponseContent(ChangeTilesButtonRequest request) =>
         ResponseContent.FormatConst(request.GetDiscordInteraction().User.Mention);
 
-    private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, Func<ISelectComponentRequest> request) =>
-        selectFactory.Create(new SelectComponentInfo(name, options), request);
+    private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, Func<ISelectComponentRequest> request,
+        SelectComponentGetPageName getPageName) =>
+            selectFactory.Create(new SelectComponentInfo(name, options, GetPageName: getPageName), request);
 
     private IEnumerable<SelectComponentOption> GetFromSelectOptions()
     {
         List<SelectComponentItem> items = new();
-        IEnumerator<Tile> tiles = user.Team.Tiles.OrderBy(t => t.BoardIndex).GetEnumerator();
+        Dictionary<int, Tile> tiles = user.Team.Tiles.ToDictionary(t => t.BoardIndex);
 
         for (int boardIndex = 0; boardIndex < General.MaxTilesOnABoard; boardIndex++)
         {
-            if (boardIndex == tiles.Current.BoardIndex)
-            {
-                items.Add(new(tiles.Current.Task.Name, boardIndex));
-                tiles.MoveNext();
-            }
-            else
-            {
-                items.Add(new(NoTaskName, boardIndex));
-            }
+            string name = tiles.ContainsKey(boardIndex) ? tiles[boardIndex].Task.Name : NoTaskName;
+            items.Add(new($"Tile {boardIndex} - {name}", boardIndex));
         }
 
         return items;
+    }
+
+    private string GetFromSelectPageName(ISelectComponentPage page)
+    {
+        var firstPage = (SelectComponentItem)page.Options[0];
+        var lastPage = (SelectComponentItem)page.Options[^1];
+        return $"Tiles {firstPage.Value} - {lastPage.Value}";
     }
 
     private IEnumerable<SelectComponentOption> GetToSelectOptions()
@@ -102,17 +102,26 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         SelectComponentPage easy = new("Easy");
         SelectComponentPage medium = new("Medium");
         SelectComponentPage hard = new("Hard");
-        easy.Options = GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Easy);
-        medium.Options = GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Medium);
-        hard.Options = GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Hard);
+        easy.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Easy));
+        medium.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Medium));
+        hard.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Hard));
 
         return new List<SelectComponentOption> { easy, medium, hard };
     }
 
-    private List<SelectComponentOption> GetToSelectItems(IEnumerable<BingoTask> tasks, BingoTaskRecord.Difficulty difficulty) =>
-        tasks.Where(t => t.GetDifficutyAsDifficulty() == difficulty)
-            .Select(t => CreateToSelectItem(t))
-            .ToList();
+    private List<SelectComponentOption> GetToSelectItems(IEnumerable<BingoTask> tasks, BingoTaskRecord.Difficulty difficulty)
+    {
+        var items = tasks.Where(t => t.GetDifficutyAsDifficulty() == difficulty)
+               .Select(t => CreateToSelectItem(t))
+               .ToList();
+
+        if (items.Count == 0)
+        {
+            items.Add(new SelectComponentItem("No tasks found", null));
+        }
+
+        return items;
+    }
 
     private SelectComponentOption CreateToSelectItem(BingoTask task)
     {

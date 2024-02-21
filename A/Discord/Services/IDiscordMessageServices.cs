@@ -14,6 +14,7 @@ public interface IDiscordMessageServices : IRequestService
 {
     public Task<Result> Send(Message message, DiscordChannel channel);
     public Task<Result<Message>> Get(ulong id, DiscordChannel channel);
+    public Task<Result> Update(IMessage message);
     public Task<Result> Delete(Message message);
     public Task<Result> Delete(DiscordMessage message);
     public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints);

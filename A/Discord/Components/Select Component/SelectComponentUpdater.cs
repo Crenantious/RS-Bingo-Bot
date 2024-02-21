@@ -8,39 +8,22 @@ using DSharpPlus.Entities;
 
 internal static class SelectComponentUpdater
 {
-    internal static void UpdatePageNames(SelectComponent selectComponent)
-    {
-        foreach (SelectComponentOption option in selectComponent.selectOptions)
-        {
-            if (option is SelectComponentPage)
-            {
-                option.label = selectComponent.PageName.Get((SelectComponentPage)option);
-            }
-        }
-    }
-
     /// <summary>
-    /// Builds the structure of the pages and items, creates the corresponding <see cref="DiscordSelectComponentOption"/>s
-    /// and the <see cref="DiscordSelectComponent"/>.
-    /// This should be called before <see cref="OnInteraction"/>.
+    /// Creates the Discord components.
     /// </summary>
     internal static void Build(SelectComponent selectComponent)
     {
-        // TODO: JR - add support for building multiple times.
-        selectComponent.selectOptions = SelectComponentCommon.FormatSelectComponentOptions(selectComponent.selectOptions);
-        // Is this needed?
-        UpdatePageNames(selectComponent);
         BuildAllDiscordOptions(selectComponent);
         CreateDiscordSelectComponent(selectComponent);
     }
 
     internal static void PageSlected(SelectComponent selectComponent, SelectComponentPage page)
     {
+        selectComponent.SetOptions(page.Options);
         selectComponent.SelectedPage = page;
-        selectComponent.selectOptions = page.Options;
+        selectComponent.SelectedPages.Add(page);
         selectComponent.selectedItems.Clear();
         selectComponent.SelectedItemsHashSet.Clear();
-        UpdatePlaceholder(selectComponent, page.label);
         Build(selectComponent);
     }
 
@@ -49,43 +32,33 @@ internal static class SelectComponentUpdater
         selectComponent.SelectedPage = null;
         selectComponent.selectedItems = items.ToList();
         selectComponent.SelectedItemsHashSet = items.ToHashSet();
-        BuildAllDiscordOptions(selectComponent);
-        CreateDiscordSelectComponent(selectComponent);
+        Build(selectComponent);
     }
 
     private static void BuildAllDiscordOptions(SelectComponent selectComponent)
     {
-        selectComponent.discordOptions.Clear();
+        selectComponent.DiscordOptions.Clear();
 
-        for (int i = 0; i < selectComponent.selectOptions.Count(); i++)
+        for (int i = 0; i < selectComponent.Options.Count(); i++)
         {
-            SelectComponentOption option = selectComponent.selectOptions.ElementAt(i);
-            option.isDefault = selectComponent.SelectedItemsHashSet.Contains(option);
+            SelectComponentOption option = selectComponent.Options.ElementAt(i);
+            option.IsDefault = selectComponent.SelectedItemsHashSet.Contains(option);
             option.Build(i.ToString());
-            selectComponent.discordOptions.Add(option.discordOption);
+            selectComponent.DiscordOptions.Add(option.DiscordOption);
         }
     }
 
     private static void CreateDiscordSelectComponent(SelectComponent selectComponent)
     {
-        int maxOptions = (int)MathF.Min(selectComponent.MaxOptions, selectComponent.discordOptions.Count());
+        int maxOptions = (int)MathF.Min(selectComponent.MaxOptions, selectComponent.DiscordOptions.Count());
 
         // For maxOptions, the number cannot exceed the amount of discordOptions or there'll be an error
         selectComponent.DiscordComponent = new DiscordSelectComponent(
             selectComponent.CustomId,
-            selectComponent.placeholder ?? selectComponent.InitialPlaceholder,
-            selectComponent.discordOptions,
+            selectComponent.Label,
+            selectComponent.DiscordOptions,
             selectComponent.Disabled,
             selectComponent.MinOptions,
             maxOptions);
     }
-
-    private static void UpdatePlaceholder(SelectComponent selectComponent, string pageLabel)
-        => selectComponent.placeholder =
-            IsFirstPage(selectComponent) ?
-            pageLabel :
-            $"{selectComponent.placeholder}, {pageLabel}";
-
-    private static bool IsFirstPage(SelectComponent selectComponent) =>
-       selectComponent.placeholder == selectComponent.InitialPlaceholder;
 }

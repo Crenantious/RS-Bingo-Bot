@@ -13,10 +13,6 @@ public class Message : IMessage
 {
     internal List<(string path, string name)> files = new();
 
-    /// <summary>
-    /// The <see cref="DSharpPlus.Entities.DiscordMessage"/> this is associated with.
-    /// Value is only set once the message has been sent, or has been retrieved from an existing <see cref="DSharpPlus.Entities.DiscordMessage"/>.
-    /// </summary>
     public DiscordMessage DiscordMessage { get; internal set; }
 
     public string Content { get; set; } = string.Empty;
@@ -88,7 +84,7 @@ public class Message : IMessage
         if (componentRow.ElementAt(0) is SelectComponent)
         {
             var selectComponent = (SelectComponent)componentRow.ElementAt(0);
-            if (selectComponent.SelectOptions.Any() is false)
+            if (selectComponent.Options.Any() is false)
             {
                 throw new SelectComponentNoOptionsException();
             }

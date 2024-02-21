@@ -43,7 +43,7 @@ public class DiscordTeamBoardButtons
 
         submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitEvidenceLabel, GetId(team, SubmitEvidenceLabel)),
             () => new SubmitDropButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
-            Math.Min(General.MaxTilesOnABoard, General.MaxOptionsPerSelectMenu)));
+            Math.Min(General.MaxTilesOnABoard, General.MaxSelectOptionsPerPage)));
 
         submitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitDropLabel, GetId(team, SubmitDropLabel)),
             () => new SubmitDropButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));

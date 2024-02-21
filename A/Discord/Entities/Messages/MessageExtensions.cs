@@ -112,6 +112,11 @@ public static class MessageExtensions
         where T : Message
     {
         ValidateAddComponents(message, components);
+
+        foreach (var component in components)
+        {
+            component.Message = message;
+        }
         message.Components.AddRow(components);
         return message;
     }

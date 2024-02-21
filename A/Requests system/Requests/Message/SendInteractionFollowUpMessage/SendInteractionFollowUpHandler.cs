@@ -29,7 +29,8 @@ internal class SendInteractionFollowUpHandler : DiscordHandler<SendInteractionFo
     {
         try
         {
-            return await request.Message.Interaction.CreateFollowupMessageAsync(request.Message.GetFollowupMessageBuilder());
+            DiscordFollowupMessageBuilder builder = request.Message.GetFollowupMessageBuilder();
+            return await request.Message.Interaction.CreateFollowupMessageAsync(builder);
         }
         catch (BadRequestException)
         {

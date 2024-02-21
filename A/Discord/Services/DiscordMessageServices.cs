@@ -10,6 +10,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using FluentResults;
+using RSBingoBot.Requests;
 
 public class DiscordMessageServices : RequestService, IDiscordMessageServices
 {
@@ -25,6 +26,9 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
 
     public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
         await RunRequest<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
+
+    public async Task<Result> Update(IMessage message) =>
+        await RunRequest(new UpdateMessageRequest(message));
 
     public async Task<Result> Delete(Message message) =>
         await RunRequest(new DeleteMessageRequest(message.DiscordMessage));

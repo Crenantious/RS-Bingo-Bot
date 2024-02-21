@@ -26,7 +26,7 @@ public class SelectComponentTests : MockDBBaseTestClass
     [TestMethod]
     public void AddMoreItemsToSelectComponentThanMax_SplitIntoPages()
     {
-        List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu*2 + 1);
+        List<SelectComponentItem> items = CreateItems(MaxSelectOptionsPerPage*2 + 1);
         selectComponent.SelectOptions = new(items);
 
         selectComponent.Build();
@@ -41,7 +41,7 @@ public class SelectComponentTests : MockDBBaseTestClass
     public void AddMoreItemsToPageThanMax_SplitIntoPages()
     {
         SelectComponentPage page = new("");
-        List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu*2 + 1);
+        List<SelectComponentItem> items = CreateItems(MaxSelectOptionsPerPage*2 + 1);
         page.Options = new(items);
         selectComponent.SelectOptions.Add(page);
 
@@ -58,7 +58,7 @@ public class SelectComponentTests : MockDBBaseTestClass
     {
         SelectComponentPage page1 = new("");
         SelectComponentPage page2 = new("");
-        List<SelectComponentItem> items = CreateItems(MaxOptionsPerSelectMenu * 2 + 1);
+        List<SelectComponentItem> items = CreateItems(MaxSelectOptionsPerPage * 2 + 1);
         page1.Options = new(items);
         page2.Options = new() { page1 };
         selectComponent.SelectOptions.Add(page2);

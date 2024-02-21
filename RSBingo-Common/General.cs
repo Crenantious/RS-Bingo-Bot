@@ -72,7 +72,7 @@ public static class General
     /// <summary>
     /// Gets the maximum number of options a <see cref="DiscordSelectComponent"/> can have.
     /// </summary>
-    public const int MaxOptionsPerSelectMenu = 25;
+    public const int MaxSelectOptionsPerPage = 25;
 
     /// <summary>
     /// Gets the maximum number of tiles a team's board can have.

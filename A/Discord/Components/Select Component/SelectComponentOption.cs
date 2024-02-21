@@ -5,27 +5,29 @@
 namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
-using static RSBingo_Common.General;
 
 public abstract class SelectComponentOption
 {
-    public string label { get; set; }
-    public string? description { get; set; }
-    public bool isDefault { get; set; }
-    public DiscordComponentEmoji? emoji { get; set; }
-    public DiscordSelectComponentOption discordOption { get; private set; }
+    public abstract string Label { get; }
+    public string? Description { get; }
+    public bool IsDefault { get; internal set; }
+    public DiscordComponentEmoji? Emoji { get; }
 
-    public SelectComponentOption(string label, string? description = null,
+    /// <summary>
+    /// Only set once <see cref="Build(string)"/> has been called.
+    /// </summary>
+    public DiscordSelectComponentOption DiscordOption { get; private set; } = null!;
+
+    public SelectComponentOption(string? description = null,
                 bool isDefault = false, DiscordComponentEmoji? emoji = null)
     {
-        this.label = label;
-        this.description = description;
-        this.isDefault = isDefault;
-        this.emoji = emoji;
+        this.Description = description;
+        this.IsDefault = isDefault;
+        this.Emoji = emoji;
     }
 
     public void Build(string id)
     {
-        discordOption = new(label, id, description!, isDefault, emoji!);
+        DiscordOption = new(Label, id, Description!, IsDefault, Emoji!);
     }
 }
