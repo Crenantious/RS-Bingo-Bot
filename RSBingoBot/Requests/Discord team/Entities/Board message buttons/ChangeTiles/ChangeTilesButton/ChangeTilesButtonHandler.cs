@@ -57,13 +57,16 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         SelectComponent changeTo = CreateSelectComponent("Change to", GetToSelectOptions(), () => new ChangeTilesToSelectRequest(dto),
             SelectComponentGetPageName.FirstToLastOptions());
 
+        Button changeFromBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeFrom));
+        Button changeToBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeTo));
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"),
-            () => new ConcludeInteractionButtonRequest(InteractionTracker, new List<Message>() { response }));
+        Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }));
 
         response.AddComponents(changeFrom)
+            .AddComponents(changeFromBack)
             .AddComponents(changeTo)
-            .AddComponents(submit, cancel);
+            .AddComponents(changeToBack)
+            .AddComponents(submit, close);
 
         await messageServices.Send(response);
     }

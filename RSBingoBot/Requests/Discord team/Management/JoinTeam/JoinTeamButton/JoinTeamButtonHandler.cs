@@ -66,5 +66,5 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
     }
 
     private Button GetCloseButton() =>
-        buttonFactory.CreateConcludeInteraction(new(InteractionTracker, new List<Message>() { response }, Interaction.User));
+        buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 }
