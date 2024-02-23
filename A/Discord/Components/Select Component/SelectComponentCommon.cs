@@ -43,10 +43,9 @@ internal class SelectComponentCommon
 
         for (int i = 0; i < (float)optionsCount / MaxSelectOptionsPerPage; i++)
         {
-            pages.Add(new(getPageName));
             var pageOptions = options.Skip(i * MaxSelectOptionsPerPage)
                 .Take(MaxSelectOptionsPerPage);
-            pages[^1].SetOptions(pageOptions);
+            pages.Add(new(getPageName, pageOptions));
         }
 
         return pages;

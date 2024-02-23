@@ -73,7 +73,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
     private SelectComponent CreateSelectComponent(string name, IEnumerable<SelectComponentOption> options, Func<ISelectComponentRequest> request,
         SelectComponentGetPageName getPageName) =>
-            selectFactory.Create(new SelectComponentInfo(name, options, GetPageName: getPageName), request);
+        selectFactory.Create(new(new SelectComponentPage(name, options, getPageName)), request);
 
     private IEnumerable<SelectComponentOption> GetFromSelectOptions()
     {
@@ -89,7 +89,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         return items;
     }
 
-    private string GetFromSelectPageName(ISelectComponentPage page)
+    private string GetFromSelectPageName(SelectComponentPage page)
     {
         var firstPage = (SelectComponentItem)page.Options[0];
         var lastPage = (SelectComponentItem)page.Options[^1];
@@ -99,13 +99,9 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
     private IEnumerable<SelectComponentOption> GetToSelectOptions()
     {
         IEnumerable<BingoTask> tasks = DataWorker.BingoTasks.GetAll();
-        SelectComponentPage easy = new("Easy");
-        SelectComponentPage medium = new("Medium");
-        SelectComponentPage hard = new("Hard");
-        easy.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Easy));
-        medium.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Medium));
-        hard.SetOptions(GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Hard));
-
+        SelectComponentPage easy = new("Easy", GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Easy));
+        SelectComponentPage medium = new("Medium", GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Medium));
+        SelectComponentPage hard = new("Hard", GetToSelectItems(tasks, BingoTaskRecord.Difficulty.Hard));
         return new List<SelectComponentOption> { easy, medium, hard };
     }
 

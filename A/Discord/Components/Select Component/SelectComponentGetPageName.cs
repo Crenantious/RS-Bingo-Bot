@@ -6,9 +6,9 @@ namespace DiscordLibrary.DiscordComponents;
 
 public class SelectComponentGetPageName
 {
-    private Func<ISelectComponentPage, string> method = null!;
+    private Func<SelectComponentPage, string> method = null!;
 
-    private SelectComponentGetPageName(Func<ISelectComponentPage, string> method)
+    private SelectComponentGetPageName(Func<SelectComponentPage, string> method)
     {
         this.method = method;
     }
@@ -16,10 +16,10 @@ public class SelectComponentGetPageName
     public static SelectComponentGetPageName FirstToLastOptions(string delimiter = " - ") =>
         new((component) => OnGetPageName(component.Options, delimiter));
 
-    public static SelectComponentGetPageName CustomMethod(Func<ISelectComponentPage, string> method) =>
+    public static SelectComponentGetPageName CustomMethod(Func<SelectComponentPage, string> method) =>
         new(method);
 
-    public string Get(ISelectComponentPage page) =>
+    public string Get(SelectComponentPage page) =>
         method(page);
 
     private static string OnGetPageName(IReadOnlyList<SelectComponentOption> options, string delimiter) =>

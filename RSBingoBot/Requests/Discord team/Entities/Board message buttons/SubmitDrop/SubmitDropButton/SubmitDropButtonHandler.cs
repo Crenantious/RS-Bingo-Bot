@@ -59,7 +59,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 
     private SelectComponent CreateSelectComponent(int maxOptions, SubmitDropButtonDTO dto) =>
         selectFactory.Create(
-            new SelectComponentInfo("Select a tile", GetSelectOptions(), MaxOptions: maxOptions),
+            new(new SelectComponentPage("Select a tile", GetSelectOptions()), MaxOptions: maxOptions),
             () => new SubmitDropSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>

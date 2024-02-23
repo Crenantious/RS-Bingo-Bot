@@ -38,7 +38,7 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
     {
         var items = options.Cast<SelectComponentItem>();
 
-        SelectComponentUpdater.ItemsSelected(request.GetComponent(), items);
+        SelectComponentUpdater.SetSelectedItems(request.GetComponent(), items);
 
         OnItemsSelected(items, request, cancellationToken);
         await OnItemSelectedAsync(items, request, cancellationToken);
@@ -48,7 +48,7 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
     {
         SelectComponentPage page = pages.ElementAt(0);
 
-        SelectComponentUpdater.PageSlected(request.GetComponent(), page);
+        SelectComponentUpdater.SetSelectedPage(request.GetComponent(), page);
 
         OnPageSelected(page, request, cancellationToken);
         await OnPageSelectedAsync(page, request, cancellationToken);
@@ -62,7 +62,7 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
     private List<SelectComponentOption> GetSelectedOptions(TRequest request)
     {
         var values = request.GetInteractionArgs().Values;
-        List<SelectComponentOption> options = new(values.Length);
+        List<SelectComponentOption> selectedOptions = new(values.Length);
         int index;
 
         for (int i = 0; i < values.Length; i++)
@@ -70,7 +70,7 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
             try
             {
                 index = int.Parse(values[i]);
-                options.Add(request.GetComponent().Options.ElementAt(index));
+                selectedOptions.Add(request.GetComponent().Options.ElementAt(index));
             }
             catch
             {
@@ -80,6 +80,6 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
             }
         }
 
-        return options;
+        return selectedOptions;
     }
 }

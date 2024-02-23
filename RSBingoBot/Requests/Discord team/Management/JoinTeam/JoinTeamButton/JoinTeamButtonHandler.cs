@@ -53,11 +53,9 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
     private string FormatContent(string message) =>
         message.FormatConst(Interaction.User.Mention);
 
-    private SelectComponent GetSelectComponent(JoinTeamButtonRequest request)
-    {
-        var user = request.GetDiscordInteraction().User;
-        return selectComponentFactory.Create(new("Select a team", GetSelectOptions()), () => new JoinTeamSelectRequest(user));
-    }
+    private SelectComponent GetSelectComponent(JoinTeamButtonRequest request) =>
+        selectComponentFactory.Create(new SelectComponentInfo(new SelectComponentPage("Select a team", GetSelectOptions())),
+            () => new JoinTeamSelectRequest(request.GetDiscordInteraction().User));
 
     // TODO: JR - add SelectItemsGenerator to make this simple since it's commonplace.
     // I.e. a method: FromEnumerable(IEnumerable<T>, Func<T, SelectComponentItem>)

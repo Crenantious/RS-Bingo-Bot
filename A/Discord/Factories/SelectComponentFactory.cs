@@ -12,6 +12,7 @@ public class SelectComponentFactory : InteractableComponentFactory<SelectCompone
     protected internal override SelectComponent Create(SelectComponentInfo createInfo)
     {
         SelectComponent selectComponent = new(createInfo);
+        SelectComponentUpdater.SetSelectedPage(selectComponent, createInfo.InitialPage);
         SelectComponentUpdater.Build(selectComponent);
         return selectComponent;
     }

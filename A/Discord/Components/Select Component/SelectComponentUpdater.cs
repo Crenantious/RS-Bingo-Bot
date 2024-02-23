@@ -17,20 +17,17 @@ internal static class SelectComponentUpdater
         CreateDiscordSelectComponent(selectComponent);
     }
 
-    internal static void PageSlected(SelectComponent selectComponent, SelectComponentPage page)
+    internal static void SetSelectedPage(SelectComponent selectComponent, SelectComponentPage page)
     {
-        selectComponent.SetOptions(page.Options);
-        selectComponent.SelectedPage = page;
         selectComponent.SelectedPages.Add(page);
-        selectComponent.selectedItems.Clear();
+        selectComponent.SelectedItems.Clear();
         selectComponent.SelectedItemsHashSet.Clear();
         Build(selectComponent);
     }
 
-    internal static void ItemsSelected(SelectComponent selectComponent, IEnumerable<SelectComponentItem> items)
+    internal static void SetSelectedItems(SelectComponent selectComponent, IEnumerable<SelectComponentItem> items)
     {
-        selectComponent.SelectedPage = null;
-        selectComponent.selectedItems = items.ToList();
+        selectComponent.SelectedItems = items.ToList();
         selectComponent.SelectedItemsHashSet = items.ToHashSet();
         Build(selectComponent);
     }
@@ -55,10 +52,16 @@ internal static class SelectComponentUpdater
         // For maxOptions, the number cannot exceed the amount of discordOptions or there'll be an error
         selectComponent.DiscordComponent = new DiscordSelectComponent(
             selectComponent.CustomId,
-            selectComponent.Label,
+            GetLabel(selectComponent),
             selectComponent.DiscordOptions,
             selectComponent.Disabled,
             selectComponent.MinOptions,
             maxOptions);
     }
+
+    // TODO: JR - deal with the label being too long. Maybe after a character count it skips
+    // the first x characters to only show the last characters, simulating it being scrolled to the right.
+    // If so, prefix with an ellipsis to indicate that's not the whole name.
+    private static string GetLabel(SelectComponent selectComponent) =>
+        string.Join(", ", selectComponent.SelectedPages.Select(p => p.Label));
 }

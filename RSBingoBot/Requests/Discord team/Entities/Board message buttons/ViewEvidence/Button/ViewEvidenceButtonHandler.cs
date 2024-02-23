@@ -50,7 +50,7 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     private SelectComponent CreateSelectComponent(User user) =>
         selectComponentFactory.Create(
-            new SelectComponentInfo("Select a tile", GetSelectOptions(user)),
+            new(new SelectComponentPage("Select a tile", GetSelectOptions(user))),
             () => new ViewEvidenceSelectRequest());
 
     private IEnumerable<SelectComponentOption> GetSelectOptions(User user) =>

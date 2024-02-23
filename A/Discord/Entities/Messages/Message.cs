@@ -84,10 +84,7 @@ public class Message : IMessage
         if (componentRow.ElementAt(0) is SelectComponent)
         {
             var selectComponent = (SelectComponent)componentRow.ElementAt(0);
-            if (selectComponent.Options.Any() is false)
-            {
-                throw new SelectComponentNoOptionsException();
-            }
+            selectComponent.Validate();
         }
     }
 

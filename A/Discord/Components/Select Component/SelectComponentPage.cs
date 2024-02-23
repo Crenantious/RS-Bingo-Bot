@@ -6,7 +6,7 @@ namespace DiscordLibrary.DiscordComponents;
 
 using DSharpPlus.Entities;
 
-public class SelectComponentPage : SelectComponentOption, ISelectComponentPage
+public class SelectComponentPage : SelectComponentOption
 {
     private SelectComponentGetPageName GetPageLabel;
     private IEnumerable<SelectComponentOption> options = Enumerable.Empty<SelectComponentOption>();
@@ -15,25 +15,27 @@ public class SelectComponentPage : SelectComponentOption, ISelectComponentPage
 
     public IReadOnlyList<SelectComponentOption> Options { get; private set; } = null!;
 
-    public SelectComponentPage(SelectComponentGetPageName getPageLabel, string? description = null,
+    public SelectComponentPage(SelectComponentGetPageName getPageLabel, IEnumerable<SelectComponentOption> options,
+        SelectComponentGetPageName? getGeneratedPageLabel = null, string? description = null,
         bool isDefault = false, DiscordComponentEmoji? emoji = null) :
         base(description, isDefault, emoji)
     {
         GetPageLabel = getPageLabel;
-        SetOptions();
+        SetOptions(options, getGeneratedPageLabel);
     }
 
-    public SelectComponentPage(string label, string? description = null,
+    public SelectComponentPage(string label, IEnumerable<SelectComponentOption> options,
+        SelectComponentGetPageName? getGeneratedPageLabel = null, string? description = null,
         bool isDefault = false, DiscordComponentEmoji? emoji = null) :
         base(description, isDefault, emoji)
     {
         GetPageLabel = SelectComponentGetPageName.CustomMethod(p => label);
-        SetOptions();
+        SetOptions(options, getGeneratedPageLabel);
     }
 
-    public void SetOptions(IEnumerable<SelectComponentOption> options, SelectComponentGetPageName? getPageLabel = null)
+    public void SetOptions(IEnumerable<SelectComponentOption> options, SelectComponentGetPageName? getGeneratedPageLabel = null)
     {
-        this.options = SelectComponentCommon.TryConvertToPages(options, getPageLabel ?? SelectComponentGetPageName.FirstToLastOptions());
+        this.options = SelectComponentCommon.TryConvertToPages(options, getGeneratedPageLabel ?? SelectComponentGetPageName.FirstToLastOptions());
         SetOptions();
     }
 

@@ -5,5 +5,4 @@
 namespace DiscordLibrary.DiscordComponents;
 
 // TODO: JR - rename
-public record SelectComponentInfo(string Label, IEnumerable<SelectComponentOption> Options, SelectComponentGetPageName? GetPageName = null,
-    bool Disabled = false, int MinOptions = 1, int MaxOptions = 1);
+public record SelectComponentInfo(SelectComponentPage InitialPage, bool Disabled = false, int MinOptions = 1, int MaxOptions = 1);
