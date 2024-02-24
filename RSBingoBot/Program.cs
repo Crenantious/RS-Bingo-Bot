@@ -190,12 +190,14 @@ public class Program
 
             // Message requests
             .AddRequest<SendMessageRequest>(services)
+            .AddRequest<SendKeepAliveInteractionMessageRequest>(services)
             .AddRequest<SendInteractionMessageRequest>(services)
             .AddRequest<SendInteractionOriginalResponseRequest>(services)
             .AddRequest<SendInteractionFollowUpRequest>(services)
             .AddRequest<SendRequestResultResponsesRequest>(services)
             .AddRequest<SendModalRequest>(services)
             .AddRequest<GetMessageRequest, Message>(services)
+            .AddRequest<UpdateMessageRequest>(services)
             .AddRequest<DeleteMessageRequest>(services)
 
             // Role requests
