@@ -5,6 +5,7 @@
 namespace RSBingoBot.RequestHandlers;
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using RSBingoBot.Discord;
@@ -27,15 +28,17 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
     protected override async Task<Message> Process(CreateTeamBoardMessageRequest request, CancellationToken cancellationToken)
     {
-        Image boardImage = BoardImage.Create(request.Team);
+        var teamServices = GetRequestService<IDiscordTeamServices>();
+
         buttons.Create(request.DiscordTeam);
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
 
         var message = new Message()
             .WithContent(DropCodePrefix.FormatConst(dropCode))
-            .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence)
-            .AddImage(boardImage);
+            .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence);
+
+        await teamServices.AddBoardToMessage(request.Team, message);
 
         // TODO: JR - implement
         //#if DEBUG

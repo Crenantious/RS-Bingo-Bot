@@ -12,6 +12,6 @@ internal class ChangeTilesToSelectHandler : SelectComponentHandler<ChangeTilesTo
 {
     protected override void OnItemsSelected(IEnumerable<SelectComponentItem> items, ChangeTilesToSelectRequest request, CancellationToken cancellationToken)
     {
-        request.DTO.Task = (BingoTask)items.First().Value!;
+        request.DTO.ChangeToTask = (BingoTask)items.First().Value!;
     }
 }

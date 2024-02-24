@@ -43,7 +43,7 @@ internal class SendInteractionOriginalResponseHandler : DiscordHandler<SendInter
             return;
         }
 
-        message.DiscordMessage = discordMessage;
+        message.OnMessageSent(discordMessage);
         responseTracker.Register(message.Interaction, message);
         AddSuccess(new SendInteractionOriginalResponseSuccess(message));
     }

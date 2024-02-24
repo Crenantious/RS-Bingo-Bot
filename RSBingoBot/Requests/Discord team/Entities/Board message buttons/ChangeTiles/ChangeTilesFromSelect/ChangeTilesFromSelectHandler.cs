@@ -11,6 +11,6 @@ internal class ChangeTilesFromSelectHandler : SelectComponentHandler<ChangeTiles
 {
     protected override void OnItemsSelected(IEnumerable<SelectComponentItem> items, ChangeTilesFromSelectRequest request, CancellationToken cancellationToken)
     {
-        request.DTO.TileBoardIndex = (int)items.First().Value!;
+        request.DTO.ChangeFromTileBoardIndex = (int)items.First().Value!;
     }
 }

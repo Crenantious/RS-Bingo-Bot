@@ -5,17 +5,16 @@
 namespace RSBingoBot.Imaging;
 
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
-using RSBingo_Framework.Interfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using static RSBingo_Common.Paths;
 using static RSBingo_Common.General;
-using static RSBingoBot.Imaging.BoardPreferences;
-using static RSBingoBot.Imaging.BoardImage;
+using static RSBingo_Common.Paths;
 using static RSBingo_Framework.Records.EvidenceRecord;
+using static RSBingoBot.Imaging.BoardPreferences;
 
 public static class BoardImage
 {
@@ -43,14 +42,14 @@ public static class BoardImage
     /// </summary>
     public static Image Create(Team team)
     {
-        Image teamBoard = boardBackground.Clone(x => { });
+        Image board = boardBackground.Clone(x => { });
 
         foreach (Tile tile in team.Tiles.OrderBy(t => t.BoardIndex))
         {
-            UpdateTile(teamBoard, tile);
+            UpdateTile(board, tile);
         }
 
-        return teamBoard;
+        return board;
     }
 
     /// <summary>
@@ -63,7 +62,7 @@ public static class BoardImage
     {
         Image board = GetBoard(team.Name);
 
-        foreach(Tile tile in tiles)
+        foreach (Tile tile in tiles)
         {
             board = UpdateTile(board, tile);
         }
@@ -127,8 +126,25 @@ public static class BoardImage
     /// </summary>
     public static Image GetBoard(string teamName)
     {
-        string teamBoardPath = GetTeamBoardPath(teamName);
-        return File.Exists(teamBoardPath) ? Image<Rgba32>.Load(teamBoardPath) : boardBackground.Clone(b => { });
+        string path = GetTeamBoardPath(teamName);
+        FileStream fs = new(path, FileMode.Open);
+        var a = File.Exists(path) ? Image<Rgba32>.Load(fs) : boardBackground.Clone(b => { });
+        fs.Close();
+        return a;
+    }
+
+    /// <summary>
+    /// Gets the current board for the <paramref name="team"/>. Or a blank one if it cannot be found.
+    /// </summary>
+    /// <returns>The path the board is saved at.</returns>
+    public static string SaveBoard(Image board, string teamName)
+    {
+        string path = GetTeamBoardPath(teamName);
+        FileStream fs = new(path, FileMode.Open);
+
+        board.SaveAsPng(fs);
+        fs.Close();
+        return path;
     }
 
     public static void RenameTeam(string oldName, string newName)

@@ -20,5 +20,5 @@ public interface IMessage
     public DynamicGrid<IComponent> Components { get; set; }
 
     public DiscordMessageBuilder GetMessageBuilder();
-    public DiscordWebhookBuilder GetWebhookBuilder();
+    public void OnMessageSent(DiscordMessage discordMessage);
 }

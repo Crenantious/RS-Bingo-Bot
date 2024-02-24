@@ -31,6 +31,9 @@ public class DiscordTeamServices : RequestService, IDiscordTeamServices
     public async Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam discordTeam, Team team) =>
         await RunRequest<CreateTeamBoardMessageRequest, Message>(new CreateTeamBoardMessageRequest(discordTeam, team));
 
+    public async Task<Result> AddBoardToMessage(Team team, Message message) =>
+        await RunRequest(new AddTeamBoardToMessageRequest(team, message));
+
     public async Task<Result> AddUserToTeam(DiscordUser user, RSBingoBot.Discord.DiscordTeam discordTeam, IDataWorker dataWorker) =>
         await RunRequest(new AddUserToTeamRequest(user, discordTeam, dataWorker));
 

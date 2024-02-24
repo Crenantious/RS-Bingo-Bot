@@ -20,7 +20,7 @@ internal class SendInteractionFollowUpHandler : DiscordHandler<SendInteractionFo
         }
         else
         {
-            request.Message.DiscordMessage = message;
+            request.Message.OnMessageSent(message);
             AddSuccess(new SendInteractionFollowUpSuccess(request.Message));
         }
     }

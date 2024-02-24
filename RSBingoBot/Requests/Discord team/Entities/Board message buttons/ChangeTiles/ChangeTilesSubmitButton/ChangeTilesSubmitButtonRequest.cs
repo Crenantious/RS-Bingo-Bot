@@ -5,5 +5,6 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
+using DSharpPlus.Entities;
 
-public record ChangeTilesSubmitButtonRequest(int TeamId, ChangeTilesButtonDTO DTO) : IButtonRequest;
+public record ChangeTilesSubmitButtonRequest(int TeamId, ChangeTilesButtonDTO DTO, DiscordUser User) : IButtonRequest;

@@ -11,9 +11,11 @@ using DSharpPlus.Entities;
 
 public class Message : IMessage
 {
+    private Dictionary<string, Stream> streams;
+
     internal List<(string path, string name)> files = new();
 
-    public DiscordMessage DiscordMessage { get; internal set; }
+    public DiscordMessage DiscordMessage { get; private set; }
 
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
@@ -40,8 +42,15 @@ public class Message : IMessage
     public DiscordMessageBuilder GetMessageBuilder() =>
         GetBaseMessageBuilder(new DiscordMessageBuilder());
 
-    public DiscordWebhookBuilder GetWebhookBuilder() =>
-        GetBaseMessageBuilder(new DiscordWebhookBuilder());
+    public void OnMessageSent(DiscordMessage discordMessage)
+    {
+        DiscordMessage = discordMessage;
+
+        foreach (var fs in streams)
+        {
+            fs.Value.Close();
+        }
+    }
 
     /// <summary>
     /// Builds the base message builder using <see cref="Content"/> and <see cref="Components"/>.
@@ -69,7 +78,7 @@ public class Message : IMessage
 
     private void AddBuilderFiles<T>(T builder) where T : IDiscordMessageBuilder
     {
-        Dictionary<string, Stream> streams = new();
+        streams = new();
         files.ForEach(f => streams.Add(f.name, new FileStream(f.path, FileMode.Open)));
         builder.AddFiles(streams);
     }

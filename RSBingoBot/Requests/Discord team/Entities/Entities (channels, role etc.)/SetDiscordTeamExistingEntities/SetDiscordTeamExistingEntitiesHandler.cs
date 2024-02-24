@@ -20,6 +20,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
 
     private IDiscordServices discordServices = null!;
     private IDiscordMessageServices messageServices = null!;
+    private IDiscordTeamServices teamServices = null!;
     private Team team = null!;
 
     public SetDiscordTeamExistingEntitiesHandler(DiscordTeamBoardButtons boardButtons)
@@ -31,6 +32,8 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
     {
         discordServices = GetRequestService<IDiscordServices>();
         messageServices = GetRequestService<IDiscordMessageServices>();
+        teamServices = GetRequestService<IDiscordTeamServices>();
+
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         team = dataWorker.Teams.Find(request.DiscordTeam.Id)!;
 
@@ -108,6 +111,7 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
         Result<Message> message = await messageServices.Get(team.BoardMessageId, request.DiscordTeam.BoardChannel);
         if (message.IsSuccess)
         {
+            await teamServices.AddBoardToMessage(team, message.Value);
             request.DiscordTeam.SetBoardMessage(message.Value, team);
             boardButtons.Create(request.DiscordTeam);
         }

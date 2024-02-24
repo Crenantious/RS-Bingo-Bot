@@ -59,14 +59,15 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
         Button changeFromBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeFrom));
         Button changeToBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeTo));
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto));
+        Button apply = buttonFactory.Create(new(ButtonStyle.Primary, "Apply"),
+            () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto, Interaction.User));
         Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }));
 
         response.AddComponents(changeFrom)
             .AddComponents(changeFromBack)
             .AddComponents(changeTo)
             .AddComponents(changeToBack)
-            .AddComponents(submit, close);
+            .AddComponents(apply, close);
 
         await messageServices.Send(response);
     }

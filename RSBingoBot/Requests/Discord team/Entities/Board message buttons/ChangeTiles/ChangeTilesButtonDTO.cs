@@ -8,6 +8,6 @@ using RSBingo_Framework.Models;
 
 public class ChangeTilesButtonDTO
 {
-    public int? TileBoardIndex { get; set; }
-    public BingoTask? Task { get; set; }
+    public int? ChangeFromTileBoardIndex { get; set; }
+    public BingoTask? ChangeToTask { get; set; }
 }
