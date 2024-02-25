@@ -25,6 +25,7 @@ public class Paths
     public static string TaskImagesFolder { get; private set; } = null!;
     public static string TeamBoardFolder { get; private set; } = null!;
     public static string BoardBackgroundPath { get; private set; } = null!;
+    public static string EmptyTaskPath { get; private set; } = null!;
     public static string TileCompletedMarkerPath { get; private set; } = null!;
     public static string EvidencePendingMarkerPath { get; private set; } = null!;
 
@@ -49,6 +50,7 @@ public class Paths
         TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
 
         BoardBackgroundPath = GetPath(Path.Combine("Board images", "Board background bronze reaper"), PathType.Image);
+        EmptyTaskPath = GetPath(Path.Combine("Board images", "Empty task"), PathType.Image);
         TileCompletedMarkerPath = GetPath(Path.Combine("Board images", "Tile completed marker"), PathType.Image);
         EvidencePendingMarkerPath = GetPath(Path.Combine("Board images", "Evidence pending"), PathType.Image);
     }

@@ -19,6 +19,7 @@ using static RSBingoBot.Imaging.BoardPreferences;
 public static class BoardImage
 {
     private static Image boardBackground = null!;
+    private static Image emptyTask = null!;
     private static Image tileCompletedMarker = null!;
     private static Image evidencePendingMarker = null!;
 
@@ -32,6 +33,7 @@ public static class BoardImage
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         boardBackground = Image.Load(BoardBackgroundPath);
+        emptyTask = Image.Load(EmptyTaskPath);
         tileCompletedMarker = GetResizedMarker(TileCompletedMarkerPath);
         evidencePendingMarker = GetResizedMarker(EvidencePendingMarkerPath);
         ResizeTaskImages(dataWorker);
@@ -46,25 +48,19 @@ public static class BoardImage
 
         foreach (Tile tile in team.Tiles.OrderBy(t => t.BoardIndex))
         {
-            UpdateTile(board, tile);
+            UpdateTile(board, tile.Task, tile.BoardIndex);
         }
 
         return board;
     }
 
-    /// <summary>
-    /// Update the tile on the team's board based on it's board index and task name.
-    /// </summary>
-    public static Image UpdateTile(Tile tile) =>
-        UpdateTile(GetBoard(tile.Team.Name), tile);
-
-    public static Image UpdateTiles(Team team, IEnumerable<Tile> tiles)
+    public static Image UpdateTiles(Team team, IEnumerable<(BingoTask? task, int boardIndex)> tiles)
     {
         Image board = GetBoard(team.Name);
 
-        foreach (Tile tile in tiles)
+        foreach (var tile in tiles)
         {
-            board = UpdateTile(board, tile);
+            board = UpdateTile(board, tile.task, tile.boardIndex);
         }
         return board;
     }
@@ -72,10 +68,14 @@ public static class BoardImage
     /// <summary>
     /// Update the tile on the team's board based on it's board index and task name.
     /// </summary>
-    public static Image UpdateTile(Image board, Tile tile)
+    public static Image UpdateTile(Image board, BingoTask? task, int boardIndex)
     {
-        Rectangle tileRect = GetTileRect(tile.BoardIndex);
-        Image taskImage = Image<Rgba32>.Load(GetTaskImagesResizedPath(tile.Task.Name));
+
+        Rectangle tileRect = GetTileRect(boardIndex);
+
+        Image taskImage = task is null ?
+            emptyTask :
+            Image<Rgba32>.Load(GetTaskImagesResizedPath(task.Name));
 
         Point taskImagePosition = new((tileRect.Width - taskImage.Width) / 2 + TaskXOffsetPixels,
             (tileRect.Height - taskImage.Height) / 2 + TaskYOffsetPixels);
@@ -85,7 +85,8 @@ public static class BoardImage
 
         board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
 
-        MarkTile(board, tile);
+        // TODO: JR - figure out why this is here.
+        //MarkTile(board, tile);
 
         return board;
     }

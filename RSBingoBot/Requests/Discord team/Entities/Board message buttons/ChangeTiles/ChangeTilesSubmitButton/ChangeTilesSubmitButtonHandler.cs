@@ -29,23 +29,24 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         await messageServices.Update(DiscordTeam.ExistingTeams[request.Team.Name].BoardMessage!);
     }
 
-    private List<Tile> UpdateTiles(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
+    private List<(BingoTask?, int)> UpdateTiles(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
     {
-        List<Tile> updatedTiles = new();
+        List<(BingoTask?, int)> updatedTiles = new();
 
         if (tile1 is null)
         {
             if (tile2 is null)
             {
                 Tile newTile = request.DataWorker.Tiles.Create(request.Team, request.DTO.ChangeToTask!, (int)request.DTO.ChangeFromTileBoardIndex!);
-                updatedTiles.Add(newTile);
+                updatedTiles.Add((newTile.Task, newTile.RowId));
                 AddSuccess(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
                 return updatedTiles;
             }
 
             int oldBoardIndex = tile2.BoardIndex;
             tile2.BoardIndex = (int)request.DTO.ChangeFromTileBoardIndex!;
-            updatedTiles.Add(tile2);
+            updatedTiles.Add((null, oldBoardIndex));
+            updatedTiles.Add((tile2.Task, tile2.BoardIndex));
             AddSuccess(new ChangeTilesSubmitButtonMoveTileOnBoardSuccess(tile2, oldBoardIndex, tile2.BoardIndex));
             return updatedTiles;
         }
@@ -54,14 +55,14 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         {
             BingoTask oldTask = tile1.Task;
             tile1.Task = request.DTO.ChangeToTask!;
-            updatedTiles.Add(tile1);
+            updatedTiles.Add((tile1.Task, tile1.BoardIndex));
             AddSuccess(new ChangeTilesSubmitButtonAddedTaskToBoardSuccess(oldTask, tile1.Task));
             return updatedTiles;
         }
 
         tile1.SwapTasks(tile2, request.DataWorker);
-        updatedTiles.Add(tile1);
-        updatedTiles.Add(tile2);
+        updatedTiles.Add((tile1.Task, tile1.BoardIndex));
+        updatedTiles.Add((tile2.Task, tile2.BoardIndex));
         AddSuccess(new ChangeTilesSubmitButtonSwappedTilesSuccess(tile1, tile2));
         return updatedTiles;
     }
