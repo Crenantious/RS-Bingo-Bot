@@ -21,7 +21,7 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
     {
         Result result;
         string error = string.Empty;
-
+        
         try
         {
             result = await next();

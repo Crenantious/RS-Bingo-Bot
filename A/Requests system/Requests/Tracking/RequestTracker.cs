@@ -13,6 +13,7 @@ using System.Text;
 // TODO: JR use a semaphore to ensure the ids are unique.
 public class RequestTracker
 {
+    // This is a default result in case Complete doesn't get called.
     private const string RequestNotCompletedError = "The request failed to complete, this is an internal error.";
 
     private static RequestsTracker requestsTracker;
