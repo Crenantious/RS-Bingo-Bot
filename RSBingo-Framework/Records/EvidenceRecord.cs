@@ -26,7 +26,8 @@ public static class EvidenceRecord
         Rejected,
     }
 
-    public static readonly EnumDict<EvidenceType> EvidenceTypeLookup = new EnumDict<EvidenceType>(EvidenceType.Undefined)
+    public static readonly EnumDict<EvidenceType> EvidenceTypeLookup = new EnumDict<EvidenceType>(
+        EvidenceType.Undefined)
         .Add(EvidenceType.TileVerification, 1)
         .Add(EvidenceType.Drop, 2);
 

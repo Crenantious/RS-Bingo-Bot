@@ -1,4 +1,4 @@
-﻿// <copyright file="RequestTrackerEndBehaviour.cs" company="PlaceholderCompany">
+﻿// <copyright file="RequestTrackerBehaviour.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,13 +8,13 @@ using DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 
-public class RequestTrackerEndBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
+public class RequestTrackerBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
     where TRequest : IRequest<TResult>
     where TResult : ResultBase<TResult>, new()
 {
     private readonly RequestsTracker requestsTracker;
 
-    public RequestTrackerEndBehaviour(RequestsTracker requestsTracker) =>
+    public RequestTrackerBehaviour(RequestsTracker requestsTracker) =>
         this.requestsTracker = requestsTracker;
 
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)

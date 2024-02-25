@@ -10,9 +10,10 @@ using RSBingo_Framework.Models;
 
 internal class ChangeTilesSubmitButtonAddedTaskToBoardSuccess : Success, IDiscordResponse
 {
-    private const string SuccessMessage = "Added '{0}' to the board.";
+    private const string SuccessMessage = "Changed '{0}' to '{1}'.";
 
-    public ChangeTilesSubmitButtonAddedTaskToBoardSuccess(BingoTask task) : base(SuccessMessage.FormatConst(task.Name))
+    public ChangeTilesSubmitButtonAddedTaskToBoardSuccess(BingoTask oldTask, BingoTask newTask) :
+        base(SuccessMessage.FormatConst(oldTask.Name, newTask.Name))
     {
 
     }

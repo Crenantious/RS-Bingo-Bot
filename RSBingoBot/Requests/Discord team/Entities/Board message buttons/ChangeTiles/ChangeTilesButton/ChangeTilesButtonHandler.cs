@@ -6,12 +6,15 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
@@ -42,10 +45,12 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
     protected override async Task Process(ChangeTilesButtonRequest request, CancellationToken cancellationToken)
     {
+        IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var messageServices = GetRequestService<IDiscordInteractionMessagingServices>();
+
         await messageServices.SendKeepAlive(Interaction, false);
 
-        user = GetUser()!;
+        user = Interaction.User.GetDBUser(dataWorker)!;
 
         var response = new InteractionMessage(Interaction)
             .WithContent(GetResponseContent(request));
@@ -60,7 +65,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         Button changeFromBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeFrom));
         Button changeToBack = buttonFactory.CreateSelectComponentBackButton(() => new(changeTo));
         Button apply = buttonFactory.Create(new(ButtonStyle.Primary, "Apply"),
-            () => new ChangeTilesSubmitButtonRequest(user.Team.RowId, dto, Interaction.User));
+            () => new ChangeTilesSubmitButtonRequest(dataWorker, user.Team, dto, Interaction.User));
         Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }));
 
         response.AddComponents(changeFrom)

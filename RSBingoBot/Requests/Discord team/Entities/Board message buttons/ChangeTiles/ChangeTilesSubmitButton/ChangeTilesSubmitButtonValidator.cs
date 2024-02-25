@@ -12,9 +12,8 @@ internal class ChangeTilesSubmitButtonValidator : BingoValidator<ChangeTilesSubm
     private const string ErrorMessage = "Must select a tile to change {0}.";
 
     public ChangeTilesSubmitButtonValidator()
-    {
+    { 
         UserInteraction(r => r.User);
-        TeamExists(r => r.TeamId);
 
         RuleFor(r => r.DTO.ChangeFromTileBoardIndex)
             .NotNull()

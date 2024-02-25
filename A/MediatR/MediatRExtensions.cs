@@ -65,7 +65,7 @@ public static class MediatRExtensions
     private static void AddTrackerBehaviour<TRequest, TResponse>(MediatRServiceConfiguration config)
         where TRequest : IRequest<TResponse>
         where TResponse : ResultBase<TResponse>, new() =>
-        config.AddBehavior<IPipelineBehavior<TRequest, TResponse>, RequestTrackerBeginBehaviour<TRequest, TResponse>>();
+        config.AddBehavior<IPipelineBehavior<TRequest, TResponse>, RequestTrackerBehaviour<TRequest, TResponse>>();
 
     private static void AddValidator<TRequest, TResponse>(IServiceCollection services)
         where TRequest : IRequest<TResponse> =>

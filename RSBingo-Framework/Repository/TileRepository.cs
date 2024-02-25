@@ -63,18 +63,16 @@ public class TileRepository : RepositoryBase<Tile>, ITileRepository
     public void ChangeTask(Tile tile, BingoTask task) =>
         tile.ChangeTask(task);
 
-    public void SwapTasks(Tile tileOne, Tile tileTwo)
+    public void SwapTasks(Tile tileOne, Tile tileTwo, IDataWorker dataWorker)
     {
-        // TODO: manually test.
-
         BingoTask tempTask = tileOne.Task;
+
         tileOne.Task = tileTwo.Task;
+        dataWorker.Tiles.Remove(tileTwo);
+        dataWorker.SaveChanges();
+
+        dataWorker.Tiles.Add(tileTwo);
         tileTwo.Task = tempTask;
-
-        tileOne.Task.Tiles.Remove(tileTwo);
-        tileOne.Task.Tiles.Add(tileOne);
-
-        tileTwo.Task.Tiles.Remove(tileOne);
-        tileTwo.Task.Tiles.Add(tileTwo);
+        dataWorker.SaveChanges();
     }
 }
