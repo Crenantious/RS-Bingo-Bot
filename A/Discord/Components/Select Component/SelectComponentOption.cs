@@ -8,18 +8,17 @@ using DSharpPlus.Entities;
 
 public abstract class SelectComponentOption
 {
-    public abstract string Label { get; }
+    public abstract string Label { get; set; }
     public string? Description { get; }
     public bool IsDefault { get; internal set; }
-    public DiscordComponentEmoji? Emoji { get; }
+    public DiscordComponentEmoji? Emoji { get; set; }
 
     /// <summary>
     /// Only set once <see cref="Build(string)"/> has been called.
     /// </summary>
     public DiscordSelectComponentOption DiscordOption { get; private set; } = null!;
 
-    public SelectComponentOption(string? description = null,
-                bool isDefault = false, DiscordComponentEmoji? emoji = null)
+    public SelectComponentOption(string? description = null, bool isDefault = false, DiscordComponentEmoji? emoji = null)
     {
         this.Description = description;
         this.IsDefault = isDefault;

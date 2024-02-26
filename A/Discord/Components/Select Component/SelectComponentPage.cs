@@ -11,7 +11,15 @@ public class SelectComponentPage : SelectComponentOption
     private SelectComponentGetPageName GetPageLabel;
     private IEnumerable<SelectComponentOption> options = Enumerable.Empty<SelectComponentOption>();
 
-    public override string Label => GetPageLabel.Get(this);
+    public override string Label
+    {
+        get
+        {
+            return GetPageLabel.Get(this);
+        }
+        // TODO: JR - deal with using a different setter for item and page better.
+        set { }
+    }
 
     public IReadOnlyList<SelectComponentOption> Options { get; private set; } = null!;
 

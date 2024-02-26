@@ -13,14 +13,20 @@ using System.Reflection;
 
 public static class MediatRExtensions
 {
+    // The tracker behaviour is used twice to ensure the request has completed when either
+    // its handler or validation finish. This needs to be done before the potential response
+    // to the user. - this doesn't work as only a single instacne gets created.
+    // TODO: JR - maybe combine validation and handler responses into a single behaviour so
+    // only a single tracker behaviour needs to exist.
     public static MediatRServiceConfiguration AddRequest<TRequest, TResponse>(
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
+        //AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -30,9 +36,10 @@ public static class MediatRExtensions
         where TRequest : IRequest<Result>
     {
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        AddTrackerBehaviour<TRequest, Result>(config);
         AddValidationBehaviour<TRequest, Result>(config);
         TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        AddTrackerBehaviour<TRequest, Result>(config);
+        //AddTrackerBehaviour<TRequest, Result>(config);
         AddValidator<TRequest, Result>(services);
         return config;
     }

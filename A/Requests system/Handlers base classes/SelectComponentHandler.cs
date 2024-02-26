@@ -7,6 +7,7 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests.Extensions;
+using RSBingo_Common;
 
 public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest
@@ -39,7 +40,11 @@ public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHan
         var items = options.Cast<SelectComponentItem>();
 
         SelectComponentUpdater.SetSelectedItems(request.GetComponent(), items);
-
+        //items.ForEach(i => i.Label = "Selected");
+        //request.GetComponent().Options.ForEach(o => o.Label = "Seletect");
+        //request.GetComponent().Build();
+        //var service = GetRequestService<IDiscordMessageServices>();
+        //await service.Update(request.GetComponent().Message!);
         OnItemsSelected(items, request, cancellationToken);
         await OnItemSelectedAsync(items, request, cancellationToken);
     }

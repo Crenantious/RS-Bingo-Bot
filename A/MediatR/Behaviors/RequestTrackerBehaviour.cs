@@ -20,7 +20,13 @@ public class RequestTrackerBehaviour<TRequest, TResult> : IPipelineBehavior<TReq
     public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
     {
         var result = await next();
-        requestsTracker.Get(request).Completed(result);
+
+        var tracker = requestsTracker.Get(request);
+        if (tracker.IsComplete is false)
+        {
+            tracker.Completed(result);
+        }
+
         return result;
     }
 }

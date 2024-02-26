@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 // TODO: JR - find a way to make this take a generic as the type for value.
 public class SelectComponentItem : SelectComponentOption
 {
-    public override string Label { get; }
+    public override string Label { get; set; }
     public object? Value { get; }
 
     public SelectComponentItem(string label, object? value, string? description = null,

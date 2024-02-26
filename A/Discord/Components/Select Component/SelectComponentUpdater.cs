@@ -20,14 +20,14 @@ internal static class SelectComponentUpdater
     internal static void SetSelectedPage(SelectComponent selectComponent, SelectComponentPage page)
     {
         selectComponent.SelectedPages.Add(page);
-        selectComponent.SelectedItems.Clear();
+        selectComponent.SelectedItemsInternal.Clear();
         selectComponent.SelectedItemsHashSet.Clear();
         Build(selectComponent);
     }
 
     internal static void SetSelectedItems(SelectComponent selectComponent, IEnumerable<SelectComponentItem> items)
     {
-        selectComponent.SelectedItems = items.ToList();
+        selectComponent.SelectedItemsInternal = items.ToList();
         selectComponent.SelectedItemsHashSet = items.ToHashSet();
         Build(selectComponent);
     }

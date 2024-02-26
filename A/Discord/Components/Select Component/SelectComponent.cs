@@ -13,15 +13,15 @@ public class SelectComponent : Component<DiscordSelectComponent>, IInteractable
 {
     internal List<DiscordSelectComponentOption> DiscordOptions { get; set; } = new();
     internal HashSet<SelectComponentItem> SelectedItemsHashSet { get; set; } = new();
-    internal List<SelectComponentItem> SelectedItems { get; set; } = new();
+    internal List<SelectComponentItem> SelectedItemsInternal { get; set; } = new();
     internal List<SelectComponentPage> SelectedPages { get; } = new();
 
     public override string Name { get; protected set; }
-    //public IReadOnlyList<SelectComponentOption> Options { get; private set; } = null!;
     public bool Disabled { get; }
     public int MinOptions { get; }
     public int MaxOptions { get; }
     public IReadOnlyList<SelectComponentOption> Options => SelectedPages.ElementAt(^1).Options;
+    public IReadOnlyList<SelectComponentItem> SelectedItems => SelectedItemsInternal.AsReadOnly();
 
     internal SelectComponent(SelectComponentInfo info, string id = "") : base(id)
     {
@@ -43,4 +43,11 @@ public class SelectComponent : Component<DiscordSelectComponent>, IInteractable
             throw new SelectComponentNoOptionsException();
         }
     }
+
+
+    public void Build()
+    {
+        SelectComponentUpdater.Build(this);
+    }
+
 }
