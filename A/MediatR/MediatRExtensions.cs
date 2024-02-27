@@ -22,11 +22,9 @@ public static class MediatRExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result<TResponse>>
     {
-        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config);
         AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidationBehaviour<TRequest, Result<TResponse>>(config);
-        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        //AddTrackerBehaviour<TRequest, Result<TResponse>>(config);
         AddValidator<TRequest, Result<TResponse>>(services);
         return config;
     }
@@ -35,30 +33,25 @@ public static class MediatRExtensions
         this MediatRServiceConfiguration config, IServiceCollection services)
         where TRequest : IRequest<Result>
     {
-        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddValidationResponseBehaviour));
+        TryAddResponseBehaviour<TRequest>(config);
         AddTrackerBehaviour<TRequest, Result>(config);
         AddValidationBehaviour<TRequest, Result>(config);
-        TryAddResponseBehaviour<TRequest>(config, nameof(MediatRExtensions.AddInteractionResponseBehaviour));
-        //AddTrackerBehaviour<TRequest, Result>(config);
         AddValidator<TRequest, Result>(services);
         return config;
     }
 
-    private static void TryAddResponseBehaviour<TRequest>(MediatRServiceConfiguration config, string responseTypeName)
+    private static void TryAddResponseBehaviour<TRequest>(MediatRServiceConfiguration config)
         where TRequest : IBaseRequest
     {
         if (typeof(IInteractionRequest).IsAssignableFrom(typeof(TRequest)))
         {
             // TODO: JR - find a nicer way to do this.
-            MethodInfo method = typeof(MediatRExtensions).GetMethod(responseTypeName, BindingFlags.Static | BindingFlags.NonPublic)!;
+            string methodName = nameof(MediatRExtensions.AddInteractionResponseBehaviour);
+            MethodInfo method = typeof(MediatRExtensions).GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic)!;
             MethodInfo generic = method.MakeGenericMethod(typeof(TRequest));
             generic.Invoke(null, new object[] { config });
         }
     }
-
-    private static void AddValidationResponseBehaviour<TRequest>(MediatRServiceConfiguration config)
-        where TRequest : IInteractionRequest =>
-        config.AddBehavior<IPipelineBehavior<TRequest, Result>, ValidationResponseBehaviour<TRequest>>();
 
     private static void AddInteractionResponseBehaviour<TRequest>(MediatRServiceConfiguration config)
         where TRequest : IInteractionRequest =>

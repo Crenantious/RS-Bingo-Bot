@@ -34,7 +34,7 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
                 .WithError(new InternalError());
         }
 
-        var response = GetResponse(request, typeof(IDiscordResponse));
+        var response = GetResponse(request, typeof(IDiscordResponse), typeof(ValidationError));
 
         TryAddErrorResponse(error, response);
         await TrySendResponse(request, response);
