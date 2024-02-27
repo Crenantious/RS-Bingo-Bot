@@ -20,8 +20,9 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         Tile? tile1 = request.Team.Tiles.FirstOrDefault(t => t.BoardIndex == request.DTO.ChangeFromTileBoardIndex);
         Tile? tile2 = request.Team.Tiles.FirstOrDefault(t => t.Task.RowId == request.DTO.ChangeToTask!.RowId);
 
-        var updatedTiles = UpdateTiles(request, tile1, tile2);
+        var updatedTiles = UpdateDB(request, tile1, tile2);
         request.DataWorker.SaveChanges();
+
         request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
         request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
 
@@ -33,7 +34,7 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);
     }
 
-    private List<(BingoTask?, int)> UpdateTiles(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
+    private List<(BingoTask?, int)> UpdateDB(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
     {
         List<(BingoTask?, int)> updatedTiles = new();
 
@@ -42,7 +43,7 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
             if (tile2 is null)
             {
                 Tile newTile = request.DataWorker.Tiles.Create(request.Team, request.DTO.ChangeToTask!, (int)request.DTO.ChangeFromTileBoardIndex!);
-                updatedTiles.Add((newTile.Task, newTile.RowId));
+                updatedTiles.Add((newTile.Task, newTile.BoardIndex));
                 AddSuccess(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
                 return updatedTiles;
             }

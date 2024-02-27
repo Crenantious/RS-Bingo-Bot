@@ -70,7 +70,6 @@ public static class BoardImage
     /// </summary>
     public static Image UpdateTile(Image board, BingoTask? task, int boardIndex)
     {
-
         Rectangle tileRect = GetTileRect(boardIndex);
 
         Image taskImage = task is null ?
