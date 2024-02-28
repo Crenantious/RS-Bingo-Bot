@@ -55,7 +55,8 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
         response.AddComponents(submit, cancel);
 
-        messageServices.RegisterMessageCreatedHandler(() => new SubmitDropMessageRequest(dto, new InteractionMessage(Interaction).AsEphemeral(true)),
+        messageServices.RegisterMessageCreatedHandler(
+            () => new SubmitDropMessageRequest(dto, Interaction.User, new InteractionMessage(Interaction).AsEphemeral(true)),
             new(Interaction.Channel, Interaction.User, 1));
 
         await interactionMessageServices.Send(response);

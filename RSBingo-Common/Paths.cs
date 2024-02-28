@@ -6,12 +6,12 @@ namespace RSBingo_Common;
 
 public class Paths
 {
-    private const string ImageExtension = ".png";
+    private const string DefaultImageExtension = ".png";
 
     private static readonly Dictionary<PathType, string> pathExtension = new()
     {
         { PathType.Folder, ""},
-        { PathType.Image, ImageExtension }
+        { PathType.Image, DefaultImageExtension }
     };
 
     private static bool isMock;
@@ -24,6 +24,7 @@ public class Paths
     public static string TaskImagesResizedFolder { get; private set; } = null!;
     public static string TaskImagesFolder { get; private set; } = null!;
     public static string TeamBoardFolder { get; private set; } = null!;
+    public static string UserTempEvidenceFolder { get; private set; } = null!;
     public static string BoardBackgroundPath { get; private set; } = null!;
     public static string EmptyTaskPath { get; private set; } = null!;
     public static string TileCompletedMarkerPath { get; private set; } = null!;
@@ -37,6 +38,13 @@ public class Paths
         Image
     }
 
+    public enum ImageType
+    {
+        Png,
+        Jpeg,
+        Bmp
+    }
+
     public static void Initialise(bool asMock = false)
     {
         isMock = asMock;
@@ -48,6 +56,7 @@ public class Paths
         TaskImagesFolder = GetPath(Path.Combine("Task images", "Bronze reaper"), PathType.Folder, asMock);
         TaskImagesResizedFolder = GetPath("Task images resized", PathType.Folder, asMock);
         TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
+        UserTempEvidenceFolder = GetPath("User temp evidence", PathType.Folder, asMock);
 
         BoardBackgroundPath = GetPath(Path.Combine("Board images", "Board background bronze reaper"), PathType.Image);
         EmptyTaskPath = GetPath(Path.Combine("Board images", "Empty task"), PathType.Image);
@@ -63,6 +72,9 @@ public class Paths
 
     public static string GetTeamBoardPath(string teamName) =>
         GetPath(TeamBoardFolder, teamName, PathType.Image);
+
+    public static string GetUserTempEvidencePath(ulong userId, string extension) =>
+        GetPath(UserTempEvidenceFolder, userId.ToString(), extension);
 
     /// <summary>
     /// Gets a path with <see cref="ResourcesFolder"/> as the root,
@@ -83,6 +95,11 @@ public class Paths
     private static string GetPath(string pathBegining, string pathEnding, PathType pathType)
     {
         string extension = pathExtension[pathType];
+        return Path.Combine(pathBegining, pathEnding + extension);
+    }
+
+    private static string GetPath(string pathBegining, string pathEnding, string extension)
+    {
         return Path.Combine(pathBegining, pathEnding + extension);
     }
 }

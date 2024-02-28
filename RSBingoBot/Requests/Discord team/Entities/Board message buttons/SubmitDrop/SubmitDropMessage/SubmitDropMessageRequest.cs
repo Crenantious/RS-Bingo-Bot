@@ -8,5 +8,5 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
-public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO, InteractionMessage ResponseOverride) :
+public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO, DiscordUser User, InteractionMessage ResponseOverride) :
     IMessageCreatedRequest, IInteractionResponseOverride;

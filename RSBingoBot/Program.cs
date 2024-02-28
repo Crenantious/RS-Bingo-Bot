@@ -164,7 +164,8 @@ public class Program
                 services.AddTransient(typeof(IDiscordInteractionMessagingServices), typeof(DiscordInteractionMessagingServices));
                 services.AddTransient(typeof(IBehaviourServices), typeof(BehaviourServices));
                 services.AddTransient(typeof(IDatabaseServices), typeof(DatabaseServices));
-
+                services.AddTransient(typeof(IWebServices), typeof(WebServices));
+                
                 services.AddTransient<DiscordTeamChannelsInfo>();
             })
 

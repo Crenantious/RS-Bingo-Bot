@@ -13,7 +13,9 @@ public class Message : IMessage
 {
     private Dictionary<string, Stream> streams;
 
-    internal List<(string path, string name)> files = new();
+    internal List<(string path, string name)> FilesInternal { get; set; } = new();
+
+    public IReadOnlyList<(string path, string name)> Files => FilesInternal.AsReadOnly();
 
     public DiscordMessage DiscordMessage { get; private set; }
 
@@ -85,7 +87,7 @@ public class Message : IMessage
     private void AddBuilderFiles<T>(T builder) where T : IDiscordMessageBuilder
     {
         streams = new();
-        files.ForEach(f => streams.Add(f.name, new FileStream(f.path, FileMode.Open)));
+        FilesInternal.ForEach(f => streams.Add(f.name, new FileStream(f.path, FileMode.Open)));
         builder.AddFiles(streams);
     }
 

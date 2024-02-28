@@ -6,7 +6,7 @@ namespace DiscordLibrary.DiscordServices;
 
 using FluentResults;
 
-public interface IWebServices
+public interface IWebServices : IRequestService
 {
     public Task<Result> DownloadFile(string url, string path);
 }

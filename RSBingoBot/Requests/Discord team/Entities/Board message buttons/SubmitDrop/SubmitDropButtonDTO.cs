@@ -11,6 +11,10 @@ using System.Text;
 public class SubmitDropButtonDTO
 {
     public string MessageContentPrefix { get; }
+
+    /// <summary>
+    /// The response message that the user interacts with to submit evidence.
+    /// </summary>
     public Message Message { get; set; }
     public IEnumerable<Tile> Tiles { get; set; } = Enumerable.Empty<Tile>();
     public string? EvidenceUrl { get; set; }

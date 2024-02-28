@@ -90,7 +90,14 @@ public static class MessageExtensions
     public static T AddFile<T>(this T message, string path, string? name = null)
         where T : Message
     {
-        message.files.Add((path, name ?? NullFileName));
+        message.FilesInternal.Add((path, name ?? NullFileName));
+        return message;
+    }
+
+    public static T RemoveAllFiles<T>(this T message)
+        where T : Message
+    {
+        message.FilesInternal.Clear();
         return message;
     }
 
