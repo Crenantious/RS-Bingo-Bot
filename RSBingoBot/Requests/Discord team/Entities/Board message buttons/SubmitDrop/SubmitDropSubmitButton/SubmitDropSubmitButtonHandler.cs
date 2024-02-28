@@ -17,77 +17,78 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 {
     private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}{3}{4}";
 
-    private readonly IDiscordMessageServices messageServices;
-    private readonly IDatabaseServices databaseServices;
-
-    public SubmitDropSubmitButtonHandler(IDiscordMessageServices messageServices, IDatabaseServices databaseServices)
-    {
-        this.messageServices = messageServices;
-        this.databaseServices = databaseServices;
-    }
+    private IDiscordMessageServices messageServices = null!;
 
     protected override async Task Process(SubmitDropSubmitButtonRequest request, CancellationToken cancellationToken)
     {
-        User user = GetUser()!;
-        // TODO: JR - check if this will work with deleted/edited tiles or if the tiles id's need to be transfered
-        // so the dw can try to retrieve them.
+        messageServices = GetRequestService<IDiscordMessageServices>();
+        var databaseServices = GetRequestService<IDatabaseServices>();
+
         IEnumerable<Tile> tiles = request.DTO.Tiles;
 
         foreach (Tile tile in tiles)
         {
             // TODO: JR - update all evidence concurrently and only await them all as a group.
-            await UpdateEvidence(request, user, tile);
+            await UpdateEvidence(request, tile);
         }
 
         // TODO: JR - update the board.
 
-        Result result = await databaseServices.Update(DataWorker);
+        Result result = await databaseServices.Update(request.DataWorker);
         if (result.IsFailed)
         {
             AddErrors(result.Errors);
         }
     }
 
-    private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, User user, Tile tile)
+    private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, Tile tile)
     {
         if (tile.IsCompleteAsBool())
         {
-            // It's possible the tile was marked as complete after the select component was create.
+            // It's possible the tile was marked as complete after the select component was created.
             AddErrorResponse(new SubmitDropSubmitButtonTileAlreadyCompleteError(tile));
             return;
         }
 
-        var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
-            .WithContent(GetPendingReviewMessagePrefix(request, tile));
+        var pendingReviewMessage = await SendPendingReviewMessage(request, tile);
 
-        // TODO: JR - move the singleton channels to a DTO to use as a singleton with DI.
-        Result result = await messageServices.Send(pendingReviewMessage);
-
-        if (result.IsFailed)
+        if (pendingReviewMessage.IsFailed)
         {
             AddErrorResponse(new SubmitDropSubmitButtonEvidenceSubmissionError(tile));
             return;
         }
 
-        Evidence? evidence = EvidenceRecord.GetByTileUserAndType(DataWorker, tile, user, request.EvidenceType);
+        Evidence? evidence = EvidenceRecord.GetByTileUserAndType(request.DataWorker, tile, request.User, request.EvidenceType);
 
         if (evidence is null)
         {
-            evidence = DataWorker.Evidence.Create();
+            evidence = request.DataWorker.Evidence.Create();
         }
         else
         {
             await DeleteExistingPendingReviewMessage(evidence);
         }
 
-        evidence.User = user;
+        evidence.User = request.User;
         evidence.Tile = tile;
         evidence.Url = request.DTO.EvidenceUrl!;
         evidence.EvidenceType = EvidenceRecord.EvidenceTypeLookup.Get(request.EvidenceType);
         evidence.Status = EvidenceRecord.EvidenceStatusLookup.Get(EvidenceRecord.EvidenceStatus.PendingReview);
-        evidence.DiscordMessageId = pendingReviewMessage.DiscordMessage.Id;
+        evidence.DiscordMessageId = pendingReviewMessage.Value.DiscordMessage.Id;
 
         AddSuccessResponse(new SubmitDropSubmitButtonSuccess(tile));
+    }
+
+    private async Task<Result<Message>> SendPendingReviewMessage(SubmitDropSubmitButtonRequest request, Tile tile)
+    {
+        var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
+            .WithContent(GetPendingReviewMessagePrefix(request, tile));
+
+        // TODO: JR - move the singleton channels to a DTO to use as a singleton with DI.
+        Result result = await messageServices.Send(pendingReviewMessage);
+        return new Result<Message>()
+            .WithValue(pendingReviewMessage)
+            .WithErrors(result.Errors);
     }
 
     private async Task DeleteExistingPendingReviewMessage(Evidence evidence)

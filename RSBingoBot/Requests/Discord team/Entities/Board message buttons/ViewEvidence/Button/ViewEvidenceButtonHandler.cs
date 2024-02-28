@@ -10,6 +10,8 @@ using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
 
@@ -28,8 +30,10 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     protected override async Task Process(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
+        IDataWorker dataWorker = DataFactory.CreateDataWorker();
+
         DiscordUser discordUser = Interaction.User;
-        User user = discordUser.GetDBUser(DataWorker)!;
+        User user = discordUser.GetDBUser(dataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
         var closeButton = buttonFactory.Create(buttonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(InteractionTracker));

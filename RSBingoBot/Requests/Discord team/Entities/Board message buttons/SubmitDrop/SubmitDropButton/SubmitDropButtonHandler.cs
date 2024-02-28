@@ -6,11 +6,14 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
@@ -25,9 +28,9 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 
     private User user = null!;
     private EvidenceRecord.EvidenceType evidenceType;
+    private IDataWorker dataWorker = null!;
 
     protected override bool SendKeepAliveMessageIsEphemeral => false;
-
     public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
     {
         this.buttonFactory = buttonFactory;
@@ -39,7 +42,9 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         var messageServices = GetRequestService<IDiscordMessageServices>();
         var interactionMessageServices = GetRequestService<IDiscordInteractionMessagingServices>();
 
-        user = GetUser()!;
+        dataWorker = DataFactory.CreateDataWorker();
+
+        user = Interaction.User.GetDBUser(dataWorker)!;
         evidenceType = request.EvidenceType;
 
         var response = new InteractionMessage(Interaction)
@@ -49,7 +54,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         SubmitDropButtonDTO dto = new(response);
 
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitDropSubmitButtonRequest(request.DiscordTeam, dto, evidenceType));
+            () => new SubmitDropSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType));
         Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
@@ -95,7 +100,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
         evidenceType switch
         {
             EvidenceRecord.EvidenceType.Drop => GetFirstDropEvidence(tile),
-            EvidenceRecord.EvidenceType.TileVerification => EvidenceRecord.GetByTileUserAndType(DataWorker, tile, user, evidenceType),
+            EvidenceRecord.EvidenceType.TileVerification => EvidenceRecord.GetByTileUserAndType(dataWorker, tile, user, evidenceType),
             _ => throw new ArgumentOutOfRangeException()
         };
 

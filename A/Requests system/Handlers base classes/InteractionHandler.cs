@@ -5,15 +5,11 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests.Extensions;
 using DSharpPlus.Entities;
 using FluentResults;
 using RSBingo_Common;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using System.Text;
 
 public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, IInteractionHandler
@@ -39,9 +35,6 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     protected List<InteractionMessage> ResponseMessages { get; set; } = new();
     protected DiscordInteraction Interaction { get; set; } = null!;
 
-    // TODO: JR - remove this as not all handlers need it thus it should not be made.
-    protected IDataWorker DataWorker { get; } = DataFactory.CreateDataWorker();
-
     public InteractionHandler()
     {
         this.interactionTrackers = (InteractionsTracker)General.DI.GetService(typeof(InteractionsTracker))!;
@@ -59,9 +52,6 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
             await service.SendKeepAlive(Interaction, SendKeepAliveMessageIsEphemeral);
         }
     }
-
-    protected User? GetUser() =>
-        Interaction.User.GetDBUser(DataWorker);
 
     // TODO: JR - remove.
     protected void DeleteResponses()
