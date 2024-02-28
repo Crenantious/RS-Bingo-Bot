@@ -13,7 +13,7 @@ using FluentResults;
 public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
     where TRequest : IDiscordRequest
 {
-    private Dictionary<Type, Error> errorOverrides = new();
+    private Dictionary<Type, IError> errorOverrides = new();
 
     protected const int InteractionRespondedToCode = 40060;
 
@@ -22,7 +22,6 @@ public abstract class DiscordHandler<TRequest> : RequestHandler<TRequest>
         // TODO: JR - find out what errors can occur and add messages for them.
         // Determine if errorOverrides is needed.
         // Use DiscordError.
-        //SetExceptionMessage<>();
     }
 
     // TODO: JR - make this nicer to use and easier to read.

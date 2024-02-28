@@ -20,7 +20,7 @@ using RSBingo_Framework.Records;
 internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonRequest>
 {
     private const string ResponsePrefix =
-       "{0}Add evidence by posting a message with a single image, posting another will override the previous. " +
+       "{0} Add evidence by posting a message with a single image, posting another will override the previous. " +
        "{1}Submitting the evidence will override any previous.";
 
     private readonly ButtonFactory buttonFactory;
@@ -70,6 +70,4 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
     private string GetResponsePrefix(DiscordUser user) =>
         ResponsePrefix.FormatConst(user.Mention, Environment.NewLine);
-
-
 }

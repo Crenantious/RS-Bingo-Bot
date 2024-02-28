@@ -15,7 +15,7 @@ using RSBingo_Framework.Records;
 
 internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceSubmitButtonRequest>
 {
-    private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}.";
+    private const string PendingReviewMessagePrefix = "{0} Has submitted {1} evidence for {2}.";
 
     private IDiscordMessageServices messageServices = null!;
 
