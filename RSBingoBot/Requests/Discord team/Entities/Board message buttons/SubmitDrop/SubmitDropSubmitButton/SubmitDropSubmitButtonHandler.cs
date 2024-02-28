@@ -57,11 +57,11 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
             return;
         }
 
-        var pendingReviewMessage = new Message()
+        var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
             .WithContent(GetPendingReviewMessagePrefix(request, tile));
 
         // TODO: JR - move the singleton channels to a DTO to use as a singleton with DI.
-        Result result = await messageServices.Send(pendingReviewMessage, DataFactory.PendingReviewEvidenceChannel);
+        Result result = await messageServices.Send(pendingReviewMessage);
 
         if (result.IsFailed)
         {

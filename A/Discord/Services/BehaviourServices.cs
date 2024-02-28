@@ -10,6 +10,6 @@ using FluentResults;
 
 public class BehaviourServices : RequestService, IBehaviourServices
 {
-    public async Task<Result> SendRequestResultsResponse(InteractionMessage response) =>
+    public async Task<Result> SendRequestResultsResponse(Message response) =>
         await RunRequest(new SendRequestResultResponsesRequest(response));
 }

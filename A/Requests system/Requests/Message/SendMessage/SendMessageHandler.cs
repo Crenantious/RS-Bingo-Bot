@@ -10,7 +10,7 @@ internal class SendMessageHandler : DiscordHandler<SendMessageRequest>
 {
     protected override async Task Process(SendMessageRequest request, CancellationToken cancellationToken)
     {
-        DiscordMessage message = await request.Channel.SendMessageAsync(request.Message.GetMessageBuilder());
+        DiscordMessage message = await request.Message.Channel.SendMessageAsync(request.Message.GetMessageBuilder());
         request.Message.OnMessageSent(message);
         AddSuccess(new SendMessageSuccess(request.Message));
     }

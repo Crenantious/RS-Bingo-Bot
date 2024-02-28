@@ -22,10 +22,10 @@ internal class PostTeamSignUpChannelMessageHandler : RequestHandler<PostTeamSign
 
     protected override async Task Process(PostTeamSignUpChannelMessageRequest request, CancellationToken cancellationToken)
     {
-        Message message = new Message()
+        Message message = new Message(request.Channel)
             .WithContent("Create a new team or join an existing one.")
             .AddComponents(singletonButtons.CreateTeam, singletonButtons.JoinTeam);
-        await messageServices.Send(message, request.Channel);
+        await messageServices.Send(message);
         AddSuccess(new PostTeamSignUpChannelMessageSuccess());
     }
 }

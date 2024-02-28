@@ -12,14 +12,10 @@ using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Extensions;
 using DSharpPlus;
-using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Records;
 
-// TODO: JR - only show the "to" select when an item has been selected in the "from" select. When a new value gets selected from "from",
-// update "to" such that only tasks of the allowed difficulty are options.
 internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest>
 {
     private const string ResponseContent = "{0} Select tiles to swap. The 'Change from' selection contains the team's tiles, " +

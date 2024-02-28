@@ -22,10 +22,7 @@ public class RequestTrackerBehaviour<TRequest, TResult> : IPipelineBehavior<TReq
         var result = await next();
 
         var tracker = requestsTracker.Get(request);
-        if (tracker.IsComplete is false)
-        {
-            tracker.Completed(result);
-        }
+        tracker.Completed(result);
 
         return result;
     }

@@ -10,6 +10,6 @@ internal class UpdateMessageValidator : Validator<UpdateMessageRequest>
 {
     public UpdateMessageValidator()
     {
-        NotNull(r => r.Message, "message");
+        NotNull(r => r.Message, "Message cannot be null");
     }
 }

@@ -87,7 +87,7 @@ internal class CreateMissingDiscordTeamEntitiesHandler : RequestHandler<CreateMi
 
         if (message.IsSuccess)
         {
-            await messageServices.Send(message.Value, discordTeam.BoardChannel!);
+            await messageServices.Send(message.Value);
             discordTeam.SetBoardMessage(message.Value, team);
         }
     }

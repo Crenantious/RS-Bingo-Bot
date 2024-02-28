@@ -30,7 +30,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
 
     // Image
     // TODO: JR - use ImageSharp for image validation.
-    private readonly string[] mediaTypes = new string[] { "png", "bmp", "jpg" };
+    private readonly string[] mediaTypes = new string[] { "image/png", "image/bmp", "image/jpg" };
     private const string NotAValidImage = "Attachment must be of type: png, bmp or jpg";
 
     public IDataWorker DataWorker = DataFactory.CreateDataWorker();

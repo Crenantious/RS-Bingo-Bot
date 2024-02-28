@@ -21,8 +21,8 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
         this.messageCreatedDEH = messageCreatedDEH;
     }
 
-    public async Task<Result> Send(Message message, DiscordChannel channel) =>
-        await RunRequest(new SendMessageRequest(message, channel));
+    public async Task<Result> Send(Message message) =>
+        await RunRequest(new SendMessageRequest(message));
 
     public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
         await RunRequest<GetMessageRequest, Message>(new GetMessageRequest(id, channel));

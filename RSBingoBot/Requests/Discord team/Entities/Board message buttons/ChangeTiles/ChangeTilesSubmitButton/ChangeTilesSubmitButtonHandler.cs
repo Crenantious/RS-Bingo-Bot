@@ -11,6 +11,7 @@ using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
 using RSBingoBot.Imaging;
 
+// TODO: JR - add validation for difficulty based on the board index.
 internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitButtonRequest>
 {
     protected override async Task Process(ChangeTilesSubmitButtonRequest request, CancellationToken cancellationToken)

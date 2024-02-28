@@ -7,7 +7,7 @@ namespace DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 
-public interface IInteractionRequest : IRequest<Result>
+public interface IInteractionRequest : IRequest<Result>, IRequestResponse
 {
 
 }

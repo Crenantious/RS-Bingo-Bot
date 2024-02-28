@@ -17,45 +17,52 @@ using RSBingo_Framework.Records;
 internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 {
     private const string ResponsePrefix =
-       "Add evidence by posting a message with a single image, posting another will override the previous." +
+       "{0}Add evidence by posting a message with a single image, posting another will override the previous. " +
        "{1}Submitting the evidence will override any previous.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
-    private readonly IDiscordMessageServices messageServices;
 
     private User user = null!;
     private EvidenceRecord.EvidenceType evidenceType;
 
-    public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory, IDiscordMessageServices messageServices)
+    protected override bool SendKeepAliveMessageIsEphemeral => false;
+
+    public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
-        this.messageServices = messageServices;
     }
 
     protected override async Task Process(SubmitDropButtonRequest request, CancellationToken cancellationToken)
     {
+        var messageServices = GetRequestService<IDiscordMessageServices>();
+        var interactionMessageServices = GetRequestService<IDiscordInteractionMessagingServices>();
+
         user = GetUser()!;
         evidenceType = request.EvidenceType;
 
         var response = new InteractionMessage(Interaction)
-             .WithContent(GetResponsePrefix())
+             .WithContent(GetResponsePrefix(Interaction.User))
              .AsEphemeral(true);
+
         SubmitDropButtonDTO dto = new(response);
 
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"), () => new SubmitDropSubmitButtonRequest(request.DiscordTeam, dto, evidenceType));
-        Button cancel = buttonFactory.Create(new(ButtonStyle.Primary, "Cancel"), () => new ConcludeInteractionButtonRequest(InteractionTracker));
+        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
+            () => new SubmitDropSubmitButtonRequest(request.DiscordTeam, dto, evidenceType));
+        Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
         response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
         response.AddComponents(submit, cancel);
-        ResponseMessages.Add(response);
 
-        messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto), new(Interaction.Channel, Interaction.User, 1));
+        messageServices.RegisterMessageCreatedHandler(new SubmitDropMessageRequest(dto, new InteractionMessage(Interaction).AsEphemeral(true)),
+            new(Interaction.Channel, Interaction.User, 1));
+
+        await interactionMessageServices.Send(response);
     }
 
-    private string GetResponsePrefix() =>
-        ResponsePrefix.FormatConst(Environment.NewLine);
+    private string GetResponsePrefix(DiscordUser user) =>
+        ResponsePrefix.FormatConst(user.Mention, Environment.NewLine);
 
     private SelectComponent CreateSelectComponent(int maxOptions, SubmitDropButtonDTO dto) =>
         selectFactory.Create(
@@ -65,6 +72,7 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
     private IEnumerable<SelectComponentOption> GetSelectOptions() =>
         user.Team.Tiles
             .Where(t => t.IsCompleteAsBool() is false)
+            .OrderBy(t => t.BoardIndex)
             .Select(t => CreateSelectOption(t));
 
     private SelectComponentItem CreateSelectOption(Tile tile) =>

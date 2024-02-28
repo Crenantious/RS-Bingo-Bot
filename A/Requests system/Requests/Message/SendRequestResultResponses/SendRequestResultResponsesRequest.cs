@@ -8,4 +8,4 @@ using DiscordLibrary.DiscordEntities;
 using FluentResults;
 using MediatR;
 
-public record SendRequestResultResponsesRequest(InteractionMessage Response) : IRequest<Result>;
+public record SendRequestResultResponsesRequest(Message Response) : IRequest<Result>;

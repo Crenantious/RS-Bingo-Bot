@@ -4,14 +4,23 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 
 internal class SendRequestResultResponsesHandler : RequestHandler<SendRequestResultResponsesRequest>
 {
     protected override async Task Process(SendRequestResultResponsesRequest request, CancellationToken cancellationToken)
     {
-        var services = GetRequestService<IDiscordInteractionMessagingServices>();
-        await services.Send(request.Response);
+        if (request.Response is InteractionMessage)
+        {
+            var services = GetRequestService<IDiscordInteractionMessagingServices>();
+            await services.Send((InteractionMessage)request.Response);
+        }
+        else
+        {
+            var services = GetRequestService<IDiscordMessageServices>();
+            await services.Send(request.Response);
+        }
         AddSuccess(new SendRequestResultResponsesSuccess());
     }
 }

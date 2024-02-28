@@ -11,15 +11,10 @@ using DiscordLibrary.Requests.Extensions;
 
 internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessageRequest>
 {
-    private readonly IDiscordMessageServices messageServices;
-
-    public SubmitDropMessageHandler(IDiscordMessageServices messageServices)
-    {
-        this.messageServices = messageServices;
-    }
-
     protected override async Task Process(SubmitDropMessageRequest request, CancellationToken cancellationToken)
     {
+        var messageServices = GetRequestService<IDiscordMessageServices>();
+
         Message message = request.GetMessage();
         request.DTO.EvidenceUrl = message.DiscordMessage.Attachments.ElementAt(0).Url;
         message.Content = request.DTO.GetMessageContent();

@@ -10,7 +10,7 @@ internal class SendMessageValidator : Validator<SendMessageRequest>
 {
     public SendMessageValidator()
     {
-        NotNull(r => r.Message, "Message");
-        NotNull(r => r.Channel, "Channel");
+        NotNull(r => r.Message, "Message cannot be null");
+        NotNull(r => r.Message.Channel, "Channel cannot be null");
     }
 }

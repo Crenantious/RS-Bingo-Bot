@@ -19,6 +19,7 @@ internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmit
         RuleFor(r => r.DTO.Tiles.Any())
             .Equal(true)
             .WithMessage(NoTilesSelectedError);
+
         NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
     }
 

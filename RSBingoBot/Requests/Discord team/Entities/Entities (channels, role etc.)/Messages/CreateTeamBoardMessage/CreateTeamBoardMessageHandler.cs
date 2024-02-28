@@ -34,7 +34,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
 
-        var message = new Message()
+        var message = new Message(request.DiscordTeam.BoardChannel!)
             .WithContent(DropCodePrefix.FormatConst(dropCode))
             .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence);
 

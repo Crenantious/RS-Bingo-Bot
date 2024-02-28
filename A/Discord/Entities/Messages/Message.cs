@@ -19,17 +19,23 @@ public class Message : IMessage
 
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
+    public DiscordChannel Channel { get; set; }
 
     /// <summary>
     /// This can be used to group messages and perform mass operations, e.g. to delete them all together.
     /// </summary>
     public string Tag { get; set; } = string.Empty;
 
-    public Message() { }
+    public Message(DiscordChannel channel)
+    {
+        Channel = channel;
+    }
 
     public Message(DiscordMessage message)
     {
         DiscordMessage = message;
+        Channel = message.Channel;
+
         this.WithContent(message.Content);
 
         foreach (var row in message.Components)

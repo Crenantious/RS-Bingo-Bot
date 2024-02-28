@@ -4,8 +4,6 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
-using DSharpPlus.EventArgs;
 
 public record ChangeTilesButtonRequest(int TeamId) : IButtonRequest;

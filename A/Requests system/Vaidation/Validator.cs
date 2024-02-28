@@ -39,11 +39,11 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
         return new List<SemaphoreSlim>();
     }
 
-    protected void NotNull(Func<TRequest, object?> func, string name)
+    protected void NotNull(Func<TRequest, object?> func, string message)
     {
         RuleFor(r => func(r))
             .NotNull()
-            .WithMessage(ObjectIsNull.FormatConst(name));
+            .WithMessage(message);
     }
 
     protected void UserNotNull(Func<TRequest, DiscordUser?> func)

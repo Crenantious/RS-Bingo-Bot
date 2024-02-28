@@ -9,12 +9,12 @@ using DiscordLibrary.Requests;
 using FluentResults;
 using MediatR;
 
-public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponseBehaviour<TRequest>
-    where TRequest : IInteractionRequest
+public class ResponseBehaviour<TRequest> : InteractionResponseBehaviour<TRequest>
+    where TRequest : IBaseRequest, IRequestResponse
 {
     private readonly InteractionResponseTracker responseTracker;
 
-    public InteractionHandlerResponseBehaviour(InteractionResponseTracker responseTracker) =>
+    public ResponseBehaviour(InteractionResponseTracker responseTracker) =>
         this.responseTracker = responseTracker;
 
     public override async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
         return result;
     }
 
-    private static void TryAddErrorResponse(string error, InteractionMessage response)
+    private static void TryAddErrorResponse(string error, Message response)
     {
         if (string.IsNullOrEmpty(error) is false)
         {
@@ -50,7 +50,7 @@ public class InteractionHandlerResponseBehaviour<TRequest> : InteractionResponse
         }
     }
 
-    private async Task TrySendResponse(TRequest request, InteractionMessage response)
+    private async Task TrySendResponse(TRequest request, Message response)
     {
         if (string.IsNullOrWhiteSpace(response.Content))
         {

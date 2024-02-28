@@ -9,5 +9,5 @@ using FluentResults;
 
 public interface IBehaviourServices : IRequestService
 {
-    public Task<Result> SendRequestResultsResponse(InteractionMessage response);
+    public Task<Result> SendRequestResultsResponse(Message response);
 }

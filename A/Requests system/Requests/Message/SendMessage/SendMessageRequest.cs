@@ -7,4 +7,4 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
-public record SendMessageRequest(Message Message, DiscordChannel Channel) : IDiscordRequest;
+public record SendMessageRequest(Message Message) : IDiscordRequest;

@@ -30,7 +30,6 @@ public class RequestTracker
     public IResultBase RequestResult { get; set; } = Result.Fail(RequestNotCompletedError);
     public IReadOnlyList<RequestTracker> Trackers { get; }
     public RequestMetaData MetaData { get; } = new();
-    public bool IsComplete { get; private set; } = false;
 
     static RequestTracker()
     {
@@ -56,6 +55,5 @@ public class RequestTracker
     {
         RequestResult = result;
         CompletionTimeStamp = DateTime.UtcNow;
-        IsComplete = true;
     }
 }

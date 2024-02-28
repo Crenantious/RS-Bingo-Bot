@@ -8,34 +8,21 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Extensions;
-using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
 using RSBingo_Common;
 using System.Threading;
 
 public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior<TRequest, Result>
-    where TRequest : IInteractionRequest
+    where TRequest : IBaseRequest, IRequestResponse
 {
-    private readonly RequestsTracker requestsTracker;
-
     private bool hasInternalError = false;
-
-    protected DiscordInteraction Interaction { get; private set; } = null!;
-
-    public InteractionResponseBehaviour()
-    {
-        this.requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
-    }
 
     public abstract Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken);
 
-    protected InteractionMessage GetResponse(TRequest request, params Type[] responseTypes)
+    protected Message GetResponse(TRequest request, params Type[] responseTypes)
     {
-        Interaction = request.GetDiscordInteraction();
-
-        var response = new InteractionMessage(Interaction)
-            .AsEphemeral(true);
+        Message response = GetResponseMessage(request);
 
         RequestTracker requestTracker = request.GetTracker();
         AddResponses(requestTracker, response, responseTypes);
@@ -43,7 +30,25 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
         return response;
     }
 
-    private void AddResponses(RequestTracker tracker, InteractionMessage response, params Type[] responseTypes)
+    // TODO: JR - make better. Maybe make a class that has a static method Create<T>(Func<T, Message> getMessage).
+    // Loop through a list of these and return on first match.
+    public static Message GetResponseMessage(IRequestResponse request)
+    {
+        if (request is IInteractionResponseOverride)
+        {
+            return ((IInteractionResponseOverride)request).ResponseOverride;
+        }
+
+        if (request is IInteractionRequest)
+        {
+            return new InteractionMessage(((IInteractionRequest)request).GetDiscordInteraction())
+                .AsEphemeral(true);
+        }
+
+        throw new NotSupportedException("The request does not have an associated interaction to respond to.");
+    }
+
+    private void AddResponses(RequestTracker tracker, Message response, params Type[] responseTypes)
     {
         foreach (RequestTracker childTracker in tracker.Trackers)
         {
@@ -59,7 +64,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
             .ForEach(r => response.WithContent(r.Message));
     }
 
-    private void CheckInternalError(RequestTracker tracker, InteractionMessage response)
+    private void CheckInternalError(RequestTracker tracker, Message response)
     {
         if (hasInternalError)
         {
@@ -78,7 +83,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
     private static bool DoesInherit(IReason r, Type[] responseTypes) =>
         responseTypes.Any(t => t.IsAssignableFrom(r.GetType()));
 
-    protected async Task<Result> SendResponse(TRequest request, InteractionMessage response)
+    protected async Task<Result> SendResponse(TRequest request, Message response)
     {
         if (string.IsNullOrWhiteSpace(response.Content))
         {
