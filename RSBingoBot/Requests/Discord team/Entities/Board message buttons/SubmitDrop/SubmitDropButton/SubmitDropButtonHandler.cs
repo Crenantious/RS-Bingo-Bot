@@ -53,11 +53,12 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
 
         SubmitDropButtonDTO dto = new(response);
 
+        SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType);
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitDropSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType));
+            () => new SubmitDropSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
         Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
-        response.AddComponents(CreateSelectComponent(request.maxSelectOptions, dto));
+        response.AddComponents(tileSelect.SelectComponent);
         response.AddComponents(submit, cancel);
 
         messageServices.RegisterMessageCreatedHandler(
@@ -70,42 +71,5 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
     private string GetResponsePrefix(DiscordUser user) =>
         ResponsePrefix.FormatConst(user.Mention, Environment.NewLine);
 
-    private SelectComponent CreateSelectComponent(int maxOptions, SubmitDropButtonDTO dto) =>
-        selectFactory.Create(
-            new(new SelectComponentPage("Select a tile", GetSelectOptions()), MaxOptions: maxOptions),
-            () => new SubmitDropSelectRequest(dto));
 
-    private IEnumerable<SelectComponentOption> GetSelectOptions() =>
-        user.Team.Tiles
-            .Where(t => t.IsCompleteAsBool() is false)
-            .OrderBy(t => t.BoardIndex)
-            .Select(t => CreateSelectOption(t));
-
-    private SelectComponentItem CreateSelectOption(Tile tile) =>
-        new(tile.Task.Name, tile, emoji: GetSelectOptionEmoji(tile));
-
-    private DiscordComponentEmoji? GetSelectOptionEmoji(Tile tile)
-    {
-        Evidence? evidence = GetEvidenceForEmoji(tile);
-        if (evidence == null)
-        {
-            return null;
-        }
-
-        DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
-        return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
-    }
-
-    private Evidence? GetEvidenceForEmoji(Tile tile) =>
-        evidenceType switch
-        {
-            EvidenceRecord.EvidenceType.Drop => GetFirstDropEvidence(tile),
-            EvidenceRecord.EvidenceType.TileVerification => EvidenceRecord.GetByTileUserAndType(dataWorker, tile, user, evidenceType),
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-    private static Evidence? GetFirstDropEvidence(Tile tile) =>
-        tile.Evidence.FirstOrDefault(e =>
-            EvidenceRecord.EvidenceTypeLookup.Get(e.EvidenceType) == EvidenceRecord.EvidenceType.Drop &&
-            EvidenceRecord.EvidenceStatusLookup.Get(e.Status) != EvidenceRecord.EvidenceStatus.Rejected);
 }

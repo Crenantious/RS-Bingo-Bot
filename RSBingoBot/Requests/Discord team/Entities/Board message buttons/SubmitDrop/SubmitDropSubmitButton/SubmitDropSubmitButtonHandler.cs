@@ -39,6 +39,9 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         {
             AddErrors(result.Errors);
         }
+
+        request.TileSelect.Update(tiles);
+        await messageServices.Update(request.DTO.Message);
     }
 
     private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, Tile tile)
