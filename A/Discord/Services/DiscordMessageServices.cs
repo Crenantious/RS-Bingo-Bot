@@ -36,14 +36,14 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
     public async Task<Result> Delete(DiscordMessage message) =>
         await RunRequest(new DeleteMessageRequest(message));
 
-    public void RegisterMessageCreatedHandler(IMessageCreatedRequest request, MessageCreatedDEH.Constraints constraints)
+    public void RegisterMessageCreatedHandler(Func<IMessageCreatedRequest> getRequest, MessageCreatedDEH.Constraints constraints)
     {
-        messageCreatedDEH.Subscribe(constraints, (client, args) => OnMessageCreated(request, args));
+        messageCreatedDEH.Subscribe(constraints, (client, args) => OnMessageCreated(getRequest, args));
     }
 
-    private async Task OnMessageCreated(IMessageCreatedRequest request, MessageCreateEventArgs args)
+    private async Task OnMessageCreated(Func<IMessageCreatedRequest> getRequest, MessageCreateEventArgs args)
     {
-        Result result = await RunRequest(request,
+        Result result = await RunRequest(getRequest(),
             (null, args),
             (null, new Message(args.Message)));
     }
