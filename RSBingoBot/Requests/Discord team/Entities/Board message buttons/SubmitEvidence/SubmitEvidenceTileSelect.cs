@@ -14,7 +14,7 @@ using RSBingo_Framework.Records;
 public class SubmitEvidenceTileSelect
 {
     private readonly IDataWorker dataWorker;
-    private readonly SubmitDropButtonDTO dto;
+    private readonly SubmitEvidenceButtonDTO dto;
     private readonly User user;
     private readonly EvidenceRecord.EvidenceType evidenceType;
 
@@ -22,7 +22,7 @@ public class SubmitEvidenceTileSelect
 
     public SelectComponent SelectComponent { get; }
 
-    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitDropButtonDTO dto, User user, EvidenceRecord.EvidenceType evidenceType)
+    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitEvidenceButtonDTO dto, User user, EvidenceRecord.EvidenceType evidenceType)
     {
         this.dataWorker = dataWorker;
         this.dto = dto;
@@ -47,7 +47,7 @@ public class SubmitEvidenceTileSelect
     private SelectComponent CreateSelectComponent(SelectComponentFactory selectComponentFactory) =>
         selectComponentFactory.Create(
             new(new SelectComponentPage("Select a tile", GetItems()), MaxOptions: General.MaxSelectOptionsPerPage),
-            () => new SubmitDropSelectRequest(dto));
+            () => new SubmitEvidenceSelectRequest(dto));
 
     private IEnumerable<SelectComponentItem> GetItems()
     {

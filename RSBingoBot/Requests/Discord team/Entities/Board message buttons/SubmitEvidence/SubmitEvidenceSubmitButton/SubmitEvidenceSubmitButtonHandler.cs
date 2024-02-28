@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropSubmitButtonHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceSubmitButtonHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -13,13 +13,13 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitButtonRequest>
+internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceSubmitButtonRequest>
 {
     private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}.";
 
     private IDiscordMessageServices messageServices = null!;
 
-    protected override async Task Process(SubmitDropSubmitButtonRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(SubmitEvidenceSubmitButtonRequest request, CancellationToken cancellationToken)
     {
         messageServices = GetRequestService<IDiscordMessageServices>();
         var databaseServices = GetRequestService<IDatabaseServices>();
@@ -44,12 +44,12 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         await messageServices.Update(request.DTO.Message);
     }
 
-    private async Task UpdateEvidence(SubmitDropSubmitButtonRequest request, Tile tile)
+    private async Task UpdateEvidence(SubmitEvidenceSubmitButtonRequest request, Tile tile)
     {
         if (tile.IsCompleteAsBool())
         {
             // It's possible the tile was marked as complete after the select component was created.
-            AddErrorResponse(new SubmitDropSubmitButtonTileAlreadyCompleteError(tile));
+            AddErrorResponse(new SubmitEvidenceSubmitButtonTileAlreadyCompleteError(tile));
             return;
         }
 
@@ -57,7 +57,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 
         if (pendingReviewMessage.IsFailed)
         {
-            AddErrorResponse(new SubmitDropSubmitButtonEvidenceSubmissionError(tile));
+            AddErrorResponse(new SubmitEvidenceSubmitButtonEvidenceSubmissionError(tile));
             return;
         }
 
@@ -79,10 +79,10 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         evidence.Status = EvidenceRecord.EvidenceStatusLookup.Get(EvidenceRecord.EvidenceStatus.PendingReview);
         evidence.DiscordMessageId = pendingReviewMessage.Value.DiscordMessage.Id;
 
-        AddSuccessResponse(new SubmitDropSubmitButtonSuccess(tile));
+        AddSuccessResponse(new SubmitEvidenceSubmitButtonSuccess(tile));
     }
 
-    private async Task<Result<Message>> SendPendingReviewMessage(SubmitDropSubmitButtonRequest request, Tile tile)
+    private async Task<Result<Message>> SendPendingReviewMessage(SubmitEvidenceSubmitButtonRequest request, Tile tile)
     {
         var file = request.DTO.Message.Files.ElementAt(0);
         var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
@@ -105,7 +105,7 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         }
     }
 
-    private static string GetPendingReviewMessageContent(SubmitDropSubmitButtonRequest request, Tile tile) =>
+    private static string GetPendingReviewMessageContent(SubmitEvidenceSubmitButtonRequest request, Tile tile) =>
         PendingReviewMessagePrefix.FormatConst(
             request.GetDiscordInteraction().User.Mention,
             request.EvidenceType,

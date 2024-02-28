@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropSubmitButtonSuccess.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceSubmitButtonSuccess.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,11 +8,11 @@ using DiscordLibrary.Requests;
 using FluentResults;
 using RSBingo_Framework.Models;
 
-internal class SubmitDropSubmitButtonSuccess : Success, IDiscordResponse
+internal class SubmitEvidenceSubmitButtonSuccess : Success, IDiscordResponse
 {
     private const string SuccessMessage = "Evidence submitted for {0}.";
 
-    public SubmitDropSubmitButtonSuccess(Tile tile) : base(SuccessMessage.FormatConst(tile.Task.Name))
+    public SubmitEvidenceSubmitButtonSuccess(Tile tile) : base(SuccessMessage.FormatConst(tile.Task.Name))
     {
 
     }

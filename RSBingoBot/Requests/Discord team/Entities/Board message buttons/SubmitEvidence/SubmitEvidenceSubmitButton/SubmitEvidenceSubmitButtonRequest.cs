@@ -1,15 +1,14 @@
-﻿// <copyright file="SubmitDropSubmitButtonRequest.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceSubmitButtonRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
 
-public record SubmitDropSubmitButtonRequest(IDataWorker DataWorker, User User, DiscordTeam DiscordTeam, SubmitDropButtonDTO DTO,
+public record SubmitEvidenceSubmitButtonRequest(IDataWorker DataWorker, User User, DiscordTeam DiscordTeam, SubmitEvidenceButtonDTO DTO,
     EvidenceRecord.EvidenceType EvidenceType, SubmitEvidenceTileSelect TileSelect) : IButtonRequest;

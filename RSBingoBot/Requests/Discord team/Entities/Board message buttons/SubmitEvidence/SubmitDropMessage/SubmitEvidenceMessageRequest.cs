@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropMessageRequest.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceMessageRequest.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,5 +8,5 @@ using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
-public record SubmitDropMessageRequest(SubmitDropButtonDTO DTO, DiscordUser User, InteractionMessage ResponseOverride) :
+public record SubmitEvidenceMessageRequest(SubmitEvidenceButtonDTO DTO, DiscordUser User, InteractionMessage ResponseOverride) :
     IMessageCreatedRequest, IInteractionResponseOverride;

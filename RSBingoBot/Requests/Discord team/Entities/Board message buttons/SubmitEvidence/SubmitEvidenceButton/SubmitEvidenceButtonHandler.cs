@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropButtonHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceButtonHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -17,7 +17,7 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
+internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonRequest>
 {
     private const string ResponsePrefix =
        "{0}Add evidence by posting a message with a single image, posting another will override the previous. " +
@@ -31,13 +31,13 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
     private IDataWorker dataWorker = null!;
 
     protected override bool SendKeepAliveMessageIsEphemeral => false;
-    public SubmitDropButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
+    public SubmitEvidenceButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
     }
 
-    protected override async Task Process(SubmitDropButtonRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(SubmitEvidenceButtonRequest request, CancellationToken cancellationToken)
     {
         var messageServices = GetRequestService<IDiscordMessageServices>();
         var interactionMessageServices = GetRequestService<IDiscordInteractionMessagingServices>();
@@ -51,18 +51,18 @@ internal class SubmitDropButtonHandler : ButtonHandler<SubmitDropButtonRequest>
              .WithContent(GetResponsePrefix(Interaction.User))
              .AsEphemeral(true);
 
-        SubmitDropButtonDTO dto = new(response);
+        SubmitEvidenceButtonDTO dto = new(response);
 
         SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType);
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitDropSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
+            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
         Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
         response.AddComponents(tileSelect.SelectComponent);
         response.AddComponents(submit, cancel);
 
         messageServices.RegisterMessageCreatedHandler(
-            () => new SubmitDropMessageRequest(dto, Interaction.User, new InteractionMessage(Interaction).AsEphemeral(true)),
+            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, new InteractionMessage(Interaction).AsEphemeral(true)),
             new(Interaction.Channel, Interaction.User, 1));
 
         await interactionMessageServices.Send(response);

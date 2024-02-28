@@ -22,7 +22,7 @@ internal class ViewEvidenceButtonValidator : BingoValidator<ViewEvidenceButtonRe
             DiscordTeamBoardButtonErrors.SubmitDropOrViewEvidenceWithActiveChangeTiles, 1);
 
         // TODO: JR - fix the label name.
-        ActiveInteractions<SubmitDropButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
+        ActiveInteractions<SubmitEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
             DiscordTeamBoardButtonErrors.ViewEvidenceWithActiveSubmitDrop, 1);
 
         ActiveInteractions<ViewEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,

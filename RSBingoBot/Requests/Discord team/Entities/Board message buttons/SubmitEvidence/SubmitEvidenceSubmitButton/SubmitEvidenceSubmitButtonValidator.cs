@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropSubmitButtonValidator.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceSubmitButtonValidator.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,12 +9,12 @@ using RSBingoBot.Requests.Validation;
 using System.Collections.Generic;
 using System.Threading;
 
-internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmitButtonRequest>
+internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEvidenceSubmitButtonRequest>
 {
     private const string NoTilesSelectedError = "At least one tile must be selected to submit evidence for.";
     private const string NoEvidenceSubmittedError = "You cannot submit no evidence; please post a message with a single image first.";
 
-    public SubmitDropSubmitButtonValidator()
+    public SubmitEvidenceSubmitButtonValidator()
     {
         RuleFor(r => r.DTO.Tiles.Any())
             .Equal(true)
@@ -23,7 +23,7 @@ internal class SubmitDropSubmitButtonValidator : BingoValidator<SubmitDropSubmit
         NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
     }
 
-    protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitDropSubmitButtonRequest request, RequestSemaphores semaphores) =>
+    protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>
         new List<SemaphoreSlim>()
         {
             semaphores.GetTeamDatabase(request.DiscordTeam.Id),

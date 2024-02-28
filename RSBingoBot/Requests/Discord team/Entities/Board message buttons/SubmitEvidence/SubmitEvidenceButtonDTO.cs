@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropButtonDTO.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceButtonDTO.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -7,7 +7,7 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordEntities;
 using RSBingo_Framework.Models;
 
-public class SubmitDropButtonDTO
+public class SubmitEvidenceButtonDTO
 {
     public string MessageContentPrefix { get; }
 
@@ -18,7 +18,7 @@ public class SubmitDropButtonDTO
     public IEnumerable<Tile> Tiles { get; set; } = Enumerable.Empty<Tile>();
     public string? EvidenceUrl { get; set; }
 
-    public SubmitDropButtonDTO(Message message)
+    public SubmitEvidenceButtonDTO(Message message)
     {
         MessageContentPrefix = message.Content;
         Message = message;

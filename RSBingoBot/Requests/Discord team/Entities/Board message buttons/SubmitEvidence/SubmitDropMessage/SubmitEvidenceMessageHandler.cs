@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropMessageHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceMessageHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -10,9 +10,9 @@ using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Extensions;
 using DSharpPlus.Entities;
 
-internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessageRequest>
+internal class SubmitEvidenceMessageHandler : MessageCreatedHandler<SubmitEvidenceMessageRequest>
 {
-    protected override async Task Process(SubmitDropMessageRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(SubmitEvidenceMessageRequest request, CancellationToken cancellationToken)
     {
         var messageServices = GetRequestService<IDiscordMessageServices>();
         Message message = request.GetMessage();
@@ -30,7 +30,7 @@ internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessag
         await messageServices.Update(request.DTO.Message);
     }
 
-    private async Task<string> SaveImage(SubmitDropMessageRequest request, DiscordAttachment attachment, string extension)
+    private async Task<string> SaveImage(SubmitEvidenceMessageRequest request, DiscordAttachment attachment, string extension)
     {
         var webServices = GetRequestService<IWebServices>();
 

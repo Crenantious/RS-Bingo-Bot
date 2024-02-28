@@ -42,11 +42,11 @@ public class DiscordTeamBoardButtons
             () => new ChangeTilesButtonRequest(team.Id));
 
         submitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitEvidenceLabel, GetId(team, SubmitEvidenceLabel)),
-            () => new SubmitDropButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
+            () => new SubmitEvidenceButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
             Math.Min(General.MaxTilesOnABoard, General.MaxSelectOptionsPerPage)));
 
         submitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitDropLabel, GetId(team, SubmitDropLabel)),
-            () => new SubmitDropButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
+            () => new SubmitEvidenceButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
 
         viewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, ViewEvidenceLabel, GetId(team, ViewEvidenceLabel)),
             () => new ViewEvidenceButtonRequest(team.Id));

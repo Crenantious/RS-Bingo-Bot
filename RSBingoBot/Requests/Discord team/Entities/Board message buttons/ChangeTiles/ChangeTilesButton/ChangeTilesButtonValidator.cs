@@ -17,7 +17,7 @@ internal class ChangeTilesButtonValidator : BingoValidator<ChangeTilesButtonRequ
         ActiveInteractions<ChangeTilesButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,
             GetTooManyInteractionInstancesError(1, DiscordTeamBoardButtons.ChangeTileLabel), 1);
 
-        ActiveInteractions<SubmitDropButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
+        ActiveInteractions<SubmitEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.DiscordTeam.Id,
             DiscordTeamBoardButtonErrors.ChangeTilesWithActiveSubmitDropOrViewEvidence, 1);
 
         ActiveInteractions<ViewEvidenceButtonRequest>((r, t) => r.TeamId == t.Request.TeamId,

@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropSelectHandler.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitEvidenceSelectHandler.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,9 +8,9 @@ using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
 
-internal class SubmitDropSelectHandler : SelectComponentHandler<SubmitDropSelectRequest>
+internal class SubmitEvidenceSelectHandler : SelectComponentHandler<SubmitEvidenceSelectRequest>
 {
-    protected override void OnItemsSelected(IEnumerable<SelectComponentItem> items, SubmitDropSelectRequest request,
+    protected override void OnItemsSelected(IEnumerable<SelectComponentItem> items, SubmitEvidenceSelectRequest request,
         CancellationToken cancellationToken)
     {
         request.DTO.Tiles = items.Select(i => (Tile)i.Value!);
