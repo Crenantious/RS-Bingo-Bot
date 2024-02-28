@@ -20,7 +20,7 @@ internal class SubmitDropMessageHandler : MessageCreatedHandler<SubmitDropMessag
 
         request.DTO.EvidenceUrl = attachment.Url;
 
-        string extension = "."+attachment.MediaType.Split("/")[1];
+        string extension = "." + attachment.MediaType.Split("/")[1];
         string imagePath = await SaveImage(request, attachment, extension);
 
         request.DTO.Message.RemoveAllFiles();

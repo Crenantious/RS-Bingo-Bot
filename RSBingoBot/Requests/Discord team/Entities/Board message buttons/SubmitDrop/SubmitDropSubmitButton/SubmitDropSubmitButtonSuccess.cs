@@ -10,7 +10,7 @@ using RSBingo_Framework.Models;
 
 internal class SubmitDropSubmitButtonSuccess : Success, IDiscordResponse
 {
-    private const string SuccessMessage = "Drop submitted for {0}.";
+    private const string SuccessMessage = "Evidence submitted for {0}.";
 
     public SubmitDropSubmitButtonSuccess(Tile tile) : base(SuccessMessage.FormatConst(tile.Task.Name))
     {

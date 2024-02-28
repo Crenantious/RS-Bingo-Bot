@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordEntities;
 using RSBingo_Framework.Models;
-using System.Text;
 
 public class SubmitDropButtonDTO
 {
@@ -24,7 +23,4 @@ public class SubmitDropButtonDTO
         MessageContentPrefix = message.Content;
         Message = message;
     }
-
-    public string GetMessageContent() =>
-        MessageContentPrefix + (EvidenceUrl is null ? "" : Environment.NewLine + EvidenceUrl);
 }

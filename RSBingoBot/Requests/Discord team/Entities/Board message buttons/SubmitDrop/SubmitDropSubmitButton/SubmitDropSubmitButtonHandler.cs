@@ -15,7 +15,7 @@ using RSBingo_Framework.Records;
 
 internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitButtonRequest>
 {
-    private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}{3}{4}";
+    private const string PendingReviewMessagePrefix = "{0} has submitted {1} evidence for {2}.";
 
     private IDiscordMessageServices messageServices = null!;
 
@@ -81,8 +81,10 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
 
     private async Task<Result<Message>> SendPendingReviewMessage(SubmitDropSubmitButtonRequest request, Tile tile)
     {
+        var file = request.DTO.Message.Files.ElementAt(0);
         var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
-            .WithContent(GetPendingReviewMessagePrefix(request, tile));
+            .WithContent(GetPendingReviewMessageContent(request, tile))
+            .AddFile(file.path, file.name);
 
         // TODO: JR - move the singleton channels to a DTO to use as a singleton with DI.
         Result result = await messageServices.Send(pendingReviewMessage);
@@ -100,7 +102,9 @@ internal class SubmitDropSubmitButtonHandler : ButtonHandler<SubmitDropSubmitBut
         }
     }
 
-    private static string GetPendingReviewMessagePrefix(SubmitDropSubmitButtonRequest request, Tile tile) =>
-        new(PendingReviewMessagePrefix.FormatConst(request.GetDiscordInteraction().User.Mention, request.EvidenceType,
-            tile.Task.Name, Environment.NewLine, request.DTO.EvidenceUrl!));
+    private static string GetPendingReviewMessageContent(SubmitDropSubmitButtonRequest request, Tile tile) =>
+        PendingReviewMessagePrefix.FormatConst(
+            request.GetDiscordInteraction().User.Mention,
+            request.EvidenceType,
+            tile.Task.Name);
 }
