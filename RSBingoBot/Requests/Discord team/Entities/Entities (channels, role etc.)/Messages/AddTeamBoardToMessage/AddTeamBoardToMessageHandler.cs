@@ -15,9 +15,10 @@ internal class AddTeamBoardToMessageHandler : RequestHandler<AddTeamBoardToMessa
         try
         {
             Image board = BoardImage.Create(request.Team);
+            var path = BoardImage.SaveBoard(board, request.Team.Name);
 
             MessageFile file = new("Board");
-            file.SetContent(board, ".png");
+            file.SetContent(path);
 
             request.Message.AddFile(file);
 

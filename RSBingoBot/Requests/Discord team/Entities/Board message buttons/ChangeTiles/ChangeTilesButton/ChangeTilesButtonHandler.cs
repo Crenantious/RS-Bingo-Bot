@@ -15,6 +15,7 @@ using DSharpPlus;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingoBot.Discord;
 
 internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest>
 {
@@ -43,6 +44,9 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
         user = Interaction.User.GetDBUser(dataWorker)!;
 
+        // TODO: JR - put in a better place, probably store the MessageFile on the DiscordTeam.
+        MessageFile board = DiscordTeam.ExistingTeams[user.Team.Name].BoardMessage!.Files.ElementAt(0);
+
         var response = new InteractionMessage(Interaction)
             .WithContent(GetResponseContent(request));
 
@@ -54,7 +58,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         Button changeFromBack = buttonFactory.CreateSelectComponentBackButton(() => new(tileSelect.SelectComponent));
         Button changeToBack = buttonFactory.CreateSelectComponentBackButton(() => new(taskSelect.SelectComponent));
         Button apply = buttonFactory.Create(new(ButtonStyle.Primary, "Apply"),
-            () => new ChangeTilesSubmitButtonRequest(dataWorker, user.Team, dto, Interaction.User, tileSelect, taskSelect));
+            () => new ChangeTilesSubmitButtonRequest(dataWorker, user.Team, dto, Interaction.User, tileSelect, taskSelect, board));
         Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }));
 
         response.AddComponents(tileSelect.SelectComponent)
