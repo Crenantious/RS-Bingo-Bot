@@ -11,7 +11,6 @@ using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
 using RSBingo_Common;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
 
 public static class MessageExtensions
 {
@@ -87,10 +86,10 @@ public static class MessageExtensions
         return AddComponentsCommon(message, components);
     }
 
-    public static T AddFile<T>(this T message, string path, string? name = null)
+    public static T AddFile<T>(this T message, MessageFile file)
         where T : Message
     {
-        message.FilesInternal.Add((path, name ?? NullFileName));
+        message.FilesInternal.Add(file);
         return message;
     }
 
@@ -98,15 +97,6 @@ public static class MessageExtensions
         where T : Message
     {
         message.FilesInternal.Clear();
-        return message;
-    }
-
-    public static T AddImage<T>(this T message, Image image, string? name = null)
-        where T : Message
-    {
-        string path = Path.GetTempFileName();
-        image.Save(path, new PngEncoder());
-        AddFile(message, path, name);
         return message;
     }
 

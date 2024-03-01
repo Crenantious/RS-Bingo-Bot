@@ -49,8 +49,11 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         user = Interaction.User.GetDBUser(dataWorker)!;
         evidenceType = request.EvidenceType;
 
+        MessageFile evidenceFile = new("Evidence");
+
         var response = new InteractionMessage(Interaction)
              .WithContent(GetResponsePrefix(Interaction.User))
+             .AddFile(evidenceFile)
              .AsEphemeral(true);
 
         SubmitEvidenceButtonDTO dto = new(response);
@@ -64,7 +67,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         response.AddComponents(submit, cancel);
 
         messageServices.RegisterMessageCreatedHandler(
-            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, new InteractionMessage(Interaction).AsEphemeral(true)),
+            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
             new(Interaction.Channel, Interaction.User, 1));
 
         await interactionMessageServices.Send(response);

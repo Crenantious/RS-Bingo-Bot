@@ -11,11 +11,9 @@ using DSharpPlus.Entities;
 
 public class Message : IMessage
 {
-    private Dictionary<string, Stream> streams = new();
+    internal List<MessageFile> FilesInternal { get; set; } = new();
 
-    internal List<(string path, string name)> FilesInternal { get; set; } = new();
-
-    public IReadOnlyList<(string path, string name)> Files => FilesInternal.AsReadOnly();
+    public IReadOnlyList<MessageFile> Files => FilesInternal.AsReadOnly();
 
     public DiscordMessage DiscordMessage { get; private set; }
 
@@ -59,11 +57,7 @@ public class Message : IMessage
     public void OnMessageSent(DiscordMessage discordMessage)
     {
         DiscordMessage = discordMessage;
-
-        foreach (var fs in streams)
-        {
-            fs.Value.Close();
-        }
+        FilesInternal.ForEach(f => f.Close());
     }
 
     /// <summary>
@@ -92,8 +86,15 @@ public class Message : IMessage
 
     private void AddBuilderFiles<T>(T builder) where T : IDiscordMessageBuilder
     {
-        streams = new();
-        FilesInternal.ForEach(f => streams.Add(f.name, new FileStream(f.path, FileMode.Open)));
+        Dictionary<string, Stream> streams = new();
+        foreach (MessageFile file in FilesInternal)
+        {
+            if (file.HasContent)
+            {
+                streams.Add(file.DiscordName, file.Open());
+            }
+        }
+
         builder.AddFiles(streams);
     }
 
