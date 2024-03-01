@@ -24,6 +24,6 @@ internal class JoinTeamSelectHandler : SelectComponentHandler<JoinTeamSelectRequ
         DiscordTeam discordTeam = (DiscordTeam)items.ElementAt(0).Value!;
 
         Result addToTeam = await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam, dataWorker);
-        await dbServices.Update(dataWorker);
+        await dbServices.SaveChanges(dataWorker);
     }
 }

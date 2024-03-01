@@ -5,7 +5,6 @@
 namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordServices;
-using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -55,6 +54,10 @@ public abstract class RequestHandlerBase<TRequest, TResult> : IRequestHandler<TR
         return result;
     }
 
+    /// <summary>
+    /// Only call when the request is being processed; do not call from a constructor.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
     protected TService GetRequestService<TService>()
         where TService : IRequestService
     {

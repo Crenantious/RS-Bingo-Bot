@@ -11,7 +11,7 @@ using DSharpPlus.Entities;
 
 public class Message : IMessage
 {
-    private Dictionary<string, Stream> streams;
+    private Dictionary<string, Stream> streams = new();
 
     internal List<(string path, string name)> FilesInternal { get; set; } = new();
 
@@ -38,11 +38,17 @@ public class Message : IMessage
         DiscordMessage = message;
         Channel = message.Channel;
 
-        this.WithContent(message.Content);
-
-        foreach (var row in message.Components)
+        if (message.Content is not null)
         {
-            this.AddComponents(row.Components);
+            this.WithContent(message.Content);
+        }
+
+        if (message.Components is not null)
+        {
+            foreach (var row in message.Components)
+            {
+                this.AddComponents(row.Components);
+            }
         }
     }
 

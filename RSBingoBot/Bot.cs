@@ -9,12 +9,14 @@ using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Leaderboard;
+using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>
@@ -26,6 +28,7 @@ internal class Bot : BackgroundService
     private readonly DiscordClient discordClient;
     private readonly SingletonButtons singletonButtons;
     private readonly CommandController commandController;
+    private readonly IDiscordMessageServices messageServices;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -34,7 +37,8 @@ internal class Bot : BackgroundService
     /// <param name="logger">The logger the instance will log to.</param>
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
-    public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController)
+    public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController,
+        IDiscordMessageServices messageServices)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -44,6 +48,8 @@ internal class Bot : BackgroundService
         // injecting here is unnecessary.
         this.singletonButtons = singletonButtons;
         this.commandController = commandController;
+        this.messageServices = messageServices;
+        messageServices.Initialise(null);
     }
 
     /// <inheritdoc/>
@@ -56,6 +62,7 @@ internal class Bot : BackgroundService
         await discordClient.ConnectAsync();
         await CreateExistingTeams();
         await LeaderboardDiscord.SetUp();
+        RegisterEvidenceReactionRequests();
     }
 
     /// <inheritdoc/>
@@ -79,5 +86,11 @@ internal class Bot : BackgroundService
                 DiscordTeam.ExistingTeams.Add(team.Name, result.Value);
             }
         }
+    }
+
+    private void RegisterEvidenceReactionRequests()
+    {
+        messageServices.RegisterMessageReactedHandler(() => new EvidenceVerificationReactionRequest(), new(DataFactory.PendingReviewEvidenceChannel));
+        messageServices.RegisterMessageReactedHandler(() => new EvidenceVerificationReactionRequest(), new(DataFactory.RejectedEvidenceChannel));
     }
 }

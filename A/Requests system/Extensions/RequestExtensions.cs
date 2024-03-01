@@ -44,6 +44,12 @@ public static class RequestExtensions
     public static Message GetMessage(this IMessageCreatedRequest request) =>
         request.GetFromMetaData<Message>();
 
+    public static Message GetMessage(this IMessageReactedRequest request) =>
+        request.GetFromMetaData<Message>();
+
+    public static DiscordEmoji GetEmoji(this IMessageReactedRequest request) =>
+        request.GetFromMetaData<DiscordEmoji>();
+
     private static T GetFromMetaData<T>(this IBaseRequest request) =>
         trackers.Get(request).MetaData.Get<T>();
 }

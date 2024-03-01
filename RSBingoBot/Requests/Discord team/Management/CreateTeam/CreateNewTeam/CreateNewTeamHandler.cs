@@ -19,7 +19,7 @@ internal class CreateNewTeamHandler : RequestHandler<CreateNewTeamRequest, Disco
 
         Team team = request.DataWorker.Teams.Create();
         team.Name = request.Name;
-        await dbServices.Update(request.DataWorker);
+        await dbServices.SaveChanges(request.DataWorker);
 
         DiscordTeam discordTeam = new(team);
 
@@ -34,7 +34,7 @@ internal class CreateNewTeamHandler : RequestHandler<CreateNewTeamRequest, Disco
             request.DataWorker.Teams.Remove(team);
             AddError(new CreateNewTeamInitialisationError());
         }
-        await dbServices.Update(request.DataWorker);
+        await dbServices.SaveChanges(request.DataWorker);
 
         return discordTeam;
     }

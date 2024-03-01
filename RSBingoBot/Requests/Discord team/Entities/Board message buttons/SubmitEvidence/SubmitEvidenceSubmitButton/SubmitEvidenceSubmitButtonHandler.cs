@@ -34,7 +34,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
 
         // TODO: JR - update the board.
 
-        Result result = await databaseServices.Update(request.DataWorker);
+        Result result = await databaseServices.SaveChanges(request.DataWorker);
         if (result.IsFailed)
         {
             AddErrors(result.Errors);

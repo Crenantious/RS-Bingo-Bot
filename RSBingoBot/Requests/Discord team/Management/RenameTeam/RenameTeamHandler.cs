@@ -70,7 +70,7 @@ internal class RenameTeamHandler : RequestHandler<RenameTeamRequest>
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         request.DiscordTeam.SetName(request.NewName, dataWorker.Teams.Find(request.DiscordTeam.Id)!);
 
-        Result result = await databaseServices.Update(dataWorker);
+        Result result = await databaseServices.SaveChanges(dataWorker);
         return result.IsSuccess;
     }
 }

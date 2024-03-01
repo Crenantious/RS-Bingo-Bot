@@ -18,4 +18,5 @@ public interface IDiscordMessageServices : IRequestService
     public Task<Result> Delete(Message message);
     public Task<Result> Delete(DiscordMessage message);
     public void RegisterMessageCreatedHandler(Func<IMessageCreatedRequest> getRequest, MessageCreatedDEH.Constraints constraints);
+    public void RegisterMessageReactedHandler(Func<IMessageReactedRequest> getRequest, MessageReactedDEH.Constraints constraints);
 }

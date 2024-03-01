@@ -10,6 +10,6 @@ using RSBingoBot.Requests;
 
 public class DatabaseServices : RequestService, IDatabaseServices
 {
-    public async Task<Result> Update(IDataWorker dataWorker) =>
-        await RunRequest(new UpdateDatabaseRequest(dataWorker));
+    public async Task<Result> SaveChanges(IDataWorker dataWorker) =>
+        await RunRequest(new SaveDatabaseChangesRequest(dataWorker));
 }

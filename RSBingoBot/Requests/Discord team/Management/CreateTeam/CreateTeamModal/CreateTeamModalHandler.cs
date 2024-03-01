@@ -25,7 +25,7 @@ internal class CreateTeamModalHandler : ModalHandler<CreateTeamModalRequest>
         if (discordTeam.IsSuccess)
         {
             await teamServices.AddUserToTeam(request.GetDiscordInteraction().User, discordTeam.Value, dataWorker);
-            await dbServices.Update(dataWorker);
+            await dbServices.SaveChanges(dataWorker);
         }
 
         await InteractionTracker.ConcludeInteraction();

@@ -26,7 +26,7 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 
         RSBingoBot.Discord.DiscordTeam.ExistingTeams.Remove(request.DiscordTeam.Name);
         dataWorker.Teams.Remove(dataWorker.Teams.Find(request.DiscordTeam.Id)!);
-        await databaseServices.Update(dataWorker);
+        await databaseServices.SaveChanges(dataWorker);
 
         AddSuccess(new DeleteTeamSuccess(request.DiscordTeam));
     }

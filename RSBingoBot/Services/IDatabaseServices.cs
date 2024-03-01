@@ -9,5 +9,5 @@ using RSBingo_Framework.Interfaces;
 
 public interface IDatabaseServices : IRequestService
 {
-    public Task<Result> Update(IDataWorker dataWorker);
+    public Task<Result> SaveChanges(IDataWorker dataWorker);
 }

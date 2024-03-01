@@ -34,7 +34,7 @@ internal class RemoveUserFromTeamHandler : RequestHandler<RemoveUserFromTeamRequ
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         User user = dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.User.Id)!;
         dataWorker.Users.Remove(user);
-        await databaseServices.Update(dataWorker);
+        await databaseServices.SaveChanges(dataWorker);
         AddSuccess(new RemoveUserFromTeamRemovedSuccess(request.User, request.DiscordTeam.Name));
     }
 

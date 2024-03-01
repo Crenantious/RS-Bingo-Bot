@@ -129,7 +129,7 @@ public class Program
                     {
                         Token = DataFactory.DiscordToken,
                         TokenType = TokenType.Bot,
-                        Intents = DiscordIntents.All
+                        Intents = DiscordIntents.All | DiscordIntents.MessageContents
                     });
 
                     return discordClient;
@@ -146,7 +146,7 @@ public class Program
                 services.AddSingleton<RequestSemaphores>();
 
                 services.AddSingleton<ComponentInteractionDEH>();
-                services.AddSingleton<MessageReactionAddedDEH>();
+                services.AddSingleton<MessageReactedDEH>();
                 services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
 
@@ -223,7 +223,7 @@ public class Program
             .AddRequest<RemoveTasksCSVRequest>(services)
 
             // Database requests
-            .AddRequest<UpdateDatabaseRequest>(services)
+            .AddRequest<SaveDatabaseChangesRequest>(services)
 
             // Web requests
             .AddRequest<DownloadFileRequest>(services)
