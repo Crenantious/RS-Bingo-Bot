@@ -26,7 +26,6 @@ using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
-using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 using RSBingoBot.Requests.Validation;
 using RSBingoBot.Web;
@@ -53,7 +52,6 @@ public class Program
             Paths.Initialise();
 
             DataFactory.SetupDataFactory();
-            BoardImage.Initialise();
             CompetitionStart.Setup();
             WhitelistChecker.Initialise(DataFactory.WhitelistedDomains);
 

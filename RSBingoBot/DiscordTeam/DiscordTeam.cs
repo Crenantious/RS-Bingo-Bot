@@ -7,6 +7,7 @@ namespace RSBingoBot.Discord;
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Models;
+using RSBingoBot.Imaging;
 
 public class DiscordTeam
 {
@@ -33,6 +34,8 @@ public class DiscordTeam
     public DiscordChannel? EvidenceChannel { get; private set; }
     public DiscordChannel? VoiceChannel { get; private set; }
     public Message? BoardMessage { get; private set; }
+
+    public IBoard Board { get; } = new Board();
 
     public DiscordTeam(Team team)
     {
