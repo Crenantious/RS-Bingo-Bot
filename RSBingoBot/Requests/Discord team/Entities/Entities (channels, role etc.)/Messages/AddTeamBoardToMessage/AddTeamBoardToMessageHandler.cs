@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
-using RSBingoBot.Imaging;
 
 internal class AddTeamBoardToMessageHandler : RequestHandler<AddTeamBoardToMessageRequest>
 {
@@ -14,10 +13,7 @@ internal class AddTeamBoardToMessageHandler : RequestHandler<AddTeamBoardToMessa
     {
         try
         {
-            Image board = Board.Create(request.Team);
-            string boardPath = Board.SaveBoard(board, request.Team.Name);
-            request.Message.AddFile(boardPath);
-
+            request.Message.AddImage(request.DiscordTeam.Board.Image);
             AddSuccess(new AddTeamBoardToMessageSuccess());
         }
         catch

@@ -8,6 +8,7 @@ using RSBingo_Framework.Models;
 
 public interface IBoard
 {
+    public Image Image { get; }
     public void UpdateTiles(IEnumerable<(BingoTask? task, int boardIndex)> tasks);
     public void UpdateTile(BingoTask? task, int boardIndex);
     public void MarkTileEvidencePending(int boardIndex);

@@ -9,7 +9,6 @@ using DiscordLibrary.Requests;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
-using RSBingoBot.Imaging;
 
 // TODO: JR - add validation for difficulty based on the board index.
 internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitButtonRequest>
@@ -27,9 +26,8 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
         request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
 
-        Image board = Board.UpdateTiles(request.Team, updatedTiles);
-        Board.SaveBoard(board, request.Team.Name);
-
+        var discordTeam = RSBingoBot.Discord.DiscordTeam.ExistingTeams[request.Team.Name];
+        discordTeam.Board.UpdateTiles(updatedTiles);
 
         await messageServices.Update(DiscordTeam.ExistingTeams[request.Team.Name].BoardMessage!);
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);

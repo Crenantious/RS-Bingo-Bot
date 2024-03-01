@@ -9,7 +9,6 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using RSBingoBot.Discord;
-using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 
 internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMessageRequest, Message>
@@ -38,7 +37,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
             .WithContent(DropCodePrefix.FormatConst(dropCode))
             .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence);
 
-        await teamServices.AddBoardToMessage(request.Team, message);
+        await teamServices.AddBoardToMessage(request.DiscordTeam, message);
 
         // TODO: JR - implement
         //#if DEBUG

@@ -21,7 +21,7 @@ public class Board : IBoard
     private static Image tileCompletedMarker = null!;
     private static Image evidencePendingMarker = null!;
 
-    private Image board;
+    public Image Image { get; }
 
     static Board()
     {
@@ -37,7 +37,7 @@ public class Board : IBoard
 
     public Board()
     {
-        board = boardBackground.Clone(x => { });
+        Image = boardBackground.Clone(x => { });
     }
 
     public void UpdateTiles(IEnumerable<(BingoTask? task, int boardIndex)> tasks)
@@ -62,7 +62,7 @@ public class Board : IBoard
 
         tileImage.Mutate(t => t.DrawImage(taskImage, taskImagePosition, 1));
 
-        board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
+        Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
     }
 
     public void MarkTileEvidencePending(int boardIndex) =>
@@ -77,19 +77,19 @@ public class Board : IBoard
         Point markerPosition = new(tileRect.X + (tileRect.Width - marker.Width) / 2,
             tileRect.Y + (tileRect.Height - marker.Height) / 2);
 
-        board.Mutate(b => b.DrawImage(marker, markerPosition, 1));
+        Image.Mutate(b => b.DrawImage(marker, markerPosition, 1));
     }
 
     ///// <summary>
-    ///// Gets the current board for the <paramref name="team"/>. Or a blank one if it cannot be found.
+    ///// Gets the current Board for the <paramref name="team"/>. Or a blank one if it cannot be found.
     ///// </summary>
-    ///// <returns>The path the board is saved at.</returns>
+    ///// <returns>The path the Board is saved at.</returns>
     //public string SaveBoard()
     //{
     //    string path = GetTeamBoardPath(Name);
     //    FileStream fs = new(path, FileMode.Open);
 
-    //    board.SaveAsPng(fs);
+    //    Board.SaveAsPng(fs);
     //    fs.Close();
     //    return path;
     //}
