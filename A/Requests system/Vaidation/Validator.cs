@@ -16,7 +16,6 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
 {
     private const string TooManyInteractionInstances = "You can only interact with {0} instance{1} of '{2}' at a time.";
 
-    private readonly RequestsTracker requestsTracker;
     private readonly InteractionsTracker interactionTrackers;
 
     // TODO: JR - decide how to word this.
@@ -31,9 +30,29 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
 
     public Validator()
     {
-        requestsTracker = (RequestsTracker)General.DI.GetService(typeof(RequestsTracker))!;
         interactionTrackers = (InteractionsTracker)General.DI.GetService(typeof(InteractionsTracker))!;
     }
+
+    // TODO: JR - implement this. Probably get the request tracker and go up the chain to the top most
+    // parent then use UserInteraction.
+    //protected virtual bool OnlyAllowInteractionFromOriginalUser { get; set; } = true;
+
+    //public override ValidationResult Validate(ValidationContext<TRequest> context)
+    //{
+    //    if (OnlyAllowInteractionFromOriginalUser)
+    //    {
+    //        var topMost = GetTopMostRequest(context.InstanceToValidate);
+    //        UserInteraction(r => topMost.);
+    //    }
+
+    //    return base.Validate(context);
+    //}
+
+    //private static IBaseRequest GetTopMostRequest(IInteractionRequest request)
+    //{
+    //    var parent = request.().ParentRequest;
+    //    return parent is null ? request : GetTopMostRequest(parent);
+    //}
 
     public virtual IEnumerable<SemaphoreSlim> GetSemaphores(TRequest request)
     {
