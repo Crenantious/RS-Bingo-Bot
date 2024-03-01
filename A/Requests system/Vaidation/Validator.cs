@@ -26,6 +26,7 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
     protected const string ChannelDoesNotExist = "The channel does not exist.";
     protected const string RoleDoesNotExist = "The role does not exist.";
     protected const string DiscordMessageDoesNotExist = "The Discord message does not exist.";
+    protected const string EmojisDoNotMatch = "The emojis do not match.";
     protected const string IncorrectUserInteraction = "Only the user {0} can interact with this.";
 
     public Validator()
@@ -79,6 +80,14 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
         RuleFor(r => func(r).DiscordMessage)
             .NotNull()
             .WithMessage(DiscordMessageDoesNotExist);
+    }
+
+    protected void EmojiMatches(Func<TRequest, (DiscordEmoji, DiscordEmoji)> func)
+    {
+        RuleFor(r => func(r))
+            .Must(e => e.Item1 is not null && e.Item2 is not null)
+            .Must(e => e.Item1.Name == e.Item2.Name)
+            .WithMessage(EmojisDoNotMatch);
     }
 
     // TODO: JR - find a better way to do this.

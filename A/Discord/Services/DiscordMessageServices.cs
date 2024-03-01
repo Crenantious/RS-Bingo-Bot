@@ -60,6 +60,8 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
 
     private async Task OnMessageReacted(Func<IMessageReactedRequest> getRequest, MessageReactionAddEventArgs args)
     {
+        // The message provided by args contains limited information (no content, attachments etc.) so the
+        // message must currently be retrieved via the given id.
         var messageResult = await Get(args.Message.Id, args.Message.Channel);
 
         if (messageResult.IsFailed)

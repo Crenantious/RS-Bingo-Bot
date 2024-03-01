@@ -158,6 +158,8 @@ public class Program
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 
+                services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
+
                 services.AddTransient(typeof(IDiscordServices), typeof(DiscordServices));
                 services.AddTransient(typeof(IDiscordMessageServices), typeof(DiscordMessageServices));
                 services.AddTransient(typeof(IDiscordTeamServices), typeof(DiscordTeamServices));
@@ -165,7 +167,7 @@ public class Program
                 services.AddTransient(typeof(IBehaviourServices), typeof(BehaviourServices));
                 services.AddTransient(typeof(IDatabaseServices), typeof(DatabaseServices));
                 services.AddTransient(typeof(IWebServices), typeof(WebServices));
-                
+
                 services.AddTransient<DiscordTeamChannelsInfo>();
             })
 
@@ -263,6 +265,9 @@ public class Program
             .AddRequest<SubmitEvidenceSubmitButtonRequest>(services)
             .AddRequest<ViewEvidenceButtonRequest>(services)
             .AddRequest<ViewEvidenceSelectRequest>(services)
+
+            // Message reactions
+            .AddRequest<EvidenceVerificationReactionRequest>(services)
         );
     }
 }

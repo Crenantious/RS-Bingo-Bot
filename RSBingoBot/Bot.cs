@@ -29,6 +29,7 @@ internal class Bot : BackgroundService
     private readonly SingletonButtons singletonButtons;
     private readonly CommandController commandController;
     private readonly IDiscordMessageServices messageServices;
+    private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -38,7 +39,7 @@ internal class Bot : BackgroundService
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
     public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController,
-        IDiscordMessageServices messageServices)
+        IDiscordMessageServices messageServices, IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -49,6 +50,8 @@ internal class Bot : BackgroundService
         this.singletonButtons = singletonButtons;
         this.commandController = commandController;
         this.messageServices = messageServices;
+        this.evidenceVerificationEmojis = evidenceVerificationEmojis;
+
         messageServices.Initialise(null);
     }
 
@@ -90,7 +93,9 @@ internal class Bot : BackgroundService
 
     private void RegisterEvidenceReactionRequests()
     {
-        messageServices.RegisterMessageReactedHandler(() => new EvidenceVerificationReactionRequest(), new(DataFactory.PendingReviewEvidenceChannel));
-        messageServices.RegisterMessageReactedHandler(() => new EvidenceVerificationReactionRequest(), new(DataFactory.RejectedEvidenceChannel));
+        messageServices.RegisterMessageReactedHandler(() =>
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), new(DataFactory.PendingReviewEvidenceChannel));
+        messageServices.RegisterMessageReactedHandler(() =>
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), new(DataFactory.RejectedEvidenceChannel));
     }
 }

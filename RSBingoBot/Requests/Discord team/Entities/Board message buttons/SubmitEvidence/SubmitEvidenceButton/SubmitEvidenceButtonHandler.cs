@@ -25,16 +25,18 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
-
+    private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
     private User user = null!;
     private EvidenceRecord.EvidenceType evidenceType;
     private IDataWorker dataWorker = null!;
 
     protected override bool SendKeepAliveMessageIsEphemeral => false;
-    public SubmitEvidenceButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
+    public SubmitEvidenceButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory,
+        IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
+        this.evidenceVerificationEmojis = evidenceVerificationEmojis;
     }
 
     protected override async Task Process(SubmitEvidenceButtonRequest request, CancellationToken cancellationToken)
@@ -53,7 +55,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
         SubmitEvidenceButtonDTO dto = new(response);
 
-        SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType);
+        SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType, evidenceVerificationEmojis);
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
             () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
         Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));

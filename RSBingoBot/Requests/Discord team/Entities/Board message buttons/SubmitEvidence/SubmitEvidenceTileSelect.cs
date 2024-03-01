@@ -11,23 +11,26 @@ using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-public class SubmitEvidenceTileSelect
+internal class SubmitEvidenceTileSelect
 {
     private readonly IDataWorker dataWorker;
     private readonly SubmitEvidenceButtonDTO dto;
     private readonly User user;
     private readonly EvidenceRecord.EvidenceType evidenceType;
+    private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
 
     private Dictionary<int, SelectComponentItem> tileIdToItem = new();
 
     public SelectComponent SelectComponent { get; }
 
-    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitEvidenceButtonDTO dto, User user, EvidenceRecord.EvidenceType evidenceType)
+    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitEvidenceButtonDTO dto, User user, EvidenceRecord.EvidenceType evidenceType,
+        IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.dataWorker = dataWorker;
         this.dto = dto;
         this.user = user;
         this.evidenceType = evidenceType;
+        this.evidenceVerificationEmojis = evidenceVerificationEmojis;
 
         SelectComponentFactory selectComponentFactory = (SelectComponentFactory)General.DI.GetService(typeof(SelectComponentFactory))!;
         SelectComponent = CreateSelectComponent(selectComponentFactory);
@@ -53,7 +56,7 @@ public class SubmitEvidenceTileSelect
     {
         List<SelectComponentItem> items = new();
         var tiles = user.Team.Tiles
-               .Where(t => t.IsCompleteAsBool() is false)
+               .Where(t => IsTileEidenceVerified(t) is false)
                .OrderBy(t => t.BoardIndex);
 
         foreach (var tile in tiles)
@@ -63,6 +66,11 @@ public class SubmitEvidenceTileSelect
         return items;
 
     }
+
+    private bool IsTileEidenceVerified(Tile tile) =>
+        tile.Evidence.Where(e => e.User == user && e.IsVerified())
+            .Any();
+
     private SelectComponentItem CreateItem(Tile tile)
     {
         SelectComponentItem item = new(tile.Task.Name, tile, emoji: GetSelectOptionEmoji(tile));
@@ -78,7 +86,7 @@ public class SubmitEvidenceTileSelect
             return null;
         }
 
-        DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
+        DiscordEmoji? discordEmoji = evidenceVerificationEmojis.GetStatusEmoji(evidence);
         return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
     }
 

@@ -5,5 +5,6 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests;
+using DSharpPlus.Entities;
 
-internal record EvidenceVerificationReactionRequest() : IMessageReactedRequest;
+internal record EvidenceVerificationReactionRequest(DiscordEmoji VerificationEmoji) : IMessageReactedRequest;

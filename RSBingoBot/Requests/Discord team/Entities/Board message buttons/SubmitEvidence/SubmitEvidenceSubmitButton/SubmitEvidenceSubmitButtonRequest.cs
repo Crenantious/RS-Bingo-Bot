@@ -10,5 +10,5 @@ using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
 
-public record SubmitEvidenceSubmitButtonRequest(IDataWorker DataWorker, User User, DiscordTeam DiscordTeam, SubmitEvidenceButtonDTO DTO,
+internal record SubmitEvidenceSubmitButtonRequest(IDataWorker DataWorker, User User, DiscordTeam DiscordTeam, SubmitEvidenceButtonDTO DTO,
     EvidenceRecord.EvidenceType EvidenceType, SubmitEvidenceTileSelect TileSelect) : IButtonRequest;

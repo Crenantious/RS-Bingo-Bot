@@ -21,11 +21,14 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     private readonly SelectComponentFactory selectComponentFactory;
     private readonly ButtonFactory buttonFactory;
+    private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
 
-    public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory)
+    public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory,
+        IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.selectComponentFactory = selectComponentFactory;
         this.buttonFactory = buttonFactory;
+        this.evidenceVerificationEmojis = evidenceVerificationEmojis;
     }
 
     protected override async Task Process(ViewEvidenceButtonRequest request, CancellationToken cancellationToken)
@@ -63,9 +66,9 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
     private SelectComponentItem CreateSelectOption(Evidence evidence) =>
         new(evidence.Tile.Task.Name, evidence, emoji: GetSelectOptionEmoji(evidence));
 
-    private static DiscordComponentEmoji? GetSelectOptionEmoji(Evidence evidence)
+    private DiscordComponentEmoji? GetSelectOptionEmoji(Evidence evidence)
     {
-        DiscordEmoji? discordEmoji = BingoBotCommon.GetEvidenceStatusEmoji(evidence);
+        DiscordEmoji? discordEmoji = evidenceVerificationEmojis.GetStatusEmoji(evidence);
         return discordEmoji is null ? null : new DiscordComponentEmoji(discordEmoji);
     }
 }
