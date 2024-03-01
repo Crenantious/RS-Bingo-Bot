@@ -53,15 +53,6 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
         AddSuccess(new EvidenceVerificationReactionSuccess());
     }
 
-    private async Task<bool> SaveDBChanges(IDataWorker dataWorker, Message message, Evidence evidence)
-    {
-        evidence.Status = EvidenceStatusLookup.Get(EvidenceStatus.Accepted);
-        evidence.DiscordMessageId = message.DiscordMessage.Id;
-
-        var result = await dbServices.SaveChanges(dataWorker);
-        return result.IsSuccess;
-    }
-
     private async Task<Result<Message>> SendEvidenceToVerifiedChannel(Message message)
     {
         Message newMessage = new(message.DiscordMessage);
@@ -69,7 +60,16 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
         var result = await messageServices.Send(newMessage);
 
         return new Result<Message>()
-            .WithValue(message)
+            .WithValue(newMessage)
             .WithErrors(result.Errors);
+    }
+
+    private async Task<bool> SaveDBChanges(IDataWorker dataWorker, Message message, Evidence evidence)
+    {
+        evidence.Status = EvidenceStatusLookup.Get(EvidenceStatus.Accepted);
+        evidence.DiscordMessageId = message.DiscordMessage.Id;
+
+        var result = await dbServices.SaveChanges(dataWorker);
+        return result.IsSuccess;
     }
 }
