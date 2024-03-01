@@ -2,55 +2,105 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-using SixLabors.ImageSharp;
-
 namespace DiscordLibrary.DiscordEntities;
+
+using SixLabors.ImageSharp;
 
 public class MessageFile
 {
+    private bool isTempPath = false;
     private FileStream stream = null!;
 
-    public string Name { get; set; }
-    public string Path { get; private set; } = string.Empty;
+    internal string DiscordName => Name + System.IO.Path.GetExtension(Path);
 
-    public MessageFile(string name = "File")
+    public string Name { get; private set; } = null!;
+    public string Path { get; private set; } = string.Empty;
+    public bool HasContent => string.IsNullOrEmpty(Path) is false;
+
+    public MessageFile(string name)
+    {
+        SetName(name);
+    }
+
+    public void SetName(string name)
     {
         Name = name;
-        Path = System.IO.Path.GetTempFileName();
-    }
-
-    public void SetContents(Image image, string extension, string name)
-    {
-        Path = System.IO.Path.ChangeExtension(Path, extension);
-        image.Save(Path);
-    }
-
-    public void SetContents(string path)
-    {
-        Path = path;
     }
 
     /// <summary>
-    /// Sets <see cref="Name"/> to be the file name at <see cref="Path"/>.
+    /// Sets the file contents to that of <paramref name="image"/> with image type <paramref name="extension"/>.
     /// </summary>
-    public void SetNameFromPath()
+    public void SetContent(Image image, string extension)
     {
-        Name = System.IO.Path.GetFileName(Path);
+        string tempPath = System.IO.Path.GetTempFileName();
+        string imagePath = System.IO.Path.ChangeExtension(tempPath, extension);
+
+        image.Save(imagePath);
+
+        SetPath(imagePath, true);
+    }
+
+    /// <summary>
+    /// Sets the file contents to the file that is at <paramref name="path"/>.
+    /// </summary>
+    public void SetContent(string path)
+    {
+        SetPath(path, false);
+    }
+
+    private void SetPath(string path, bool isNewPathTemp)
+    {
+        DisposeStream(stream);
+
+        if (isTempPath && Path != path)
+        {
+            DeletePath(Path);
+        }
+
+        Path = path;
+        isTempPath = isNewPathTemp;
     }
 
     public FileStream Open()
     {
-        if (string.IsNullOrEmpty(Path))
-        {
-            throw new InvalidOperationException("Must set file contents before opening it.");
-        }
-
-        stream = new(Path, FileMode.Open, FileAccess.ReadWrite);
+        stream = new(Path, FileMode.Open);
         return stream;
     }
 
     public void Close()
     {
-        stream.Close();
+        stream?.Close();
+        stream?.Dispose();
+    }
+
+    private static void DeletePath(string path)
+    {
+        try
+        {
+            System.IO.File.Delete(path);
+        }
+        catch
+        {
+
+        }
+    }
+
+    private static void DisposeStream(FileStream stream)
+    {
+        if (stream is null)
+        {
+            return;
+        }
+
+        try
+        {
+            stream.Close();
+        }
+        catch
+        {
+
+        }
+
+        stream.Dispose();
     }
 }

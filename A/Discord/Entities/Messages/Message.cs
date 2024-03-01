@@ -87,7 +87,14 @@ public class Message : IMessage
     private void AddBuilderFiles<T>(T builder) where T : IDiscordMessageBuilder
     {
         Dictionary<string, Stream> streams = new();
-        FilesInternal.ForEach(f => streams.Add(f.Name, f.Open()));
+        foreach (MessageFile file in FilesInternal)
+        {
+            if (file.HasContent)
+            {
+                streams.Add(file.DiscordName, file.Open());
+            }
+        }
+
         builder.AddFiles(streams);
     }
 

@@ -30,7 +30,6 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         Image board = BoardImage.UpdateTiles(request.Team, updatedTiles);
         BoardImage.SaveBoard(board, request.Team.Name);
 
-
         await messageServices.Update(DiscordTeam.ExistingTeams[request.Team.Name].BoardMessage!);
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);
     }
