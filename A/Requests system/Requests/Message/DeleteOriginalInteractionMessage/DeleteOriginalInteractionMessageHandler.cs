@@ -3,6 +3,7 @@
 // </copyright>
 
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordServices;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
@@ -12,13 +13,17 @@ internal class DeleteOriginalInteractionMessageHandler : DiscordHandler<DeleteOr
 {
     protected override async Task<InteractionMessage> Process(DeleteOriginalInteractionMessageRequest request, CancellationToken cancellationToken)
     {
+        var messageServices = GetRequestService<IDiscordMessageServices>();
         try
         {
             DiscordMessage message = await request.Interaction.GetOriginalResponseAsync();
-            var interactionMessage = new InteractionMessage(request.Interaction, message);
-            await message.DeleteAsync();
+            await messageServices.Delete(message);
+
             AddSuccess(new DeleteOriginalInteractionMessageSuccess(request.Interaction));
-            return interactionMessage;
+
+            // TODO: JR - fix the return (probably remove the entire class since there's no reason to treat this differently
+            // from deleting a normal Message).
+            return null!;
         }
         catch (NotFoundException)
         {

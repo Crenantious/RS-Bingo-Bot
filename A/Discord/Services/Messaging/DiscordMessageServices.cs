@@ -18,7 +18,6 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
 {
     private readonly MessageCreatedDEH messageCreatedDEH;
     private readonly MessageReactedDEH messageReactedDEH;
-    private readonly IDiscordMessageServices messageServices;
 
     public DiscordMessageServices(MessageCreatedDEH messageCreatedDEH, MessageReactedDEH messageReactedDEH)
     {
@@ -53,9 +52,15 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
 
     private async Task OnMessageCreated(Func<IMessageCreatedRequest> getRequest, MessageCreateEventArgs args)
     {
+        // TODO: JR - it's getting out of hand how many places need to use services that aren't inside a request.
+        // Make a common way to retrieve them.
+        var messageFactory = General.DI.GetService<MessageFactory>();
+        var webServices = General.DI.GetService<IWebServices>();
+        webServices.Initialise(null);
+
         Result result = await RunRequest(getRequest(),
             (null, args),
-            (null, new Message(args.Message)));
+            (null, messageFactory.Create(args.Message, webServices)));
     }
 
     private async Task OnMessageReacted(Func<IMessageReactedRequest> getRequest, MessageReactionAddEventArgs args)

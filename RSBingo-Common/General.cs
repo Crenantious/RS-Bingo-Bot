@@ -4,14 +4,12 @@
 
 namespace RSBingo_Common;
 
-using System.Collections;
-using System.Reflection;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using System.Reflection;
 
 /// <summary>
 /// Common Fields, Declares, Methods shared across the RSBingo platform.

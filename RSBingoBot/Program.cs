@@ -153,7 +153,8 @@ public class Program
                 services.AddSingleton<SelectComponentFactory>();
                 services.AddSingleton<TextInputFactory>();
                 services.AddSingleton<ComponentFactory>();
-
+                services.AddSingleton<MessageFactory>();
+                
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 

@@ -19,6 +19,12 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
 {
     private IDiscordMessageServices messageServices = null!;
     private IDatabaseServices dbServices = null!;
+    private readonly MessageFactory messageFactory;
+
+    public EvidenceVerificationReactionHandler(MessageFactory messageFactory)
+    {
+        this.messageFactory = messageFactory;
+    }
 
     protected override async Task Process(EvidenceVerificationReactionRequest request, CancellationToken cancellationToken)
     {
@@ -38,8 +44,6 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
         var verifiedMessage = await SendEvidenceToVerifiedChannel(evidenceMessage);
         if (verifiedMessage.IsFailed)
         {
-            // There may be some failure other than the message sending.
-            await messageServices.Delete(verifiedMessage.Value);
             return;
         }
 
@@ -55,7 +59,9 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
 
     private async Task<Result<Message>> SendEvidenceToVerifiedChannel(Message message)
     {
-        Message newMessage = new(message.DiscordMessage);
+        var webServices = GetRequestService<IWebServices>();
+
+        Message newMessage = messageFactory.Create(message.DiscordMessage, webServices);
         newMessage.Channel = DataFactory.VerifiedEvidenceChannel;
         var result = await messageServices.Send(newMessage);
 

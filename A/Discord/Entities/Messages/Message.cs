@@ -15,7 +15,7 @@ public class Message : IMessage
 
     public IReadOnlyList<MessageFile> Files => FilesInternal.AsReadOnly();
 
-    public DiscordMessage DiscordMessage { get; private set; }
+    public DiscordMessage DiscordMessage { get; internal set; }
 
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
@@ -29,25 +29,6 @@ public class Message : IMessage
     public Message(DiscordChannel channel)
     {
         Channel = channel;
-    }
-
-    public Message(DiscordMessage message)
-    {
-        DiscordMessage = message;
-        Channel = message.Channel;
-
-        if (message.Content is not null)
-        {
-            this.WithContent(message.Content);
-        }
-
-        if (message.Components is not null)
-        {
-            foreach (var row in message.Components)
-            {
-                this.AddComponents(row.Components);
-            }
-        }
     }
 
     // Probably make the GetBuilder methods extensions.
