@@ -26,6 +26,10 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
         request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
 
+        Image board = BoardImage.UpdateTiles(request.Team, updatedTiles);
+        var path = BoardImage.SaveBoard(board, request.Team.Name);
+        request.BoardMessageFile.SetContent(path);
+
         var discordTeam = RSBingoBot.Discord.DiscordTeam.ExistingTeams[request.Team.Name];
         discordTeam.Board.UpdateTiles(updatedTiles);
 

@@ -21,10 +21,9 @@ internal class SubmitEvidenceMessageHandler : MessageCreatedHandler<SubmitEviden
         request.DTO.EvidenceUrl = attachment.Url;
 
         string extension = "." + attachment.MediaType.Split("/")[1];
-        string imagePath = await SaveImage(request, attachment, extension);
+        string path = await SaveImage(request, attachment, extension);
 
-        request.DTO.Message.RemoveAllFiles();
-        request.DTO.Message.AddFile(imagePath, $"Evidence{extension}");
+        request.EvidenceFile.SetContent(path);
 
         await messageServices.Delete(message);
         await messageServices.Update(request.DTO.Message);
@@ -34,9 +33,9 @@ internal class SubmitEvidenceMessageHandler : MessageCreatedHandler<SubmitEviden
     {
         var webServices = GetRequestService<IWebServices>();
 
-        string imagePath = Paths.GetUserTempEvidencePath(request.User.Id, extension);
-        await webServices.DownloadFile(request.DTO.EvidenceUrl!, imagePath);
+        string path = Paths.GetUserTempEvidencePath(request.User.Id, extension);
+        await webServices.DownloadFile(request.DTO.EvidenceUrl!, path);
 
-        return imagePath;
+        return path;
     }
 }

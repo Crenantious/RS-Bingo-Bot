@@ -87,7 +87,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
         var file = request.DTO.Message.Files.ElementAt(0);
         var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
             .WithContent(GetPendingReviewMessageContent(request, tile))
-            .AddFile(file.path, file.name);
+            .AddFile(file);
 
         // TODO: JR - move the singleton channels to a DTO to use as a singleton with DI.
         Result result = await messageServices.Send(pendingReviewMessage);
