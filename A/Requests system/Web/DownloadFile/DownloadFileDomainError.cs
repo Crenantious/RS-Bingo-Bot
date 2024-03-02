@@ -2,10 +2,11 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.Web;
 using FluentResults;
-using RSBingoBot.Web;
+using RSBingo_Common;
 using System.Text;
 
 internal class DownloadFileDomainError : Error

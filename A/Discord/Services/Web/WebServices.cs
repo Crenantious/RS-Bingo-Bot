@@ -4,8 +4,8 @@
 
 namespace DiscordLibrary.DiscordServices;
 
+using DiscordLibrary.Requests;
 using FluentResults;
-using RSBingoBot.Requests;
 
 public class WebServices : RequestService, IWebServices
 {
