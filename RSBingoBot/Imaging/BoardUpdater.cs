@@ -36,17 +36,22 @@ public static class BoardUpdater
     {
         Rectangle tileRect = GetTileRect(boardIndex);
 
-        Image taskImage = task is null ?
-            boardImages.EmptyTask :
-            Image<Rgba32>.Load(GetTaskImagesResizedPath(task.Name));
+        Image tileImage = boardImages.EmptyBoard.Clone(b => b.Crop(tileRect));
 
-        Point taskImagePosition = new((tileRect.Width - taskImage.Width) / 2 + TaskXOffsetPixels,
-            (tileRect.Height - taskImage.Height) / 2 + TaskYOffsetPixels);
-        Image tileImage = boardImages.EmptyTask;
-
-        tileImage.Mutate(t => t.DrawImage(taskImage, taskImagePosition, 1));
+        if (task is not null)
+        {
+            AddTaskToTile(GetTaskImage(task), tileImage);
+        }
 
         board.Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
+    }
+
+    private static void AddTaskToTile(Image task, Image tile)
+    {
+        Point taskPosition = new((tile.Width - task.Width) / 2 + TaskXOffsetPixels,
+                                 (tile.Height - task.Height) / 2 + TaskYOffsetPixels);
+
+        tile.Mutate(t => t.DrawImage(task, taskPosition, 1));
     }
 
     public static void MarkTileEvidencePending(this Board board, int boardIndex) =>
@@ -86,6 +91,9 @@ public static class BoardUpdater
     //        File.Move(teamBoardPath, GetTeamBoardPath(newName));
     //    }
     //}
+
+    private static Image GetTaskImage(BingoTask task) =>
+        Image<Rgba32>.Load(GetTaskImagesResizedPath(task.Name));
 
     private static Rectangle GetTileRect(this int tileIndex)
     {

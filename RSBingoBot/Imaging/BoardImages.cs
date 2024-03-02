@@ -16,7 +16,6 @@ using static RSBingoBot.Imaging.BoardPreferences;
 public class BoardImages
 {
     public Image EmptyBoard;
-    public Image EmptyTask;
     public Image TileCompleteMarker;
     public Image EvidencePendingMarker;
 
@@ -24,7 +23,6 @@ public class BoardImages
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         EmptyBoard = Image.Load(BoardBackgroundPath);
-        EmptyTask = Image.Load(EmptyTaskPath);
         TileCompleteMarker = GetResizedMarker(TileCompletedMarkerPath);
         EvidencePendingMarker = GetResizedMarker(EvidencePendingMarkerPath);
 
