@@ -13,11 +13,10 @@ internal class AddTeamBoardToMessageHandler : RequestHandler<AddTeamBoardToMessa
     {
         try
         {
-            Image board = BoardImage.Create(request.Team);
-            var path = BoardImage.SaveBoard(board, request.Team.Name);
+            var board = request.DiscordTeam.Board;
 
             MessageFile file = new("Board");
-            file.SetContent(path);
+            file.SetContent(board.Image, board.FileExtension);
 
             request.Message.AddFile(file);
 

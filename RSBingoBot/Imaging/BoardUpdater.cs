@@ -12,7 +12,7 @@ using static RSBingo_Common.General;
 using static RSBingo_Common.Paths;
 using static RSBingoBot.Imaging.BoardPreferences;
 
-internal static class BoardUpdater
+public static class BoardUpdater
 {
     private static BoardImages boardImages;
 
@@ -21,10 +21,10 @@ internal static class BoardUpdater
         boardImages = (BoardImages)General.DI.GetService(typeof(BoardImages))!;
     }
 
-    public static Image CreateEmptyBoard() =>
+    internal static Image CreateEmptyBoard() =>
         boardImages.EmptyBoard.Clone(x => { });
 
-    public static void UpdateTiles(this Image board, IEnumerable<(BingoTask? task, int boardIndex)> tasks)
+    public static void UpdateTiles(this Board board, IEnumerable<(BingoTask? task, int boardIndex)> tasks)
     {
         foreach (var tile in tasks)
         {
@@ -32,7 +32,7 @@ internal static class BoardUpdater
         }
     }
 
-    public static void UpdateTile(this Image board, BingoTask? task, int boardIndex)
+    public static void UpdateTile(this Board board, BingoTask? task, int boardIndex)
     {
         Rectangle tileRect = GetTileRect(boardIndex);
 
@@ -46,22 +46,22 @@ internal static class BoardUpdater
 
         tileImage.Mutate(t => t.DrawImage(taskImage, taskImagePosition, 1));
 
-        board.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
+        board.Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
     }
 
-    public static void MarkTileEvidencePending(this Image board, int boardIndex) =>
+    public static void MarkTileEvidencePending(this Board board, int boardIndex) =>
         MarkTile(board, boardIndex, boardImages.EvidencePendingMarker);
 
-    public static void MarkTileComplete(this Image board, int boardIndex) =>
+    public static void MarkTileComplete(this Board board, int boardIndex) =>
         MarkTile(board, boardIndex, boardImages.TileCompleteMarker);
 
-    private static void MarkTile(this Image board, int boardIndex, Image marker)
+    private static void MarkTile(this Board board, int boardIndex, Image marker)
     {
         Rectangle tileRect = GetTileRect(boardIndex);
         Point markerPosition = new(tileRect.X + (tileRect.Width - marker.Width) / 2,
             tileRect.Y + (tileRect.Height - marker.Height) / 2);
 
-        board.Mutate(b => b.DrawImage(marker, markerPosition, 1));
+        board.Image.Mutate(b => b.DrawImage(marker, markerPosition, 1));
     }
 
     ///// <summary>
