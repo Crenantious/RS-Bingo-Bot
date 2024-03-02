@@ -2,13 +2,12 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Imaging;
+namespace Imaging.GridImage;
 
-using RSBingoBot.DTO;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Drawing.Processing;
 
 internal class GridImageBuilder<TPixel> where TPixel : unmanaged, IPixel<TPixel>
 {

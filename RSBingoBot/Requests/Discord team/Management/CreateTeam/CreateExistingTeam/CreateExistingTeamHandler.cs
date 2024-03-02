@@ -7,9 +7,9 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using FluentResults;
+using Imaging.Board;
 using RSBingo_Framework.Models;
 using RSBingoBot.Discord;
-using RSBingoBot.Imaging;
 
 internal class CreateExistingTeamHandler : RequestHandler<CreateExistingTeamRequest, DiscordTeam>
 {

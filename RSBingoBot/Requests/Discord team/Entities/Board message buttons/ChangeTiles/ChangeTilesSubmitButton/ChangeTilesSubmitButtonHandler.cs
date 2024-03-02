@@ -6,10 +6,10 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using Imaging.Board;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
-using RSBingoBot.Imaging;
 
 // TODO: JR - add validation for difficulty based on the board index.
 internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitButtonRequest>

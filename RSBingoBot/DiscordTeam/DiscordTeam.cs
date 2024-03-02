@@ -6,8 +6,8 @@ namespace RSBingoBot.Discord;
 
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
+using Imaging.Board;
 using RSBingo_Framework.Models;
-using RSBingoBot.Imaging;
 
 public class DiscordTeam
 {

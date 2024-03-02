@@ -2,14 +2,12 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Leaderboard;
+namespace Imaging.Leaderboard;
 
 using DSharpPlus.Entities;
+using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
-using RSBingo_Framework.Scoring;
-using RSBingoBot.BingoCommands;
 using SixLabors.ImageSharp;
 using static LeaderboardImage;
 

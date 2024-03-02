@@ -2,15 +2,15 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Imaging;
+namespace Imaging.Board;
 
 using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using static Imaging.Board.BoardPreferences;
 using static RSBingo_Common.General;
 using static RSBingo_Common.Paths;
-using static RSBingoBot.Imaging.BoardPreferences;
 
 public static class BoardUpdater
 {
@@ -18,7 +18,7 @@ public static class BoardUpdater
 
     static BoardUpdater()
     {
-        boardImages = (BoardImages)General.DI.GetService(typeof(BoardImages))!;
+        boardImages = (BoardImages)DI.GetService(typeof(BoardImages))!;
     }
 
     internal static Image CreateEmptyBoard() =>

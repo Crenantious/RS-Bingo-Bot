@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Leaderboard;
+namespace Imaging.Leaderboard;
 
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;

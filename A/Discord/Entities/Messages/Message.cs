@@ -4,10 +4,10 @@
 
 namespace DiscordLibrary.DiscordEntities;
 
-using DiscordLibrary.DataStructures;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Exceptions;
 using DSharpPlus.Entities;
+using RSBingo_Common.DataStructures;
 
 public class Message : IMessage
 {

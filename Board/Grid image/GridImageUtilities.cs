@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Imaging;
+namespace Imaging.GridImage;
 
-using DiscordLibrary.DataStructures;
-using RSBingoBot.DTO;
+using RSBingo_Common.DataStructures;
 using SixLabors.Fonts;
 
 internal static class GridImageUtilities

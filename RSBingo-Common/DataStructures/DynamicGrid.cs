@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace DiscordLibrary.DataStructures;
+namespace RSBingo_Common.DataStructures;
 
 public class DynamicGrid<T>
 {
