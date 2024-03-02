@@ -15,7 +15,7 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
-using RSBingoBot.Leaderboard;
+using Imaging.Leaderboard;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 

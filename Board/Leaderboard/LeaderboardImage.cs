@@ -2,20 +2,19 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Leaderboard;
+namespace Imaging.Leaderboard;
 
-using DiscordLibrary.DataStructures;
+using Imaging.GridImage;
+using RSBingo_Common.DataStructures;
 using RSBingo_Framework.Interfaces;
-using RSBingoBot.DTO;
-using RSBingoBot.Imaging;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using static Imaging.Leaderboard.LeaderboadPreferences;
+using static Imaging.Leaderboard.LeaderboardImageUtilities;
 using static RSBingo_Framework.DAL.DataFactory;
-using static RSBingoBot.Leaderboard.LeaderboadPreferences;
-using static RSBingoBot.Leaderboard.LeaderboardImageUtilities;
 
 public static class LeaderboardImage
 {

@@ -38,7 +38,7 @@ public class BoardImageTests : MockDBBaseTestClass
         CreateTasks();
         Team team = CreateTeam();
 
-        BoardImage.Create(team).Save(imagePath);
+        Board.Create(team).Save(imagePath);
 
         // Opens the image using the system's default program.
         Process.Start("explorer.exe", imagePath);

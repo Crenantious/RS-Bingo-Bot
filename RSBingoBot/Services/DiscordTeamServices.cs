@@ -10,33 +10,34 @@ using FluentResults;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
+using DiscordTeam = RSBingoBot.Discord.DiscordTeam;
 
 public class DiscordTeamServices : RequestService, IDiscordTeamServices
 {
-    public async Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateNewTeam(string name, IDataWorker dataWorker) =>
-        await RunRequest<CreateNewTeamRequest, RSBingoBot.Discord.DiscordTeam>(new CreateNewTeamRequest(name, dataWorker));
+    public async Task<Result<DiscordTeam>> CreateNewTeam(string name, IDataWorker dataWorker) =>
+        await RunRequest<CreateNewTeamRequest, DiscordTeam>(new CreateNewTeamRequest(name, dataWorker));
 
-    public async Task<Result<RSBingoBot.Discord.DiscordTeam>> CreateExistingTeam(Team team) =>
-        await RunRequest<CreateExistingTeamRequest, RSBingoBot.Discord.DiscordTeam>(new CreateExistingTeamRequest(team));
+    public async Task<Result<DiscordTeam>> CreateExistingTeam(Team team) =>
+        await RunRequest<CreateExistingTeamRequest, DiscordTeam>(new CreateExistingTeamRequest(team));
 
-    public async Task<Result> CreateMissingEntities(RSBingoBot.Discord.DiscordTeam discordTeam, IDataWorker dataWorker) =>
+    public async Task<Result> CreateMissingEntities(DiscordTeam discordTeam, IDataWorker dataWorker) =>
         await RunRequest(new CreateMissingDiscordTeamEntitiesRequest(discordTeam, dataWorker));
 
-    public async Task<Result> SetExistingEntities(RSBingoBot.Discord.DiscordTeam discordTeam) =>
+    public async Task<Result> SetExistingEntities(DiscordTeam discordTeam) =>
         await RunRequest(new SetDiscordTeamExistingEntitiesRequest(discordTeam));
 
-    public async Task<Result<DiscordRole>> CreateTeamRole(RSBingoBot.Discord.DiscordTeam discordTeam) =>
+    public async Task<Result<DiscordRole>> CreateTeamRole(DiscordTeam discordTeam) =>
         await RunRequest<CreateTeamRoleRequest, DiscordRole>(new CreateTeamRoleRequest(discordTeam));
 
-    public async Task<Result<Message>> CreateBoardMessage(RSBingoBot.Discord.DiscordTeam discordTeam, Team team) =>
+    public async Task<Result<Message>> CreateBoardMessage(DiscordTeam discordTeam, Team team) =>
         await RunRequest<CreateTeamBoardMessageRequest, Message>(new CreateTeamBoardMessageRequest(discordTeam, team));
 
-    public async Task<Result> AddBoardToMessage(Team team, Message message) =>
-        await RunRequest(new AddTeamBoardToMessageRequest(team, message));
+    public async Task<Result> AddBoardToMessage(DiscordTeam discordTeam, Message message) =>
+        await RunRequest(new AddTeamBoardToMessageRequest(discordTeam, message));
 
-    public async Task<Result> AddUserToTeam(DiscordUser user, RSBingoBot.Discord.DiscordTeam discordTeam, IDataWorker dataWorker) =>
+    public async Task<Result> AddUserToTeam(DiscordUser user, DiscordTeam discordTeam, IDataWorker dataWorker) =>
         await RunRequest(new AddUserToTeamRequest(user, discordTeam, dataWorker));
 
-    public async Task<Result> Delete(RSBingoBot.Discord.DiscordTeam discordTeam) =>
+    public async Task<Result> Delete(DiscordTeam discordTeam) =>
         await RunRequest(new DeleteTeamRequest(discordTeam));
 }

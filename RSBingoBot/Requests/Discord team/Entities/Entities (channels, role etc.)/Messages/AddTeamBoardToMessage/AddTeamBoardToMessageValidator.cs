@@ -10,6 +10,6 @@ internal class AddTeamBoardToMessageValidator : BingoValidator<AddTeamBoardToMes
 {
     public AddTeamBoardToMessageValidator()
     {
-        TeamExists(r => r.Team.RowId);
+
     }
 }

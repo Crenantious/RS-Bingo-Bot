@@ -2,8 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.DTO;
+namespace Imaging.GridImage;
 
 using SixLabors.ImageSharp;
 
-public record ImageBorderInfo(Color Colour, int Thickness);
+internal record ImageBorderInfo(Color Colour, int Thickness);

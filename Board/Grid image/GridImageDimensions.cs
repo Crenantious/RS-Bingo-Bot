@@ -2,6 +2,6 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.DTO;
+namespace Imaging.GridImage;
 
 public record GridImageDimensions(IEnumerable<int> ColumnWidths, IEnumerable<int> RowHeights);

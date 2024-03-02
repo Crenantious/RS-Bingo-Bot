@@ -4,9 +4,9 @@
 
 namespace DiscordLibrary.DiscordEntities;
 
-using DiscordLibrary.DataStructures;
 using DiscordLibrary.DiscordComponents;
 using DSharpPlus.Entities;
+using RSBingo_Common.DataStructures;
 
 // TODO: JR - change a lot of references of Message to IMessage and ensure IMessage has all of Message's methods.
 public interface IMessage

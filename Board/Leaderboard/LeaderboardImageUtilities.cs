@@ -2,13 +2,13 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Leaderboard;
+namespace Imaging.Leaderboard;
 
-using DiscordLibrary.DataStructures;
+using RSBingo_Common.DataStructures;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 
-public class LeaderboardImageUtilities
+internal class LeaderboardImageUtilities
 {
     /// <summary>
     /// Gets all the text values to be drawn onto the leaderboard.

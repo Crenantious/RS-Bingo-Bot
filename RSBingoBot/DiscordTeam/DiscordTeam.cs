@@ -6,6 +6,7 @@ namespace RSBingoBot.Discord;
 
 using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
+using Imaging.Board;
 using RSBingo_Framework.Models;
 
 public class DiscordTeam
@@ -34,10 +35,15 @@ public class DiscordTeam
     public DiscordChannel? VoiceChannel { get; private set; }
     public Message? BoardMessage { get; private set; }
 
+    public Board Board { get; }
+
     public DiscordTeam(Team team)
     {
         Name = team.Name;
         Id = team.RowId;
+
+        var boardFactory = (BoardFactory)General.DI.GetService(typeof(BoardFactory))!;
+        Board = boardFactory.Create();
     }
 
     public void SetName(string name, Team team)

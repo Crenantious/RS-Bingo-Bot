@@ -6,10 +6,10 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
+using Imaging.Board;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
-using RSBingoBot.Imaging;
 
 // TODO: JR - add validation for difficulty based on the board index.
 internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitButtonRequest>
@@ -17,6 +17,7 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
     protected override async Task Process(ChangeTilesSubmitButtonRequest request, CancellationToken cancellationToken)
     {
         var messageServices = GetRequestService<IDiscordMessageServices>();
+        var discordTeam = RSBingoBot.Discord.DiscordTeam.ExistingTeams[request.Team.Name];
 
         Tile? tile1 = request.Team.Tiles.FirstOrDefault(t => t.BoardIndex == request.DTO.ChangeFromTileBoardIndex);
         Tile? tile2 = request.Team.Tiles.FirstOrDefault(t => t.Task.RowId == request.DTO.ChangeToTask!.RowId);
@@ -24,14 +25,10 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         var updatedTiles = UpdateDB(request, tile1, tile2);
         request.DataWorker.SaveChanges();
 
-        request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
-        request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
+        UpdateSelectComponents(request, updatedTiles);
+        UpdateBoardImage(request, updatedTiles, discordTeam);
 
-        Image board = BoardImage.UpdateTiles(request.Team, updatedTiles);
-        var path = BoardImage.SaveBoard(board, request.Team.Name);
-        request.BoardMessageFile.SetContent(path);
-
-        await messageServices.Update(DiscordTeam.ExistingTeams[request.Team.Name].BoardMessage!);
+        await messageServices.Update(discordTeam.BoardMessage!);
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);
     }
 
@@ -72,5 +69,17 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         updatedTiles.Add((tile2.Task, tile2.BoardIndex));
         AddSuccess(new ChangeTilesSubmitButtonSwappedTilesSuccess(tile1, tile2));
         return updatedTiles;
+    }
+
+    private static void UpdateSelectComponents(ChangeTilesSubmitButtonRequest request, List<(BingoTask?, int)> updatedTiles)
+    {
+        request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
+        request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
+    }
+
+    private static void UpdateBoardImage(ChangeTilesSubmitButtonRequest request, List<(BingoTask?, int)> updatedTiles, DiscordTeam discordTeam)
+    {
+        discordTeam.Board.UpdateTiles(updatedTiles);
+        request.BoardMessageFile.SetContent(discordTeam.Board.Image, discordTeam.Board.FileExtension);
     }
 }

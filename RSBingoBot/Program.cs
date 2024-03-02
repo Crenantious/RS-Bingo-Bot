@@ -15,6 +15,7 @@ using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentValidation;
+using Imaging.Board;
 //using FluentValidation.DependencyInjectionExtensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +27,6 @@ using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
-using RSBingoBot.Imaging;
 using RSBingoBot.Requests;
 using RSBingoBot.Requests.Validation;
 using RSBingoBot.Web;
@@ -53,7 +53,6 @@ public class Program
             Paths.Initialise();
 
             DataFactory.SetupDataFactory();
-            BoardImage.Initialise();
             CompetitionStart.Setup();
             WhitelistChecker.Initialise(DataFactory.WhitelistedDomains);
 
@@ -157,6 +156,9 @@ public class Program
 
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
+
+                services.AddSingleton<BoardFactory>();
+                services.AddSingleton<BoardImages>();
 
                 services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
 
