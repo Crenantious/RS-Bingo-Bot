@@ -73,7 +73,7 @@ public static class DataFactory
 
     public static ulong HostRole => hostRoleId;
 
-    public static DiscordChannel TeamSignUpChannel => teamSignUpChannel;
+    public static DiscordChannel TeamRegistrationChannel => teamSignUpChannel;
     public static DiscordChannel PendingReviewEvidenceChannel => pendingEvidenceChannel;
     public static DiscordChannel VerifiedEvidenceChannel => verifiedEvidenceChannel;
     public static DiscordChannel RejectedEvidenceChannel => rejectedEvidenceChannel;

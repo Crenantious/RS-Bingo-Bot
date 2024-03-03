@@ -6,13 +6,11 @@ namespace RSBingoBot.Commands;
 
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
-using DiscordLibrary.Requests;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using RSBingo_Framework.DAL;
 using RSBingoBot.BingoCommands.Attributes;
-using RSBingoBot.Discord;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -39,11 +37,11 @@ internal class CommandController : ApplicationCommandModule
 
     #region Channel initialisation
 
-    [SlashCommand("InitializeTeamSignUpChannel", "Posts a message in the current channel with buttons to create and join a team.")]
+    [SlashCommand("PostTeamRegistrationMessage", "Posts a message in the current channel with buttons to create and join a team.")]
     [RequireRole("Host")]
-    public async Task InitializeTeamSignUpChannel(InteractionContext ctx)
+    public async Task PostTeamRegistrationMessage(InteractionContext ctx)
     {
-        await RequestRunner.Run(new PostTeamSignUpChannelMessageRequest(DataFactory.TeamSignUpChannel), null);
+        await DiscordInteractionServices.RunCommand(new PostTeamRegistrationMessageRequest(DataFactory.TeamRegistrationChannel), ctx);
     }
 
     [SlashCommand("DeleteTeam", "Deletes a team.")]
