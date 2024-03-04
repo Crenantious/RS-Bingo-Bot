@@ -25,16 +25,16 @@ public static class DiscordInteractionServices
     }
 
     public static void RegisterInteractionHandler<T, K>(Func<K> getRequest,
-        T component, ComponentInteractionDEH.Constraints constraints)
+        T component, Func<ComponentInteractionCreateEventArgs, bool> constraints)
         where T : IComponent, IInteractable
         where K : IComponentInteractionRequest<T>
     {
-        componentInteractionDEH.Subscribe(constraints, (client, args) => OnComponentInteraction(getRequest(), component, args));
+        componentInteractionDEH.Subscribe(constraints, args => OnComponentInteraction(getRequest(), component, args));
     }
 
-    public static void RegisterModal(IModalRequest request, ModalSubmittedDEH.Constraints constraints)
+    public static void RegisterModal(IModalRequest request, Func<ModalSubmitEventArgs, bool> constraints)
     {
-        modalDEH.Subscribe(constraints, (client, args) => OnModalSubmitted(request, args));
+        modalDEH.Subscribe(constraints, args => OnModalSubmitted(request, args));
     }
 
     public static async Task RunCommand(ICommandRequest request, InteractionContext context)

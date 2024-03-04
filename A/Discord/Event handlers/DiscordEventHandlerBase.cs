@@ -6,78 +6,101 @@ namespace DiscordLibrary.DiscordEventHandlers;
 
 using DSharpPlus;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Logging;
 using RSBingo_Common;
-using RSBingo_Framework.Exceptions;
-using static RSBingo_Common.General;
 
 /// <summary>
 /// Handles which subscribers to call when the appropriate Discord event is fired, based off given constraints.
 /// </summary>
 /// <typeparam name="TEventArgs">The args given when the Discord event is fired.</typeparam>
-/// <typeparam name="TConstraints">The derived class's constraints, inherited from <see cref="ConstraintsBase"/>.</typeparam>
-public abstract class DiscordEventHandlerBase<TEventArgs, TConstraints>
+public abstract class DiscordEventHandlerBase<TEventArgs>
     where TEventArgs : DiscordEventArgs
 {
-    protected static DiscordClient DiscordClient = (DiscordClient)General.DI.GetService(typeof(DiscordClient));
+    private static int id = 0;
 
-    private readonly List<ConstraintActions<object, TEventArgs>> constraintActions = new();
+    private readonly List<DiscordEventHandlerSubscription<TEventArgs>> subscriptions = new();
+    private readonly Dictionary<int, DiscordEventHandlerSubscription<TEventArgs>> idToSubscription = new();
 
-    /// <summary>
-    /// Gets each property of the <paramref name="constraints"/> in order.
-    /// </summary>
-    /// <param name="constraints">The constraints to be parsed.</param>
-    /// <returns>The list of properties in order.</returns>
-    public abstract List<object> GetConstraintValues(TConstraints constraints);
+    private bool isEventOccuring = false;
+    private List<DiscordEventHandlerSubscription<TEventArgs>> queuedToSubscribe = new();
+    private List<int> queuedToUnSubscribe = new();
 
-    /// <summary>
-    /// Gets each constraint value of the <paramref name="args"/> in the order that
-    /// corresponds the <see cref="GetConstraintValues"/> method.
-    /// </summary>
-    /// <param name="args">The args to parse.</param>
-    /// <returns>The list of values in order.</returns>
-    public abstract List<object> GetArgValues(TEventArgs args);
+    protected static DiscordClient Client { get; } = (DiscordClient)General.DI.GetService(typeof(DiscordClient))!;
+
+    #region Subscribe
 
     /// <summary>
-    /// Subscribe to the event. When it is fired and the <paramref name="constraints"/> are satisfied,
+    /// Subscribe to the event. When it is fired and <paramref name="constraints"/> are satisfied,
     /// <paramref name="callback"/> is called.
     /// </summary>
-    /// <param name="constraints">The constraints to be satisfied.</param>
-    /// <param name="callback">The action to call.</param>
-    public void Subscribe(TConstraints constraints, Func<DiscordClient, TEventArgs, Task> callback)
+    /// <returns>The id used to unsubscribe.</returns>
+    public int Subscribe(Func<TEventArgs, bool> constraints, Func<TEventArgs, Task> callback)
     {
-        if (constraintActions.Count == 0)
+        DiscordEventHandlerSubscription<TEventArgs> subscription = new(id++, constraints, callback);
+        if (isEventOccuring)
         {
-            for (int i = 0; i < GetConstraintValues(constraints).Count; i++)
-            {
-                constraintActions.Add(new ConstraintActions<object, TEventArgs>());
-            }
+            QueueSubscription(subscription);
+        }
+        else
+        {
+            Subscribe(subscription, false);
+        }
+        return subscription.Id;
+    }
+
+    private void QueueSubscription(DiscordEventHandlerSubscription<TEventArgs> subscription)
+    {
+        queuedToSubscribe.Add(subscription);
+    }
+
+    private void Subscribe(DiscordEventHandlerSubscription<TEventArgs> subscription, bool isQueued)
+    {
+        if (isQueued)
+        {
+            queuedToSubscribe.Remove(subscription);
         }
 
-        var values = GetConstraintValues(constraints);
+        subscriptions.Add(subscription);
+        idToSubscription.Add(subscription.Id, subscription);
+    }
 
-        for (int i = 0; i < values.Count; i++)
+    #endregion
+
+    #region Unsubscribe
+
+    public void Unsubscribe(int id)
+    {
+        if (idToSubscription.ContainsKey(id) is false)
         {
-            constraintActions[i].Add(values[i], callback);
+            throw new InvalidEventSubscriptionIdException(id);
+        }
+
+        if (isEventOccuring)
+        {
+            QueueToUnsubscribe(id);
+        }
+        else
+        {
+            Unsubscribe(id, false);
         }
     }
 
-    /// <summary>
-    /// Unsubscribe from the event so the <paramref name="callback"/> is not longer called when the event is fired.
-    /// </summary>
-    /// <param name="constraints">The constraints the <paramref name="callback"/> was registered with.</param>
-    /// <param name="callback">The action to stop being called.</param>
-    public void UnSubscribe(TConstraints constraints, Func<DiscordClient, TEventArgs, Task> callback)
+    private void QueueToUnsubscribe(int id)
     {
-        if (constraintActions.Count == 0) { return; }
-
-        var values = GetConstraintValues(constraints);
-
-        for (int i = 0; i < values.Count; i++)
-        {
-            constraintActions[i].Remove(values[i], callback);
-        }
+        queuedToUnSubscribe.Add(id);
     }
+
+    private void Unsubscribe(int id, bool isQueued)
+    {
+        if (isQueued)
+        {
+            queuedToUnSubscribe.Remove(id);
+        }
+
+        subscriptions.Remove(idToSubscription[id]);
+        idToSubscription.Remove(id);
+    }
+
+    #endregion
 
     /// <summary>
     /// Called when the Discord event is fired.
@@ -87,41 +110,31 @@ public abstract class DiscordEventHandlerBase<TEventArgs, TConstraints>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task OnEvent(DiscordClient client, TEventArgs args)
     {
-        if (constraintActions.Count == 0) { return; }
+        isEventOccuring = true;
 
-        List<object>? argValues = GetArgValues(args);
-        List<Func<DiscordClient, TEventArgs, Task>> intersectingActions = new(constraintActions[0].GetActions(argValues[0]));
-
-        for (int i = 1; i < argValues.Count; i++)
+        foreach (var subscription in subscriptions)
         {
-            intersectingActions = intersectingActions.Intersect(constraintActions[i].GetActions(argValues[i])).ToList();
+            await subscription.OnEvent(args);
         }
 
-        foreach (var action in intersectingActions)
+        isEventOccuring = false;
+        SubscribeQueued();
+        UnsubscribeQueued();
+    }
+
+    private void UnsubscribeQueued()
+    {
+        foreach (int id in queuedToUnSubscribe)
         {
-            try
-            {
-                await action(client, args);
-            }
-            catch (InformAdminException e)
-            {
-                // TODO: Inform admin
-                LogException(e);
-            }
-            catch (RSBingoException e)
-            {
-                LogException(e);
-            }
-            catch (Exception e)
-            {
-                LogException(e);
-            }
+            Unsubscribe(id, true);
         }
     }
 
-    private static void LogException(Exception e)
+    private void SubscribeQueued()
     {
-        ILogger<ComponentInteractionDEH> logger = LoggingInstance<ComponentInteractionDEH>();
-        LoggingLog(e, e.Message);
+        foreach (var subscription in queuedToSubscribe)
+        {
+            Subscribe(subscription, true);
+        }
     }
 }

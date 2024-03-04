@@ -4,25 +4,13 @@
 
 namespace DiscordLibrary.DiscordEventHandlers;
 
-using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
-/// <summary>
-/// Handles which subscribers to call when the <see cref="DiscordClient.ModalSubmitted"/> event is fired, based off given constraints.
-/// </summary>
-public class ModalSubmittedDEH : DiscordEventHandlerBase<ModalSubmitEventArgs, ModalSubmittedDEH.Constraints>
+public class ModalSubmittedDEH : DiscordEventHandlerBase<ModalSubmitEventArgs>
 {
     public record Constraints(DiscordUser? user = null, string? customId = null);
 
     public ModalSubmittedDEH() =>
-        DiscordClient.ModalSubmitted += OnEvent;
-
-    /// <inheritdoc/>
-    public override List<object> GetConstraintValues(Constraints constriants) =>
-        new() { constriants.user, constriants.customId };
-
-    /// <inheritdoc/>
-    public override List<object> GetArgValues(ModalSubmitEventArgs args) =>
-        new() { args.Interaction.User, args.Interaction.Data.CustomId };
+        Client.ModalSubmitted += OnEvent;
 }

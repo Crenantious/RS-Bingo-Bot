@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
@@ -64,11 +63,19 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
         UpdateResponse(response, tileSelect, submit, close);
-        messageServices.RegisterMessageCreatedHandler(
-              () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
-              new(Interaction.Channel, Interaction.User, 1));
+        RegisterMessageCreated(messageServices, evidenceFile, dto);
 
         await interactionMessageServices.Send(response);
+    }
+
+    private void RegisterMessageCreated(IDiscordMessageServices messageServices, MessageFile evidenceFile, SubmitEvidenceButtonDTO dto)
+    {
+        messageServices.RegisterMessageCreatedHandler(
+              () => new SubmitEvidenceMessageRequest(dto, Interaction.User,
+                    evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
+              args => args.Channel == Interaction.Channel &&
+                      args.Author == Interaction.User &&
+                      args.Message.Attachments.Count() == 1);
     }
 
     private void UpdateResponse(InteractionMessage response, SubmitEvidenceTileSelect tileSelect, Button submit, Button close)
