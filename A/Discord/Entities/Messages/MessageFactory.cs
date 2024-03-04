@@ -13,7 +13,7 @@ public class MessageFactory
     public Message Create(DiscordChannel channel) =>
         new(channel);
 
-    public Message Create(DiscordMessage discordMessage, IWebServices webServices)
+    public async Task<Message> Create(DiscordMessage discordMessage, IWebServices webServices)
     {
         Message message = new(discordMessage.Channel);
 
@@ -21,6 +21,7 @@ public class MessageFactory
 
         AddConent(discordMessage, message);
         AddComponents(discordMessage, message);
+        await AddFiles(discordMessage, message, webServices);
 
         return message;
     }
@@ -65,7 +66,7 @@ public class MessageFactory
     // TODO: JR - confirm this works for all attachments.
     private (string name, string extension) GetAttachmentPathInfo(DiscordAttachment attachment)
     {
-        string suffix = attachment.Url.Split("/")[^-1];
+        string suffix = attachment.Url.Split("/")[^1];
         string fileNameAndExtension = suffix.Substring(0, suffix.LastIndexOf("?"));
         string name = fileNameAndExtension.Substring(0, suffix.LastIndexOf("."));
         string extension = fileNameAndExtension.Substring(suffix.LastIndexOf("."));

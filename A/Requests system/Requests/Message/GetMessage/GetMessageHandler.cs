@@ -25,7 +25,7 @@ internal class GetMessageHandler : DiscordHandler<GetMessageRequest, Message>
         var webServices = GetRequestService<IWebServices>();
 
         DiscordMessage discordMessage = await request.Channel.GetMessageAsync(request.Id);
-        Message message = messageFactory.Create(discordMessage, webServices);
+        Message message = await messageFactory.Create(discordMessage, webServices);
 
         AddSuccess(new GetMessageSuccess(message));
         return message;

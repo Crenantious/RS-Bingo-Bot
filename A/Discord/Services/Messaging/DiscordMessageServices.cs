@@ -61,9 +61,11 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
         var webServices = General.DI.GetService<IWebServices>();
         webServices.Initialise(null);
 
+        Message message = await messageFactory.Create(args.Message, webServices);
+
         Result result = await RunRequest(getRequest(),
             (null, args),
-            (null, messageFactory.Create(args.Message, webServices)));
+            (null, message));
     }
 
     private async Task OnMessageReacted(Func<IMessageReactedRequest> getRequest, MessageReactionAddEventArgs args)

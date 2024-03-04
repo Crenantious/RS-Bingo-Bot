@@ -61,7 +61,7 @@ internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVeri
     {
         var webServices = GetRequestService<IWebServices>();
 
-        Message newMessage = messageFactory.Create(message.DiscordMessage, webServices);
+        Message newMessage = await messageFactory.Create(message.DiscordMessage, webServices);
         newMessage.Channel = DataFactory.VerifiedEvidenceChannel;
         var result = await messageServices.Send(newMessage);
 
