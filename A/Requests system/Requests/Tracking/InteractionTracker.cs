@@ -14,8 +14,6 @@ public class InteractionTracker<TRequest> : IInteractionTracker
     public TRequest Request { get; }
     public DiscordInteraction Interaction { get; }
 
-    public event Func<object, EventArgs, Task> OnConclude;
-
     public InteractionTracker(TRequest request, DiscordInteraction interaction)
     {
         Id = IInteractionTracker.CurrentId++;
@@ -25,14 +23,7 @@ public class InteractionTracker<TRequest> : IInteractionTracker
 
     public async Task ConcludeInteraction()
     {
-        var interactionTrackers = (InteractionsTracker)General.DI.GetService(typeof(InteractionsTracker))!;
+        var interactionTrackers = General.DI.GetService<InteractionsTracker>();
         interactionTrackers.TryRemove(this);
-
-        if (OnConclude is null)
-        {
-            return;
-        }
-
-        await OnConclude.Invoke(this, null);
     }
 }

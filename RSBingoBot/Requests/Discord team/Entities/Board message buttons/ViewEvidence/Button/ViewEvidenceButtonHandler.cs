@@ -7,6 +7,7 @@ namespace RSBingoBot.RequestHandlers;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordExtensions;
+using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
@@ -41,20 +42,15 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         User user = discordUser.GetDBUser(dataWorker)!;
 
         var selectComponent = CreateSelectComponent(user);
-        var closeButton = buttonFactory.Create(buttonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(InteractionTracker));
+        var closeButton = buttonFactory.CreateConcludeInteraction(() => new ConcludeInteractionButtonRequest(InteractionTracker));
 
-        ResponseMessages.Add(
-            interactionMessageFactory.Create(Interaction)
+        var response = interactionMessageFactory.Create(Interaction)
                 .WithContent(ResponseContent.FormatConst(discordUser.Mention))
                 .AddComponents(selectComponent)
-                .AddComponents(closeButton));
+                .AddComponents(closeButton);
 
-        InteractionTracker.OnConclude += OnConclude;
-    }
-
-    public async Task OnConclude(object? sender, EventArgs args)
-    {
-        DeleteResponses();
+        var messageServices = GetRequestService<IDiscordInteractionMessagingServices>();
+        await messageServices.Send(response);
     }
 
     private SelectComponent CreateSelectComponent(User user) =>

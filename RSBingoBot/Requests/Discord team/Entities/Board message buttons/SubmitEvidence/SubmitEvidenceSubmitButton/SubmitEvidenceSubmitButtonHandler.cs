@@ -56,7 +56,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
         if (tile.IsCompleteAsBool())
         {
             // It's possible the tile was marked as complete after the select component was created.
-            AddErrorResponse(new SubmitEvidenceSubmitButtonTileAlreadyCompleteError(tile));
+            AddError(new SubmitEvidenceSubmitButtonTileAlreadyCompleteError(tile));
             return;
         }
 
@@ -64,7 +64,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
 
         if (pendingReviewMessage.IsFailed)
         {
-            AddErrorResponse(new SubmitEvidenceSubmitButtonEvidenceSubmissionError(tile));
+            AddError(new SubmitEvidenceSubmitButtonEvidenceSubmissionError(tile));
             return;
         }
 
@@ -86,7 +86,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
         evidence.Status = EvidenceRecord.EvidenceStatusLookup.Get(EvidenceRecord.EvidenceStatus.PendingReview);
         evidence.DiscordMessageId = pendingReviewMessage.Value.DiscordMessage.Id;
 
-        AddSuccessResponse(new SubmitEvidenceSubmitButtonSuccess(tile));
+        AddSuccess(new SubmitEvidenceSubmitButtonSuccess(tile));
     }
 
     private async Task<Result<Message>> SendPendingReviewMessage(SubmitEvidenceSubmitButtonRequest request, Tile tile)

@@ -145,23 +145,23 @@ public class Program
                 services.AddSingleton<RequestSemaphores>();
 
                 services.AddSingleton<ComponentInteractionDEH>();
-                services.AddSingleton<MessageReactedDEH>();
-                services.AddSingleton<MessageCreatedDEH>();
                 services.AddSingleton<ModalSubmittedDEH>();
+                services.AddSingleton<MessageCreatedDEH>();
+                services.AddSingleton<MessageReactedDEH>();
 
-                services.AddSingleton<ButtonFactory>();
-                services.AddSingleton<SelectComponentFactory>();
-                services.AddSingleton<TextInputFactory>();
-                services.AddSingleton<ComponentFactory>();
                 services.AddSingleton<MessageFactory>();
                 services.AddSingleton<InteractionMessageFactory>();
+                services.AddSingleton<ComponentFactory>();
+                services.AddSingleton<ButtonFactory>();
+                services.AddSingleton<SelectComponentFactory>();
                 services.AddSingleton<ModalFactory>();
+                services.AddSingleton<TextInputFactory>();
 
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 
-                services.AddSingleton<BoardFactory>();
                 services.AddSingleton<BoardImages>();
+                services.AddSingleton<BoardFactory>();
 
                 services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
 
