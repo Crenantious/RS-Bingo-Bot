@@ -6,6 +6,7 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
+using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordExtensions;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
@@ -22,6 +23,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
     private const string ResponsePrefix =
        "{0} Add evidence by posting a message with a single image, posting another will override the previous. " +
        "{1}Submitting the evidence will override any previous.";
+    private const string NoTilesToSubmitFor = "There are no unverified tiles you can submit evidence for.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
@@ -52,25 +54,38 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         MessageFile evidenceFile = new("Evidence");
 
         var response = new InteractionMessage(Interaction)
-             .WithContent(GetResponsePrefix(Interaction.User))
-             .AddFile(evidenceFile)
-             .AsEphemeral(true);
+             .AddFile(evidenceFile);
 
         SubmitEvidenceButtonDTO dto = new(response);
 
         SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType, evidenceVerificationEmojis);
         Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
             () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
-        Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
+        Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
 
-        response.AddComponents(tileSelect.SelectComponent);
-        response.AddComponents(submit, cancel);
-
+        UpdateResponse(response, tileSelect, submit, close);
         messageServices.RegisterMessageCreatedHandler(
-            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
-            new(Interaction.Channel, Interaction.User, 1));
+              () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
+              new(Interaction.Channel, Interaction.User, 1));
 
         await interactionMessageServices.Send(response);
+    }
+
+    private void UpdateResponse(InteractionMessage response, SubmitEvidenceTileSelect tileSelect, Button submit, Button close)
+    {
+        if (tileSelect.SelectComponent.Options.Any())
+        {
+            response.WithContent(GetResponsePrefix(Interaction.User))
+                .AddComponents(tileSelect.SelectComponent)
+                .AddComponents(submit, close);
+        }
+        else
+        {
+            response.WithContent(NoTilesToSubmitFor)
+                .AddComponents(close)
+                // TODO: JR - this doesn't work, probably because of the keep-alive message.
+                .AsEphemeral(true);
+        }
     }
 
     private string GetResponsePrefix(DiscordUser user) =>

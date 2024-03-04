@@ -26,6 +26,5 @@ internal class SubmitEvidenceButtonValidator : BingoValidator<SubmitEvidenceButt
 
         TeamExists(r => r.DiscordTeam.Id);
         UserOnTeam(r => (r.GetDiscordInteraction().User, r.DiscordTeam.Id), true);
-        TeamHasTiles(r => r.DiscordTeam.Id);
     }
 }
