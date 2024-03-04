@@ -61,7 +61,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
 
     #region Unsubscribe
 
-    public void PrivateUnsubscribe(int id)
+    public void Unsubscribe(int id)
     {
         if (idToSubscription.ContainsKey(id) is false)
         {
@@ -74,7 +74,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         }
         else
         {
-            Unsubscribe(id);
+            PrivateUnsubscribe(id);
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         queuedToUnSubscribe.Add(id);
     }
 
-    private void Unsubscribe(int id)
+    private void PrivateUnsubscribe(int id)
     {
         subscriptions.Remove(idToSubscription[id]);
         idToSubscription.Remove(id);
