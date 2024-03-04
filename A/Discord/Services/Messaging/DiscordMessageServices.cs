@@ -31,7 +31,7 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
     public async Task<Result<Message>> Get(ulong id, DiscordChannel channel) =>
         await RunRequest<GetMessageRequest, Message>(new GetMessageRequest(id, channel));
 
-    public async Task<Result> Update(IMessage message) =>
+    public async Task<Result> Update(Message message) =>
         await RunRequest(new UpdateMessageRequest(message));
 
     public async Task<Result> Delete(Message message) =>

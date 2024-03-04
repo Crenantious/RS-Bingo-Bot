@@ -17,9 +17,4 @@ public class Modal : InteractionMessage, IInteractable
         Title = title;
         CustomId = string.IsNullOrEmpty(customId) ? Guid.NewGuid().ToString() : customId;
     }
-
-    internal override DiscordInteractionResponseBuilder GetInteractionResponseBuilder() =>
-        base.GetInteractionResponseBuilder()
-            .WithTitle(Title)
-            .WithCustomId(CustomId);
 }

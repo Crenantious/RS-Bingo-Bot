@@ -19,6 +19,5 @@ public interface IMessage
     public string Content { get; set; }
     public DynamicGrid<IComponent> Components { get; set; }
 
-    public DiscordMessageBuilder GetMessageBuilder();
     public void OnMessageSent(DiscordMessage discordMessage);
 }

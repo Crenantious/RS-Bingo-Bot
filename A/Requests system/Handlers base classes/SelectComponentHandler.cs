@@ -7,7 +7,6 @@ namespace DiscordLibrary.Requests;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests.Extensions;
-using RSBingo_Common;
 
 public abstract class SelectComponentHandler<TRequest> : ComponentInteractionHandler<TRequest, SelectComponent>
     where TRequest : ISelectComponentRequest

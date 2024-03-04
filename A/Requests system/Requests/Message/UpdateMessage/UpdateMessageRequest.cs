@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 
-public record UpdateMessageRequest(IMessage Message) : IDiscordRequest;
+public record UpdateMessageRequest(Message Message) : IDiscordRequest;

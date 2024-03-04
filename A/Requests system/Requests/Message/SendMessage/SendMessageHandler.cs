@@ -4,6 +4,7 @@
 
 namespace DiscordLibrary.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 
 internal class SendMessageHandler : DiscordHandler<SendMessageRequest>
