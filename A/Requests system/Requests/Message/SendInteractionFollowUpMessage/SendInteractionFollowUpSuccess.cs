@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 
 internal class SendInteractionFollowUpSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Sent an interaction follow up message";
+    private const string SuccessMessage = "sent an interaction follow up message";
 
     public SendInteractionFollowUpSuccess(InteractionMessage message) :
         base(SuccessMessage, message.DiscordMessage, message.Interaction)

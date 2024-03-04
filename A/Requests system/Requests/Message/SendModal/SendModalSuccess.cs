@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 
 internal class SendModalSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Sent a modal";
+    private const string SuccessMessage = "sent a modal";
 
     public SendModalSuccess(Modal modal) :
         base(SuccessMessage, modal.DiscordMessage)

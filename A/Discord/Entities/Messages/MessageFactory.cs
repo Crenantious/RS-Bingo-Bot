@@ -16,18 +16,15 @@ public class MessageFactory
 
         message.DiscordMessage = discordMessage;
 
-        AddConent(message);
+        AddConent(discordMessage, message);
         AddComponents(discordMessage, message);
 
         return message;
     }
 
-    private static void AddConent(Message message)
+    private static void AddConent(DiscordMessage discordMessage, Message message)
     {
-        if (message.Content is not null)
-        {
-            message.WithContent(message.Content);
-        }
+        message.WithContent(discordMessage.Content);
     }
 
     private static void AddComponents(DiscordMessage discordMessage, Message message)

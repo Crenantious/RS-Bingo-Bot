@@ -9,7 +9,7 @@ using DSharpPlus.Entities;
 internal class DeleteMessageSuccess : MessageSuccess
 {
     public DeleteMessageSuccess(DiscordMessage message) :
-        base("Deleted a message.", message)
+        base("deleted a message", message)
     {
 
     }

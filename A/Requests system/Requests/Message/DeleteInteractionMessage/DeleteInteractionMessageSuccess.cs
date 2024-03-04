@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 
 internal class DeleteInteractionMessageSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Deleted an interaction message";
+    private const string SuccessMessage = "deleted an interaction message";
 
     public DeleteInteractionMessageSuccess(InteractionMessage message) : base(SuccessMessage, message.DiscordMessage, message.Interaction)
     {

@@ -9,7 +9,7 @@ using DiscordLibrary.DiscordEntities;
 internal class GetMessageSuccess : MessageSuccess
 {
     public GetMessageSuccess(Message message) :
-        base("Retrieved a message", message.DiscordMessage)
+        base("retrieved a message", message.DiscordMessage)
     {
 
     }
