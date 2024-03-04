@@ -21,13 +21,15 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
 
     private readonly SelectComponentFactory selectComponentFactory;
     private readonly ButtonFactory buttonFactory;
+    private readonly InteractionMessageFactory interactionMessageFactory;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
 
     public ViewEvidenceButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory,
-        IEvidenceVerificationEmojis evidenceVerificationEmojis)
+        InteractionMessageFactory interactionMessageFactory, IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.selectComponentFactory = selectComponentFactory;
         this.buttonFactory = buttonFactory;
+        this.interactionMessageFactory = interactionMessageFactory;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
     }
 
@@ -42,7 +44,7 @@ internal class ViewEvidenceButtonHandler : ButtonHandler<ViewEvidenceButtonReque
         var closeButton = buttonFactory.Create(buttonFactory.CloseButton, () => new ConcludeInteractionButtonRequest(InteractionTracker));
 
         ResponseMessages.Add(
-            new InteractionMessage(Interaction)
+            interactionMessageFactory.Create(Interaction)
                 .WithContent(ResponseContent.FormatConst(discordUser.Mention))
                 .AddComponents(selectComponent)
                 .AddComponents(closeButton));

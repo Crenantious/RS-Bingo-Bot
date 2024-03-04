@@ -12,7 +12,7 @@ public class InteractionMessage : Message
     public DiscordInteraction Interaction { get; }
     public bool IsKeepAliveResponse { get; internal set; } = false;
 
-    public InteractionMessage(DiscordInteraction interaction) : base(interaction.Channel)
+    internal InteractionMessage(DiscordInteraction interaction) : base(interaction.Channel)
     {
         Interaction = interaction;
     }

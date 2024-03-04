@@ -25,17 +25,20 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
+    private readonly InteractionMessageFactory interactionMessageFactory;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
+
     private User user = null!;
     private EvidenceRecord.EvidenceType evidenceType;
     private IDataWorker dataWorker = null!;
 
     protected override bool SendKeepAliveMessageIsEphemeral => false;
     public SubmitEvidenceButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory,
-        IEvidenceVerificationEmojis evidenceVerificationEmojis)
+        InteractionMessageFactory interactionMessageFactory, IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
+        this.interactionMessageFactory = interactionMessageFactory;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
     }
 
@@ -51,7 +54,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
         MessageFile evidenceFile = new("Evidence");
 
-        var response = new InteractionMessage(Interaction)
+        var response = interactionMessageFactory.Create(Interaction)
              .WithContent(GetResponsePrefix(Interaction.User))
              .AddFile(evidenceFile)
              .AsEphemeral(true);
@@ -67,7 +70,9 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         response.AddComponents(submit, cancel);
 
         messageServices.RegisterMessageCreatedHandler(
-            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
+            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile,
+                interactionMessageFactory.Create(Interaction)
+                    .AsEphemeral(true)),
             new(Interaction.Channel, Interaction.User, 1));
 
         await interactionMessageServices.Send(response);

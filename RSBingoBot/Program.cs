@@ -154,7 +154,9 @@ public class Program
                 services.AddSingleton<TextInputFactory>();
                 services.AddSingleton<ComponentFactory>();
                 services.AddSingleton<MessageFactory>();
-                
+                services.AddSingleton<InteractionMessageFactory>();
+                services.AddSingleton<ModalFactory>();
+
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 

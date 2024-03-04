@@ -12,7 +12,6 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using RSBingo_Framework.DAL;
 using RSBingoBot.BingoCommands.Attributes;
-using RSBingoBot.Discord;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -24,17 +23,19 @@ internal class CommandController : ApplicationCommandModule
     private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
 
     private readonly DiscordClient discordClient;
+    private readonly InteractionMessageFactory interactionMessageFactory;
 
-    public CommandController(DiscordClient discordClient)
+    public CommandController(DiscordClient discordClient, InteractionMessageFactory interactionMessageFactory)
     {
         this.discordClient = discordClient;
+        this.interactionMessageFactory = interactionMessageFactory;
     }
 
     public void RegisterSlashCommands(DiscordClient discordClient)
     {
         SlashCommandsExtension slashCommands = discordClient.UseSlashCommands(new() { Services = General.DI });
         slashCommands.RegisterCommands<CommandController>(Guild.Id);
-        slashCommands.SlashCommandErrored += SlashCommandErrored;
+        slashCommands.SlashCommandErrored += (e, a) => SlashCommandErrored(interactionMessageFactory, e, a);
     }
 
     #region Channel initialisation
@@ -146,21 +147,23 @@ internal class CommandController : ApplicationCommandModule
 
     #region Errors and execution checks
 
-    private static async Task SlashCommandErrored(SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
+    private static async Task SlashCommandErrored(InteractionMessageFactory interactionMessageFactory,
+        SlashCommandsExtension sce, SlashCommandErrorEventArgs args)
     {
         if (args.Exception is not SlashExecutionChecksFailedException executionCheckException) { return; }
 
         IEnumerable<string> errorMessages = GetExecutionCheckErrors(executionCheckException);
-        await RespondWithExecutionCheckErrors(args, errorMessages);
+        await RespondWithExecutionCheckErrors(interactionMessageFactory, args, errorMessages);
     }
 
     private static IEnumerable<string> GetExecutionCheckErrors(SlashExecutionChecksFailedException executionCheckException) =>
         executionCheckException.FailedChecks.Where(c => c is BingoBotSlashCheckAttribute)
             .Select(a => ((BingoBotSlashCheckAttribute)a).GetErrorMessage());
 
-    private static async Task RespondWithExecutionCheckErrors(SlashCommandErrorEventArgs args, IEnumerable<string> errorMessages)
+    private static async Task RespondWithExecutionCheckErrors(InteractionMessageFactory interactionMessageFactory,
+        SlashCommandErrorEventArgs args, IEnumerable<string> errorMessages)
     {
-        InteractionMessage message = new(args.Context.Interaction);
+        InteractionMessage message = interactionMessageFactory.Create(args.Context.Interaction);
 
         if (errorMessages.Any())
         {
