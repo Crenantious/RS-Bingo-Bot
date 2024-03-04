@@ -56,27 +56,35 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
              .AddFile(evidenceFile);
 
         SubmitEvidenceButtonDTO dto = new(response);
+        var subscriptionId = RegisterForMessageCreatedEvent(messageServices, evidenceFile, dto);
 
         SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType, evidenceVerificationEmojis);
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
-        Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
+        Button submit = CreateSubmitButton(request, dto, tileSelect);
+        Button close = CreateCloseButton(response, subscriptionId);
 
         UpdateResponse(response, tileSelect, submit, close);
-        RegisterMessageCreated(messageServices, evidenceFile, dto);
 
         await interactionMessageServices.Send(response);
     }
 
-    private void RegisterMessageCreated(IDiscordMessageServices messageServices, MessageFile evidenceFile, SubmitEvidenceButtonDTO dto)
-    {
+    private int RegisterForMessageCreatedEvent(IDiscordMessageServices messageServices, MessageFile evidenceFile, SubmitEvidenceButtonDTO dto) =>
         messageServices.RegisterMessageCreatedHandler(
-              () => new SubmitEvidenceMessageRequest(dto, Interaction.User,
-                    evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
-              args => args.Channel == Interaction.Channel &&
-                      args.Author == Interaction.User &&
-                      args.Message.Attachments.Count() == 1);
-    }
+            () => new SubmitEvidenceMessageRequest(dto, Interaction.User,
+                  evidenceFile, new InteractionMessage(Interaction).AsEphemeral(true)),
+            args => args.Channel == Interaction.Channel &&
+                    args.Author == Interaction.User &&
+                    args.Message.Attachments.Count() == 1);
+
+    private void UnregisterMessageCreated(IDiscordMessageServices messageServices, int id) =>
+        messageServices.UnregisterMessageCreatedHandler(id);
+
+    private Button CreateSubmitButton(SubmitEvidenceButtonRequest request, SubmitEvidenceButtonDTO dto, SubmitEvidenceTileSelect tileSelect) =>
+        buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
+            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
+
+    private Button CreateCloseButton(InteractionMessage response, int subscriptionId) =>
+        buttonFactory.CreateConcludeInteraction(() =>
+            new SubmitEvidenceCloseButtonRequest(InteractionTracker, new List<Message>() { response }, Interaction.User, subscriptionId));
 
     private void UpdateResponse(InteractionMessage response, SubmitEvidenceTileSelect tileSelect, Button submit, Button close)
     {
