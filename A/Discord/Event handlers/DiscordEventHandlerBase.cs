@@ -11,7 +11,6 @@ using RSBingo_Common;
 /// <summary>
 /// Handles which subscribers to call when the appropriate Discord event is fired, based off given constraints.
 /// </summary>
-/// <typeparam name="TEventArgs">The args given when the Discord event is fired.</typeparam>
 public abstract class DiscordEventHandlerBase<TEventArgs>
     where TEventArgs : DiscordEventArgs
 {
@@ -42,7 +41,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         }
         else
         {
-            Subscribe(subscription, false);
+            Subscribe(subscription);
         }
         return subscription.Id;
     }
@@ -52,13 +51,8 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         queuedToSubscribe.Add(subscription);
     }
 
-    private void Subscribe(DiscordEventHandlerSubscription<TEventArgs> subscription, bool isQueued)
+    private void Subscribe(DiscordEventHandlerSubscription<TEventArgs> subscription)
     {
-        if (isQueued)
-        {
-            queuedToSubscribe.Remove(subscription);
-        }
-
         subscriptions.Add(subscription);
         idToSubscription.Add(subscription.Id, subscription);
     }
@@ -67,7 +61,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
 
     #region Unsubscribe
 
-    public void Unsubscribe(int id)
+    public void PrivateUnsubscribe(int id)
     {
         if (idToSubscription.ContainsKey(id) is false)
         {
@@ -80,7 +74,7 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         }
         else
         {
-            Unsubscribe(id, false);
+            Unsubscribe(id);
         }
     }
 
@@ -89,13 +83,8 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         queuedToUnSubscribe.Add(id);
     }
 
-    private void Unsubscribe(int id, bool isQueued)
+    private void Unsubscribe(int id)
     {
-        if (isQueued)
-        {
-            queuedToUnSubscribe.Remove(id);
-        }
-
         subscriptions.Remove(idToSubscription[id]);
         idToSubscription.Remove(id);
     }
@@ -126,15 +115,19 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
     {
         foreach (int id in queuedToUnSubscribe)
         {
-            Unsubscribe(id, true);
+            PrivateUnsubscribe(id);
         }
+
+        queuedToUnSubscribe.Clear();
     }
 
     private void SubscribeQueued()
     {
         foreach (var subscription in queuedToSubscribe)
         {
-            Subscribe(subscription, true);
+            Subscribe(subscription);
         }
+
+        queuedToSubscribe.Clear();
     }
 }
