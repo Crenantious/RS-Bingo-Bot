@@ -94,8 +94,10 @@ internal class Bot : BackgroundService
     private void RegisterEvidenceReactionRequests()
     {
         messageServices.RegisterMessageReactedHandler(() =>
-            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), new(DataFactory.PendingReviewEvidenceChannel));
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), 
+            args => args.Channel == DataFactory.PendingReviewEvidenceChannel);
         messageServices.RegisterMessageReactedHandler(() =>
-            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), new(DataFactory.RejectedEvidenceChannel));
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), 
+            args => args.Channel == DataFactory.RejectedEvidenceChannel);
     }
 }

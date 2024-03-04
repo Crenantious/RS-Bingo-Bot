@@ -7,6 +7,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["RSBingoBot/RSBingoBot.csproj", "RSBingoBot/"]
+COPY ["A/DiscordLibrary.csproj", "A/"]
+COPY ["Board/Imaging.csproj", "Board/"]
 COPY ["RSBingo-Common/RSBingo-Common.csproj", "RSBingo-Common/"]
 COPY ["RSBingo-Framework/RSBingo-Framework.csproj", "RSBingo-Framework/"]
 ADD  Resources /app/Resources

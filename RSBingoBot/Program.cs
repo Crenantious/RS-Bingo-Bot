@@ -233,7 +233,7 @@ public class Program
             .AddRequest<DownloadFileRequest>(services)
 
             // Commands
-            .AddRequest<PostTeamSignUpChannelMessageRequest>(services)
+            .AddRequest<PostTeamRegistrationMessageRequest>(services)
             .AddRequest<DeleteTeamCommandRequest>(services)
 
             // Team management requests

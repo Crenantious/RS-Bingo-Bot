@@ -18,10 +18,6 @@ public static class InteractionMessageExtensions
     }
 
     // TODO: JR - remove.
-    public static async Task<Result> Send(this InteractionMessage message) =>
-        await GetMessageService().Send(message);
-
-    // TODO: JR - remove.
     public static async Task<Result> Delete(this InteractionMessage message) =>
         await GetMessageService().Delete(message);
 
