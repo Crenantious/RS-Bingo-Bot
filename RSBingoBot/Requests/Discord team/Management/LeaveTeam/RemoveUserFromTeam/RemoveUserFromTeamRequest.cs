@@ -7,5 +7,8 @@ namespace RSBingoBot.Requests;
 using DSharpPlus.Entities;
 using FluentResults;
 using MediatR;
+using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 
-public record RemoveUserFromTeamRequest(DiscordUser User, RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result>;
+public record RemoveUserFromTeamRequest(IDataWorker DataWorker, DiscordMember Member,
+    User User, RSBingoBot.Discord.DiscordTeam DiscordTeam) : IRequest<Result>;

@@ -21,5 +21,6 @@ public interface IDiscordTeamServices : IRequestService
     public Task<Result<Message>> CreateBoardMessage(DiscordTeam discordTeam, Team team);
     public Task<Result> AddBoardToMessage(DiscordTeam discordTeam, Message message);
     public Task<Result> AddUserToTeam(DiscordUser discordUser, DiscordTeam discordTeam, IDataWorker dataWorker);
+    public Task<Result> RemoveUserFromTeam(IDataWorker dataWorker, DiscordMember member, User user, DiscordTeam discordTeam);
     public Task<Result> Delete(DiscordTeam discordTeam);
 }

@@ -38,6 +38,9 @@ public class DiscordTeamServices : RequestService, IDiscordTeamServices
     public async Task<Result> AddUserToTeam(DiscordUser user, DiscordTeam discordTeam, IDataWorker dataWorker) =>
         await RunRequest(new AddUserToTeamRequest(user, discordTeam, dataWorker));
 
+    public async Task<Result> RemoveUserFromTeam(IDataWorker dataWorker, DiscordMember member, User user, DiscordTeam discordTeam) =>
+        await RunRequest(new RemoveUserFromTeamRequest(dataWorker, member, user, discordTeam));
+
     public async Task<Result> Delete(DiscordTeam discordTeam) =>
         await RunRequest(new DeleteTeamRequest(discordTeam));
 }

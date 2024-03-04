@@ -6,48 +6,32 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
-using DSharpPlus.Entities;
 using FluentResults;
-using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 
 internal class RemoveUserFromTeamHandler : RequestHandler<RemoveUserFromTeamRequest>
 {
-    private readonly IDatabaseServices databaseServices;
-    private readonly IDiscordServices discordServices;
-
-    public RemoveUserFromTeamHandler(IDatabaseServices databaseServices, IDiscordServices discordServices)
-    {
-        this.databaseServices = databaseServices;
-        this.discordServices = discordServices;
-    }
+    private IDatabaseServices databaseServices = null!;
+    private IDiscordServices discordServices = null!;
 
     protected override async Task Process(RemoveUserFromTeamRequest request, CancellationToken cancellationToken)
     {
+        databaseServices = GetRequestService<IDatabaseServices>();
+        discordServices = GetRequestService<IDiscordServices>();
+
         await RemoveFromDatabase(request);
         await RevokeRole(request);
     }
 
     private async Task RemoveFromDatabase(RemoveUserFromTeamRequest request)
     {
-        IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        User user = dataWorker.Users.FirstOrDefault(u => u.DiscordUserId == request.User.Id)!;
-        dataWorker.Users.Remove(user);
-        await databaseServices.SaveChanges(dataWorker);
-        AddSuccess(new RemoveUserFromTeamRemovedSuccess(request.User, request.DiscordTeam.Name));
+        request.DataWorker.Users.Remove(request.User);
+        await databaseServices.SaveChanges(request.DataWorker);
+        AddSuccess(new RemoveUserFromTeamRemovedSuccess(request.Member, request.DiscordTeam.Name));
     }
 
     private async Task RevokeRole(RemoveUserFromTeamRequest request)
     {
-        Result<DiscordMember> member = await discordServices.GetMember(request.User.Id);
-        if (member.IsFailed)
-        {
-            AddError(new RemoveUserFromTeamError());
-            return;
-        }
-
-        Result revokeRole = await discordServices.RevokeRole(member.Value, request.DiscordTeam.Role!);
+        Result revokeRole = await discordServices.RevokeRole(request.Member, request.DiscordTeam.Role!);
         if (revokeRole.IsFailed)
         {
             AddError(new RemoveUserFromTeamError());

@@ -7,15 +7,13 @@ namespace RSBingoBot.Commands;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using RSBingoBot.BingoCommands.Attributes;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
-/// <summary>
-/// Controller class for Discord bot commands.
-/// </summary>
 internal class CommandController : ApplicationCommandModule
 {
     private const string UnknownExecutionCheckErrorMessage = "An unknown error occurred while resolving this command. Please try again shorty.";
@@ -43,6 +41,14 @@ internal class CommandController : ApplicationCommandModule
     public async Task PostTeamRegistrationMessage(InteractionContext ctx)
     {
         await DiscordInteractionServices.RunCommand(new PostTeamRegistrationMessageRequest(ctx.Channel), ctx);
+    }
+
+    [SlashCommand("RemoveUserFromTeam", "Remove a user from their team.")]
+    [RequireRole("Host")]
+    public async Task RemoveUserFromTeam(InteractionContext ctx, [Option("user", "user")] DiscordUser member)
+    {
+        // The cast is valid since this the command is run from a guild.
+        await DiscordInteractionServices.RunCommand(new RemoveUserFromTeamCommandRequest((DiscordMember)member), ctx);
     }
 
     [SlashCommand("DeleteTeam", "Deletes a team.")]

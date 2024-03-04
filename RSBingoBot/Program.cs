@@ -237,6 +237,7 @@ public class Program
 
             // Commands
             .AddRequest<PostTeamRegistrationMessageRequest>(services)
+            .AddRequest<RemoveUserFromTeamCommandRequest>(services)
             .AddRequest<DeleteTeamCommandRequest>(services)
 
             // Team management requests

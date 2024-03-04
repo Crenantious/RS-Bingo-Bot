@@ -20,7 +20,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     // TODO: JR - decide how to word this.
     protected const string UserIsAlreadyOnATeamResponse = "The user '{0}' is already on a team.";
     protected const string UserIsAlreadyOnATeamUserPerspectiveResponse = "You are already on a team.";
-    protected const string UserIsNotOnATeamResponse = "The user '{0}' is not on a team.";
+    protected const string UserIsNotOnATeamResponse = "That user is not on a team.";
     protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
     protected const string NoTilesError = "The team has no tiles to submit evidence for.";
 
@@ -76,11 +76,14 @@ public class BingoValidator<TRequest> : Validator<TRequest>
             .SetValidator(new NewTeamNameValidator<TRequest>(DataWorker));
     }
 
-    public void UserOnATeam(Func<TRequest, DiscordUser> func)
+    /// <summary>
+    /// Checks the user from their Discord id.
+    /// </summary>
+    public void UserOnATeam(Func<TRequest, ulong> func)
     {
         RuleFor(r => func(r))
-            .Must(u => u.IsOnATeam(DataWorker))
-            .WithMessage(r => UserIsNotOnATeamResponse.FormatConst(func(r).Username));
+            .Must(id => DataWorker.Users.Where(u => u.DiscordUserId == id).Any())
+            .WithMessage(r => UserIsNotOnATeamResponse);
     }
 
     public void UserNotOnATeam(Func<TRequest, DiscordUser> func, bool userPerspective)
