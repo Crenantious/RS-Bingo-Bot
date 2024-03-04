@@ -9,4 +9,4 @@ using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
 internal record SubmitEvidenceCloseButtonRequest(IInteractionTracker Tracker, IEnumerable<Message> MessagesToDelete,
-    DiscordUser User, int MessageCreatedDEHSubscriptionId) : ConcludeInteractionButtonRequest(Tracker, MessagesToDelete, User);
+    DiscordUser User, int? MessageCreatedDEHSubscriptionId) : ConcludeInteractionButtonRequest(Tracker, MessagesToDelete, User);

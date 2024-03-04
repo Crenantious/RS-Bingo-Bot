@@ -13,7 +13,10 @@ internal class SubmitEvidenceCloseButtonHandler : ConcludeInteractionButtonHandl
     {
         await base.Process(request, cancellationToken);
 
-        var messageServices = GetRequestService<IDiscordMessageServices>();
-        messageServices.UnregisterMessageCreatedHandler(request.MessageCreatedDEHSubscriptionId);
+        if (request.MessageCreatedDEHSubscriptionId is not null)
+        {
+            var messageServices = GetRequestService<IDiscordMessageServices>();
+            messageServices.UnregisterMessageCreatedHandler((int)request.MessageCreatedDEHSubscriptionId);
+        }
     }
 }

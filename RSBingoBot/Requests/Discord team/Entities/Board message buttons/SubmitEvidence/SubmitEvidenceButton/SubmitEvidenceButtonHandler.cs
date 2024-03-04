@@ -59,9 +59,11 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
              .AddFile(evidenceFile);
 
         SubmitEvidenceButtonDTO dto = new(response);
-        var subscriptionId = RegisterForMessageCreatedEvent(messageServices, evidenceFile, dto);
 
         SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType, evidenceVerificationEmojis);
+
+        var subscriptionId = RegisterForMessageCreatedEvent(messageServices, tileSelect, evidenceFile, dto);
+
         Button submit = CreateSubmitButton(request, dto, tileSelect);
         Button close = CreateCloseButton(response, subscriptionId);
 
@@ -70,13 +72,21 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         await interactionMessageServices.Send(response);
     }
 
-    private int RegisterForMessageCreatedEvent(IDiscordMessageServices messageServices, MessageFile evidenceFile, SubmitEvidenceButtonDTO dto) =>
-        messageServices.RegisterMessageCreatedHandler(
+    private int? RegisterForMessageCreatedEvent(IDiscordMessageServices messageServices, SubmitEvidenceTileSelect tileSelect,
+        MessageFile evidenceFile, SubmitEvidenceButtonDTO dto)
+    {
+        if (tileSelect.SelectComponent.Options.Any() is false)
+        {
+            return null;
+        }
+
+        return messageServices.RegisterMessageCreatedHandler(
             () => new SubmitEvidenceMessageRequest(dto, Interaction.User,
                   evidenceFile, interactionMessageFactory.Create(Interaction).AsEphemeral(true)),
             args => args.Channel == Interaction.Channel &&
                     args.Author == Interaction.User &&
                     args.Message.Attachments.Count() == 1);
+    }
 
     private void UnregisterMessageCreated(IDiscordMessageServices messageServices, int id) =>
         messageServices.UnregisterMessageCreatedHandler(id);
@@ -85,7 +95,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
             () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
 
-    private Button CreateCloseButton(InteractionMessage response, int subscriptionId) =>
+    private Button CreateCloseButton(InteractionMessage response, int? subscriptionId) =>
         buttonFactory.CreateConcludeInteraction(() =>
             new SubmitEvidenceCloseButtonRequest(InteractionTracker, new List<Message>() { response }, Interaction.User, subscriptionId));
 
