@@ -11,8 +11,8 @@ internal class JoinTeamSelectValidator : BingoValidator<JoinTeamSelectRequest>
 {
     public JoinTeamSelectValidator()
     {
-        UserInteraction(r => r.User);
-        UserNotNull(r => r.User);
+        UserInteraction(r => r.GetDiscordInteraction().User);
+        UserNotNull(r => r.GetDiscordInteraction().User);
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(JoinTeamSelectRequest request, RequestSemaphores semaphores) =>

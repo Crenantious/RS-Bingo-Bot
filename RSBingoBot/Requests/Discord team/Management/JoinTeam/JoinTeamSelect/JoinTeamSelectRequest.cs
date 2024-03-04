@@ -7,4 +7,4 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 
-public record JoinTeamSelectRequest(DiscordUser User) : ISelectComponentRequest;
+public record JoinTeamSelectRequest() : ISelectComponentRequest;
