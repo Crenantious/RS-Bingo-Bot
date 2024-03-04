@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordComponents;
 using DSharpPlus.Entities;
 using RSBingo_Common.DataStructures;
 
-public class Message : IMessage
+public class Message
 {
     internal List<MessageFile> FilesInternal { get; set; } = new();
 
@@ -28,12 +28,6 @@ public class Message : IMessage
     internal Message(DiscordChannel channel)
     {
         Channel = channel;
-    }
-
-    public void OnMessageSent(DiscordMessage discordMessage)
-    {
-        DiscordMessage = discordMessage;
-        FilesInternal.ForEach(f => f.Close());
     }
 
     public static Message operator +(Message prefix, Message suffix)
