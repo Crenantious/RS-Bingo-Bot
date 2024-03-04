@@ -6,21 +6,21 @@ namespace DiscordLibrary.Requests;
 
 using DiscordLibrary.DiscordServices;
 
-internal class ConcludeInteractionButtonHandler : ButtonHandler<ConcludeInteractionButtonRequest>
+public class ConcludeInteractionButtonHandler<TRequest> : ButtonHandler<TRequest>
+    where TRequest : ConcludeInteractionButtonRequest
 {
     protected override bool SendKeepAliveMessage => false;
 
-    protected override async Task Process(ConcludeInteractionButtonRequest request, CancellationToken cancellationToken)
+    protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         var messageServices = GetRequestService<IDiscordMessageServices>();
 
         await TryDeleteMessages(request, messageServices);
         await request.Tracker.ConcludeInteraction();
-
         AddSuccess(new ConcludeInteractionButtonSuccess(request.Tracker));
     }
 
-    private static async Task TryDeleteMessages(ConcludeInteractionButtonRequest request, IDiscordMessageServices messageServices)
+    private static async Task TryDeleteMessages(TRequest request, IDiscordMessageServices messageServices)
     {
         if (request.MessagesToDelete is not null)
         {
@@ -30,4 +30,9 @@ internal class ConcludeInteractionButtonHandler : ButtonHandler<ConcludeInteract
             }
         }
     }
+}
+
+public class ConcludeInteractionButtonHandler : ConcludeInteractionButtonHandler<ConcludeInteractionButtonRequest>
+{
+
 }

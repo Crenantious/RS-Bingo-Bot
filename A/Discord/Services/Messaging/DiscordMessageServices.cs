@@ -40,14 +40,17 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
     public async Task<Result> Delete(DiscordMessage message) =>
         await RunRequest(new DeleteMessageRequest(message));
 
-    public void RegisterMessageCreatedHandler(Func<IMessageCreatedRequest> getRequest, MessageCreatedDEH.Constraints constraints)
+    public int RegisterMessageCreatedHandler(Func<IMessageCreatedRequest> getRequest, Func<MessageCreateEventArgs, bool> constraints)
     {
-        messageCreatedDEH.Subscribe(constraints, (client, args) => OnMessageCreated(getRequest, args));
+        return messageCreatedDEH.Subscribe(constraints, args => OnMessageCreated(getRequest, args));
     }
-
-    public void RegisterMessageReactedHandler(Func<IMessageReactedRequest> getRequest, MessageReactedDEH.Constraints constraints)
+    public void UnregisterMessageCreatedHandler(int id)
     {
-        messageReactedDEH.Subscribe(constraints, (client, args) => OnMessageReacted(getRequest, args));
+        messageCreatedDEH.Unsubscribe(id);
+    }
+    public void RegisterMessageReactedHandler(Func<IMessageReactedRequest> getRequest, Func<MessageReactionAddEventArgs, bool> constraints)
+    {
+        messageReactedDEH.Subscribe(constraints, args => OnMessageReacted(getRequest, args));
     }
 
     private async Task OnMessageCreated(Func<IMessageCreatedRequest> getRequest, MessageCreateEventArgs args)

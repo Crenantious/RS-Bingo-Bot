@@ -33,7 +33,9 @@ internal class SubmitEvidenceMessageHandler : MessageCreatedHandler<SubmitEviden
     {
         var webServices = GetRequestService<IWebServices>();
 
-        string path = Paths.GetUserTempEvidencePath(request.User.Id, extension);
+        // Temporary until the message system is reworked since using the Paths user evidence causes errors.
+        string path = Path.GetTempFileName();
+        path = Path.ChangeExtension(path, extension);
         await webServices.DownloadFile(request.DTO.EvidenceUrl!, path);
 
         return path;

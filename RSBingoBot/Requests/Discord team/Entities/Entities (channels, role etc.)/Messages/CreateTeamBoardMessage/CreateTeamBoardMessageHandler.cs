@@ -37,7 +37,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
         var message = messageFactory.Create(request.DiscordTeam.BoardChannel!)
             .WithContent(DropCodePrefix.FormatConst(dropCode))
-            .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence);
+            .AddComponents(buttons.changeTile, buttons.submitEvidence);
 
         await teamServices.AddBoardToMessage(request.DiscordTeam, message);
 

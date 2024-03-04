@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using RSBingoBot.Discord;
 
-internal class DeleteTeamCommandHandler : RequestHandler<DeleteTeamCommandRequest>
+internal class DeleteTeamCommandHandler : CommandHandler<DeleteTeamCommandRequest>
 {
     protected override async Task Process(DeleteTeamCommandRequest request, CancellationToken cancellationToken)
     {

@@ -6,7 +6,6 @@ namespace DiscordLibrary.Interactions;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 
@@ -16,15 +15,11 @@ internal static class InteractableExtensions
         where T : IComponent, IInteractable
         where K : IComponentInteractionRequest<T>
     {
-        // TODO: JR - remove the need for constraints.
-        ComponentInteractionDEH.Constraints constraints = new(new(), interactable.CustomId);
-        DiscordInteractionServices.RegisterInteractionHandler(getRequest, component, constraints);
+        DiscordInteractionServices.RegisterInteractionHandler(getRequest, component, args => args.Id == interactable.CustomId);
     }
 
     public static void Register(this Modal modal, IModalRequest request)
     {
-        // TODO: JR - remove the need for constraints.
-        ModalSubmittedDEH.Constraints constraints = new(null, modal.CustomId);
-        DiscordInteractionServices.RegisterModal(request, constraints);
+        DiscordInteractionServices.RegisterModal(request, args => args.Interaction.Data.CustomId == modal.CustomId);
     }
 }

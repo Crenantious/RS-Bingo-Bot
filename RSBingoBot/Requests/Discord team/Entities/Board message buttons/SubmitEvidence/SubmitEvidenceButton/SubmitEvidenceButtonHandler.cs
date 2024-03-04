@@ -22,6 +22,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
     private const string ResponsePrefix =
        "{0} Add evidence by posting a message with a single image, posting another will override the previous. " +
        "{1}Submitting the evidence will override any previous.";
+    private const string NoTilesToSubmitFor = "There are no unverified tiles you can submit evidence for.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
@@ -55,27 +56,54 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
         MessageFile evidenceFile = new("Evidence");
 
         var response = interactionMessageFactory.Create(Interaction)
-             .WithContent(GetResponsePrefix(Interaction.User))
-             .AddFile(evidenceFile)
-             .AsEphemeral(true);
+             .AddFile(evidenceFile);
 
         SubmitEvidenceButtonDTO dto = new(response);
+        var subscriptionId = RegisterForMessageCreatedEvent(messageServices, evidenceFile, dto);
 
         SubmitEvidenceTileSelect tileSelect = new(dataWorker, dto, user, request.EvidenceType, evidenceVerificationEmojis);
-        Button submit = buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
-        Button cancel = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }, Interaction.User));
+        Button submit = CreateSubmitButton(request, dto, tileSelect);
+        Button close = CreateCloseButton(response, subscriptionId);
 
-        response.AddComponents(tileSelect.SelectComponent);
-        response.AddComponents(submit, cancel);
-
-        messageServices.RegisterMessageCreatedHandler(
-            () => new SubmitEvidenceMessageRequest(dto, Interaction.User, evidenceFile,
-                interactionMessageFactory.Create(Interaction)
-                    .AsEphemeral(true)),
-            new(Interaction.Channel, Interaction.User, 1));
+        UpdateResponse(response, tileSelect, submit, close);
 
         await interactionMessageServices.Send(response);
+    }
+
+    private int RegisterForMessageCreatedEvent(IDiscordMessageServices messageServices, MessageFile evidenceFile, SubmitEvidenceButtonDTO dto) =>
+        messageServices.RegisterMessageCreatedHandler(
+            () => new SubmitEvidenceMessageRequest(dto, Interaction.User,
+                  evidenceFile, interactionMessageFactory.Create(Interaction).AsEphemeral(true)),
+            args => args.Channel == Interaction.Channel &&
+                    args.Author == Interaction.User &&
+                    args.Message.Attachments.Count() == 1);
+
+    private void UnregisterMessageCreated(IDiscordMessageServices messageServices, int id) =>
+        messageServices.UnregisterMessageCreatedHandler(id);
+
+    private Button CreateSubmitButton(SubmitEvidenceButtonRequest request, SubmitEvidenceButtonDTO dto, SubmitEvidenceTileSelect tileSelect) =>
+        buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
+            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
+
+    private Button CreateCloseButton(InteractionMessage response, int subscriptionId) =>
+        buttonFactory.CreateConcludeInteraction(() =>
+            new SubmitEvidenceCloseButtonRequest(InteractionTracker, new List<Message>() { response }, Interaction.User, subscriptionId));
+
+    private void UpdateResponse(InteractionMessage response, SubmitEvidenceTileSelect tileSelect, Button submit, Button close)
+    {
+        if (tileSelect.SelectComponent.Options.Any())
+        {
+            response.WithContent(GetResponsePrefix(Interaction.User))
+                .AddComponents(tileSelect.SelectComponent)
+                .AddComponents(submit, close);
+        }
+        else
+        {
+            response.WithContent(NoTilesToSubmitFor)
+                .AddComponents(close)
+                // TODO: JR - this doesn't work, probably because of the keep-alive message.
+                .AsEphemeral(true);
+        }
     }
 
     private string GetResponsePrefix(DiscordUser user) =>
