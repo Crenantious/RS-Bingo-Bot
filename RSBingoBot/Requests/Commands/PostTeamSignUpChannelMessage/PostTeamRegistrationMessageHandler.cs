@@ -14,7 +14,7 @@ internal class PostTeamRegistrationMessageHandler : CommandHandler<PostTeamRegis
     private readonly SingletonButtons singletonButtons;
     private readonly MessageFactory messageFactory;
 
-    public PostTeamSignUpChannelMessageHandler(SingletonButtons singletonButtons, MessageFactory messageFactory)
+    public PostTeamRegistrationMessageHandler(SingletonButtons singletonButtons, MessageFactory messageFactory)
     {
         this.singletonButtons = singletonButtons;
         this.messageFactory = messageFactory;
