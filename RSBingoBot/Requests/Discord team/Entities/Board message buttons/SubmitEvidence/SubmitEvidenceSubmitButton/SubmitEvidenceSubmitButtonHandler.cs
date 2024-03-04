@@ -17,7 +17,14 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
 {
     private const string PendingReviewMessagePrefix = "{0} Has submitted {1} evidence for {2}.";
 
+    private readonly MessageFactory messageFactory;
+
     private IDiscordMessageServices messageServices = null!;
+
+    public SubmitEvidenceSubmitButtonHandler(MessageFactory messageFactory)
+    {
+        this.messageFactory = messageFactory;
+    }
 
     protected override async Task Process(SubmitEvidenceSubmitButtonRequest request, CancellationToken cancellationToken)
     {
@@ -85,7 +92,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
     private async Task<Result<Message>> SendPendingReviewMessage(SubmitEvidenceSubmitButtonRequest request, Tile tile)
     {
         var file = request.DTO.Message.Files.ElementAt(0);
-        var pendingReviewMessage = new Message(DataFactory.PendingReviewEvidenceChannel)
+        var pendingReviewMessage = messageFactory.Create(DataFactory.PendingReviewEvidenceChannel)
             .WithContent(GetPendingReviewMessageContent(request, tile))
             .AddFile(file);
 

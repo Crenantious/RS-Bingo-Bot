@@ -17,11 +17,13 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
     private const string DropCodeNotSet = "not set";
 
     private readonly ButtonFactory buttonFactory;
+    private readonly MessageFactory messageFactory;
     private readonly DiscordTeamBoardButtons buttons;
 
-    public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory, DiscordTeamBoardButtons buttons)
+    public CreateTeamBoardMessageHandler(ButtonFactory buttonFactory, MessageFactory messageFactory, DiscordTeamBoardButtons buttons)
     {
         this.buttonFactory = buttonFactory;
+        this.messageFactory = messageFactory;
         this.buttons = buttons;
     }
 
@@ -33,7 +35,7 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
 
-        var message = new Message(request.DiscordTeam.BoardChannel!)
+        var message = messageFactory.Create(request.DiscordTeam.BoardChannel!)
             .WithContent(DropCodePrefix.FormatConst(dropCode))
             .AddComponents(buttons.changeTile, buttons.submitEvidence, buttons.submitDrop, buttons.viewEvidence);
 

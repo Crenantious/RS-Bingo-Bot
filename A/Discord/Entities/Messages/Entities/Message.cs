@@ -14,7 +14,7 @@ public class Message : IMessage
 
     public IReadOnlyList<MessageFile> Files => FilesInternal.AsReadOnly();
 
-    public DiscordMessage DiscordMessage { get; internal set; }
+    public DiscordMessage DiscordMessage { get; internal set; } = null!;
 
     public string Content { get; set; } = string.Empty;
     public DynamicGrid<IComponent> Components { get; set; } = new();
@@ -25,8 +25,7 @@ public class Message : IMessage
     /// </summary>
     public string Tag { get; set; } = string.Empty;
 
-    // TODO: JR - move to the MessageFactory
-    public Message(DiscordChannel channel)
+    internal Message(DiscordChannel channel)
     {
         Channel = channel;
     }

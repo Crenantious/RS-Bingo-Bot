@@ -10,6 +10,9 @@ using FluentResults;
 
 public class MessageFactory
 {
+    public Message Create(DiscordChannel channel) =>
+        new(channel);
+
     public Message Create(DiscordMessage discordMessage, IWebServices webServices)
     {
         Message message = new(discordMessage.Channel);

@@ -13,16 +13,19 @@ internal class PostTeamSignUpChannelMessageHandler : RequestHandler<PostTeamSign
 {
     private readonly SingletonButtons singletonButtons;
     private readonly IDiscordMessageServices messageServices;
+    private readonly MessageFactory messageFactory;
 
-    public PostTeamSignUpChannelMessageHandler(SingletonButtons singletonButtons, IDiscordMessageServices messageServices)
+    public PostTeamSignUpChannelMessageHandler(SingletonButtons singletonButtons, IDiscordMessageServices messageServices,
+        MessageFactory messageFactory)
     {
         this.singletonButtons = singletonButtons;
         this.messageServices = messageServices;
+        this.messageFactory = messageFactory;
     }
 
     protected override async Task Process(PostTeamSignUpChannelMessageRequest request, CancellationToken cancellationToken)
     {
-        Message message = new Message(request.Channel)
+        Message message = messageFactory.Create(request.Channel)
             .WithContent("Create a new team or join an existing one.")
             .AddComponents(singletonButtons.CreateTeam, singletonButtons.JoinTeam);
         await messageServices.Send(message);
