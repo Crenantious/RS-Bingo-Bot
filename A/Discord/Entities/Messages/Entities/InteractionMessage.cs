@@ -12,28 +12,9 @@ public class InteractionMessage : Message
     public DiscordInteraction Interaction { get; }
     public bool IsKeepAliveResponse { get; internal set; } = false;
 
-    public InteractionMessage(DiscordInteraction interaction) : base(interaction.Channel)
+    internal InteractionMessage(DiscordInteraction interaction) : base(interaction.Channel)
     {
         Interaction = interaction;
-    }
-
-    public InteractionMessage(DiscordInteraction interaction, DiscordMessage message) : base(message)
-    {
-        Interaction = interaction;
-    }
-
-    internal virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
-    {
-        var builder = GetBaseMessageBuilder(new DiscordInteractionResponseBuilder());
-        builder.IsEphemeral = IsEphemeral;
-        return builder;
-    }
-
-    internal DiscordFollowupMessageBuilder GetFollowupMessageBuilder()
-    {
-        var builder = GetBaseMessageBuilder(new DiscordFollowupMessageBuilder());
-        builder.IsEphemeral = IsEphemeral;
-        return builder;
     }
 
     public static InteractionMessage operator +(InteractionMessage prefix, InteractionMessage suffix) =>

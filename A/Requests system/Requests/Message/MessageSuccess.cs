@@ -25,18 +25,32 @@ internal class MessageSuccess : Success
 
     }
 
-    private static string GetMessage(string? prefix, DiscordMessage? message, DiscordChannel channel, DiscordInteraction? interaction = null)
+    private static string GetMessage(string? action, DiscordMessage? message, DiscordChannel channel, DiscordInteraction? interaction = null)
     {
-        string messageId = message is null ? "null" : message.Id.ToString();
-        string prefixSuffix = string.IsNullOrWhiteSpace(prefix) ? "" : ". ";
-        StringBuilder sb = new($"{prefix}{prefixSuffix}Message id: {messageId}, Channel name: {channel.Name}, Channel id: {channel.Id}");
+        StringBuilder sb = new();
 
+        AddBasicInfo(action, message, channel, sb);
+        TryAddInteractionInfo(interaction, sb);
+
+        sb.Append(".");
+        return sb.ToString();
+    }
+
+    private static void AddBasicInfo(string? action, DiscordMessage? message, DiscordChannel channel, StringBuilder sb)
+    {
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            action = "null";
+        }
+        string messageId = message is null ? "null" : message.Id.ToString();
+        sb.Append($"Action: {action}. Message id: {messageId}, Channel name: {channel.Name}, Channel id: {channel.Id}");
+    }
+
+    private static void TryAddInteractionInfo(DiscordInteraction? interaction, StringBuilder sb)
+    {
         if (interaction is not null)
         {
             sb.Append($", interaction id: {interaction.Id}, interaction user: {interaction.User}");
         }
-
-        sb.Append(".");
-        return sb.ToString();
     }
 }

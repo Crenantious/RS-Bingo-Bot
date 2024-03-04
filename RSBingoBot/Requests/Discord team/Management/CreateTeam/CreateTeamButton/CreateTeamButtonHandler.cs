@@ -14,19 +14,21 @@ internal class CreateTeamButtonHandler : ButtonHandler<CreateTeamButtonRequest>
 {
     public const string ModalTeamNameKey = "Name";
 
+    private readonly ModalFactory modalFactory;
     private readonly TextInputFactory textInputFactory;
 
     protected override bool SendKeepAliveMessage => false;
 
-    public CreateTeamButtonHandler(TextInputFactory textInputFactory) : base()
+    public CreateTeamButtonHandler(ModalFactory modalFactory, TextInputFactory textInputFactory) : base()
     {
+        this.modalFactory = modalFactory;
         this.textInputFactory = textInputFactory;
     }
 
     protected override async Task Process(CreateTeamButtonRequest request, CancellationToken cancellationToken)
     {
         var modalService = GetRequestService<IDiscordInteractionMessagingServices>();
-        var modal = new Modal("Create team", request.GetDiscordInteraction())
+        var modal = modalFactory.Create("Create team", request.GetDiscordInteraction())
             .AddComponents(textInputFactory.Create(new("Team name", ModalTeamNameKey)));
 
         await modalService.Send(modal, new CreateTeamModalRequest());

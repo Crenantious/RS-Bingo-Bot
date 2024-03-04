@@ -163,4 +163,10 @@ public static class MessageExtensions
             throw new MessageComponentColumnsExceededException(MaxComponentColumns);
         }
     }
+
+    internal static void OnMessageSent(this Message message, DiscordMessage discordMessage)
+    {
+        message.DiscordMessage = discordMessage;
+        message.FilesInternal.ForEach(f => f.Close());
+    }
 }

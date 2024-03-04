@@ -9,7 +9,7 @@ using DiscordLibrary.Requests;
 
 internal class UpdateMessageSuccess : MessageSuccess
 {
-    public UpdateMessageSuccess(IMessage message) :
+    public UpdateMessageSuccess(Message message) :
         base(null, message.DiscordMessage)
     {
 

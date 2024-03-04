@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Web;
+namespace DiscordLibrary.Web;
 
 using System.Collections.Immutable;
 

@@ -95,7 +95,7 @@ public class LoggingBehaviour<TRequest, TResult> : IPipelineBehavior<TRequest, T
     }
 
     private static string GetReasonLogMessage(IReason reason) =>
-        $"\tType: {reason.GetType()}, message: {reason.Message}";
+        $"\tType: {reason.GetType()}, info: {{ {reason.Message} }}";
 
     private void LogBeginHandling(TRequest request)
     {

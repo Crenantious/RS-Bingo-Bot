@@ -2,10 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace DiscordLibrary.Requests;
 
-using DiscordLibrary.Requests;
-using RSBingoBot.Web;
+using DiscordLibrary.Web;
 using System.Net;
 
 internal class DownloadFileHandler : RequestHandler<DownloadFileRequest>

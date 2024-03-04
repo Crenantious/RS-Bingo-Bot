@@ -12,6 +12,7 @@ using DiscordLibrary.DiscordEventHandlers;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
 using DiscordLibrary.Requests;
+using DiscordLibrary.Web;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentValidation;
@@ -29,7 +30,6 @@ using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Requests;
 using RSBingoBot.Requests.Validation;
-using RSBingoBot.Web;
 using Serilog;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 using static RSBingo_Common.General;
@@ -153,6 +153,9 @@ public class Program
                 services.AddSingleton<SelectComponentFactory>();
                 services.AddSingleton<TextInputFactory>();
                 services.AddSingleton<ComponentFactory>();
+                services.AddSingleton<MessageFactory>();
+                services.AddSingleton<InteractionMessageFactory>();
+                services.AddSingleton<ModalFactory>();
 
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();

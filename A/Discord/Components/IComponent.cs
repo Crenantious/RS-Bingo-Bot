@@ -17,7 +17,7 @@ public interface IComponent
     /// <summary>
     /// The Discord message this component is attached to.
     /// </summary>
-    public IMessage? Message { get; set; }
+    public Message? Message { get; set; }
 
     /// <summary>
     /// Used as an identifier for Discord. Set a unique value if the component

@@ -16,6 +16,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
     where TRequest : IInteractionRequest
 {
     private readonly InteractionsTracker interactionTrackers;
+    private readonly InteractionMessageFactory interactionMessageFactory;
 
     private bool isConcluded = false;
 
@@ -37,7 +38,8 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     public InteractionHandler()
     {
-        this.interactionTrackers = (InteractionsTracker)General.DI.GetService(typeof(InteractionsTracker))!;
+        this.interactionTrackers = General.DI.GetService<InteractionsTracker>();
+        this.interactionMessageFactory = General.DI.GetService<InteractionMessageFactory>();
     }
 
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)
@@ -164,7 +166,7 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     private InteractionMessage AddResponseCommon(string content, bool addToLastResponse)
     {
-        var message = new InteractionMessage(Interaction).WithContent(content);
+        var message = interactionMessageFactory.Create(Interaction).WithContent(content);
 
         if (addToLastResponse)
         {

@@ -19,21 +19,24 @@ internal class JoinTeamButtonHandler : ButtonHandler<JoinTeamButtonRequest>
 
     private readonly SelectComponentFactory selectComponentFactory;
     private readonly ButtonFactory buttonFactory;
+    private readonly InteractionMessageFactory interactionMessageFactory;
 
     private InteractionMessage response;
 
     protected override bool SendKeepAliveMessageIsEphemeral => false;
 
-    public JoinTeamButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory)
+    public JoinTeamButtonHandler(SelectComponentFactory selectComponentFactory, ButtonFactory buttonFactory,
+        InteractionMessageFactory interactionMessageFactory)
     {
         this.selectComponentFactory = selectComponentFactory;
         this.buttonFactory = buttonFactory;
+        this.interactionMessageFactory = interactionMessageFactory;
     }
 
     protected override async Task Process(JoinTeamButtonRequest request, CancellationToken cancellationToken)
     {
         var messageService = GetRequestService<IDiscordInteractionMessagingServices>();
-        response = new InteractionMessage(request.GetDiscordInteraction());
+        response = interactionMessageFactory.Create(request.GetDiscordInteraction());
 
         if (DiscordTeam.ExistingTeams.Any())
         {

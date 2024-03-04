@@ -9,7 +9,7 @@ using DiscordLibrary.DiscordEntities;
 internal class SendMessageSuccess : MessageSuccess
 {
     public SendMessageSuccess(Message message) :
-        base("Sent a message.", message.DiscordMessage)
+        base("sent a message", message.DiscordMessage)
     {
 
     }

@@ -24,15 +24,18 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
+    private readonly InteractionMessageFactory interactionMessageFactory;
 
     private User user = null!;
 
     protected override bool SendKeepAliveMessage => false;
 
-    public ChangeTilesButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory)
+    public ChangeTilesButtonHandler(ButtonFactory buttonFactory, SelectComponentFactory selectFactory,
+        InteractionMessageFactory interactionMessageFactory)
     {
         this.buttonFactory = buttonFactory;
         this.selectFactory = selectFactory;
+        this.interactionMessageFactory = interactionMessageFactory;
     }
 
     protected override async Task Process(ChangeTilesButtonRequest request, CancellationToken cancellationToken)
@@ -47,7 +50,7 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
         // TODO: JR - put in a better place, probably store the MessageFile on the DiscordTeam.
         MessageFile board = DiscordTeam.ExistingTeams[user.Team.Name].BoardMessage!.Files.ElementAt(0);
 
-        var response = new InteractionMessage(Interaction)
+        var response = interactionMessageFactory.Create(Interaction)
             .WithContent(GetResponseContent(request));
 
         ChangeTilesButtonDTO dto = new();

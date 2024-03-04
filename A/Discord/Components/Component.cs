@@ -12,7 +12,7 @@ public abstract class Component<TDiscordComponent> : IComponent
 {
     public TDiscordComponent DiscordComponent { get; internal set; }
 
-    public IMessage? Message { get; set; }
+    public Message? Message { get; set; }
 
     public string CustomId { get; }
 
@@ -26,6 +26,6 @@ public abstract class Component<TDiscordComponent> : IComponent
     public DiscordComponent GetDiscordComponent() =>
         DiscordComponent;
 
-    public void SetMessage(IMessage message) =>
+    public void SetMessage(Message message) =>
         Message = message;
 }

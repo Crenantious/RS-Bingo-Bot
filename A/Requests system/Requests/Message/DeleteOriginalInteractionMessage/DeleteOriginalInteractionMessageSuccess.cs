@@ -8,7 +8,7 @@ using DSharpPlus.Entities;
 
 internal class DeleteOriginalInteractionMessageSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Deleted interaction original response";
+    private const string SuccessMessage = "deleted interaction original response";
 
     public DeleteOriginalInteractionMessageSuccess(DiscordInteraction interaction) :
         base(SuccessMessage, interaction.Channel, interaction)

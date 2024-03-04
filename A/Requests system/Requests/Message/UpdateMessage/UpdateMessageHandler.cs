@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 

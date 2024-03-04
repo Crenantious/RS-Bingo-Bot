@@ -8,7 +8,7 @@ using DiscordLibrary.DiscordEntities;
 
 internal class SendInteractionOriginalResponseSuccess : MessageSuccess
 {
-    private const string SuccessMessage = "Sent an original interaction response";
+    private const string SuccessMessage = "sent an original interaction response";
 
     public SendInteractionOriginalResponseSuccess(InteractionMessage message) :
         base(SuccessMessage, message.DiscordMessage, message.Interaction)

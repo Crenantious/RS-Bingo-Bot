@@ -16,13 +16,20 @@ using System.Threading;
 public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior<TRequest, Result>
     where TRequest : IBaseRequest, IRequestResponse
 {
+    private readonly InteractionMessageFactory interactionMessageFactory;
+
     private bool hasInternalError = false;
+
+    public InteractionResponseBehaviour()
+    {
+        this.interactionMessageFactory = General.DI.GetService<InteractionMessageFactory>();
+    }
 
     public abstract Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken);
 
     protected Message GetResponse(TRequest request, params Type[] responseTypes)
     {
-        Message response = GetResponseMessage(request);
+        Message response = GetResponseMessage(interactionMessageFactory, request);
 
         RequestTracker requestTracker = request.GetTracker();
         AddResponses(requestTracker, response, responseTypes);
@@ -32,7 +39,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
 
     // TODO: JR - make better. Maybe make a class that has a static method Create<T>(Func<T, Message> getMessage).
     // Loop through a list of these and return on first match.
-    public static Message GetResponseMessage(IRequestResponse request)
+    public static Message GetResponseMessage(InteractionMessageFactory interactionMessageFactory, IRequestResponse request)
     {
         if (request is IInteractionResponseOverride)
         {
@@ -41,7 +48,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
 
         if (request is IInteractionRequest)
         {
-            return new InteractionMessage(((IInteractionRequest)request).GetDiscordInteraction())
+            return interactionMessageFactory.Create(((IInteractionRequest)request).GetDiscordInteraction())
                 .AsEphemeral(true);
         }
 
