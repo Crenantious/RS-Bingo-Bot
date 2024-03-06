@@ -15,11 +15,11 @@ internal class ChangeTilesSubmitButtonValidator : BingoValidator<ChangeTilesSubm
     { 
         UserInteraction(r => r.User);
 
-        RuleFor(r => r.DTO.ChangeFromTileBoardIndex)
+        RuleFor(r => r.DTO.TileBoardIndex)
             .NotNull()
             .WithMessage(ErrorMessage.FormatConst("from"));
 
-        RuleFor(r => r.DTO.ChangeToTask)
+        RuleFor(r => r.DTO.Task)
             .NotNull()
             .WithMessage(ErrorMessage.FormatConst("to"));
     }

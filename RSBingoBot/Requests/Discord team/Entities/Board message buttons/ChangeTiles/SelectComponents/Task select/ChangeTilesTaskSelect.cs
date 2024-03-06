@@ -53,7 +53,7 @@ public class ChangeTilesTaskSelect
 
     private SelectComponent CreateSelectComponent(IDataWorker dataWorker, ChangeTilesButtonDTO dto, SelectComponentFactory selectComponentFactory) =>
         selectComponentFactory.Create(new(new SelectComponentPage("Change to", GetOptions(dataWorker),
-            SelectComponentGetPageName.CustomMethod(GetPageName))), () => new ChangeTilesToSelectRequest(dto));
+            SelectComponentGetPageName.CustomMethod(GetPageName))), () => new ChangeTilesTaskSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetOptions(IDataWorker dataWorker)
     {

@@ -19,8 +19,8 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         var messageServices = GetRequestService<IDiscordMessageServices>();
         var discordTeam = RSBingoBot.Discord.DiscordTeam.ExistingTeams[request.Team.Name];
 
-        Tile? tile1 = request.Team.Tiles.FirstOrDefault(t => t.BoardIndex == request.DTO.ChangeFromTileBoardIndex);
-        Tile? tile2 = request.Team.Tiles.FirstOrDefault(t => t.Task.RowId == request.DTO.ChangeToTask!.RowId);
+        Tile? tile1 = request.Team.Tiles.FirstOrDefault(t => t.BoardIndex == request.DTO.TileBoardIndex);
+        Tile? tile2 = request.Team.Tiles.FirstOrDefault(t => t.Task.RowId == request.DTO.Task!.RowId);
 
         var updatedTiles = UpdateDB(request, tile1, tile2);
         request.DataWorker.SaveChanges();
@@ -40,14 +40,14 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         {
             if (tile2 is null)
             {
-                Tile newTile = request.DataWorker.Tiles.Create(request.Team, request.DTO.ChangeToTask!, (int)request.DTO.ChangeFromTileBoardIndex!);
+                Tile newTile = request.DataWorker.Tiles.Create(request.Team, request.DTO.Task!, (int)request.DTO.TileBoardIndex!);
                 updatedTiles.Add((newTile.Task, newTile.BoardIndex));
                 AddSuccess(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
                 return updatedTiles;
             }
 
             int oldBoardIndex = tile2.BoardIndex;
-            tile2.BoardIndex = (int)request.DTO.ChangeFromTileBoardIndex!;
+            tile2.BoardIndex = (int)request.DTO.TileBoardIndex!;
             updatedTiles.Add((null, oldBoardIndex));
             updatedTiles.Add((tile2.Task, tile2.BoardIndex));
             AddSuccess(new ChangeTilesSubmitButtonMoveTileOnBoardSuccess(tile2, oldBoardIndex, tile2.BoardIndex));
@@ -57,7 +57,7 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         if (tile2 is null)
         {
             BingoTask oldTask = tile1.Task;
-            tile1.Task = request.DTO.ChangeToTask!;
+            tile1.Task = request.DTO.Task!;
             updatedTiles.Add((oldTask, tile1.BoardIndex));
             updatedTiles.Add((tile1.Task, tile1.BoardIndex));
             AddSuccess(new ChangeTilesSubmitButtonAddedTaskToBoardSuccess(oldTask, tile1.Task));

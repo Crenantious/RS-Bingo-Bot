@@ -262,9 +262,9 @@ public class Program
 
             // Team channels requests
             .AddRequest<ChangeTilesButtonRequest>(services)
-            .AddRequest<ChangeTilesFromSelectRequest>(services)
+            .AddRequest<ChangeTilesTileSelectRequest>(services)
             .AddRequest<ChangeTilesSubmitButtonRequest>(services)
-            .AddRequest<ChangeTilesToSelectRequest>(services)
+            .AddRequest<ChangeTilesTaskSelectRequest>(services)
             .AddRequest<SubmitEvidenceButtonRequest>(services)
             .AddRequest<SubmitEvidenceMessageRequest>(services)
             .AddRequest<SubmitEvidenceSelectRequest>(services)

@@ -46,7 +46,7 @@ public class ChangeTilesTileSelect
 
     private SelectComponent CreateSelectComponent(ChangeTilesButtonDTO dto, SelectComponentFactory selectComponentFactory) =>
         selectComponentFactory.Create(new(new SelectComponentPage("Change from", GetOptions(),
-            SelectComponentGetPageName.CustomMethod(GetPageName))), () => new ChangeTilesFromSelectRequest(dto));
+            SelectComponentGetPageName.CustomMethod(GetPageName))), () => new ChangeTilesTileSelectRequest(dto));
 
     private IEnumerable<SelectComponentOption> GetOptions()
     {

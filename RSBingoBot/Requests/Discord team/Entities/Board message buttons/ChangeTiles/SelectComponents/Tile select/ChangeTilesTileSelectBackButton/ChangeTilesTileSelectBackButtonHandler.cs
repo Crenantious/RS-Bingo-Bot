@@ -11,6 +11,6 @@ internal class ChangeTilesTileSelectBackButtonHandler : SelectComponentBackButto
     protected override void Process(ChangeTilesTileSelectBackButtonRequest request,
         SelectComponentPage previousPage, SelectComponentPage currentPage)
     {
-        request.DTO.ChangeFromTileBoardIndex = null;
+        request.DTO.TileBoardIndex = null;
     }
 }

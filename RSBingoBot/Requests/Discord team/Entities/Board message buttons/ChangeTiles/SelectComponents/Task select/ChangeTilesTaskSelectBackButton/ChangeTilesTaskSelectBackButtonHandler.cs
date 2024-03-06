@@ -11,6 +11,6 @@ internal class ChangeTilesTaskSelectBackButtonHandler : SelectComponentBackButto
     protected override void Process(ChangeTilesTaskSelectBackButtonRequest request,
         SelectComponentPage previousPage, SelectComponentPage currentPage)
     {
-        request.DTO.ChangeToTask = null;
+        request.DTO.Task = null;
     }
 }
