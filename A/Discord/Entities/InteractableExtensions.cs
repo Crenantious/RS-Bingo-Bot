@@ -24,7 +24,7 @@ public static class InteractableExtensions
         DiscordInteractionServices.RegisterModal(request, args => args.Interaction.Data.CustomId == modal.CustomId);
     }
 
-    internal static void Unregister<T>(this T interactable)
+    public static void Unregister<T>(this T interactable)
         where T : IComponent, IInteractable
     {
         DiscordInteractionServices.UnregisterInteractableComponent(interactable);
