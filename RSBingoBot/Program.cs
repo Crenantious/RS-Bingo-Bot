@@ -273,6 +273,7 @@ public class Program
             .AddRequest<ViewEvidenceSelectRequest>(services)
 
             // Message reactions
+            .AddRequest<EvidenceReactionRequest>(services)
             .AddRequest<EvidenceVerificationReactionRequest>(services)
         );
     }

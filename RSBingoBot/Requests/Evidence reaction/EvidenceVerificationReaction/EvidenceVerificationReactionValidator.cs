@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.Requests.Extensions;
 using DiscordLibrary.Requests.Validation;
-using DSharpPlus.Entities;
 
 internal class EvidenceVerificationReactionValidator : Validator<EvidenceVerificationReactionRequest>
 {
