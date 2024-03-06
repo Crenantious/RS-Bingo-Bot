@@ -57,21 +57,29 @@ internal class ChangeTilesButtonHandler : ButtonHandler<ChangeTilesButtonRequest
 
         ChangeTilesTileSelect tileSelect = new(user.Team, dto);
         ChangeTilesTaskSelect taskSelect = new(dataWorker, user.Team, dto);
+        Button tileSelectBackButton = CreateTileSelectBackButton(dto, tileSelect);
+        Button taskSelectBackButton = CreateTaskSelectBackButton(dto, taskSelect);
 
-        Button changeFromBack = buttonFactory.CreateSelectComponentBackButton(() => new(tileSelect.SelectComponent));
-        Button changeToBack = buttonFactory.CreateSelectComponentBackButton(() => new(taskSelect.SelectComponent));
         Button apply = buttonFactory.Create(new(ButtonStyle.Primary, "Apply"),
             () => new ChangeTilesSubmitButtonRequest(dataWorker, user.Team, dto, Interaction.User, tileSelect, taskSelect, board));
         Button close = buttonFactory.CreateConcludeInteraction(() => new(InteractionTracker, new List<Message>() { response }));
 
         response.AddComponents(tileSelect.SelectComponent)
-            .AddComponents(changeFromBack)
+            .AddComponents(tileSelectBackButton)
             .AddComponents(taskSelect.SelectComponent)
-            .AddComponents(changeToBack)
+            .AddComponents(taskSelectBackButton)
             .AddComponents(apply, close);
 
         await messageServices.Send(response);
     }
+
+    private Button CreateTileSelectBackButton(ChangeTilesButtonDTO dto, ChangeTilesTileSelect tileSelect) =>
+        buttonFactory.CreateSelectComponentBackButton(() =>
+            new ChangeTilesTileSelectBackButtonRequest(tileSelect.SelectComponent, dto));
+
+    private Button CreateTaskSelectBackButton(ChangeTilesButtonDTO dto, ChangeTilesTaskSelect taskSelect) =>
+        buttonFactory.CreateSelectComponentBackButton(() =>
+            new ChangeTilesTaskSelectBackButtonRequest(taskSelect.SelectComponent, dto));
 
     private static string GetResponseContent(ChangeTilesButtonRequest request) =>
         ResponseContent.FormatConst(request.GetDiscordInteraction().User.Mention);
