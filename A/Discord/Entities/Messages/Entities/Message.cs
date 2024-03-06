@@ -30,6 +30,24 @@ public class Message
         Channel = channel;
     }
 
+    public DiscordMessageBuilder GetMessageBuilder() =>
+        GetBaseMessageBuilder(new DiscordMessageBuilder());
+
+    /// <summary>
+    /// Builds the base message builder using <see cref="Content"/> and <see cref="Components"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the builder.</typeparam>
+    /// <param name="builder">A new instance of the builder.</param>
+    public T GetBaseMessageBuilder<T>(T builder) where T : IDiscordMessageBuilder
+    {
+        builder.Content = Content;
+
+        MessageBuilderHelper.AddBuilderComponents(this, builder);
+        MessageBuilderHelper.AddBuilderFiles(this, builder);
+
+        return builder;
+    }
+
     public static Message operator +(Message prefix, Message suffix)
     {
         // TODO: JR - implement.
