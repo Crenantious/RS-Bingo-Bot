@@ -53,4 +53,7 @@ public static class EvidenceRecord
 
     public static bool IsVerified(this Evidence evidence) =>
         EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Accepted;
+
+    public static bool IsRejected(this Evidence evidence) =>
+        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Rejected;
 }

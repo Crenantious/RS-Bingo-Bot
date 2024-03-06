@@ -4,78 +4,24 @@
 
 namespace RSBingoBot.Requests;
 
-using DiscordLibrary.DiscordEntities;
-using DiscordLibrary.DiscordServices;
-using DiscordLibrary.Requests;
-using DiscordLibrary.Requests.Extensions;
-using FluentResults;
 using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
-internal class EvidenceVerificationReactionHandler : RequestHandler<EvidenceVerificationReactionRequest>
+internal class EvidenceVerificationReactionHandler : EvidenceReactionHandler<EvidenceVerificationReactionRequest>
 {
-    private IDiscordMessageServices messageServices = null!;
-    private IDatabaseServices dbServices = null!;
-    private readonly MessageFactory messageFactory;
-
-    public EvidenceVerificationReactionHandler(MessageFactory messageFactory)
-    {
-        this.messageFactory = messageFactory;
-    }
-
     protected override async Task Process(EvidenceVerificationReactionRequest request, CancellationToken cancellationToken)
     {
-        messageServices = GetRequestService<IDiscordMessageServices>();
-        dbServices = GetRequestService<IDatabaseServices>();
-        IDataWorker dataWorker = DataFactory.CreateDataWorker();
+        await base.Process(request, cancellationToken);
 
-        Message evidenceMessage = request.GetMessage();
-        Evidence? evidence = dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == evidenceMessage.DiscordMessage.Id);
-
-        if (evidence is null || evidence.IsVerified())
+        if (Evidence is null || Evidence.IsVerified())
         {
             // This isn't done in the validator to avoid searching the db multiple times.
+            // We don't add an error here as we're just ignoring the case.
             return;
         }
 
-        var verifiedMessage = await SendEvidenceToVerifiedChannel(evidenceMessage);
-        if (verifiedMessage.IsFailed)
-        {
-            return;
-        }
-
-        if (await SaveDBChanges(dataWorker, verifiedMessage.Value, evidence) is false)
-        {
-            return;
-        }
-
-        await messageServices.Delete(evidenceMessage);
-
+        await MoveEvidenceMessage(Evidence, DataFactory.VerifiedEvidenceChannel, EvidenceStatus.Accepted);
         AddSuccess(new EvidenceVerificationReactionSuccess());
-    }
-
-    private async Task<Result<Message>> SendEvidenceToVerifiedChannel(Message message)
-    {
-        var webServices = GetRequestService<IWebServices>();
-
-        Message newMessage = await messageFactory.Create(message.DiscordMessage, webServices);
-        newMessage.Channel = DataFactory.VerifiedEvidenceChannel;
-        var result = await messageServices.Send(newMessage);
-
-        return new Result<Message>()
-            .WithValue(newMessage)
-            .WithErrors(result.Errors);
-    }
-
-    private async Task<bool> SaveDBChanges(IDataWorker dataWorker, Message message, Evidence evidence)
-    {
-        evidence.Status = EvidenceStatusLookup.Get(EvidenceStatus.Accepted);
-        evidence.DiscordMessageId = message.DiscordMessage.Id;
-
-        var result = await dbServices.SaveChanges(dataWorker);
-        return result.IsSuccess;
     }
 }

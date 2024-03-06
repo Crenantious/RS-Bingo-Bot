@@ -99,5 +99,12 @@ internal class Bot : BackgroundService
         messageServices.RegisterMessageReactedHandler(() =>
             new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified),
             args => args.Channel == DataFactory.RejectedEvidenceChannel);
+
+        messageServices.RegisterMessageReactedHandler(() =>
+            new EvidenceRejectionReactionRequest(evidenceVerificationEmojis.Rejected),
+            args => args.Channel == DataFactory.PendingReviewEvidenceChannel);
+        messageServices.RegisterMessageReactedHandler(() =>
+            new EvidenceRejectionReactionRequest(evidenceVerificationEmojis.Rejected),
+            args => args.Channel == DataFactory.VerifiedEvidenceChannel);
     }
 }
