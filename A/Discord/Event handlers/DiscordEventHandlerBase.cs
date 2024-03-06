@@ -61,11 +61,12 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
 
     #region Unsubscribe
 
-    public void Unsubscribe(int id)
+    /// <returns>If <paramref name="id"/> was valid and hence was unsubscribed.</returns>
+    public bool Unsubscribe(int id)
     {
         if (idToSubscription.ContainsKey(id) is false)
         {
-            throw new InvalidEventSubscriptionIdException(id);
+            return false;
         }
 
         if (isEventOccuring)
@@ -76,6 +77,8 @@ public abstract class DiscordEventHandlerBase<TEventArgs>
         {
             PrivateUnsubscribe(id);
         }
+
+        return true;
     }
 
     private void QueueToUnsubscribe(int id)
