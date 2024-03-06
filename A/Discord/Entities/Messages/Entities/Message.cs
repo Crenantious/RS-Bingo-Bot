@@ -42,8 +42,8 @@ public class Message
     {
         builder.Content = Content;
 
-        MessageBuilderHelper.AddBuilderComponents(this, builder);
-        MessageBuilderHelper.AddBuilderFiles(this, builder);
+        MessageBuilderHelper.AddComponents(Components, builder);
+        MessageBuilderHelper.AddFiles(FilesInternal, builder);
 
         return builder;
     }

@@ -7,22 +7,23 @@ namespace DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Exceptions;
 using DSharpPlus.Entities;
+using RSBingo_Common.DataStructures;
 
 internal static class MessageBuilderHelper
 {
-    public static void AddBuilderComponents<T>(Message message, T builder) where T : IDiscordMessageBuilder
+    public static void AddComponents<T>(DynamicGrid<IComponent> components, T builder) where T : IDiscordMessageBuilder
     {
-        foreach (var componentRow in message.Components.GetRows())
+        foreach (var componentRow in components.GetRows())
         {
-            ValidateComponentRowForBuilder(componentRow);
+            ValidateComponentRow(componentRow);
             builder.AddComponents(GetComponents(componentRow));
         }
     }
 
-    public static void AddBuilderFiles<T>(Message message, T builder) where T : IDiscordMessageBuilder
+    public static void AddFiles<T>(IEnumerable<MessageFile> files, T builder) where T : IDiscordMessageBuilder
     {
         Dictionary<string, Stream> streams = new();
-        foreach (MessageFile file in message.FilesInternal)
+        foreach (MessageFile file in files)
         {
             if (file.HasContent)
             {
@@ -33,7 +34,7 @@ internal static class MessageBuilderHelper
         builder.AddFiles(streams);
     }
 
-    private static void ValidateComponentRowForBuilder(List<IComponent> componentRow)
+    private static void ValidateComponentRow(List<IComponent> componentRow)
     {
         if (componentRow.Count == 0)
         {

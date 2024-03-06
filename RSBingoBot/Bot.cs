@@ -7,6 +7,7 @@ namespace RSBingoBot;
 using DiscordLibrary.DiscordServices;
 using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
+using Imaging.Leaderboard;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
@@ -15,7 +16,6 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
-using Imaging.Leaderboard;
 using RSBingoBot.Requests;
 using static RSBingo_Framework.DAL.DataFactory;
 
@@ -94,10 +94,10 @@ internal class Bot : BackgroundService
     private void RegisterEvidenceReactionRequests()
     {
         messageServices.RegisterMessageReactedHandler(() =>
-            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), 
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified),
             args => args.Channel == DataFactory.PendingReviewEvidenceChannel);
         messageServices.RegisterMessageReactedHandler(() =>
-            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified), 
+            new EvidenceVerificationReactionRequest(evidenceVerificationEmojis.Verified),
             args => args.Channel == DataFactory.RejectedEvidenceChannel);
     }
 }

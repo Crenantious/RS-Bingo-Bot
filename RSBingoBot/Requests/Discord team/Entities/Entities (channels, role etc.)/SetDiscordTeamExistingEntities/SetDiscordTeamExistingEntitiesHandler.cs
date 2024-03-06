@@ -111,7 +111,6 @@ internal class SetDiscordTeamExistingEntitiesHandler : RequestHandler<SetDiscord
         Result<Message> message = await messageServices.Get(team.BoardMessageId, request.DiscordTeam.BoardChannel);
         if (message.IsSuccess)
         {
-            await teamServices.AddBoardToMessage(request.DiscordTeam, message.Value);
             request.DiscordTeam.SetBoardMessage(message.Value, team);
             boardButtons.Create(request.DiscordTeam);
         }

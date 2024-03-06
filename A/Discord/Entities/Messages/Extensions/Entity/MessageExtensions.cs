@@ -89,6 +89,11 @@ public static class MessageExtensions
     public static T AddFile<T>(this T message, MessageFile file)
         where T : Message
     {
+        if (message.FilesInternal.Any(f => f.Name == file.Name))
+        {
+            throw new FileWithNameAlreadyAddedException(file.Name);
+        }
+
         message.FilesInternal.Add(file);
         return message;
     }
