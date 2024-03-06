@@ -5,15 +5,24 @@
 namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
+using DiscordLibrary.Interactions;
 using DiscordLibrary.Requests;
 using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using RSBingoBot.Discord;
 
 internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 {
+    private readonly DiscordTeamBoardButtons buttons;
+
     private IDiscordServices discordServices = null!;
     private IDatabaseServices databaseServices = null!;
+
+    public DeleteTeamHandler(DiscordTeamBoardButtons buttons)
+    {
+        this.buttons = buttons;
+    }
 
     protected override async Task Process(DeleteTeamRequest request, CancellationToken cancellationToken)
     {
@@ -23,6 +32,7 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
 
         await DeleteRole(request);
         await DeleteChannels(request);
+        UnsubscribeBoardButtons(buttons);
 
         RSBingoBot.Discord.DiscordTeam.ExistingTeams.Remove(request.DiscordTeam.Name);
         dataWorker.Teams.Remove(dataWorker.Teams.Find(request.DiscordTeam.Id)!);
@@ -54,5 +64,13 @@ internal class DeleteTeamHandler : RequestHandler<DeleteTeamRequest>
         {
             await discordServices.DeleteChannel(channel);
         }
+    }
+
+    private void UnsubscribeBoardButtons(DiscordTeamBoardButtons buttons)
+    {
+        buttons.ChangeTile.Unregister();
+        buttons.SubmitEvidence.Unregister();
+        buttons.SubmitDrop.Unregister();
+        buttons.ViewEvidence.Unregister();
     }
 }

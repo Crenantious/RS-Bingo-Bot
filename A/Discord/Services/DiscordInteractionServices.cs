@@ -6,6 +6,7 @@ namespace DiscordLibrary.DiscordServices;
 
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEventHandlers;
+using DiscordLibrary.Exceptions;
 using DiscordLibrary.Requests;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
@@ -17,6 +18,7 @@ public static class DiscordInteractionServices
 {
     private static ComponentInteractionDEH componentInteractionDEH;
     private static ModalSubmittedDEH modalDEH;
+    private static Dictionary<object, int> componentInteractionIds = new();
 
     static DiscordInteractionServices()
     {
@@ -24,17 +26,41 @@ public static class DiscordInteractionServices
         modalDEH = (ModalSubmittedDEH)General.DI.GetService(typeof(ModalSubmittedDEH))!;
     }
 
-    public static void RegisterInteractionHandler<T, K>(Func<K> getRequest,
+    /// <summary>
+    /// Registers the component to receive interactions.
+    /// </summary>
+    public static void RegisterInteractableComponent<T, K>(Func<K> getRequest,
         T component, Func<ComponentInteractionCreateEventArgs, bool> constraints)
         where T : IComponent, IInteractable
         where K : IComponentInteractionRequest<T>
     {
-        componentInteractionDEH.Subscribe(constraints, args => OnComponentInteraction(getRequest(), component, args));
+        if (componentInteractionIds.ContainsKey(component))
+        {
+            throw new InteractableComponentAlreadySubscribed();
+        }
+
+        int registrationId = componentInteractionDEH.Subscribe(constraints, args => OnComponentInteraction(getRequest(), component, args));
+        componentInteractionIds.Add(component, registrationId);
     }
 
     public static void RegisterModal(IModalRequest request, Func<ModalSubmitEventArgs, bool> constraints)
     {
         modalDEH.Subscribe(constraints, args => OnModalSubmitted(request, args));
+    }
+
+    public static void UnregisterInteractableComponent<T>(T component)
+        where T : IComponent, IInteractable
+    {
+        if (componentInteractionIds.ContainsKey(component) is false)
+        {
+            throw new InteractableComponentNotSubscribed();
+        }
+
+        bool success = componentInteractionDEH.Unsubscribe(componentInteractionIds[component]);
+        if (success is false)
+        {
+            throw new InteractableComponentAlreadyUnsubscribed();
+        }
     }
 
     public static async Task RunCommand(ICommandRequest request, InteractionContext context)

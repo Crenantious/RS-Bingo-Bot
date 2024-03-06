@@ -17,6 +17,20 @@ public class InteractionMessage : Message
         Interaction = interaction;
     }
 
+    internal virtual DiscordInteractionResponseBuilder GetInteractionResponseBuilder()
+    {
+        var builder = GetBaseMessageBuilder(new DiscordInteractionResponseBuilder());
+        builder.IsEphemeral = IsEphemeral;
+        return builder;
+    }
+
+    internal DiscordFollowupMessageBuilder GetFollowupMessageBuilder()
+    {
+        var builder = GetBaseMessageBuilder(new DiscordFollowupMessageBuilder());
+        builder.IsEphemeral = IsEphemeral;
+        return builder;
+    }
+
     public static InteractionMessage operator +(InteractionMessage prefix, InteractionMessage suffix) =>
         (InteractionMessage)((prefix as Message) + (suffix as Message));
 
