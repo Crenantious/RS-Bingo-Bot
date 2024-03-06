@@ -44,7 +44,8 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
     /// <summary>
     /// Moves the message that was reacted to and updates the database.
     /// </summary>
-    protected async Task MoveEvidenceMessage(Evidence evidence, DiscordChannel channel)
+    /// <param name="evidenceStatus">What the new status of the evidence should be after the reaction.</param>
+    protected async Task MoveEvidenceMessage(Evidence evidence, DiscordChannel channel, EvidenceStatus evidenceStatus)
     {
         var verifiedMessage = await SendEvidenceMessageToChannel(channel);
         if (verifiedMessage.IsFailed)
@@ -52,7 +53,7 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
             return;
         }
 
-        if (await SaveDBChanges(verifiedMessage.Value, evidence) is false)
+        if (await SaveDBChanges(verifiedMessage.Value, evidence, evidenceStatus) is false)
         {
             return;
         }
@@ -65,7 +66,7 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
         var webServices = GetRequestService<IWebServices>();
 
         Message newMessage = await messageFactory.Create(EvidenceMessage.DiscordMessage, webServices);
-        newMessage.Channel = DataFactory.VerifiedEvidenceChannel;
+        newMessage.Channel = channel;
         var result = await messageServices.Send(newMessage);
 
         return new Result<Message>()
@@ -73,9 +74,9 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
             .WithErrors(result.Errors);
     }
 
-    private async Task<bool> SaveDBChanges(Message message, Evidence evidence)
+    private async Task<bool> SaveDBChanges(Message message, Evidence evidence, EvidenceStatus evidenceStatus)
     {
-        evidence.Status = EvidenceStatusLookup.Get(EvidenceStatus.Accepted);
+        evidence.Status = EvidenceStatusLookup.Get(evidenceStatus);
         evidence.DiscordMessageId = message.DiscordMessage.Id;
 
         var result = await dbServices.SaveChanges(dataWorker);

@@ -275,6 +275,7 @@ public class Program
             // Message reactions
             .AddRequest<EvidenceReactionRequest>(services)
             .AddRequest<EvidenceVerificationReactionRequest>(services)
+            .AddRequest<EvidenceRejectionReactionRequest>(services)
         );
     }
 }
