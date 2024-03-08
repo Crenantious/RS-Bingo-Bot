@@ -24,7 +24,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
-using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
@@ -49,10 +48,10 @@ public class Program
 
             DI = host.Services;
 
-            InitaliseScoring();
             Paths.Initialise();
 
             DataFactory.SetupDataFactory();
+            DataFactory.InitializeScoring();
             CompetitionStart.Setup();
             WhitelistChecker.Initialise(DataFactory.WhitelistedDomains);
 
@@ -71,24 +70,6 @@ public class Program
             LoggingLog($"Closing with exit code: {Environment.ExitCode}");
             LoggingEnd();
         }
-    }
-
-    private static void InitaliseScoring()
-    {
-        ScoringConfig config = new()
-        {
-            PointsForEasyTile = Config_Get<int>("PointsForEasyTile"),
-            PointsForMediumTile = Config_Get<int>("PointsForMediumTile"),
-            PointsForHardTile = Config_Get<int>("PointsForHardTile"),
-            BonusPointsForEasyCompletion = Config_Get<int>("BonusPointsForEasyCompletion"),
-            BonusPointsForMediumCompletion = Config_Get<int>("BonusPointsForMediumCompletion"),
-            BonusPointsForHardCompletion = Config_Get<int>("BonusPointsForHardCompletion"),
-            BonusPointsForRow = Config_Get<int>("BonusPointsForRow"),
-            BonusPointsForColumn = Config_Get<int>("BonusPointsForColumn"),
-            BonusPointsForDiagonal = Config_Get<int>("BonusPointsForDiagonal")
-        };
-
-        Scoring.SetUp(config);
     }
 
     /// <summary>

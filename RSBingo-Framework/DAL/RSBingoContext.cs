@@ -186,8 +186,6 @@ public partial class RSBingoContext : DbContext
             entity.Property(e => e.RoleId).HasColumnName("roleid");
 
             entity.Property(e => e.Code).HasColumnName("code");
-
-            entity.Property(e => e.Score).HasColumnName("score");
         });
 
         modelBuilder.Entity<Tile>(entity =>

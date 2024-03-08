@@ -17,7 +17,7 @@ internal class LeaderboardImageUtilities
     /// <returns>The values. Dimension 0 is the columns and dimension 1 is the rows.</returns>
     public static Grid<string> GetCellValues(IDataWorker dataWorker)
     {
-        IEnumerable<Team> teams = dataWorker.Teams.GetAll().OrderByDescending(t => t.Score);
+        IEnumerable<Team> teams = dataWorker.Teams.GetAll().OrderByDescending(t => t);
         Grid<string> cellValues = new(3, teams.Count() + 1);
 
         AddHeaders(cellValues);
@@ -34,7 +34,7 @@ internal class LeaderboardImageUtilities
         for (int i = 0; i < teams.Count(); i++)
         {
             Team team = teams.ElementAt(i);
-            cellValues.SetRow(i + 1, new string[] { team.Name, team.Score.ToString(), (i + 1).ToString() });
+            //cellValues.SetRow(i + 1, new string[] { team.Name, team.Score.ToString(), (i + 1).ToString() });
         }
     }
 }
