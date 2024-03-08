@@ -17,7 +17,7 @@ using static Imaging.Leaderboard.LeaderboardImageUtilities;
 
 public static class LeaderboardImage
 {
-    public static Image Create(IEnumerable<(Team team, int score)> teams)
+    public static Image Create(IEnumerable<(string name, int score)> teams)
     {
         Grid<string> cellValues = GetCellValues(teams);
         return CreateImage(GetGridImageDimensions(cellValues), cellValues);

@@ -58,6 +58,13 @@ internal class CommandController : ApplicationCommandModule
         await DiscordInteractionServices.RunCommand(new DeleteTeamCommandRequest(name), ctx);
     }
 
+    [SlashCommand("PostLeaderboard", "Sends a message containing the leaderboard.")]
+    [RequireRole("Host")]
+    public async Task PostLeaderboard(InteractionContext ctx)
+    {
+        await DiscordInteractionServices.RunCommand(new PostLeaderboardCommandRequest(ctx.Channel), ctx);
+    }
+
     //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
     //[RequireRole("Host")]
     //public async Task CreateInitialLeaderboard(InteractionContext ctx)

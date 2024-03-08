@@ -220,6 +220,7 @@ public class Program
             .AddRequest<PostTeamRegistrationMessageRequest>(services)
             .AddRequest<RemoveUserFromTeamCommandRequest>(services)
             .AddRequest<DeleteTeamCommandRequest>(services)
+            .AddRequest<PostLeaderboardCommandRequest>(services)
 
             // Team management requests
             .AddRequest<CreateTeamButtonRequest>(services)

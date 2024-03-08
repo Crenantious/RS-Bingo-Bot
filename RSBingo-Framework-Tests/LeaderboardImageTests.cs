@@ -7,7 +7,6 @@ namespace RSBingo_Framework_Tests;
 using Imaging.Leaderboard;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
 
@@ -17,7 +16,7 @@ public class LeaderboardImageTests : MockDBBaseTestClass
     private readonly string imagePath = Path.Combine(Paths.ResourcesTestOutputFolder, "Leaderboard.png");
 
     private IDataWorker dataWorker = null!;
-    private List<(Team team, int score)> teams = new();
+    private List<(string name, int score)> teams = new();
 
     [TestInitialize]
     public override void TestInitialize()
@@ -42,8 +41,7 @@ public class LeaderboardImageTests : MockDBBaseTestClass
 
     private void CreateTeam(string name, int score)
     {
-        Team team = MockDBSetup.Add_Team(dataWorker, name);
-        teams.Add((team, score));
+        teams.Add((name, score));
     }
 
     private void ShowLeaderboard()

@@ -7,8 +7,6 @@ namespace Imaging.Leaderboard;
 using DSharpPlus.Entities;
 using RSBingo_Common;
 using RSBingo_Framework.DAL;
-using RSBingo_Framework.Interfaces;
-using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 using static LeaderboardImage;
 
@@ -26,7 +24,7 @@ public class LeaderboardDiscord
         catch { General.LoggingLog(new NullReferenceException(noMessageExceptionMessage), ""); }
     }
 
-    public static async Task Update(IEnumerable<(Team team, int score)> teams)
+    public static async Task Update(IEnumerable<(string name, int score)> teams)
     {
         FileStream? fs = null;
 
