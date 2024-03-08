@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Imaging\**" />
+    <EmbeddedResource Remove="Imaging\**" />
+    <None Remove="Imaging\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="stylecop.json" />
   </ItemGroup>
 
@@ -44,10 +50,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RSBingo-Common\RSBingo-Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Imaging\" />
   </ItemGroup>
 
 </Project>

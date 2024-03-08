@@ -8,7 +8,10 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Scoring;
 using System.Globalization;
 using static RSBingo_Common.General;
 
@@ -146,7 +149,8 @@ public static class DataFactory
         InitializeDB(asMockDB);
         InitializeWhitelistedDomains();
         if (asMockDB is false) { InitializeDiscord(); }
-        competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
+        // TODO: JR - figure out where this is coming from. Also, it doesn't work for the test DB.
+        //competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     private static void InitializeDB(bool asMockDB)
@@ -178,12 +182,15 @@ public static class DataFactory
         hostRoleId = Config_Get<ulong>(HostRoleIdKey);
 
         enableBoardCustomisation = Config_Get<bool>("EnableBoardCustomisation");
-        teamSignUpChannel= guild.GetChannel(Config_Get<ulong>(TeamSignUpChannelIdKey));
+        teamSignUpChannel = guild.GetChannel(Config_Get<ulong>(TeamSignUpChannelIdKey));
         pendingEvidenceChannel = guild.GetChannel(Config_Get<ulong>(PendingEvidenceChannelIdKey));
         verifiedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(VerifiedEvidenceChannelIdKey));
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
         leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
         leaderboardMessageId = Config_Get<ulong>(LeaderboardMessageIdKey);
-
     }
+
+    public static void InitializeScoring() =>
+        new TileValuesBuilder()
+            .Build(DI.GetService<IConfiguration>()!);
 }

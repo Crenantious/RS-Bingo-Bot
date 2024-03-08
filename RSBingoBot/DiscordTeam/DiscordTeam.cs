@@ -8,6 +8,7 @@ using DiscordLibrary.DiscordEntities;
 using DSharpPlus.Entities;
 using Imaging.Board;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Scoring;
 
 public class DiscordTeam
 {
@@ -36,6 +37,7 @@ public class DiscordTeam
     public Message? BoardMessage { get; private set; }
 
     public Board Board { get; }
+    public TeamScore Score { get; }
 
     public DiscordTeam(Team team)
     {
@@ -44,6 +46,7 @@ public class DiscordTeam
 
         var boardFactory = (BoardFactory)General.DI.GetService(typeof(BoardFactory))!;
         Board = boardFactory.Create();
+        Score = new(team);
     }
 
     public void SetName(string name, Team team)

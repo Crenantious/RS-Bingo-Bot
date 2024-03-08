@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework_Tests.CSV.Lines;
 
-using RSBingo_Framework.CSV;
+using RSBingoBot.CSV;
 
 public class CSVTestLineEnumCaseInsensitive : CSVTestLineEnumBase
 {

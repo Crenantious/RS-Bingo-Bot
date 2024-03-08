@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
