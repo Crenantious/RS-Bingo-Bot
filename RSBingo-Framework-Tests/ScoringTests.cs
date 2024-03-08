@@ -72,7 +72,7 @@ public class ScoringTests : MockDBBaseTestClass
         AddTile(easyTaskOne, 0, true);
         AddTile(easyTaskTwo, 1, true);
 
-        AssertScore(easyTileScore);
+        AssertScore(easyTileScore * 2);
     }
 
     [TestMethod]
@@ -137,7 +137,7 @@ public class ScoringTests : MockDBBaseTestClass
 
         SetTileIncomplete(0);
 
-        AssertScore(easyTileScore * General.TilesPerRow - 1);
+        AssertScore(easyTileScore * General.TilesPerRow - easyTileScore);
     }
 
     [TestMethod]
@@ -162,7 +162,7 @@ public class ScoringTests : MockDBBaseTestClass
 
         SetTileIncomplete(0);
 
-        AssertScore(easyTileScore * General.TilesPerRow * 2 - 1 + bonusForRowCompletion);
+        AssertScore(easyTileScore * General.TilesPerRow * 2 - easyTileScore + bonusForRowCompletion);
     }
 
     private void AddTile(BingoTask task, int boardIndex, bool isComplete)
