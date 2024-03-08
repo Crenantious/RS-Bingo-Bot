@@ -8,6 +8,7 @@ using DSharpPlus.Entities;
 using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
+using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 using static LeaderboardImage;
 
@@ -25,7 +26,7 @@ public class LeaderboardDiscord
         catch { General.LoggingLog(new NullReferenceException(noMessageExceptionMessage), ""); }
     }
 
-    public static async Task Update(IDataWorker dataWorker)
+    public static async Task Update(IEnumerable<(Team team, int score)> teams)
     {
         FileStream? fs = null;
 
@@ -33,14 +34,14 @@ public class LeaderboardDiscord
         {
             await semaphore.WaitAsync();
 
-            Create(dataWorker).Save(leaderboardImageFileName);
+            Create(teams)
+                .Save(leaderboardImageFileName);
+
             fs = new(leaderboardImageFileName, FileMode.Open);
-            Console.WriteLine("Leaderboard updating...");
 
             // TODO: this gets posted as a 0KB file if the bot is rate limited. Keep trying to send or find out when the rate limit is over.
             await leaderboardMessage.ModifyAsync(new DiscordMessageBuilder()
                 .AddFile(fs));
-            Console.WriteLine("Leaderboard updated.");
         }
         catch (Exception e)
         {
