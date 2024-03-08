@@ -5,6 +5,7 @@
 namespace RSBingo_Framework.Scoring;
 
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
 
 public class TeamScore
 {
@@ -24,11 +25,12 @@ public class TeamScore
     {
         int score = 0;
 
-        IEnumerable<TilesValue> tilesScores = TileValues.GetTileValues(team.Tiles);
+        List<TilesValue> tilesValues = TileValues.GetTileValues(team.Tiles).ToList();
+        var tiles = team.Tiles.Where(t => t.IsCompleteAsBool());
 
-        foreach (Tile tile in team.Tiles)
+        foreach (Tile tile in tiles)
         {
-            foreach (TilesValue tilesScore in tilesScores)
+            foreach (TilesValue tilesScore in tilesValues)
             {
                 score += tilesScore.Get(tile.BoardIndex);
             }

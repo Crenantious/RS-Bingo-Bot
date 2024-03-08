@@ -17,37 +17,39 @@ public class ScoringTests : MockDBBaseTestClass
 {
     private const string testTeamName = "Test";
 
-    private static IDataWorker dataWorkerBefore = null!;
-    private static IDataWorker dataWorkerAfter = null!;
-    private static Team team = null!;
-    private static TeamScore teamScore = null!;
-    private static BingoTask easyTaskOne = null!;
-    private static BingoTask easyTaskTwo = null!;
-    private static BingoTask mediumTaskOne = null!;
+    private IDataWorker dataWorker = null!;
+    private Team team = null!;
+    private TeamScore teamScore = null!;
+    private BingoTask easyTaskOne = null!;
+    private BingoTask easyTaskTwo = null!;
+    private BingoTask mediumTaskOne = null!;
     private static int easyTileScore = 2;
     private static int mediumTileScore = 3;
     private static int bonusForRowCompletion = 5;
     private static int bonusForColumnCompletion = 10;
 
+    [ClassInitialize]
+    public static void ClassInitialize(TestContext context)
+    {
+        TileValues.Initialise(bonusForRowCompletion, bonusForColumnCompletion);
+        TileValues.SetDifficultyValue(Difficulty.Easy, easyTileScore);
+        TileValues.SetDifficultyValue(Difficulty.Medium, mediumTileScore);
+    }
+
     [TestInitialize]
     public override void TestInitialize()
     {
         base.TestInitialize();
-        dataWorkerBefore = CreateDW();
-        dataWorkerAfter = CreateDW();
+        dataWorker = CreateDW();
 
-        team = MockDBSetup.Add_Team(dataWorkerBefore, testTeamName);
+        team = MockDBSetup.Add_Team(dataWorker, testTeamName);
         teamScore = new(team);
 
-        easyTaskOne = MockDBSetup.Add_BingoTask(dataWorkerBefore, "Test1", Difficulty.Easy);
-        easyTaskTwo = MockDBSetup.Add_BingoTask(dataWorkerBefore, "Test2", Difficulty.Easy);
-        mediumTaskOne = MockDBSetup.Add_BingoTask(dataWorkerBefore, "Test2", Difficulty.Medium);
+        easyTaskOne = MockDBSetup.Add_BingoTask(dataWorker, "Test1", Difficulty.Easy);
+        easyTaskTwo = MockDBSetup.Add_BingoTask(dataWorker, "Test2", Difficulty.Easy);
+        mediumTaskOne = MockDBSetup.Add_BingoTask(dataWorker, "Test3", Difficulty.Medium);
 
-        TileValues.Initialise(bonusForRowCompletion, bonusForColumnCompletion);
-        TileValues.SetDifficultyValue(Difficulty.Easy, easyTileScore);
-        TileValues.SetDifficultyValue(Difficulty.Medium, mediumTileScore);
-
-        dataWorkerBefore.SaveChanges();
+        dataWorker.SaveChanges();
     }
 
     [TestMethod]
@@ -121,7 +123,7 @@ public class ScoringTests : MockDBBaseTestClass
             AddTile(easyTaskOne, i * General.TilesPerRow, true);
         }
 
-        AssertScore(easyTileScore * General.TilesPerRow + bonusForColumnCompletion);
+        AssertScore(easyTileScore * General.TilesPerColumn + bonusForColumnCompletion);
     }
 
     [TestMethod]
@@ -166,7 +168,7 @@ public class ScoringTests : MockDBBaseTestClass
     private void AddTile(BingoTask task, int boardIndex, bool isComplete)
     {
         var completeStatus = isComplete ? CompleteStatus.Yes : CompleteStatus.No;
-        MockDBSetup.Add_Tile(dataWorkerBefore, team, task, boardIndex, VerifiedStatus.Yes, completeStatus);
+        MockDBSetup.Add_Tile(dataWorker, team, task, boardIndex, VerifiedStatus.Yes, completeStatus);
     }
 
     private void AssertScore(int expected)
@@ -178,6 +180,6 @@ public class ScoringTests : MockDBBaseTestClass
     private void SetTileIncomplete(int boardIndex)
     {
         team.Tiles.First(t => t.BoardIndex == boardIndex).SetCompleteStatus(CompleteStatus.No);
-        dataWorkerBefore.SaveChanges();
+        dataWorker.SaveChanges();
     }
 }
