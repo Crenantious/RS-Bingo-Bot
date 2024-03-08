@@ -10,7 +10,7 @@ using RSBingo_Framework.Records;
 
 // This is static because it needs the config, but can't get that until DI is setup, thus this cannot be
 // registered as a service with DI.
-internal static class TileValues
+public static class TileValues
 {
     private static Dictionary<BingoTaskRecord.Difficulty, int> difficultyValues = new();
 

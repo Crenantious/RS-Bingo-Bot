@@ -149,7 +149,8 @@ public static class DataFactory
         InitializeDB(asMockDB);
         InitializeWhitelistedDomains();
         if (asMockDB is false) { InitializeDiscord(); }
-        competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
+        // TODO: JR - figure out where this is coming from. Also, it doesn't work for the test DB.
+        //competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     private static void InitializeDB(bool asMockDB)

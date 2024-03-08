@@ -4,9 +4,9 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
-using RSBingo_Framework.Exceptions.CSV;
 using RSBingo_Framework_Tests.CSV.Lines;
+using RSBingoBot.CSV;
+using RSBingoBot.CSV.Exceptions;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 
 [TestClass]
@@ -20,7 +20,7 @@ public class CSVLineGenericTests : MockDBBaseTestClass
 
     [TestMethod]
     public void AddCorrectlyTypedValueToCSVFile_Parse_CorrectValueParsed()
-    { 
+    {
         CreateCSVFile("1");
 
         ParseCSVFile();

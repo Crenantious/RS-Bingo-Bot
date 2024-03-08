@@ -4,8 +4,7 @@
 
 namespace RSBingo_Framework_Tests.CSV.Lines;
 
-using RSBingo_Framework.CSV;
-using RSBingo_Framework.Interfaces;
+using RSBingoBot.CSV;
 
 public class CSVTestLineComparable : CSVLine
 {

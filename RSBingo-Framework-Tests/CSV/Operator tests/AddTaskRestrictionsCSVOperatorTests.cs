@@ -3,12 +3,11 @@
 // </copyright>
 
 namespace RSBingo_Framework_Tests.CSV;
-
-using RSBingo_Framework.CSV;
-using RSBingo_Framework.CSV.Lines;
-using RSBingo_Framework.CSV.Operators.Warnings;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework_Tests.DTO;
+using RSBingoBot.CSV;
+using RSBingoBot.CSV.Lines;
+using RSBingoBot.CSV.Operators.Warnings;
 
 [TestClass]
 public class AddTaskRestrictionsCSVOperatorTests : MockDBBaseTestClass

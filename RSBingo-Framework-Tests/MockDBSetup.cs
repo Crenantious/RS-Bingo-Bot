@@ -7,7 +7,6 @@ namespace RSBingo_Framework_Tests;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using System;
 using static RSBingo_Framework.DAL.DataFactory;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.Records.EvidenceRecord;
@@ -28,7 +27,7 @@ public class MockDBSetup
 
     public static Team Add_Team(IDataWorker dataWorker, string name = "Test")
     {
-        Team team = dataWorker.Teams.Create(name, 0, 0, 0, 0, 0, 0);
+        Team team = dataWorker.Teams.Create(name, 0, 0, 0, 0, 0, 0, 0);
 
         dataWorker.SaveChanges();
         return team;
@@ -43,10 +42,11 @@ public class MockDBSetup
     }
 
     public static Tile Add_Tile(IDataWorker dataWorker, Team team, BingoTask bingoTask, int? boardIndex = null,
-        VerifiedStatus verifiedStatus = VerifiedStatus.No)
+        VerifiedStatus verifiedStatus = VerifiedStatus.No, CompleteStatus completeStatus = CompleteStatus.No)
     {
         int index = boardIndex ?? team.Tiles.Count;
         Tile tile = dataWorker.Tiles.Create(team, bingoTask, index, verifiedStatus);
+        tile.SetCompleteStatus(completeStatus);
 
         dataWorker.SaveChanges();
         return tile;

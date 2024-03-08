@@ -5,6 +5,7 @@
     <RootNamespace>RSBingo_Common</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>56d3b1ea-f624-4a9a-af75-6ac20944f415</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

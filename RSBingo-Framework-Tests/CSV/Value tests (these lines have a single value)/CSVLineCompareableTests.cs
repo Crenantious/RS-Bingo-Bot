@@ -3,10 +3,9 @@
 // </copyright>
 
 namespace RSBingo_Framework_Tests.CSV;
-
-using RSBingo_Framework.CSV;
-using RSBingo_Framework.Exceptions.CSV;
 using RSBingo_Framework_Tests.CSV.Lines;
+using RSBingoBot.CSV;
+using RSBingoBot.CSV.Exceptions;
 using static RSBingo_Framework_Tests.CSV.CSVReaderTestHelper;
 using static RSBingo_Framework_Tests.CSV.Lines.CSVTestLineComparable;
 
@@ -54,7 +53,7 @@ public class CSVLineCompareableTests : MockDBBaseTestClass
     {
         CreateCSVFile(Int32.MaxValue.ToString() + "0");
 
-        Assert.ThrowsException<InvalidCSVValueTypeException>(()=> ParseCSVFile());
+        Assert.ThrowsException<InvalidCSVValueTypeException>(() => ParseCSVFile());
     }
 
     [TestMethod]

@@ -4,7 +4,7 @@
 
 namespace RSBingo_Framework_Tests.CSV;
 
-using RSBingo_Framework.CSV;
+using RSBingoBot.CSV;
 
 public class CSVReaderTestHelper : MockDBBaseTestClass
 {
