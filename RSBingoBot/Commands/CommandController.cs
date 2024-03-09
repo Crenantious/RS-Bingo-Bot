@@ -58,26 +58,26 @@ internal class CommandController : ApplicationCommandModule
         await DiscordInteractionServices.RunCommand(new DeleteTeamCommandRequest(name), ctx);
     }
 
-    //[SlashCommand("CreateInitialLeaderboard", "Posts a message in the current channel with an empty leaderboard for it to be updated when needed.")]
-    //[RequireRole("Host")]
-    //public async Task CreateInitialLeaderboard(InteractionContext ctx)
-    //{
-    //    var builder = new DiscordMessageBuilder()
-    //        .WithContent("The leaderboard will be updated here.");
+    [SlashCommand("PostLeaderboard", "Sends a message containing the leaderboard.")]
+    [RequireRole("Host")]
+    public async Task PostLeaderboard(InteractionContext ctx)
+    {
+        await DiscordInteractionServices.RunCommand(new PostLeaderboardCommandRequest(ctx.Channel), ctx);
+    }
 
-    //    await ctx.Channel.SendMessageAsync(builder);
-    //}
+    // TODO: JR - remove, this is for testing.
+    [SlashCommand("UpdateLeaderboard", "Updates the message containing the leaderboard.")]
+    [RequireRole("Host")]
+    public async Task UpdateLeaderboard(InteractionContext ctx)
+    {
+        var leaderboardServices = General.DI.GetService<ILeaderboardServices>();
+        leaderboardServices.Initialise(null);
+        await leaderboardServices.UpdateMessage();
+    }
 
     //#endregion
 
     //#region Teams
-
-    //[SlashCommand("CreateTeam", "Creates a team (in the database), its role, and channels.")]
-    //[RequireRole("Host")]
-    //public async Task CreateTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
-    //{
-    //    await requestServices.RunRequest(ctx.Interaction, new CreateTeamRequest(ctx.Interaction, teamName));
-    //}
 
     //[SlashCommand("RenameTeam", "Renames a team, its role, and channels. Should only be ran once every 5 minutes.")]
     //[RequireRole("Host")]
@@ -85,29 +85,6 @@ internal class CommandController : ApplicationCommandModule
     //    [Option("NewName", "New name")] string newName)
     //{
     //    await requestServices.RunRequest(ctx.Interaction, new RenameTeamRequest(ctx.Interaction, teamName, newName));
-    //}
-
-    //[SlashCommand("AddToTeam", "Adds a user to a team if they are not already in one.")]
-    //[RequireRole("Host")]
-    //public async Task AddToTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
-    //    [Option("User", "User")] DiscordUser user)
-    //{
-    //    await requestServices.RunRequest(ctx.Interaction, new AddUserToTeamRequest(ctx.Interaction, teamName, user));
-    //}
-
-    //[SlashCommand("RemoveFromTeam", "Removes a user from the database, and the team's role from them.")]
-    //[RequireRole("Host")]
-    //public async Task RemoveFromTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName,
-    //    [Option("User", "User")] DiscordUser user)
-    //{
-    //    await requestServices.RunRequest(ctx.Interaction, new RemoveUserFromTeamHandler(ctx.Interaction, teamName, user));
-    //}
-
-    //[SlashCommand("DeleteTeam", "Deletes a team (from the database), its role, and channels.")]
-    //[RequireRole("Host")]
-    //public async Task DeleteTeam(InteractionContext ctx, [Option("TeamName", "Team name")] string teamName)
-    //{
-    //    await requestServices.RunRequest(ctx.Interaction, new DeleteTeamRequest(ctx.Interaction, teamName));
     //}
 
     //#endregion

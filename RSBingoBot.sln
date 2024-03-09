@@ -32,10 +32,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordLibrary", "A\Discord
 		{D34EC254-EB6B-42E1-B449-BCCE82C88B37} = {D34EC254-EB6B-42E1-B449-BCCE82C88B37}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imaging", "Board\Imaging.csproj", "{7F606C30-8F49-4A38-86D2-E0C11774333F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Imaging", "Board\Imaging.csproj", "{7F606C30-8F49-4A38-86D2-E0C11774333F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4ACFB456-EB3E-4661-BE42-1EEA165407DE} = {4ACFB456-EB3E-4661-BE42-1EEA165407DE}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordTeam", "DiscordTeam\DiscordTeam.csproj", "{CE438AE3-D182-4617-905E-B785C11C924F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{7F606C30-8F49-4A38-86D2-E0C11774333F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F606C30-8F49-4A38-86D2-E0C11774333F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F606C30-8F49-4A38-86D2-E0C11774333F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE438AE3-D182-4617-905E-B785C11C924F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE438AE3-D182-4617-905E-B785C11C924F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE438AE3-D182-4617-905E-B785C11C924F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE438AE3-D182-4617-905E-B785C11C924F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

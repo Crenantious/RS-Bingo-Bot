@@ -7,13 +7,11 @@ namespace RSBingoBot;
 using DiscordLibrary.DiscordServices;
 using DSharpPlus;
 using DSharpPlus.Interactivity.Extensions;
-using Imaging.Leaderboard;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Scoring;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
@@ -31,6 +29,7 @@ internal class Bot : BackgroundService
     private readonly CommandController commandController;
     private readonly IDiscordMessageServices messageServices;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
+    private readonly ILeaderboardServices leaderboardServices;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -40,7 +39,8 @@ internal class Bot : BackgroundService
     /// <param name="client">The client the bot will connect to.</param>
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
     public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController,
-        IDiscordMessageServices messageServices, IEvidenceVerificationEmojis evidenceVerificationEmojis)
+        IDiscordMessageServices messageServices, IEvidenceVerificationEmojis evidenceVerificationEmojis,
+        ILeaderboardServices leaderboardServices, LeaderboardMessage leaderboardMessage)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -52,8 +52,10 @@ internal class Bot : BackgroundService
         this.commandController = commandController;
         this.messageServices = messageServices;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
+        this.leaderboardServices = leaderboardServices;
 
         messageServices.Initialise(null);
+        leaderboardServices.Initialise(null);
     }
 
     /// <inheritdoc/>
@@ -65,7 +67,7 @@ internal class Bot : BackgroundService
 
         await discordClient.ConnectAsync();
         await CreateExistingTeams();
-        await LeaderboardDiscord.SetUp();
+        await leaderboardServices.GetMessage();
         RegisterEvidenceReactionRequests();
     }
 
