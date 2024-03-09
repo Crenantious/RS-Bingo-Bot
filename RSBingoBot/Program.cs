@@ -144,6 +144,8 @@ public class Program
                 services.AddSingleton<BoardImages>();
                 services.AddSingleton<BoardFactory>();
 
+                services.AddSingleton<LeaderboardMessage>();
+                
                 services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
 
                 services.AddTransient(typeof(IDiscordServices), typeof(DiscordServices));
@@ -153,6 +155,7 @@ public class Program
                 services.AddTransient(typeof(IBehaviourServices), typeof(BehaviourServices));
                 services.AddTransient(typeof(IDatabaseServices), typeof(DatabaseServices));
                 services.AddTransient(typeof(IWebServices), typeof(WebServices));
+                services.AddTransient(typeof(ILeaderboardServices), typeof(LeaderboardServices));
 
                 services.AddTransient<DiscordTeamChannelsInfo>();
             })
@@ -258,6 +261,10 @@ public class Program
             .AddRequest<EvidenceReactionRequest>(services)
             .AddRequest<EvidenceVerificationReactionRequest>(services)
             .AddRequest<EvidenceRejectionReactionRequest>(services)
+
+            // Program
+            .AddRequest<GetLeaderboardMessageRequest, Message?>(services)
+            .AddRequest<UpdateLeaderboardRequest>(services)
         );
     }
 }
