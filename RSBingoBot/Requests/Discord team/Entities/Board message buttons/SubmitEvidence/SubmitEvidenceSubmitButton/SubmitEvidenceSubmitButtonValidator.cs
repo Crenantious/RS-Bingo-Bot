@@ -20,15 +20,26 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
 
     public SubmitEvidenceSubmitButtonValidator()
     {
-        RuleFor(r => r.DTO.Tiles.Any())
+        When(r => r.EvidenceType == EvidenceRecord.EvidenceType.TileVerification, CompetitionNotStarted);
+
+        When(r => General.HasCompetitionStarted is false, () =>
+        {
+            RuleFor(r => r.DTO.Tiles.Any())
             .Equal(true)
             .WithMessage(NoTilesSelectedError);
+        });
 
-        RuleFor(r => HasAVerifiedTile(r.DTO.Tiles, r))
+        When(r => General.HasCompetitionStarted is false, () =>
+        {
+            RuleFor(r => HasAVerifiedTile(r.DTO.Tiles, r))
             .Equal(false)
             .WithMessage(TileAlreadyVerifiedError);
+        });
 
-        NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
+        When(r => General.HasCompetitionStarted is false, () =>
+        {
+            NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
+        });
     }
 
     private bool HasAVerifiedTile(IEnumerable<Tile> tiles, SubmitEvidenceSubmitButtonRequest request)
