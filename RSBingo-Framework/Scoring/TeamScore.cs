@@ -9,24 +9,17 @@ using RSBingo_Framework.Records;
 
 public class TeamScore
 {
-    private readonly Team team;
-
     /// <summary>
     /// The most recently calculated score. Defaults to 0.
     /// </summary>
     public int Score { get; private set; } = 0;
 
-    public TeamScore(Team team)
-    {
-        this.team = team;
-    }
-
-    public void Calculate()
+    public void Calculate(IEnumerable<Tile> tiles)
     {
         int score = 0;
 
-        List<TilesValue> tilesValues = TileValues.GetTileValues(team.Tiles).ToList();
-        var tiles = team.Tiles.Where(t => t.IsCompleteAsBool());
+        List<TilesValue> tilesValues = TileValues.GetTileValues(tiles).ToList();
+        tiles = tiles.Where(t => t.IsCompleteAsBool());
 
         foreach (Tile tile in tiles)
         {

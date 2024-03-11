@@ -37,7 +37,7 @@ public class DiscordTeam
     public Message? BoardMessage { get; private set; }
 
     public Board Board { get; }
-    public TeamScore Score { get; }
+    public TeamScore Score { get; } = new();
 
     public DiscordTeam(Team team)
     {
@@ -46,7 +46,6 @@ public class DiscordTeam
 
         var boardFactory = (BoardFactory)General.DI.GetService(typeof(BoardFactory))!;
         Board = boardFactory.Create();
-        Score = new(team);
     }
 
     public void SetName(string name, Team team)

@@ -29,7 +29,7 @@ internal class Bot : BackgroundService
     private readonly CommandController commandController;
     private readonly IDiscordMessageServices messageServices;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
-    private readonly ILeaderboardServices leaderboardServices;
+    private readonly IScoringServices leaderboardServices;
     private readonly IDataWorker dataWorker = CreateDataWorker();
 
     /// <summary>
@@ -40,7 +40,7 @@ internal class Bot : BackgroundService
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
     public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController,
         IDiscordMessageServices messageServices, IEvidenceVerificationEmojis evidenceVerificationEmojis,
-        ILeaderboardServices leaderboardServices, LeaderboardMessage leaderboardMessage)
+        IScoringServices leaderboardServices, LeaderboardMessage leaderboardMessage)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -67,7 +67,7 @@ internal class Bot : BackgroundService
 
         await discordClient.ConnectAsync();
         await CreateExistingTeams();
-        await leaderboardServices.GetMessage();
+        await leaderboardServices.SetUpLeaderboardMessage();
         RegisterEvidenceReactionRequests();
     }
 
