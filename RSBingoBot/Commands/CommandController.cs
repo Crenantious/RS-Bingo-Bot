@@ -65,16 +65,6 @@ internal class CommandController : ApplicationCommandModule
         await DiscordInteractionServices.RunCommand(new PostLeaderboardCommandRequest(ctx.Channel), ctx);
     }
 
-    // TODO: JR - remove, this is for testing.
-    [SlashCommand("UpdateLeaderboard", "Updates the message containing the leaderboard.")]
-    [RequireRole("Host")]
-    public async Task UpdateLeaderboard(InteractionContext ctx)
-    {
-        var leaderboardServices = General.DI.GetService<IScoringServices>();
-        leaderboardServices.Initialise(null);
-        await leaderboardServices.UpdateLeaderboard();
-    }
-
     //#endregion
 
     //#region Teams
