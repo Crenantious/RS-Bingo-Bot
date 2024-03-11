@@ -22,6 +22,7 @@ internal class EvidenceRejectionReactionHandler : EvidenceReactionHandler<Eviden
         }
 
         await MoveEvidenceMessage(Evidence, DataFactory.RejectedEvidenceChannel, EvidenceStatus.Rejected);
+        UpdateScore();
         AddSuccess(new EvidenceRejectionReactionSuccess());
     }
 }

@@ -43,7 +43,7 @@ public class ScoringTests : MockDBBaseTestClass
         dataWorker = CreateDW();
 
         team = MockDBSetup.Add_Team(dataWorker, testTeamName);
-        teamScore = new(team);
+        teamScore = new();
 
         easyTaskOne = MockDBSetup.Add_BingoTask(dataWorker, "Test1", Difficulty.Easy);
         easyTaskTwo = MockDBSetup.Add_BingoTask(dataWorker, "Test2", Difficulty.Easy);
@@ -97,7 +97,7 @@ public class ScoringTests : MockDBBaseTestClass
     public void AddATile_MarkAsCompleteThenIncomplete_ScoreIsCorrect()
     {
         AddTile(easyTaskOne, 0, true);
-        teamScore.Calculate();
+        teamScore.Calculate(team.Tiles);
 
         SetTileIncomplete(0);
 
@@ -133,7 +133,7 @@ public class ScoringTests : MockDBBaseTestClass
         {
             AddTile(easyTaskOne, i, true);
         }
-        teamScore.Calculate();
+        teamScore.Calculate(team.Tiles);
 
         SetTileIncomplete(0);
 
@@ -158,7 +158,7 @@ public class ScoringTests : MockDBBaseTestClass
         {
             AddTile(easyTaskOne, i, true);
         }
-        teamScore.Calculate();
+        teamScore.Calculate(team.Tiles);
 
         SetTileIncomplete(0);
 
@@ -173,7 +173,7 @@ public class ScoringTests : MockDBBaseTestClass
 
     private void AssertScore(int expected)
     {
-        teamScore.Calculate();
+        teamScore.Calculate(team.Tiles);
         Assert.AreEqual(expected, teamScore.Score);
     }
 

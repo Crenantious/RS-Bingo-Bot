@@ -22,6 +22,7 @@ internal class EvidenceVerificationReactionHandler : EvidenceReactionHandler<Evi
         }
 
         await MoveEvidenceMessage(Evidence, DataFactory.VerifiedEvidenceChannel, EvidenceStatus.Accepted);
+        UpdateScore();
         AddSuccess(new EvidenceVerificationReactionSuccess());
     }
 }

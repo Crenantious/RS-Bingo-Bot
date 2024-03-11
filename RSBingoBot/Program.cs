@@ -155,7 +155,7 @@ public class Program
                 services.AddTransient(typeof(IBehaviourServices), typeof(BehaviourServices));
                 services.AddTransient(typeof(IDatabaseServices), typeof(DatabaseServices));
                 services.AddTransient(typeof(IWebServices), typeof(WebServices));
-                services.AddTransient(typeof(ILeaderboardServices), typeof(LeaderboardServices));
+                services.AddTransient(typeof(IScoringServices), typeof(ScoringServices));
 
                 services.AddTransient<DiscordTeamChannelsInfo>();
             })

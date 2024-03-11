@@ -70,9 +70,9 @@ internal class CommandController : ApplicationCommandModule
     [RequireRole("Host")]
     public async Task UpdateLeaderboard(InteractionContext ctx)
     {
-        var leaderboardServices = General.DI.GetService<ILeaderboardServices>();
+        var leaderboardServices = General.DI.GetService<IScoringServices>();
         leaderboardServices.Initialise(null);
-        await leaderboardServices.UpdateMessage();
+        await leaderboardServices.UpdateLeaderboard();
     }
 
     //#endregion

@@ -13,7 +13,9 @@ using FluentResults;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
 using static RSBingo_Framework.Records.EvidenceRecord;
+using DiscordTeam = Discord.DiscordTeam;
 
 internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> where TRequest : EvidenceReactionRequest
 {
@@ -21,10 +23,11 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
 
     private IDiscordMessageServices messageServices = null!;
     private IDatabaseServices dbServices = null!;
-    private IDataWorker dataWorker;
+    private IScoringServices scoringServices = null!;
+    private IDataWorker dataWorker = null!;
 
     protected Evidence? Evidence { get; private set; }
-    protected Message EvidenceMessage { get; private set; }
+    protected Message EvidenceMessage { get; private set; } = null!;
 
     public EvidenceReactionHandler()
     {
@@ -34,6 +37,7 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         messageServices = GetRequestService<IDiscordMessageServices>();
+        scoringServices = GetRequestService<IScoringServices>();
         dbServices = GetRequestService<IDatabaseServices>();
         dataWorker = DataFactory.CreateDataWorker();
 
@@ -79,7 +83,21 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
         evidence.Status = EvidenceStatusLookup.Get(evidenceStatus);
         evidence.DiscordMessageId = message.DiscordMessage.Id;
 
+        var completeStatus = evidenceStatus == EvidenceStatus.Accepted ?
+                             TileRecord.CompleteStatus.Yes :
+                             TileRecord.CompleteStatus.No;
+        
+        // TODO: JR - check for drop evidence type once the submission buttons and competition start are set up correctly.
+        evidence.Tile.SetCompleteStatus(completeStatus);
+
         var result = await dbServices.SaveChanges(dataWorker);
         return result.IsSuccess;
+    }
+
+    protected void UpdateScore()
+    {
+        Team team = Evidence!.Tile.Team;
+        scoringServices.UpdateTeam(DiscordTeam.ExistingTeams[team.Name], team);
+        scoringServices.UpdateLeaderboard();
     }
 }
