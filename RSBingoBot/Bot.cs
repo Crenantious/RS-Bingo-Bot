@@ -16,7 +16,6 @@ using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
 using RSBingoBot.Requests;
-using static RSBingo_Framework.DAL.DataFactory;
 
 /// <summary>
 /// Class for storing code related to the long running discord bot service.
@@ -30,7 +29,7 @@ internal class Bot : BackgroundService
     private readonly IDiscordMessageServices messageServices;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
     private readonly IScoringServices leaderboardServices;
-    private readonly IDataWorker dataWorker = CreateDataWorker();
+    private readonly IDiscordTeamServices teamServices;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Bot"/> class.
@@ -40,7 +39,7 @@ internal class Bot : BackgroundService
     /// <param name="teamFactory">The factory used to create instances of <see cref="Team"/>.</param>
     public Bot(ILogger<Bot> logger, DiscordClient client, SingletonButtons singletonButtons, CommandController commandController,
         IDiscordMessageServices messageServices, IEvidenceVerificationEmojis evidenceVerificationEmojis,
-        IScoringServices leaderboardServices, LeaderboardMessage leaderboardMessage)
+        IScoringServices leaderboardServices, LeaderboardMessage leaderboardMessage, IDiscordTeamServices teamServices)
     {
         this.logger = logger;
         this.discordClient = client;
@@ -53,9 +52,11 @@ internal class Bot : BackgroundService
         this.messageServices = messageServices;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
         this.leaderboardServices = leaderboardServices;
+        this.teamServices = teamServices;
 
         messageServices.Initialise(null);
         leaderboardServices.Initialise(null);
+        teamServices.Initialise(null);
     }
 
     /// <inheritdoc/>
@@ -69,6 +70,10 @@ internal class Bot : BackgroundService
         await CreateExistingTeams();
         await leaderboardServices.SetUpLeaderboardMessage();
         RegisterEvidenceReactionRequests();
+
+        CompetitionStart.OnCompetitionStartAsync += UpdateTeamBoardMessages;
+
+        await UpdateTeamBoardMessages();
     }
 
     /// <inheritdoc/>
@@ -81,8 +86,7 @@ internal class Bot : BackgroundService
 
     private async Task CreateExistingTeams()
     {
-        var teamServices = (IDiscordTeamServices)General.DI.GetService(typeof(IDiscordTeamServices))!;
-        teamServices.Initialise(null);
+        IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
         foreach (Team team in dataWorker.Teams.GetTeams())
         {
@@ -109,5 +113,16 @@ internal class Bot : BackgroundService
         messageServices.RegisterMessageReactedHandler(() =>
             new EvidenceRejectionReactionRequest(evidenceVerificationEmojis.Rejected),
             args => args.Channel == DataFactory.VerifiedEvidenceChannel);
+    }
+
+    private async Task UpdateTeamBoardMessages()
+    {
+        IDataWorker dataWorker = DataFactory.CreateDataWorker();
+
+        foreach (Team team in dataWorker.Teams.GetAll())
+        {
+            DiscordTeam discordTeam = DiscordTeam.ExistingTeams[team.Name];
+            await teamServices.UpdateBoardMessageButtons(discordTeam.BoardMessage!);
+        }
     }
 }

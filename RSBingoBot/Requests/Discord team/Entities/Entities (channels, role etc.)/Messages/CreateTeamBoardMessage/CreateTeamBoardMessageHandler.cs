@@ -4,7 +4,6 @@
 
 namespace RSBingoBot.RequestHandlers;
 
-using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.DiscordEntities;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Factories;
@@ -35,12 +34,12 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
         buttons.Create(request.DiscordTeam);
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
-        Button submissionButton = General.HasCompetitionStarted ? buttons.SubmitDrop : buttons.SubmitEvidence;
 
         Message message = messageFactory.Create(request.DiscordTeam.BoardChannel!)
             .WithContent(DropCodePrefix.FormatConst(dropCode))
-            .AddComponents(buttons.ChangeTile, submissionButton);
+            .AddComponents(buttons.ChangeTile, buttons.SubmitEvidence);
 
+        await teamServices.UpdateBoardMessageButtons(message);
         await teamServices.AddBoardToMessage(request.DiscordTeam, message);
 
         AddSuccess(new CreateTeamBoardMessageSuccess());
