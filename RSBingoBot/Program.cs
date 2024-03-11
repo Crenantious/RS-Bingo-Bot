@@ -145,7 +145,7 @@ public class Program
                 services.AddSingleton<BoardFactory>();
 
                 services.AddSingleton<LeaderboardMessage>();
-                
+
                 services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
 
                 services.AddTransient(typeof(IDiscordServices), typeof(DiscordServices));

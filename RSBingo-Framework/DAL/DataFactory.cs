@@ -37,7 +37,7 @@ public static class DataFactory
     private const string UseNpgsqlKey = "UseNpgsql";
     private const string WhitelistedDomainsKey = "WhitelistedDomains";
     private const string CompetitionStartDateTimeKey = "CompetitionStartDateTime";
-    private const string CompetitionStartDateTimeFormat = "dd/MM/yyyy HH:mm:ss";
+    private const string CompetitionStartDateTimeFormat = "dd/MM/yyyy HH:mm";
 
     // Static vars for holding connection info
     private static string schemaName = string.Empty;
@@ -148,9 +148,13 @@ public static class DataFactory
     {
         InitializeDB(asMockDB);
         InitializeWhitelistedDomains();
-        if (asMockDB is false) { InitializeDiscord(); }
-        // TODO: JR - figure out where this is coming from. Also, it doesn't work for the test DB.
-        //competitionStartDateTime = DateTime.ParseExact(Config_Get<string>(CompetitionStartDateTimeKey), CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
+
+        if (asMockDB is false)
+        {
+            InitializeDiscord();
+        }
+
+        SetStartDate();
     }
 
     private static void InitializeDB(bool asMockDB)
@@ -188,6 +192,18 @@ public static class DataFactory
         rejectedEvidenceChannel = guild.GetChannel(Config_Get<ulong>(RejectedEvidenceChannelIdKey));
         leaderboardChannel = guild.GetChannel(Config_Get<ulong>(LeaderboardChannelIdKey));
         leaderboardMessageId = Config_Get<ulong>(LeaderboardMessageIdKey);
+    }
+
+    private static void SetStartDate()
+    {
+        string? startDate = Config_Get<string>(CompetitionStartDateTimeKey);
+
+        if (string.IsNullOrEmpty(startDate))
+        {
+            throw new ArgumentNullException("Must set a start date.");
+        }
+
+        competitionStartDateTime = DateTime.ParseExact(startDate, CompetitionStartDateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     public static void InitializeScoring() =>

@@ -10,13 +10,25 @@ using System.Timers;
 
 public static class CompetitionStart
 {
-    private static System.Timers.Timer timer;
+    // There's a minimum value required for the timer to work; 1ms didn't seem to work so it's 1s to be safe.
+    private const int TimeSpanMinimum = 1000;
+
+    private static Timer timer = null!;
+
+    // If the competition start date is in the past.
+    private static bool alreadyStarted = false;
 
     public delegate void EventArgs();
     public delegate void EventArgsAsync();
 
-    public static event EventArgs CompetitionStarted;
-    public static event EventArgsAsync CompetitionStartedAsync;
+    /// <summary>
+    /// Called when the competition starts. If the competition has already started when the bot loads,
+    /// this will not be called.
+    /// </summary>
+    public static event EventArgs OnCompetitionStart = null!;
+
+    /// <inheritdoc cref="OnCompetitionStart"/>
+    public static event EventArgsAsync OnCompetitionStartAsync = null!;
 
     public static void Setup()
     {
@@ -30,11 +42,7 @@ public static class CompetitionStart
     {
         try
         {
-            double timeSpan = (DataFactory.CompetitionStartDateTime - DateTime.UtcNow).TotalMilliseconds;
-            if (timeSpan > int.MaxValue) { throw new ArgumentOutOfRangeException("Start DateTime."); }
-
-            // 1000 is arbitrary; just needs to be > 0. 1ms didn't seem to work so it's 1s to be safe.
-            return timeSpan > 0 ? timeSpan : 1000;
+            return GetTimeSpan();
         }
         catch
         {
@@ -44,10 +52,31 @@ public static class CompetitionStart
         }
     }
 
+    private static double GetTimeSpan()
+    {
+        double timeSpan = (DataFactory.CompetitionStartDateTime - DateTime.UtcNow).TotalMilliseconds;
+        if (timeSpan > int.MaxValue)
+        {
+            throw new ArgumentOutOfRangeException("Start DateTime.");
+        }
+
+        if (timeSpan < TimeSpanMinimum)
+        {
+            alreadyStarted = true;
+            return TimeSpanMinimum;
+        }
+
+        return timeSpan;
+    }
+
     private static void TimerElapsed(object? obj, ElapsedEventArgs args)
     {
         General.HasCompetitionStarted = true;
-        CompetitionStarted?.Invoke();
-        CompetitionStartedAsync?.Invoke();
+
+        if (alreadyStarted is false)
+        {
+            OnCompetitionStart?.Invoke();
+            OnCompetitionStartAsync?.Invoke();
+        }
     }
 }
