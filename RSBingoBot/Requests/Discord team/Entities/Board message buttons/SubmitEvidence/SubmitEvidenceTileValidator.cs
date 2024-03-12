@@ -22,20 +22,35 @@ public static class SubmitEvidenceTileValidator
         };
 
     private static bool TileVerificationValidation(Tile tile, ulong userId) =>
-        tile.Evidence.Any(e => e.DiscordUserId == userId &&
-                               e.IsType(EvidenceType.TileVerification) &&
-                               e.IsVerified());
+        tile.Evidence.Any(e => e.IsType(EvidenceType.Drop) ||
+                               DoesUserHaveAcceptedVerificationEvidence(userId, e))
+        is false;
+
+    private static bool DoesUserHaveAcceptedVerificationEvidence(ulong userId, Evidence e) =>
+        e.DiscordUserId == userId &&
+        e.IsType(EvidenceType.TileVerification) &&
+        e.IsVerified();
 
     private static bool DropValidation(Tile tile, ulong userId)
     {
-        if (tile.IsCompleteAsBool())
+        if (tile.IsCompleteAsBool() || DoAllUsersHaveAcceptedVerificationEvidence(tile) is false)
         {
             return false;
         }
 
-        return tile.Evidence.Any(e => e.IsType(EvidenceType.Drop) &&
-                                      e.IsStatus(EvidenceStatus.Accepted) &&
-                                      e.DiscordUserId != userId &&
-                                      e.IsStatus(EvidenceStatus.PendingReview));
+        return !tile.Evidence.Where(e => e.IsType(EvidenceType.Drop))
+                             .Any(e => e.IsStatus(EvidenceStatus.Accepted) ||
+                                       IsPendingFromDifferentUser(e, userId));
     }
+
+    private static bool DoAllUsersHaveAcceptedVerificationEvidence(Tile tile) =>
+        !tile.Team.Users.Any(u => DoesUserHaveAcceptedVerificationEvidence(u) is false);
+
+    private static bool DoesUserHaveAcceptedVerificationEvidence(User user) =>
+        user.Evidence.Any(e => e.IsType(EvidenceType.TileVerification) &&
+                               e.IsStatus(EvidenceStatus.Accepted));
+
+    private static bool IsPendingFromDifferentUser(Evidence e, ulong userId) =>
+        e.IsStatus(EvidenceStatus.PendingReview) &&
+        e.DiscordUserId != userId;
 }
