@@ -28,12 +28,12 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
 
     private IDataWorker dataWorker = null!;
     private Team team = null!;
-    private User user1 = null!;
-    private User user2 = null!;
+    private User userOne = null!;
+    private User userTwo = null!;
     private TeamScore teamScore = null!;
     private BingoTask taskOne = null!;
     private BingoTask taskTwo = null!;
-    private Tile tile1 = null!;
+    private Tile tileOne = null!;
     private Tile tile2 = null!;
 
     private Dictionary<EvidenceEnum, EvidenceDTO> evidenceDTOLookup = new()
@@ -68,7 +68,7 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
         taskOne = MockDBSetup.Add_BingoTask(dataWorker, "Test1", Difficulty.Easy);
         taskTwo = MockDBSetup.Add_BingoTask(dataWorker, "Test2", Difficulty.Easy);
 
-        tile1 = MockDBSetup.Add_Tile(dataWorker, team, taskOne, 0);
+        tileOne = MockDBSetup.Add_Tile(dataWorker, team, taskOne, 0);
         tile2 = MockDBSetup.Add_Tile(dataWorker, team, taskTwo, 1);
 
         dataWorker.SaveChanges();
@@ -81,6 +81,8 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
     [DataRow(EvidenceEnum.pendingVerification, EvidenceType.Drop, false)]
     [DataRow(EvidenceEnum.rejectedVerification, EvidenceType.Drop, false)]
     [DataRow(EvidenceEnum.acceptedVerification, EvidenceType.Drop, true)]
+    [DataRow(EvidenceEnum.pendingDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.rejectedDrop, EvidenceType.Drop, false)]
     [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.pendingDrop, EvidenceType.Drop, true)]
     [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.rejectedDrop, EvidenceType.Drop, true)]
     [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.Drop, false)]
@@ -89,10 +91,66 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
     [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.TileVerification, false)]
     public void ValidateEvidenceForOneUser(EvidenceEnum evidenceEnum, EvidenceType evidenceType, bool isValidExpected)
     {
-        user1 = MockDBSetup.Add_User(dataWorker, 0, team);
-        AddEvidence(user1, tile1, evidenceEnum);
+        userOne = MockDBSetup.Add_User(dataWorker, 0, team);
+        AddEvidence(userOne, tileOne, evidenceEnum);
 
-        bool isValidActual = Validate(tile1, evidenceType, user1.DiscordUserId);
+        bool isValidActual = Validate(tileOne, evidenceType, userOne.DiscordUserId);
+
+        Assert.AreEqual(isValidExpected, isValidActual);
+    }
+
+    [TestMethod]
+    [DataRow(EvidenceEnum.pendingVerification, EvidenceType.TileVerification, true)]
+    [DataRow(EvidenceEnum.rejectedVerification, EvidenceType.TileVerification, true)]
+    [DataRow(EvidenceEnum.acceptedVerification, EvidenceType.TileVerification, true)]
+    [DataRow(EvidenceEnum.pendingVerification, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.rejectedVerification, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.pendingDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.rejectedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.pendingDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.rejectedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.pendingDrop, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.rejectedDrop, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.TileVerification, false)]
+    public void TestUserHasNoAcceptedVerificationEvidence_ValidateEvidenceForTwoUsers(EvidenceEnum evidenceEnum,
+        EvidenceType evidenceType, bool isValidExpected)
+    {
+        userOne = MockDBSetup.Add_User(dataWorker, 0, team);
+        userTwo = MockDBSetup.Add_User(dataWorker, 1, team);
+        AddEvidence(userOne, tileOne, evidenceEnum);
+
+        bool isValidActual = Validate(tileOne, evidenceType, userTwo.DiscordUserId);
+
+        Assert.AreEqual(isValidExpected, isValidActual);
+    }
+
+    [TestMethod]
+    [DataRow(EvidenceEnum.pendingVerification, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.rejectedVerification, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.acceptedVerification, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.pendingVerification, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.rejectedVerification, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification, EvidenceType.Drop, true)]
+    [DataRow(EvidenceEnum.pendingDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.rejectedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.pendingDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.rejectedDrop, EvidenceType.Drop, true)]
+    [DataRow(EvidenceEnum.acceptedVerification | EvidenceEnum.acceptedDrop, EvidenceType.Drop, false)]
+    [DataRow(EvidenceEnum.pendingDrop, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.rejectedDrop, EvidenceType.TileVerification, false)]
+    [DataRow(EvidenceEnum.acceptedDrop, EvidenceType.TileVerification, false)]
+    public void TestUserHasAcceptedVerificationEvidence_ValidateEvidenceForTwoUsers(EvidenceEnum evidenceEnum,
+        EvidenceType evidenceType, bool isValidExpected)
+    {
+        userOne = MockDBSetup.Add_User(dataWorker, 0, team);
+        userTwo = MockDBSetup.Add_User(dataWorker, 1, team);
+        AddEvidence(userOne, tileOne, evidenceEnum);
+        AddEvidence(userTwo, tileOne, EvidenceEnum.acceptedVerification);
+
+        bool isValidActual = Validate(tileOne, evidenceType, userTwo.DiscordUserId);
 
         Assert.AreEqual(isValidExpected, isValidActual);
     }
