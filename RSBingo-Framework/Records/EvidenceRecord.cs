@@ -52,8 +52,14 @@ public static class EvidenceRecord
         dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == messageId);
 
     public static bool IsVerified(this Evidence evidence) =>
-        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Accepted;
+        evidence.IsStatus(EvidenceStatus.Accepted);
 
     public static bool IsRejected(this Evidence evidence) =>
-        EvidenceStatusLookup.Get(evidence.Status) == EvidenceStatus.Rejected;
+        evidence.IsStatus(EvidenceStatus.Rejected);
+
+    public static bool IsStatus(this Evidence evidence, EvidenceStatus evidenceStatus) =>
+        EvidenceStatusLookup.Get(evidence.Status) == evidenceStatus;
+
+    public static bool IsType(this Evidence evidence, EvidenceType evidenceType) =>
+        EvidenceTypeLookup.Get(evidence.EvidenceType) == evidenceType;
 }
