@@ -8,4 +8,5 @@ using DiscordLibrary.Requests;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
 
-public record SubmitEvidenceButtonRequest(DiscordTeam DiscordTeam, EvidenceRecord.EvidenceType EvidenceType, int maxSelectOptions) : IButtonRequest;
+public record SubmitEvidenceButtonRequest(DiscordTeam DiscordTeam, EvidenceRecord.EvidenceType EvidenceType,
+    int maxSelectOptions) : IButtonRequest;

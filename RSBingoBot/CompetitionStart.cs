@@ -19,7 +19,7 @@ public static class CompetitionStart
     private static bool alreadyStarted = false;
 
     public delegate void EventArgs();
-    public delegate void EventArgsAsync();
+    public delegate Task EventArgsAsync();
 
     /// <summary>
     /// Called when the competition starts. If the competition has already started when the bot loads,

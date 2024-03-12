@@ -35,18 +35,12 @@ internal class CreateTeamBoardMessageHandler : RequestHandler<CreateTeamBoardMes
 
         string dropCode = string.IsNullOrWhiteSpace(request.Team.Code) ? DropCodeNotSet : request.Team.Code;
 
-        var message = messageFactory.Create(request.DiscordTeam.BoardChannel!)
+        Message message = messageFactory.Create(request.DiscordTeam.BoardChannel!)
             .WithContent(DropCodePrefix.FormatConst(dropCode))
             .AddComponents(buttons.ChangeTile, buttons.SubmitEvidence);
 
+        await teamServices.UpdateBoardMessageButtons(message);
         await teamServices.AddBoardToMessage(request.DiscordTeam, message);
-
-        // TODO: JR - implement
-        //#if DEBUG
-        //        Button clearEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Clear evidence"));
-        //        Button completeNextTileEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, "Complete next tile"));
-        //        message.AddComponents(clearEvidence, completeNextTileEvidence);
-        //#endif
 
         AddSuccess(new CreateTeamBoardMessageSuccess());
         return message;

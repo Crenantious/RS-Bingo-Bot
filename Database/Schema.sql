@@ -8,8 +8,7 @@ CREATE TABLE Team (
     VoiceChannelID bigint UNSIGNED NOT NULL,
     BoardMessageID bigint UNSIGNED NOT NULL,
     RoleID bigint UNSIGNED NOT NULL,
-    Code varchar(4) NOT NULL UNIQUE,
-    Score int NOT NULL
+    Code varchar(4) NOT NULL UNIQUE
 );
 
 CREATE TABLE `User` (

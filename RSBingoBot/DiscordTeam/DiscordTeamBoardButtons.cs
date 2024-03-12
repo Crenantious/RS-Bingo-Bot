@@ -7,6 +7,7 @@ namespace RSBingoBot.Discord;
 using DiscordLibrary.DiscordComponents;
 using DiscordLibrary.Factories;
 using RSBingoBot.Requests;
+using static RSBingo_Framework.Records.EvidenceRecord;
 
 public class DiscordTeamBoardButtons
 {
@@ -42,11 +43,11 @@ public class DiscordTeamBoardButtons
             () => new ChangeTilesButtonRequest(team.Id));
 
         SubmitEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitEvidenceLabel, GetId(team, SubmitEvidenceLabel)),
-            () => new SubmitEvidenceButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.TileVerification,
+            () => new SubmitEvidenceButtonRequest(team, EvidenceType.TileVerification,
             Math.Min(General.MaxTilesOnABoard, General.MaxSelectOptionsPerPage)));
 
         SubmitDrop = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, SubmitDropLabel, GetId(team, SubmitDropLabel)),
-            () => new SubmitEvidenceButtonRequest(team, RSBingo_Framework.Records.EvidenceRecord.EvidenceType.Drop, 1));
+            () => new SubmitEvidenceButtonRequest(team, EvidenceType.Drop, 1));
 
         ViewEvidence = buttonFactory.Create(new(DSharpPlus.ButtonStyle.Primary, ViewEvidenceLabel, GetId(team, ViewEvidenceLabel)),
             () => new ViewEvidenceButtonRequest(team.Id));

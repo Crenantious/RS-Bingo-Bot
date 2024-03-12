@@ -64,7 +64,6 @@ internal class SubmitEvidenceTileSelect
             items.Add(CreateItem(tile));
         }
         return items;
-
     }
 
     private bool IsTileEidenceVerified(Tile tile) =>
