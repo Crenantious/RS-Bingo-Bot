@@ -56,7 +56,7 @@ internal class SubmitEvidenceTileSelect
     {
         List<SelectComponentItem> items = new();
         var tiles = user.Team.Tiles
-               .Where(t => IsTileEidenceVerified(t) is false)
+               .Where(t => t.IsCompleteAsBool() is false && IsTileEidenceVerified(t) is false)
                .OrderBy(t => t.BoardIndex);
 
         foreach (var tile in tiles)
