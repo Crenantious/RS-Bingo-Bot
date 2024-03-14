@@ -14,16 +14,19 @@ using static RSBingo_Common.General;
 [TestClass]
 public class ServicesIntializer
 {
-    private static HashSet<Type> typesWithInisialisedServices = new();
+    private static IConfigurationRoot configurationRoot;
+
+    static ServicesIntializer()
+    {
+        ConfigurationBuilder configuration = new();
+        configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), false);
+        configuration.AddUserSecrets(typeof(ServicesIntializer).Assembly, false);
+        configurationRoot = configuration.Build();
+    }
 
     [TestInitialize]
     public virtual void TestInitialize()
     {
-        if (typesWithInisialisedServices.Contains(GetType()))
-        {
-            return;
-        }
-
         ServiceCollection services = new();
         services.AddLogging(b => b.AddConsole());
         AddServices(services);
@@ -31,15 +34,9 @@ public class ServicesIntializer
         ContainerBuilder builder = new();
         builder.Populate(services);
 
-        ConfigurationBuilder configuration = new();
-        configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), false);
-        configuration.AddUserSecrets(typeof(ServicesIntializer).Assembly, false);
-
-        builder.RegisterInstance(configuration.Build()).As<IConfiguration>();
+        builder.RegisterInstance(configurationRoot).As<IConfiguration>();
 
         DI = new AutofacServiceProvider(builder.Build());
-
-        typesWithInisialisedServices.Add(GetType());
     }
 
     protected virtual void AddServices(ServiceCollection services)
