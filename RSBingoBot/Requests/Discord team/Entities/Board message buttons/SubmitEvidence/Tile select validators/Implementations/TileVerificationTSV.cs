@@ -16,5 +16,5 @@ public class TileVerificationTSV : ITileVerificationTSV
     }
 
     public bool Validate(Tile tile) =>
-        tile.Team.Users.All(u => verificationEvidence.Validate(u));
+        tile.Team.Users.All(u => verificationEvidence.Validate(tile, u));
 }

@@ -8,5 +8,6 @@ using RSBingo_Framework.Models;
 
 public interface ITileVerificationTSV
 {
+    /// <returns>If the <paramref name="tile"/> has accepted verification evidence for each user of the team.</returns>
     public bool Validate(Tile tile);
 }

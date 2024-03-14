@@ -8,5 +8,5 @@ using RSBingo_Framework.Models;
 
 public interface IUserVerificationEvidenceTSV
 {
-    public bool Validate(User user);
+    public bool Validate(Tile tile, User user);
 }
