@@ -18,7 +18,7 @@ internal class SubmitEvidenceTileSelect
     private readonly User user;
     private readonly EvidenceType evidenceType;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
-
+    private readonly SubmitEvidenceTSV submitEvidenceTSV;
     private Dictionary<int, SelectComponentItem> tileIdToItem = new();
 
     public SelectComponent SelectComponent { get; }
@@ -31,6 +31,7 @@ internal class SubmitEvidenceTileSelect
         this.user = user;
         this.evidenceType = evidenceType;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
+        this.submitEvidenceTSV = General.DI.GetService<SubmitEvidenceTSV>();
 
         SelectComponentFactory selectComponentFactory = (SelectComponentFactory)General.DI.GetService(typeof(SelectComponentFactory))!;
         SelectComponent = CreateSelectComponent(selectComponentFactory);
@@ -56,7 +57,7 @@ internal class SubmitEvidenceTileSelect
     {
         List<SelectComponentItem> items = new();
         var tiles = user.Team.Tiles
-               .Where(t => SubmitEvidenceTileValidator.Validate(t, evidenceType, user.DiscordUserId))
+               .Where(t => submitEvidenceTSV.Validate(t, user, evidenceType))
                .OrderBy(t => t.BoardIndex);
 
         foreach (var tile in tiles)

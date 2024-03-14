@@ -5,12 +5,13 @@
 namespace RSBingo_Framework_Tests;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Scoring;
+using RSBingoBot.Requests;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.Records.EvidenceRecord;
-using static RSBingoBot.Requests.SubmitEvidenceTileValidator;
 
 public record EvidenceDTO(EvidenceType EvidenceType, EvidenceStatus EvidenceStatus);
 
@@ -35,6 +36,7 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
     private BingoTask taskTwo = null!;
     private Tile tileOne = null!;
     private Tile tile2 = null!;
+    private ISubmitEvidenceTSV submitEvidenceTSV = null!;
 
     private Dictionary<EvidenceEnum, EvidenceDTO> evidenceDTOLookup = new()
     {
@@ -71,6 +73,8 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
         tileOne = MockDBSetup.Add_Tile(dataWorker, team, taskOne, 0);
         tile2 = MockDBSetup.Add_Tile(dataWorker, team, taskTwo, 1);
 
+        submitEvidenceTSV = General.DI.GetService<ISubmitEvidenceTSV>();
+
         dataWorker.SaveChanges();
     }
 
@@ -94,7 +98,7 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
         userOne = MockDBSetup.Add_User(dataWorker, 0, team);
         AddEvidence(userOne, tileOne, evidenceEnum);
 
-        bool isValidActual = Validate(tileOne, evidenceType, userOne.DiscordUserId);
+        bool isValidActual = submitEvidenceTSV.Validate(tileOne, userOne, evidenceType);
 
         Assert.AreEqual(isValidExpected, isValidActual);
     }
@@ -121,7 +125,7 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
         userTwo = MockDBSetup.Add_User(dataWorker, 1, team);
         AddEvidence(userOne, tileOne, evidenceEnum);
 
-        bool isValidActual = Validate(tileOne, evidenceType, userTwo.DiscordUserId);
+        bool isValidActual = submitEvidenceTSV.Validate(tileOne, userTwo, evidenceType);
 
         Assert.AreEqual(isValidExpected, isValidActual);
     }
@@ -150,7 +154,7 @@ public class SubmitEvidenceTileValidatorTests : MockDBBaseTestClass
         AddEvidence(userOne, tileOne, evidenceEnum);
         AddEvidence(userTwo, tileOne, EvidenceEnum.acceptedVerification);
 
-        bool isValidActual = Validate(tileOne, evidenceType, userTwo.DiscordUserId);
+        bool isValidActual = submitEvidenceTSV.Validate(tileOne, userTwo, evidenceType);
 
         Assert.AreEqual(isValidExpected, isValidActual);
     }

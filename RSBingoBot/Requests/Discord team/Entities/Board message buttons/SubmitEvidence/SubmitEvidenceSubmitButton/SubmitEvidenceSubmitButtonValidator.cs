@@ -20,10 +20,13 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
     private const string TileAlreadyCompletedError = "A tile you have selected has already been completed, " +
         "please re-open this interaction to get a refreshed list.";
 
-    public SubmitEvidenceSubmitButtonValidator()
+    private readonly SubmitEvidenceTSV submitEvidenceTSV;
+
+    public SubmitEvidenceSubmitButtonValidator(SubmitEvidenceTSV submitEvidenceTSV)
     {
         When(r => r.EvidenceType == EvidenceRecord.EvidenceType.TileVerification, TileVerificationValidation);
         When(r => r.EvidenceType == EvidenceRecord.EvidenceType.Drop, DropValidation);
+        this.submitEvidenceTSV = submitEvidenceTSV;
     }
 
     private void TileVerificationValidation()
@@ -79,7 +82,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         // We must get a refreshed version of the tiles to ensure we have an up-to-date version of the evidence.
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var refreshedTiles = dataWorker.Tiles.GetByIds(tiles.Select(t => t.RowId));
-        return SubmitEvidenceTileValidator.Validate(refreshedTiles, request.EvidenceType, request.User.DiscordUserId);
+        return submitEvidenceTSV.Validate(refreshedTiles, request.User, request.EvidenceType);
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>
