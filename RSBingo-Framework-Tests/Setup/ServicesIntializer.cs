@@ -1,4 +1,4 @@
-﻿// <copyright file="AssemblyInitializer.cs" company="PlaceholderCompany">
+﻿// <copyright file="ServicesIntializer.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -9,32 +9,41 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RSBingo_Common;
 using static RSBingo_Common.General;
 
 [TestClass]
-public static class AssemblyInitializer
+public class ServicesIntializer
 {
-    [AssemblyInitialize]
-    public static void AssemblyInitialize(TestContext context)
+    private static HashSet<Type> typesWithInisialisedServices = new();
+
+    [TestInitialize]
+    public virtual void TestInitialize()
     {
-        context.WriteLine("Building DI/DB");
+        if (typesWithInisialisedServices.Contains(GetType()))
+        {
+            return;
+        }
+
         ServiceCollection services = new();
         services.AddLogging(b => b.AddConsole());
+        AddServices(services);
 
         ContainerBuilder builder = new();
         builder.Populate(services);
 
         ConfigurationBuilder configuration = new();
         configuration.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"), false);
-        configuration.AddUserSecrets(typeof(AssemblyInitializer).Assembly, false);
+        configuration.AddUserSecrets(typeof(ServicesIntializer).Assembly, false);
 
         builder.RegisterInstance(configuration.Build()).As<IConfiguration>();
 
         DI = new AutofacServiceProvider(builder.Build());
 
-        MockDBSetup.SetupDataFactory();
+        typesWithInisialisedServices.Add(GetType());
+    }
 
-        Paths.Initialise(true);
+    protected virtual void AddServices(ServiceCollection services)
+    {
+
     }
 }

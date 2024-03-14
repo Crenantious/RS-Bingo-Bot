@@ -23,7 +23,7 @@ public class InteractionTracker<TRequest> : IInteractionTracker
 
     public async Task ConcludeInteraction()
     {
-        var interactionTrackers = General.DI.GetService<InteractionsTracker>();
+        var interactionTrackers = General.DI.Get<InteractionsTracker>();
         interactionTrackers.TryRemove(this);
     }
 }

@@ -34,8 +34,8 @@ public abstract class InteractionHandler<TRequest> : RequestHandler<TRequest>, I
 
     public InteractionHandler()
     {
-        this.interactionTrackers = General.DI.GetService<InteractionsTracker>();
-        this.interactionMessageFactory = General.DI.GetService<InteractionMessageFactory>();
+        this.interactionTrackers = General.DI.Get<InteractionsTracker>();
+        this.interactionMessageFactory = General.DI.Get<InteractionMessageFactory>();
     }
 
     private protected override async Task PreProcess(TRequest request, CancellationToken cancellationToken)

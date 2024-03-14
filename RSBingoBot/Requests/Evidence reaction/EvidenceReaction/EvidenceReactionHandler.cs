@@ -31,7 +31,7 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
 
     public EvidenceReactionHandler()
     {
-        this.messageFactory = General.DI.GetService<MessageFactory>();
+        this.messageFactory = General.DI.Get<MessageFactory>();
     }
 
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)

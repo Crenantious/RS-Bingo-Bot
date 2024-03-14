@@ -31,7 +31,7 @@ internal class SubmitEvidenceTileSelect
         this.user = user;
         this.evidenceType = evidenceType;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
-        this.submitEvidenceTSV = General.DI.GetService<SubmitEvidenceTSV>();
+        this.submitEvidenceTSV = General.DI.Get<SubmitEvidenceTSV>();
 
         SelectComponentFactory selectComponentFactory = (SelectComponentFactory)General.DI.GetService(typeof(SelectComponentFactory))!;
         SelectComponent = CreateSelectComponent(selectComponentFactory);

@@ -20,6 +20,6 @@ public static class Extensions
         }
     }
 
-    public static T GetService<T>(this IServiceProvider serviceProvider) =>
+    public static T Get<T>(this IServiceProvider serviceProvider) =>
         (T)serviceProvider.GetService(typeof(T))!;
 }

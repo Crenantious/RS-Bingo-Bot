@@ -17,13 +17,18 @@ public class MockDBSetup
     public static void SetupDataFactory()
     {
         DataFactory.SetupDataFactory(true);
-
         TestCleanUpDB(nameof(MockDBSetup));
     }
 
-    public static void TestCleanUpDB(TestContext testContext) { TestCleanUpDB(testContext.FullTestName()); }
+    public static void TestCleanUpDB(TestContext testContext)
+    {
+        TestCleanUpDB(testContext.FullTestName());
+    }
 
-    public static void TestInitializeDB(TestContext testContext) { TestInitializeDB(testContext.FullTestName()); }
+    public static void TestInitializeDB(TestContext testContext)
+    {
+        TestInitializeDB(testContext.FullTestName());
+    }
 
     public static Team Add_Team(IDataWorker dataWorker, string name = "Test")
     {

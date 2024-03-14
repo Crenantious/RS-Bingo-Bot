@@ -4,16 +4,21 @@
 
 namespace RSBingo_Framework_Tests;
 
+using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 
-public abstract class MockDBBaseTestClass
+public abstract class MockDBBaseTestClass : ServicesIntializer
 {
     public TestContext TestContext { get; set; } = null!;
 
     [TestInitialize]
-    public virtual void TestInitialize()
+    public override void TestInitialize()
     {
+        base.TestInitialize();
+
+        Paths.Initialise(true);
+        MockDBSetup.SetupDataFactory();
         MockDBSetup.TestInitializeDB(TestContext);
     }
 
@@ -23,5 +28,5 @@ public abstract class MockDBBaseTestClass
         MockDBSetup.TestCleanUpDB(TestContext);
     }
 
-    public IDataWorker CreateDW()  => DataFactory.CreateDataWorker(TestContext.FullTestName());
+    public IDataWorker CreateDW() => DataFactory.CreateDataWorker(TestContext.FullTestName());
 }

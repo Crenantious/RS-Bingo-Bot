@@ -22,7 +22,7 @@ public abstract class InteractionResponseBehaviour<TRequest> : IPipelineBehavior
 
     public InteractionResponseBehaviour()
     {
-        this.interactionMessageFactory = General.DI.GetService<InteractionMessageFactory>();
+        this.interactionMessageFactory = General.DI.Get<InteractionMessageFactory>();
     }
 
     public abstract Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken);
