@@ -4,7 +4,6 @@
 
 namespace RSBingo_Framework_Tests;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
@@ -30,8 +29,8 @@ public class TSVTestsBase : MockDBBaseTestClass
     private ISubmitEvidenceTSV submitEvidenceTSV = null!;
     private BingoTask taskOne = null!;
     private BingoTask taskTwo = null!;
-    private bool? isValid = null;
 
+    protected bool? isValid { get; set; } = null;
     protected IDataWorker dataWorker { get; set; } = null!;
     protected Team team { get; set; } = null!;
     protected User userOne { get; set; } = null!;
@@ -60,12 +59,6 @@ public class TSVTestsBase : MockDBBaseTestClass
         acceptedDrop = 1 << 5
     }
 
-    protected override void AddServices(ServiceCollection services)
-    {
-        base.AddServices(services);
-        services.AddSingleton(typeof(ISubmitEvidenceTSV), typeof(SubmitEvidenceTSV));
-    }
-
     [TestInitialize]
     public override void TestInitialize()
     {
@@ -85,7 +78,7 @@ public class TSVTestsBase : MockDBBaseTestClass
         dataWorker.SaveChanges();
     }
 
-    protected void AddEvidence(User user, Tile tile, EvidenceEnum evidence)
+    protected void AddEvidence(Tile tile, User user, EvidenceEnum evidence)
     {
         foreach (EvidenceEnum evidenceEnum in Enum.GetValues(typeof(EvidenceEnum)))
         {
@@ -93,19 +86,13 @@ public class TSVTestsBase : MockDBBaseTestClass
             if ((evidence & evidenceEnum) == evidenceEnum)
             {
                 EvidenceDTO evidenceDTO = evidenceDTOLookup[evidenceEnum];
-                AddEvidence(user, tile, evidenceDTO.EvidenceType, evidenceDTO.EvidenceStatus);
+                AddEvidence(tile, user, evidenceDTO.EvidenceType, evidenceDTO.EvidenceStatus);
             }
         }
     }
 
-    private Evidence AddEvidence(User user, Tile tile, EvidenceType evidenceType, EvidenceStatus evidenceStatus) =>
+    private Evidence AddEvidence(Tile tile, User user, EvidenceType evidenceType, EvidenceStatus evidenceStatus) =>
        MockDBSetup.Add_Evidence(dataWorker, user, tile, evidenceType, evidenceStatus);
-
-
-    protected void Validate(Tile tile, User user, EvidenceType evidenceType)
-    {
-        isValid = submitEvidenceTSV.Validate(tile, user, evidenceType);
-    }
 
     public void AssertValidation(bool expected)
     {
