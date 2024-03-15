@@ -20,7 +20,7 @@ public class TileVerificationTSVTests : TSVTestsBase
     protected override void AddServices(ServiceCollection services)
     {
         base.AddServices(services);
-        services.AddSingleton(typeof(ITileVerificationTSV), typeof(TileVerificationTSV));
+        services.AddSingleton(typeof(ITileVerificationTSV), typeof(TileValidatedTSV));
         services.AddSingleton(typeof(IUserVerificationEvidenceTSV), userVefification.Object);
     }
 

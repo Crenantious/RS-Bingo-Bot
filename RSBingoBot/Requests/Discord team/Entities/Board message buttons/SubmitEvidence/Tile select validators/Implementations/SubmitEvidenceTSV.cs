@@ -9,13 +9,13 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public class SubmitEvidenceTSV : ISubmitEvidenceTSV
 {
-    private readonly IDropEvidenceTSV dropEvidence;
-    private readonly IVerificationEvidenceTSV verificationEvidence;
+    private readonly ISubmitDropEvidenceTSV dropValidator;
+    private readonly ISubmitVerificationEvidenceTSV verificationValidator;
 
-    public SubmitEvidenceTSV(IDropEvidenceTSV dropEvidence, IVerificationEvidenceTSV verificationEvidence)
+    public SubmitEvidenceTSV(ISubmitDropEvidenceTSV dropEvidence, ISubmitVerificationEvidenceTSV verificationEvidence)
     {
-        this.dropEvidence = dropEvidence;
-        this.verificationEvidence = verificationEvidence;
+        this.dropValidator = dropEvidence;
+        this.verificationValidator = verificationEvidence;
     }
 
     public bool Validate(IEnumerable<Tile> tiles, User user, EvidenceType evidenceType) =>
@@ -24,8 +24,8 @@ public class SubmitEvidenceTSV : ISubmitEvidenceTSV
     public bool Validate(Tile tile, User user, EvidenceType evidenceType) =>
         evidenceType switch
         {
-            EvidenceType.TileVerification => verificationEvidence.Validate(tile, user),
-            EvidenceType.Drop => dropEvidence.Validate(tile, user),
+            EvidenceType.TileVerification => verificationValidator.Validate(tile, user),
+            EvidenceType.Drop => dropValidator.Validate(tile, user),
             _ => throw new ArgumentOutOfRangeException(),
         };
 }

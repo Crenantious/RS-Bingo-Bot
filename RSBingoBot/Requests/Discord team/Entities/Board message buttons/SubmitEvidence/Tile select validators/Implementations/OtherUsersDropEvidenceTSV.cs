@@ -10,25 +10,8 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public class OtherUsersDropEvidenceTSV : IOtherUsersDropEvidenceTSV
 {
-    public bool Validate(Tile tile, User user)
-    {
-        Evidence? evidence = GetPendingOrAcceptedDropEvidence(tile);
-
-        if (evidence is null)
-        {
-            return true;
-        }
-
-        if (evidence.HasStatus(EvidenceStatus.PendingReview) &&
-            evidence.DiscordUserId == evidence.User.DiscordUserId)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private Evidence? GetPendingOrAcceptedDropEvidence(Tile tile) =>
-        tile.Evidence.First(e => e.IsType(EvidenceType.Drop) &&
-                                 (e.HasStatus(EvidenceStatus.PendingReview) || e.HasStatus(EvidenceStatus.Accepted)));
+    public bool Validate(IEnumerable<Evidence> dropEvidence, ulong userId) =>
+        dropEvidence.GetOtherUsersEvidence(userId)
+            .GetNonRejectedEvidence()
+            .Any();
 }

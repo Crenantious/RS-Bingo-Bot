@@ -51,6 +51,8 @@ public static class EvidenceRecord
     public static Evidence? GetByMessageId(IDataWorker dataWorker, ulong messageId) =>
         dataWorker.Evidence.FirstOrDefault(e => e.DiscordMessageId == messageId);
 
+    #region Extensions
+
     public static bool IsAccepted(this Evidence evidence) =>
         evidence.HasStatus(EvidenceStatus.Accepted);
 
@@ -62,4 +64,28 @@ public static class EvidenceRecord
 
     public static bool IsType(this Evidence evidence, EvidenceType evidenceType) =>
         EvidenceTypeLookup.Get(evidence.EvidenceType) == evidenceType;
+
+    #region IEnumerable inputs
+
+    public static IEnumerable<Evidence> GetVerificationEvidence(this IEnumerable<Evidence> evidence) =>
+        evidence.Where(e => e.IsType(EvidenceType.TileVerification));
+
+    public static IEnumerable<Evidence> GetDropEvidence(this IEnumerable<Evidence> evidence) =>
+        evidence.Where(e => e.IsType(EvidenceType.Drop));
+
+    public static IEnumerable<Evidence> GetUserEvidence(this IEnumerable<Evidence> evidence, ulong userId) =>
+        evidence.Where(e => e.DiscordUserId == userId);
+
+    public static IEnumerable<Evidence> GetOtherUsersEvidence(this IEnumerable<Evidence> evidence, ulong userId) =>
+        evidence.Where(e => e.DiscordUserId != userId);
+
+    public static IEnumerable<Evidence> GetAcceptedEvidence(this IEnumerable<Evidence> evidence) =>
+        evidence.Where(e => e.IsAccepted());
+
+    public static IEnumerable<Evidence> GetNonRejectedEvidence(this IEnumerable<Evidence> evidence) =>
+        evidence.Where(e => e.IsRejected() is false);
+
+    #endregion
+
+    #endregion
 }

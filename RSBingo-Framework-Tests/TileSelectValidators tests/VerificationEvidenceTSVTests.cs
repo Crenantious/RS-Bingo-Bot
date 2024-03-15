@@ -14,12 +14,12 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 [TestClass]
 public class VerificationEvidenceTSVTests : TSVTestsBase
 {
-    private IVerificationEvidenceTSV validator = null!;
+    private ISubmitVerificationEvidenceTSV validator = null!;
 
     protected override void AddServices(ServiceCollection services)
     {
         base.AddServices(services);
-        services.AddSingleton(typeof(IVerificationEvidenceTSV), typeof(VerificationEvidenceTSV));
+        services.AddSingleton(typeof(ISubmitVerificationEvidenceTSV), typeof(SubmitVerificationEvidenceTSV));
     }
 
     [TestInitialize]
@@ -30,7 +30,7 @@ public class VerificationEvidenceTSVTests : TSVTestsBase
         userOne = MockDBSetup.Add_User(dataWorker, 0, team);
         userTwo = MockDBSetup.Add_User(dataWorker, 1, team);
 
-        validator = General.DI.Get<IVerificationEvidenceTSV>();
+        validator = General.DI.Get<ISubmitVerificationEvidenceTSV>();
     }
 
     [TestMethod]
