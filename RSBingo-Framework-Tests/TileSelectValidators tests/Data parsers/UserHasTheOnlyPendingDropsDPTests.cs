@@ -10,7 +10,7 @@ using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
 [TestClass]
-public class UserHasTheOnlyPendingDropsDPTests : TSVTestsBase
+public class UserHasTheOnlyPendingDropsDPTests : TSVDataParserTestBase
 {
     private UserHasTheOnlyPendingDropsDP parser = null!;
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitEvidenceTileValidatorTests.cs" company="PlaceholderCompany">
+﻿// <copyright file="TSVDataParserTestBase.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -15,7 +15,7 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 public record EvidenceDTO(EvidenceType EvidenceType, EvidenceStatus EvidenceStatus);
 
 [TestClass]
-public class TSVTestsBase : MockDBBaseTestClass
+public class TSVDataParserTestBase : MockDBBaseTestClass
 {
     private const string testTeamName = "Test";
 
