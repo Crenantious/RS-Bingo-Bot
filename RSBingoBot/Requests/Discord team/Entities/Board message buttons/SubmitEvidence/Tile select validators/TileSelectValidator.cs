@@ -22,7 +22,7 @@ public abstract class TileSelectValidator<T1, TParser>
         return Validate(parser);
     }
 
-    protected abstract bool Validate(TParser parser);
+    protected abstract bool Validate(TParser data);
 }
 
 public abstract class TileSelectValidator<T1, T2, TParser>
@@ -41,7 +41,7 @@ public abstract class TileSelectValidator<T1, T2, TParser>
         return Validate(parser);
     }
 
-    protected abstract bool Validate(TParser parser);
+    protected abstract bool Validate(TParser data);
 }
 
 public abstract class TileSelectValidator<T1, T2, T3, TParser>
@@ -60,5 +60,5 @@ public abstract class TileSelectValidator<T1, T2, T3, TParser>
         return Validate(parser);
     }
 
-    protected abstract bool Validate(TParser parser);
+    protected abstract bool Validate(TParser data);
 }

@@ -4,13 +4,16 @@
 
 namespace RSBingoBot.Requests;
 
+using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 
-public class SubmitVerificationEvidenceTSV : ISubmitVerificationEvidenceTSV
+public class SubmitVerificationEvidenceTSV : TileSelectValidator<Tile, User, SubmitVerificationEvidenceDP>, ISubmitVerificationEvidenceTSV
 {
-    public bool Validate(User user) =>
-        user.Evidence
-            .GetVerificationEvidence()
-            .GetAcceptedEvidence()
-            .Count() == 0;
+    public SubmitVerificationEvidenceTSV(SubmitVerificationEvidenceDP parser) : base(parser)
+    {
+
+    }
+
+    protected override bool Validate(SubmitVerificationEvidenceDP data) =>
+        data.Evidence.Count() == 0;
 }

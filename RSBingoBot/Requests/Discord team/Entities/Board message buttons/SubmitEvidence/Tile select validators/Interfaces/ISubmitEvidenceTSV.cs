@@ -9,6 +9,5 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public interface ISubmitEvidenceTSV
 {
-    public bool Validate(IEnumerable<Tile> tiles, User user, EvidenceType evidenceType);
     public bool Validate(Tile tile, User user, EvidenceType evidenceType);
 }

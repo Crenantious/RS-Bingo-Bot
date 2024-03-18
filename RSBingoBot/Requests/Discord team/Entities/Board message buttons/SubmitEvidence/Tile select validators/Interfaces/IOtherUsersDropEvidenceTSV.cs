@@ -8,5 +8,5 @@ using RSBingo_Framework.Models;
 
 public interface IOtherUsersDropEvidenceTSV
 {
-    public bool Validate(IEnumerable<Evidence> dropEvidence, ulong userId);
+    public bool Validate(Tile tile, User user);
 }

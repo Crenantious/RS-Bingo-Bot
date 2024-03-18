@@ -4,31 +4,26 @@
 
 namespace RSBingoBot.Requests;
 
+using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Records;
 
-public class SubmitDropEvidenceTSV : ISubmitDropEvidenceTSV
+public class SubmitDropEvidenceTSV : TileSelectValidator<Tile, User, SubmitDropEvidenceDP>, ISubmitDropEvidenceTSV
 {
     private readonly ITileSubmitDropEvidenceTSV tileDropEvidenceSubmission;
     private readonly IOtherUsersDropEvidenceTSV otherUsersDropEvidence;
     private readonly IUserHasNoAcceptedDropEvidenceTSV userHasNoAcceptedDropEvidence;
 
     public SubmitDropEvidenceTSV(IOtherUsersDropEvidenceTSV otherUsersDropEvidenceSubmission,
-        ITileSubmitDropEvidenceTSV tileDropEvidenceSubmission, IUserHasNoAcceptedDropEvidenceTSV userHasNoAcceptedDropEvidence)
+        ITileSubmitDropEvidenceTSV tileDropEvidenceSubmission, IUserHasNoAcceptedDropEvidenceTSV userHasNoAcceptedDropEvidence,
+        SubmitDropEvidenceDP parser) : base(parser)
     {
         this.otherUsersDropEvidence = otherUsersDropEvidenceSubmission;
         this.tileDropEvidenceSubmission = tileDropEvidenceSubmission;
         this.userHasNoAcceptedDropEvidence = userHasNoAcceptedDropEvidence;
     }
 
-    public bool Validate(Tile tile, User user)
-    {
-        if (tileDropEvidenceSubmission.Validate(tile) is false)
-        {
-            return false;
-        }
-
-        return otherUsersDropEvidence.Validate(tile.Evidence.GetDropEvidence(), user.DiscordUserId) &&
-               userHasNoAcceptedDropEvidence.Validate(user);
-    }
+    protected override bool Validate(SubmitDropEvidenceDP data) =>
+        tileDropEvidenceSubmission.Validate(data.Tile) &&
+        otherUsersDropEvidence.Validate(data.Tile, data.User) &&
+        userHasNoAcceptedDropEvidence.Validate(data.User);
 }

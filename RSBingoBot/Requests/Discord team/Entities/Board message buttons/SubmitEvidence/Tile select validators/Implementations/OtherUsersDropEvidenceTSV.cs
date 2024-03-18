@@ -4,14 +4,16 @@
 
 namespace RSBingoBot.Requests;
 
+using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Records;
-using static RSBingo_Framework.Records.EvidenceRecord;
 
-public class OtherUsersDropEvidenceTSV : IOtherUsersDropEvidenceTSV
+public class OtherUsersDropEvidenceTSV : TileSelectValidator<Tile, User, OtherUsersDropEvidenceDP>, IOtherUsersDropEvidenceTSV
 {
-    public bool Validate(IEnumerable<Evidence> dropEvidence, ulong userId) =>
-        dropEvidence.GetOtherUsersEvidence(userId)
-            .GetNonRejectedEvidence()
-            .Any();
+    public OtherUsersDropEvidenceTSV(OtherUsersDropEvidenceDP parser) : base(parser)
+    {
+
+    }
+
+    protected override bool Validate(OtherUsersDropEvidenceDP data) =>
+        data.DropEvidence.Count() == 0;
 }
