@@ -9,21 +9,18 @@ using RSBingo_Framework.Models;
 
 public class SubmitDropEvidenceTSV : TileSelectValidator<Tile, User, SubmitDropEvidenceDP>, ISubmitDropEvidenceTSV
 {
-    private readonly ITileSubmitDropEvidenceTSV tileDropEvidenceSubmission;
-    private readonly IOtherUsersDropEvidenceTSV otherUsersDropEvidence;
-    private readonly IUserHasNoAcceptedDropEvidenceTSV userHasNoAcceptedDropEvidence;
+    private readonly ITileCanRecieveDropsTSV tileCanRecieveDrops;
+    private readonly IUserHasTheOnlyPendingDropsTSV userHasTheOnlyPendingDrops;
 
-    public SubmitDropEvidenceTSV(IOtherUsersDropEvidenceTSV otherUsersDropEvidenceSubmission,
-        ITileSubmitDropEvidenceTSV tileDropEvidenceSubmission, IUserHasNoAcceptedDropEvidenceTSV userHasNoAcceptedDropEvidence,
-        SubmitDropEvidenceDP parser) : base(parser)
+    public SubmitDropEvidenceTSV(IUserHasTheOnlyPendingDropsTSV otherUsersDropEvidenceSubmission,
+        ITileCanRecieveDropsTSV tileDropEvidenceSubmission, SubmitDropEvidenceDP parser) :
+        base(parser)
     {
-        this.otherUsersDropEvidence = otherUsersDropEvidenceSubmission;
-        this.tileDropEvidenceSubmission = tileDropEvidenceSubmission;
-        this.userHasNoAcceptedDropEvidence = userHasNoAcceptedDropEvidence;
+        this.userHasTheOnlyPendingDrops = otherUsersDropEvidenceSubmission;
+        this.tileCanRecieveDrops = tileDropEvidenceSubmission;
     }
 
     protected override bool Validate(SubmitDropEvidenceDP data) =>
-        tileDropEvidenceSubmission.Validate(data.Tile) &&
-        otherUsersDropEvidence.Validate(data.Tile, data.User) &&
-        userHasNoAcceptedDropEvidence.Validate(data.User);
+        tileCanRecieveDrops.Validate(data.Tile) &&
+        userHasTheOnlyPendingDrops.Validate(data.Tile, data.User);
 }

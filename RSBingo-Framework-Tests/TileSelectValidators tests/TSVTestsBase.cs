@@ -30,77 +30,109 @@ public class TSVTestsBase : MockDBBaseTestClass
     private BingoTask taskOne = null!;
     private BingoTask taskTwo = null!;
 
-    protected bool? isValid { get; set; } = null;
-    protected IDataWorker dataWorker { get; set; } = null!;
-    protected Team team { get; set; } = null!;
-    protected User userOne { get; set; } = null!;
-    protected User userTwo { get; set; } = null!;
-    protected Tile tileOne { get; set; } = null!;
-    protected Tile tileTwo { get; set; } = null!;
+    protected bool? IsValid { get; set; } = null;
+    protected IDataWorker DataWorker { get; set; } = null!;
+    protected Team Team { get; set; } = null!;
+    protected User UserOne { get; set; } = null!;
+    protected User UserTwo { get; set; } = null!;
+    protected Tile TileOne { get; set; } = null!;
+    protected Tile TileTwo { get; set; } = null!;
 
     private Dictionary<EvidenceEnum, EvidenceDTO> evidenceDTOLookup = new()
     {
-        { EvidenceEnum.pendingVerification, pendingVerification},
-        { EvidenceEnum.rejectedVerification, rejectedVerification},
-        { EvidenceEnum.acceptedVerification, acceptedVerification},
-        { EvidenceEnum.pendingDrop, pendingDrop},
-        { EvidenceEnum.rejectedDrop,rejectedDrop },
-        { EvidenceEnum.acceptedDrop,acceptedDrop }
+        { EvidenceEnum.PendingVerification, pendingVerification},
+        { EvidenceEnum.RejectedVerification, rejectedVerification},
+        { EvidenceEnum.AcceptedVerification, acceptedVerification},
+        { EvidenceEnum.PendingDrop, pendingDrop},
+        { EvidenceEnum.RejectedDrop,rejectedDrop },
+        { EvidenceEnum.AcceptedDrop,acceptedDrop }
     };
 
     [Flags]
     public enum EvidenceEnum
     {
-        pendingVerification = 1 << 0,
-        rejectedVerification = 1 << 1,
-        acceptedVerification = 1 << 2,
-        pendingDrop = 1 << 3,
-        rejectedDrop = 1 << 4,
-        acceptedDrop = 1 << 5
+        None = 0,
+        PendingVerification = 1 << 0,
+        RejectedVerification = 1 << 1,
+        AcceptedVerification = 1 << 2,
+        PendingDrop = 1 << 3,
+        RejectedDrop = 1 << 4,
+        AcceptedDrop = 1 << 5
     }
 
     [TestInitialize]
     public override void TestInitialize()
     {
         base.TestInitialize();
-        dataWorker = CreateDW();
+        DataWorker = CreateDW();
 
-        team = MockDBSetup.Add_Team(dataWorker, testTeamName);
+        Team = MockDBSetup.Add_Team(DataWorker, testTeamName);
 
-        taskOne = MockDBSetup.Add_BingoTask(dataWorker, "Test1", Difficulty.Easy);
-        taskTwo = MockDBSetup.Add_BingoTask(dataWorker, "Test2", Difficulty.Easy);
+        taskOne = MockDBSetup.Add_BingoTask(DataWorker, "Test1", Difficulty.Easy);
+        taskTwo = MockDBSetup.Add_BingoTask(DataWorker, "Test2", Difficulty.Easy);
 
-        tileOne = MockDBSetup.Add_Tile(dataWorker, team, taskOne, 0);
-        tileTwo = MockDBSetup.Add_Tile(dataWorker, team, taskTwo, 1);
+        TileOne = MockDBSetup.Add_Tile(DataWorker, Team, taskOne, 0);
+        TileTwo = MockDBSetup.Add_Tile(DataWorker, Team, taskTwo, 1);
 
         submitEvidenceTSV = General.DI.Get<ISubmitEvidenceTSV>();
 
-        dataWorker.SaveChanges();
+        DataWorker.SaveChanges();
     }
 
-    protected void AddEvidence(Tile tile, User user, EvidenceEnum evidence)
+    protected List<Evidence> AddEvidence(Tile tile, User user, EvidenceEnum evidenceEnum)
     {
-        foreach (EvidenceEnum evidenceEnum in Enum.GetValues(typeof(EvidenceEnum)))
+        List<Evidence> addedEvidence = new();
+        IEnumerable<EvidenceDTO> DTOs = EvidenceEnumToDTO(evidenceEnum);
+
+        foreach (EvidenceDTO DTO in DTOs)
         {
-            var a = (int)evidenceEnum;
-            if ((evidence & evidenceEnum) == evidenceEnum)
-            {
-                EvidenceDTO evidenceDTO = evidenceDTOLookup[evidenceEnum];
-                AddEvidence(tile, user, evidenceDTO.EvidenceType, evidenceDTO.EvidenceStatus);
-            }
+            Evidence evidence = MockDBSetup.Add_Evidence(DataWorker, user, tile, DTO.EvidenceType, DTO.EvidenceStatus);
+            addedEvidence.Add(evidence);
         }
+
+        return addedEvidence;
     }
 
-    private Evidence AddEvidence(Tile tile, User user, EvidenceType evidenceType, EvidenceStatus evidenceStatus) =>
-       MockDBSetup.Add_Evidence(dataWorker, user, tile, evidenceType, evidenceStatus);
+    protected void AssertEvidence(IEnumerable<Evidence> evidence, EvidenceEnum evidenceEnum)
+    {
+        List<EvidenceDTO> expected = EvidenceEnumToDTO(evidenceEnum).ToList();
+        List<EvidenceDTO> actual = new();
+
+        foreach (Evidence e in evidence)
+        {
+            actual.Add(new(EvidenceTypeLookup.Get(e.EvidenceType), EvidenceStatusLookup.Get(e.Status)));
+        }
+
+        CollectionAssert.AreEquivalent(expected, actual);
+    }
 
     public void AssertValidation(bool expected)
     {
-        if (isValid is null)
+        if (IsValid is null)
         {
             throw new InvalidOperationException("Must validate the data before asserting.");
         }
 
-        Assert.AreEqual(expected, isValid);
+        Assert.AreEqual(expected, IsValid);
+    }
+
+    private IEnumerable<EvidenceDTO> EvidenceEnumToDTO(EvidenceEnum evidenceEnum)
+    {
+        List<EvidenceDTO> DTOs = new();
+
+        foreach (EvidenceEnum value in Enum.GetValues(typeof(EvidenceEnum)))
+        {
+            if (value == EvidenceEnum.None)
+            {
+                continue;
+            }
+
+            if ((evidenceEnum & value) == value)
+            {
+                DTOs.Add(evidenceDTOLookup[value]);
+            }
+        }
+
+        return DTOs;
     }
 }

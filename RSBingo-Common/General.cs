@@ -5,10 +5,10 @@
 namespace RSBingo_Common;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using SixLabors.ImageSharp;
 using System.Reflection;
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿// <copyright file="SubmitDropEvidenceDP.cs" company="PlaceholderCompany">
+﻿// <copyright file="TileCanRecieveDropsDP.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,7 +6,7 @@ namespace RSBingo_Framework.DataParsers;
 
 using RSBingo_Framework.Models;
 
-public class TileSubmitDropEvidenceDP : IDataParser<Tile>
+public class TileCanRecieveDropsDP : IDataParser<Tile>
 {
     public Tile Tile { get; private set; } = null!;
 
