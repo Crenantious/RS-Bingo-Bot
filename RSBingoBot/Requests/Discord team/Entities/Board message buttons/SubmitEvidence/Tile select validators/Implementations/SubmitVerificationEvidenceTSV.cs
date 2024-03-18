@@ -9,11 +9,14 @@ using RSBingo_Framework.Models;
 
 public class SubmitVerificationEvidenceTSV : TileSelectValidator<Tile, User, SubmitVerificationEvidenceDP>, ISubmitVerificationEvidenceTSV
 {
-    public SubmitVerificationEvidenceTSV(SubmitVerificationEvidenceDP parser) : base(parser)
-    {
+    private readonly IUserHasNoAcceptedVerificationEvidenceForTileTSV userHasNoAcceptedVerificationEvidenceForTile;
 
+    public SubmitVerificationEvidenceTSV(IUserHasNoAcceptedVerificationEvidenceForTileTSV userHasNoAcceptedVerificationEvidenceForTile,
+        SubmitVerificationEvidenceDP parser) : base(parser)
+    {
+        this.userHasNoAcceptedVerificationEvidenceForTile = userHasNoAcceptedVerificationEvidenceForTile;
     }
 
     protected override bool Validate(SubmitVerificationEvidenceDP data) =>
-        data.Evidence.Count() == 0;
+        userHasNoAcceptedVerificationEvidenceForTile.Validate(data.Tile, data.User);
 }
