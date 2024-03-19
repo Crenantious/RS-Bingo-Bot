@@ -8,19 +8,19 @@ using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
-public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, SubmitEvidenceDP>, ISubmitEvidenceTSV
+public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, ISubmitEvidenceDP>, ISubmitEvidenceTSV
 {
     private readonly ISubmitDropEvidenceTSV dropValidator;
     private readonly ISubmitVerificationEvidenceTSV verificationValidator;
 
     public SubmitEvidenceTSV(ISubmitDropEvidenceTSV dropEvidence, ISubmitVerificationEvidenceTSV verificationEvidence,
-        SubmitEvidenceDP parser) : base(parser)
+        ISubmitEvidenceDP parser) : base(parser)
     {
         this.dropValidator = dropEvidence;
         this.verificationValidator = verificationEvidence;
     }
 
-    protected override bool Validate(SubmitEvidenceDP data) =>
+    protected override bool Validate(ISubmitEvidenceDP data) =>
         data.EvidenceType switch
         {
             EvidenceType.TileVerification => verificationValidator.Validate(data.Tile, data.User),

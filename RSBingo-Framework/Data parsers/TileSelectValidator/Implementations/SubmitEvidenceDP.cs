@@ -1,5 +1,4 @@
-﻿
-// <copyright file="UserHasNoAcceptedDropEvidenceDP.cs" company="PlaceholderCompany">
+﻿// <copyright file="UserHasNoAcceptedDropEvidenceDP.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,7 +7,7 @@ namespace RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
-public class SubmitEvidenceDP : IDataParser<Tile, User, EvidenceType>
+public class SubmitEvidenceDP : ISubmitEvidenceDP
 {
     public Tile Tile { get; private set; } = null!;
     public User User { get; private set; } = null!;
