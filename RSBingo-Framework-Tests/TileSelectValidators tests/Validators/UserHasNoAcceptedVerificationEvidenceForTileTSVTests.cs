@@ -1,4 +1,4 @@
-﻿// <copyright file="UserHasNoAcceptedVerificationEvidenceForTileDPTests.cs" company="PlaceholderCompany">
+﻿// <copyright file="UserHasNoAcceptedVerificationEvidenceForTileTSVTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -13,18 +13,18 @@ using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
 
 [TestClass]
-public class UserHasTheOnlyPendingDropsTSVTests : TSVTestBase
+public class UserHasNoAcceptedVerificationEvidenceForTileTSVTests : TSVTestBase
 {
-    private UserHasTheOnlyPendingDropsTSV tsv = null!;
-    private Mock<IUserHasTheOnlyPendingDropsDP> parser = new();
+    private UserHasNoAcceptedVerificationEvidenceForTileTSV tsv = null!;
+    private Mock<IUserHasNoAcceptedVerificationEvidenceForTileDP> parser = new();
     private bool? isValid = null;
 
     protected override void AddServices(ServiceCollection services)
     {
         base.AddServices(services);
 
-        services.AddSingleton<IUserHasTheOnlyPendingDropsDP>(s => parser.Object);
-        services.AddTransient<UserHasTheOnlyPendingDropsTSV>();
+        services.AddSingleton<IUserHasNoAcceptedVerificationEvidenceForTileDP>(s => parser.Object);
+        services.AddTransient<UserHasNoAcceptedVerificationEvidenceForTileTSV>();
     }
 
     [TestInitialize]
@@ -34,7 +34,7 @@ public class UserHasTheOnlyPendingDropsTSVTests : TSVTestBase
 
         UserOne = MockDBSetup.Add_User(DataWorker, 0, Team);
 
-        tsv = General.DI.Get<UserHasTheOnlyPendingDropsTSV>();
+        tsv = General.DI.Get<UserHasNoAcceptedVerificationEvidenceForTileTSV>();
     }
 
     [TestMethod]

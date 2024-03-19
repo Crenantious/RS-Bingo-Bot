@@ -10,7 +10,7 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public class UserHasTheOnlyPendingDropsDP : IUserHasTheOnlyPendingDropsDP
 {
-    public IEnumerable<Evidence> Evidence { get; set; } = null!;
+    public IEnumerable<Evidence> Evidence { get; private set; } = null!;
 
     public void Parse(Tile tile, User user)
     {

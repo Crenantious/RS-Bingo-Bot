@@ -7,7 +7,7 @@ namespace RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-public class UserHasNoAcceptedVerificationEvidenceForTileDP : IDataParser<Tile, User>
+public class UserHasNoAcceptedVerificationEvidenceForTileDP : IUserHasNoAcceptedVerificationEvidenceForTileDP
 {
     /// <summary>
     /// Accepted verification evidence that the <see cref="User"/> has submitted for the <see cref="Tile"/>.

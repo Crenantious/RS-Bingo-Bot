@@ -13,5 +13,5 @@ public interface IUserHasTheOnlyPendingDropsDP : IDataParser<Tile, User>
     /// All <see cref="EvidenceStatus.PendingReview"/> <see cref="EvidenceType.Drop"/>
     /// <see cref="Models.Evidence"/> for the <see cref="Tile"/> the was submitted by the <see cref="User"/>.
     /// </summary>
-    public IEnumerable<Evidence> Evidence { get; set; }
+    public IEnumerable<Evidence> Evidence { get; }
 }

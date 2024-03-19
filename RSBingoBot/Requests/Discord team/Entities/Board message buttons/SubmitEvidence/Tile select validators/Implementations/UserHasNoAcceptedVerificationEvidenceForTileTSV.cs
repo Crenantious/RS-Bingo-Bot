@@ -7,14 +7,14 @@ namespace RSBingoBot.Requests;
 using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 
-public class UserHasNoAcceptedVerificationEvidenceForTileTSV : TileSelectValidator<Tile, User, UserHasNoAcceptedVerificationEvidenceForTileDP>,
+public class UserHasNoAcceptedVerificationEvidenceForTileTSV : TileSelectValidator<Tile, User, IUserHasNoAcceptedVerificationEvidenceForTileDP>,
     IUserHasNoAcceptedVerificationEvidenceForTileTSV
 {
-    public UserHasNoAcceptedVerificationEvidenceForTileTSV(UserHasNoAcceptedVerificationEvidenceForTileDP parser) : base(parser)
+    public UserHasNoAcceptedVerificationEvidenceForTileTSV(IUserHasNoAcceptedVerificationEvidenceForTileDP parser) : base(parser)
     {
 
     }
 
-    protected override bool Validate(UserHasNoAcceptedVerificationEvidenceForTileDP data) =>
+    protected override bool Validate(IUserHasNoAcceptedVerificationEvidenceForTileDP data) =>
         data.Evidence.Count() == 0;
 }
