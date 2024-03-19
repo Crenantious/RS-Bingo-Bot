@@ -4,28 +4,27 @@
 
 namespace RSBingoBot.Requests;
 
+using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
-public class SubmitEvidenceTSV : ISubmitEvidenceTSV
+public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, ISubmitEvidenceDP>, ISubmitEvidenceTSV
 {
-    private readonly IDropEvidenceTSV dropEvidence;
-    private readonly IVerificationEvidenceTSV verificationEvidence;
+    private readonly ISubmitDropEvidenceTSV dropValidator;
+    private readonly ISubmitVerificationEvidenceTSV verificationValidator;
 
-    public SubmitEvidenceTSV(IDropEvidenceTSV dropEvidence, IVerificationEvidenceTSV verificationEvidence)
+    public SubmitEvidenceTSV(ISubmitDropEvidenceTSV dropEvidence, ISubmitVerificationEvidenceTSV verificationEvidence,
+        ISubmitEvidenceDP parser) : base(parser)
     {
-        this.dropEvidence = dropEvidence;
-        this.verificationEvidence = verificationEvidence;
+        this.dropValidator = dropEvidence;
+        this.verificationValidator = verificationEvidence;
     }
 
-    public bool Validate(IEnumerable<Tile> tiles, User user, EvidenceType evidenceType) =>
-        tiles.All(t => Validate(t, user, evidenceType));
-
-    public bool Validate(Tile tile, User user, EvidenceType evidenceType) =>
-        evidenceType switch
+    protected override bool Validate(ISubmitEvidenceDP data) =>
+        data.EvidenceType switch
         {
-            EvidenceType.TileVerification => verificationEvidence.Validate(tile, user),
-            EvidenceType.Drop => dropEvidence.Validate(tile, user),
-            _ => throw new ArgumentOutOfRangeException(),
+            EvidenceType.TileVerification => verificationValidator.Validate(data.Tile, data.User),
+            EvidenceType.Drop => dropValidator.Validate(data.Tile, data.User),
+            _ => throw new ArgumentOutOfRangeException($"The given {nameof(Enum)} {nameof(EvidenceType)} is invalid."),
         };
 }

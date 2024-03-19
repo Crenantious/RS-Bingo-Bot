@@ -82,7 +82,8 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         // We must get a refreshed version of the tiles to ensure we have an up-to-date version of the evidence.
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var refreshedTiles = dataWorker.Tiles.GetByIds(tiles.Select(t => t.RowId));
-        return submitEvidenceTSV.Validate(refreshedTiles, request.User, request.EvidenceType);
+        return refreshedTiles.All(t => 
+            submitEvidenceTSV.Validate(t, request.User, request.EvidenceType));
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>
