@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework_Tests;
+namespace RSBingo_Framework_Tests.DataParsers;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.DataParsers;

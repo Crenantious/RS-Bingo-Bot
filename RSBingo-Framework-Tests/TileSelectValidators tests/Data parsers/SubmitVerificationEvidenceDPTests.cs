@@ -1,4 +1,4 @@
-﻿// <copyright file="TileCanRecieveDropsDPTests.cs" company="PlaceholderCompany">
+﻿// <copyright file="SubmitVerificationEvidenceDPTests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -8,23 +8,26 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.DataParsers;
 
 [TestClass]
-public class TileCanRecieveDropsDPTests : TSVDataParserTestBase
+public class SubmitVerificationEvidenceDPTests : TSVDataParserTestBase
 {
-    private TileCanRecieveDropsDP parser = null!;
+    private SubmitVerificationEvidenceDP parser = null!;
 
     [TestInitialize]
     public override void TestInitialize()
     {
         base.TestInitialize();
 
+        UserOne = MockDBSetup.Add_User(DataWorker, 0, Team);
+
         parser = new();
     }
 
     [TestMethod]
-    public void TileGiven_TheSameTileIsGivenBack()
+    public void GiveTileAndUser_TheTileAndUserAreParsedAndGivenBack()
     {
-        parser.Parse(TileOne);
+        parser.Parse(TileOne, UserOne);
 
         Assert.AreEqual(TileOne, parser.Tile);
+        Assert.AreEqual(UserOne, parser.User);
     }
 }
