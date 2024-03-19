@@ -4,6 +4,7 @@
 
 namespace RSBingoBot.Requests;
 
+using DiscordLibrary.Requests.Extensions;
 using FluentValidation;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
@@ -20,13 +21,18 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
     private const string TileAlreadyCompletedError = "A tile you have selected has already been completed, " +
         "please re-open this interaction to get a refreshed list.";
 
-    private readonly SubmitEvidenceTSV submitEvidenceTSV;
+    private readonly ISubmitEvidenceTSV tileValidator;
 
-    public SubmitEvidenceSubmitButtonValidator(SubmitEvidenceTSV submitEvidenceTSV)
+    public SubmitEvidenceSubmitButtonValidator(ISubmitEvidenceTSV tileValidator)
     {
+        UserOnTeam(r => (r.GetDiscordInteraction().User, r.DiscordTeam.Id), true);
+
         When(r => r.EvidenceType == EvidenceRecord.EvidenceType.TileVerification, TileVerificationValidation);
         When(r => r.EvidenceType == EvidenceRecord.EvidenceType.Drop, DropValidation);
-        this.submitEvidenceTSV = submitEvidenceTSV;
+
+        this.tileValidator = tileValidator;
+
+        NotNull(r => r.DTO.EvidenceUrl, NoEvidenceSubmittedError);
     }
 
     private void TileVerificationValidation()
@@ -43,7 +49,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         When(r => General.HasCompetitionStarted is false, () =>
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
-                .Equal(false)
+                .Equal(true)
                 .WithMessage(EvidenceAlreadyVerifiedError);
         });
 
@@ -67,7 +73,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         When(r => General.HasCompetitionStarted, () =>
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
-                .Equal(false)
+                .Equal(true)
                 .WithMessage(TileAlreadyCompletedError);
         });
 
@@ -82,8 +88,9 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         // We must get a refreshed version of the tiles to ensure we have an up-to-date version of the evidence.
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var refreshedTiles = dataWorker.Tiles.GetByIds(tiles.Select(t => t.RowId));
-        return refreshedTiles.All(t => 
-            submitEvidenceTSV.Validate(t, request.User, request.EvidenceType));
+        User user = dataWorker.Users.GetByDiscordId(request.GetDiscordInteraction().User.Id)!;
+        return refreshedTiles.All(t =>
+            tileValidator.Validate(t, user, request.EvidenceType));
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>

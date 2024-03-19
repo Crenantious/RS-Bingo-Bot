@@ -93,7 +93,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
     private Button CreateSubmitButton(SubmitEvidenceButtonRequest request, SubmitEvidenceButtonDTO dto, SubmitEvidenceTileSelect tileSelect) =>
         buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
+            () => new SubmitEvidenceSubmitButtonRequest(request.DiscordTeam, dto, evidenceType, tileSelect));
 
     private Button CreateCloseButton(InteractionMessage response, int? subscriptionId) =>
         buttonFactory.CreateConcludeInteraction(() =>

@@ -17,13 +17,13 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using FluentValidation;
 using Imaging.Board;
-//using FluentValidation.DependencyInjectionExtensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.DataParsers;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
@@ -145,6 +145,20 @@ public class Program
                 services.AddSingleton<BoardFactory>();
 
                 services.AddSingleton<LeaderboardMessage>();
+
+                services.AddSingleton(typeof(ISubmitEvidenceTSV), typeof(SubmitEvidenceTSV));
+                services.AddSingleton(typeof(ISubmitDropEvidenceTSV), typeof(SubmitDropEvidenceTSV));
+                services.AddSingleton(typeof(ISubmitVerificationEvidenceTSV), typeof(SubmitVerificationEvidenceTSV));
+                services.AddSingleton(typeof(ITileCanRecieveDropsTSV), typeof(TileCanRecieveDropsTSV));
+                services.AddSingleton(typeof(IUserHasNoAcceptedVerificationEvidenceForTileTSV), typeof(UserHasNoAcceptedVerificationEvidenceForTileTSV));
+                services.AddSingleton(typeof(IUserHasTheOnlyPendingDropsTSV), typeof(UserHasTheOnlyPendingDropsTSV));
+
+                services.AddSingleton(typeof(ISubmitEvidenceDP), typeof(SubmitEvidenceDP));
+                services.AddSingleton(typeof(ISubmitDropEvidenceDP), typeof(SubmitDropEvidenceDP));
+                services.AddSingleton(typeof(ISubmitVerificationEvidenceDP), typeof(SubmitVerificationEvidenceDP));
+                services.AddSingleton(typeof(ITileCanRecieveDropsDP), typeof(TileCanRecieveDropsDP));
+                services.AddSingleton(typeof(IUserHasNoAcceptedVerificationEvidenceForTileDP), typeof(UserHasNoAcceptedVerificationEvidenceForTileDP));
+                services.AddSingleton(typeof(IUserHasTheOnlyPendingDropsDP), typeof(UserHasTheOnlyPendingDropsDP));
 
                 services.AddSingleton(typeof(IEvidenceVerificationEmojis), typeof(EvidenceVerificationEmojis));
 

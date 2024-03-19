@@ -83,12 +83,14 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
         evidence.Status = EvidenceStatusLookup.Get(evidenceStatus);
         evidence.DiscordMessageId = message.DiscordMessage.Id;
 
-        var completeStatus = evidenceStatus == EvidenceStatus.Accepted ?
-                             TileRecord.CompleteStatus.Yes :
-                             TileRecord.CompleteStatus.No;
-        
-        // TODO: JR - check for drop evidence type once the submission buttons and competition start are set up correctly.
-        evidence.Tile.SetCompleteStatus(completeStatus);
+        if (evidence.IsType(EvidenceType.Drop))
+        {
+            var completeStatus = evidenceStatus == EvidenceStatus.Accepted ?
+                                 TileRecord.CompleteStatus.Yes :
+                                 TileRecord.CompleteStatus.No;
+
+            evidence.Tile.SetCompleteStatus(completeStatus);
+        }
 
         var result = await dbServices.SaveChanges(dataWorker);
         return result.IsSuccess;
