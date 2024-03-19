@@ -7,20 +7,20 @@ namespace RSBingoBot.Requests;
 using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 
-public class SubmitDropEvidenceTSV : TileSelectValidator<Tile, User, SubmitDropEvidenceDP>, ISubmitDropEvidenceTSV
+public class SubmitDropEvidenceTSV : TileSelectValidator<Tile, User, ISubmitDropEvidenceDP>, ISubmitDropEvidenceTSV
 {
     private readonly ITileCanRecieveDropsTSV tileCanRecieveDrops;
     private readonly IUserHasTheOnlyPendingDropsTSV userHasTheOnlyPendingDrops;
 
-    public SubmitDropEvidenceTSV(IUserHasTheOnlyPendingDropsTSV otherUsersDropEvidenceSubmission,
-        ITileCanRecieveDropsTSV tileDropEvidenceSubmission, SubmitDropEvidenceDP parser) :
+    public SubmitDropEvidenceTSV(ITileCanRecieveDropsTSV tileDropEvidenceSubmission,
+        IUserHasTheOnlyPendingDropsTSV otherUsersDropEvidenceSubmission, ISubmitDropEvidenceDP parser) :
         base(parser)
     {
-        this.userHasTheOnlyPendingDrops = otherUsersDropEvidenceSubmission;
         this.tileCanRecieveDrops = tileDropEvidenceSubmission;
+        this.userHasTheOnlyPendingDrops = otherUsersDropEvidenceSubmission;
     }
 
-    protected override bool Validate(SubmitDropEvidenceDP data) =>
+    protected override bool Validate(ISubmitDropEvidenceDP data) =>
         tileCanRecieveDrops.Validate(data.Tile) &&
         userHasTheOnlyPendingDrops.Validate(data.Tile, data.User);
 }
