@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.DataParsers;
 
 [TestClass]
-public class TileCanRecieveDropsDPTests : TSVDataParserTestBase
+public class TileCanRecieveDropsDPTests : TSVTestBase
 {
     private TileCanRecieveDropsDP parser = null!;
 

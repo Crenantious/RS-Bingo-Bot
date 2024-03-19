@@ -7,13 +7,13 @@ namespace RSBingoBot.Requests;
 using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 
-public class UserHasTheOnlyPendingDropsTSV : TileSelectValidator<Tile, User, UserHasTheOnlyPendingDropsDP>, IUserHasTheOnlyPendingDropsTSV
+public class UserHasTheOnlyPendingDropsTSV : TileSelectValidator<Tile, User, IUserHasTheOnlyPendingDropsDP>, IUserHasTheOnlyPendingDropsTSV
 {
-    public UserHasTheOnlyPendingDropsTSV(UserHasTheOnlyPendingDropsDP parser) : base(parser)
+    public UserHasTheOnlyPendingDropsTSV(IUserHasTheOnlyPendingDropsDP parser) : base(parser)
     {
 
     }
 
-    protected override bool Validate(UserHasTheOnlyPendingDropsDP data) =>
+    protected override bool Validate(IUserHasTheOnlyPendingDropsDP data) =>
         data.Evidence.Count() == 0;
 }

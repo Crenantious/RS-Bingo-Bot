@@ -1,11 +1,10 @@
-﻿// <copyright file="TSVDataParserTestBase.cs" company="PlaceholderCompany">
+﻿// <copyright file="TSVTestBase.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace RSBingo_Framework_Tests;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingoBot.Requests;
@@ -15,7 +14,7 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 public record EvidenceDTO(EvidenceType EvidenceType, EvidenceStatus EvidenceStatus);
 
 [TestClass]
-public class TSVDataParserTestBase : MockDBBaseTestClass
+public class TSVTestBase : MockDBBaseTestClass
 {
     private const string testTeamName = "Test";
 
@@ -30,13 +29,11 @@ public class TSVDataParserTestBase : MockDBBaseTestClass
     private BingoTask taskOne = null!;
     private BingoTask taskTwo = null!;
 
-    protected bool? IsValid { get; set; } = null;
     protected IDataWorker DataWorker { get; set; } = null!;
     protected Team Team { get; set; } = null!;
     protected User UserOne { get; set; } = null!;
     protected User UserTwo { get; set; } = null!;
     protected Tile TileOne { get; set; } = null!;
-    protected Tile TileTwo { get; set; } = null!;
 
     private Dictionary<EvidenceEnum, EvidenceDTO> evidenceDTOLookup = new()
     {
@@ -72,9 +69,6 @@ public class TSVDataParserTestBase : MockDBBaseTestClass
         taskTwo = MockDBSetup.Add_BingoTask(DataWorker, "Test2", Difficulty.Easy);
 
         TileOne = MockDBSetup.Add_Tile(DataWorker, Team, taskOne, 0);
-        TileTwo = MockDBSetup.Add_Tile(DataWorker, Team, taskTwo, 1);
-
-        submitEvidenceTSV = General.DI.Get<ISubmitEvidenceTSV>();
 
         DataWorker.SaveChanges();
     }
@@ -104,16 +98,6 @@ public class TSVDataParserTestBase : MockDBBaseTestClass
         }
 
         CollectionAssert.AreEquivalent(expected, actual);
-    }
-
-    public void AssertValidation(bool expected)
-    {
-        if (IsValid is null)
-        {
-            throw new InvalidOperationException("Must validate the data before asserting.");
-        }
-
-        Assert.AreEqual(expected, IsValid);
     }
 
     private IEnumerable<EvidenceDTO> EvidenceEnumToDTO(EvidenceEnum evidenceEnum)

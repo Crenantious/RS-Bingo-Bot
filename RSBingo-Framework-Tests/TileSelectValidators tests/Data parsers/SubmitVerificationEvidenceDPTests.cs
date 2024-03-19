@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.DataParsers;
 
 [TestClass]
-public class SubmitVerificationEvidenceDPTests : TSVDataParserTestBase
+public class SubmitVerificationEvidenceDPTests : TSVTestBase
 {
     private SubmitVerificationEvidenceDP parser = null!;
 

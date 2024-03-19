@@ -8,13 +8,9 @@ using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
-public class UserHasTheOnlyPendingDropsDP : IDataParser<Tile, User>
+public class UserHasTheOnlyPendingDropsDP : IUserHasTheOnlyPendingDropsDP
 {
-    /// <summary>
-    /// All <see cref="EvidenceStatus.PendingReview"/> <see cref="EvidenceType.Drop"/>
-    /// <see cref="Models.Evidence"/> for the <see cref="Tile"/> the was submitted by the <see cref="User"/>.
-    /// </summary>
-    public IEnumerable<Evidence> Evidence { get; private set; } = null!;
+    public IEnumerable<Evidence> Evidence { get; set; } = null!;
 
     public void Parse(Tile tile, User user)
     {

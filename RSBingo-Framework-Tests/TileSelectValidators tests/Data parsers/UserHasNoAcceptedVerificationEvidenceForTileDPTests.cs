@@ -10,7 +10,7 @@ using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
 [TestClass]
-public class UserHasNoAcceptedVerificationEvidenceForTileDPTests : TSVDataParserTestBase
+public class UserHasNoAcceptedVerificationEvidenceForTileDPTests : TSVTestBase
 {
     private UserHasNoAcceptedVerificationEvidenceForTileDP parser = null!;
 

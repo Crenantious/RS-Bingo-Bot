@@ -9,7 +9,7 @@ using RSBingo_Framework.DataParsers;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
 [TestClass]
-public class SubmitEvidenceDPTests : TSVDataParserTestBase
+public class SubmitEvidenceDPTests : TSVTestBase
 {
     private SubmitEvidenceDP parser = null!;
 
