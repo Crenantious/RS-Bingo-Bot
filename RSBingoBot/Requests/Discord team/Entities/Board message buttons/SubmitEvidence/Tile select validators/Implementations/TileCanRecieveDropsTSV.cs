@@ -8,14 +8,14 @@ using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
-public class TileCanRecieveDropsTSV : TileSelectValidator<Tile, TileCanRecieveDropsDP>, ITileCanRecieveDropsTSV
+public class TileCanRecieveDropsTSV : TileSelectValidator<Tile, ITileCanRecieveDropsDP>, ITileCanRecieveDropsTSV
 {
-    public TileCanRecieveDropsTSV(TileCanRecieveDropsDP parser) : base(parser)
+    public TileCanRecieveDropsTSV(ITileCanRecieveDropsDP parser) : base(parser)
     {
 
     }
 
-    protected override bool Validate(TileCanRecieveDropsDP data) =>
+    protected override bool Validate(ITileCanRecieveDropsDP data) =>
         data.Tile.IsVerified() &&
         data.Tile.IsCompleteAsBool() is false;
 }

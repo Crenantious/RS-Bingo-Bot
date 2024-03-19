@@ -6,7 +6,7 @@ namespace RSBingo_Framework.DataParsers;
 
 using RSBingo_Framework.Models;
 
-public class SubmitVerificationEvidenceDP : IDataParser<Tile, User>
+public class SubmitVerificationEvidenceDP : ISubmitVerificationEvidenceDP
 {
     public Tile Tile { get; set; } = null!;
     public User User { get; set; } = null!;

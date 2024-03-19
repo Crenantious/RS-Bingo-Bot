@@ -6,7 +6,7 @@ namespace RSBingo_Framework.DataParsers;
 
 using RSBingo_Framework.Models;
 
-public class TileCanRecieveDropsDP : IDataParser<Tile>
+public class TileCanRecieveDropsDP : ITileCanRecieveDropsDP
 {
     public Tile Tile { get; private set; } = null!;
 
