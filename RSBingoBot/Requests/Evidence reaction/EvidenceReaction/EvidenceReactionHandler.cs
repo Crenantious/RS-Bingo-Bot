@@ -31,7 +31,7 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
 
     public EvidenceReactionHandler()
     {
-        this.messageFactory = General.DI.GetService<MessageFactory>();
+        this.messageFactory = General.DI.Get<MessageFactory>();
     }
 
     protected override async Task Process(TRequest request, CancellationToken cancellationToken)
@@ -83,13 +83,14 @@ internal class EvidenceReactionHandler<TRequest> : RequestHandler<TRequest> wher
         evidence.Status = EvidenceStatusLookup.Get(evidenceStatus);
         evidence.DiscordMessageId = message.DiscordMessage.Id;
 
-        EvidenceType evidenceType = EvidenceTypeLookup.Get(evidence.EvidenceType);
+        if (evidence.IsType(EvidenceType.Drop))
+        {
+            var completeStatus = evidenceStatus == EvidenceStatus.Accepted ?
+                                 TileRecord.CompleteStatus.Yes :
+                                 TileRecord.CompleteStatus.No;
 
-        var completeStatus = evidenceType == EvidenceType.Drop && evidenceStatus == EvidenceStatus.Accepted ?
-                             TileRecord.CompleteStatus.Yes :
-                             TileRecord.CompleteStatus.No;
-
-        evidence.Tile.SetCompleteStatus(completeStatus);
+            evidence.Tile.SetCompleteStatus(completeStatus);
+        }
 
         var result = await dbServices.SaveChanges(dataWorker);
         return result.IsSuccess;

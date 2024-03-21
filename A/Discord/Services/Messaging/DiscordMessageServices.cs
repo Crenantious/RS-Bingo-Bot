@@ -57,8 +57,8 @@ public class DiscordMessageServices : RequestService, IDiscordMessageServices
     {
         // TODO: JR - it's getting out of hand how many places need to use services that aren't inside a request.
         // Make a common way to retrieve them.
-        var messageFactory = General.DI.GetService<MessageFactory>();
-        var webServices = General.DI.GetService<IWebServices>();
+        var messageFactory = General.DI.Get<MessageFactory>();
+        var webServices = General.DI.Get<IWebServices>();
         webServices.Initialise(null);
 
         Message message = await messageFactory.Create(args.Message, webServices);

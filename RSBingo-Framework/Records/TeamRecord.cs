@@ -5,7 +5,6 @@
 namespace RSBingo_Framework.Records;
 
 using RSBingo_Common;
-using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using static RSBingo_Common.General;
@@ -18,7 +17,7 @@ public static class TeamRecord
 
     public static bool IsBoardVerfied(this Team team) =>
         team.Tiles.Count == MaxTilesOnABoard &&
-        team.Tiles.FirstOrDefault(t => t.IsNotVerified()) == null;
+        team.Tiles.FirstOrDefault(t => t.IsVerified() is false) == null;
 
     /// <summary>
     /// Creates tiles for the team equal to Max(<see cref="General.MaxTilesOnABoard"/>, tasks.Count()). The tasks are ordered by their row id.

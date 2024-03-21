@@ -9,21 +9,21 @@ using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingo_Framework.Records;
+using static RSBingo_Framework.Records.EvidenceRecord;
 
 internal class SubmitEvidenceTileSelect
 {
     private readonly IDataWorker dataWorker;
     private readonly SubmitEvidenceButtonDTO dto;
     private readonly User user;
-    private readonly EvidenceRecord.EvidenceType evidenceType;
+    private readonly EvidenceType evidenceType;
     private readonly IEvidenceVerificationEmojis evidenceVerificationEmojis;
-
+    private readonly ISubmitEvidenceTSV tileValidator;
     private Dictionary<int, SelectComponentItem> tileIdToItem = new();
 
     public SelectComponent SelectComponent { get; }
 
-    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitEvidenceButtonDTO dto, User user, EvidenceRecord.EvidenceType evidenceType,
+    public SubmitEvidenceTileSelect(IDataWorker dataWorker, SubmitEvidenceButtonDTO dto, User user, EvidenceType evidenceType,
         IEvidenceVerificationEmojis evidenceVerificationEmojis)
     {
         this.dataWorker = dataWorker;
@@ -31,6 +31,7 @@ internal class SubmitEvidenceTileSelect
         this.user = user;
         this.evidenceType = evidenceType;
         this.evidenceVerificationEmojis = evidenceVerificationEmojis;
+        this.tileValidator = General.DI.Get<ISubmitEvidenceTSV>();
 
         SelectComponentFactory selectComponentFactory = (SelectComponentFactory)General.DI.GetService(typeof(SelectComponentFactory))!;
         SelectComponent = CreateSelectComponent(selectComponentFactory);
@@ -56,7 +57,7 @@ internal class SubmitEvidenceTileSelect
     {
         List<SelectComponentItem> items = new();
         var tiles = user.Team.Tiles
-               .Where(t => t.IsCompleteAsBool() is false && IsTileEidenceVerified(t) is false)
+               .Where(t => tileValidator.Validate(t, user, evidenceType))
                .OrderBy(t => t.BoardIndex);
 
         foreach (var tile in tiles)
@@ -65,10 +66,6 @@ internal class SubmitEvidenceTileSelect
         }
         return items;
     }
-
-    private bool IsTileEidenceVerified(Tile tile) =>
-        tile.Evidence.Where(e => e.User == user && e.IsVerified())
-            .Any();
 
     private SelectComponentItem CreateItem(Tile tile)
     {
@@ -92,26 +89,13 @@ internal class SubmitEvidenceTileSelect
     private Evidence? GetEvidenceForEmoji(Tile tile) =>
         evidenceType switch
         {
-            EvidenceRecord.EvidenceType.Drop => GetFirstDropEvidence(tile),
-            EvidenceRecord.EvidenceType.TileVerification => EvidenceRecord.GetByTileUserAndType(dataWorker, tile, user, evidenceType),
+            EvidenceType.Drop => GetFirstPendingDropEvidence(tile),
+            EvidenceType.TileVerification => GetByTileUserAndType(dataWorker, tile, user, evidenceType),
             _ => throw new ArgumentOutOfRangeException()
         };
 
-    private static Evidence? GetFirstDropEvidence(Tile tile) =>
+    private static Evidence? GetFirstPendingDropEvidence(Tile tile) =>
         tile.Evidence.FirstOrDefault(e =>
-            EvidenceRecord.EvidenceTypeLookup.Get(e.EvidenceType) == EvidenceRecord.EvidenceType.Drop &&
-            EvidenceRecord.EvidenceStatusLookup.Get(e.Status) != EvidenceRecord.EvidenceStatus.Rejected);
-
-    //private string GetItemName(int boardIndex, BingoTask? task)
-    //{
-    //    string name = task is null ? NoTaskName : task.Name;
-    //    return $"Tile {boardIndex} - {name}";
-    //}
-
-    //private string GetPageName(SelectComponentPage page)
-    //{
-    //    var firstPage = (SelectComponentItem)page.Options[0];
-    //    var lastPage = (SelectComponentItem)page.Options[^1];
-    //    return $"Tiles {firstPage.Value} - {lastPage.Value}";
-    //}
+            EvidenceTypeLookup.Get(e.EvidenceType) == EvidenceType.Drop &&
+            EvidenceStatusLookup.Get(e.Status) == EvidenceStatus.PendingReview);
 }

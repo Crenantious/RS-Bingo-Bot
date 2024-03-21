@@ -14,7 +14,7 @@ internal class EvidenceVerificationReactionHandler : EvidenceReactionHandler<Evi
     {
         await base.Process(request, cancellationToken);
 
-        if (Evidence is null || Evidence.IsVerified())
+        if (Evidence is null || Evidence.IsAccepted())
         {
             // This isn't done in the validator to avoid searching the db multiple times.
             // We don't add an error here as we're just ignoring the case.

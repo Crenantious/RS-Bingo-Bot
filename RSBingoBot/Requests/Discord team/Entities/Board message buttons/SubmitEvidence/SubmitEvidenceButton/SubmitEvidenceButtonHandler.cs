@@ -22,7 +22,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
     private const string ResponsePrefix =
        "{0} Add evidence by posting a message with a single image, posting another will override the previous. " +
        "{1}Submitting the evidence will override any previous.";
-    private const string NoTilesToSubmitFor = "There are no unverified tiles you can submit evidence for.";
+    private const string NoTilesToSubmitFor = "There are no tiles you can submit evidence for.";
 
     private readonly ButtonFactory buttonFactory;
     private readonly SelectComponentFactory selectFactory;
@@ -93,7 +93,7 @@ internal class SubmitEvidenceButtonHandler : ButtonHandler<SubmitEvidenceButtonR
 
     private Button CreateSubmitButton(SubmitEvidenceButtonRequest request, SubmitEvidenceButtonDTO dto, SubmitEvidenceTileSelect tileSelect) =>
         buttonFactory.Create(new(ButtonStyle.Primary, "Submit"),
-            () => new SubmitEvidenceSubmitButtonRequest(dataWorker, user, request.DiscordTeam, dto, evidenceType, tileSelect));
+            () => new SubmitEvidenceSubmitButtonRequest(request.DiscordTeam, dto, evidenceType, tileSelect));
 
     private Button CreateCloseButton(InteractionMessage response, int? subscriptionId) =>
         buttonFactory.CreateConcludeInteraction(() =>
