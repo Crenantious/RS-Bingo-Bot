@@ -15,7 +15,7 @@ public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, I
 
     private string errorMessage = string.Empty;
 
-    public override string ErrorMessage => throw new NotImplementedException();
+    public override string ErrorMessage => errorMessage;
 
     public SubmitEvidenceTSV(ISubmitDropEvidenceTSV dropEvidence, ISubmitVerificationEvidenceTSV verificationEvidence,
         ISubmitEvidenceDP parser) : base(parser)
@@ -34,13 +34,16 @@ public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, I
 
     private bool VerificationValidation(ISubmitEvidenceDP data)
     {
+        bool isValid = verificationValidator.Validate(data.Tile, data.User);
         errorMessage = verificationValidator.ErrorMessage;
-        return verificationValidator.Validate(data.Tile, data.User);
+        return isValid;
     }
 
     private bool DropValidation(ISubmitEvidenceDP data)
     {
+        bool isValid = dropValidator.Validate(data.Tile, data.User);
         errorMessage = dropValidator.ErrorMessage;
-        return dropValidator.Validate(data.Tile, data.User);
+        return isValid;
+
     }
 }

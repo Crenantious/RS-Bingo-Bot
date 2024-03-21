@@ -48,7 +48,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
                 .Equal(true)
-                .WithMessage(TSVError);
+                .WithMessage(r => TSVError);
         });
 
         When(r => General.HasCompetitionStarted is false, () =>
@@ -72,7 +72,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
                 .Equal(true)
-                .WithMessage(TSVError);
+                .WithMessage(r => TSVError);
         });
 
         When(r => General.HasCompetitionStarted, () =>
@@ -103,7 +103,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
 
     private void AddTSVError(Tile tile, string error)
     {
-        TSVError += $"Tile {tile.Task.Name} has error: {error}{Environment.NewLine}";
+        TSVError += $"{tile.Task.Name} error: {error}{Environment.NewLine}";
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>
