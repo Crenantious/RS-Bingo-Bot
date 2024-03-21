@@ -14,6 +14,9 @@ using RSBingoBot.Discord;
 // TODO: JR - add validation for difficulty based on the board index.
 internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitButtonRequest>
 {
+    private List<int> updatedBoardIndexes = new();
+    private List<BingoTask> updatedTasks = new();
+
     protected override async Task Process(ChangeTilesSubmitButtonRequest request, CancellationToken cancellationToken)
     {
         var messageServices = GetRequestService<IDiscordMessageServices>();
@@ -22,64 +25,65 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         Tile? tile1 = request.Team.Tiles.FirstOrDefault(t => t.BoardIndex == request.DTO.TileBoardIndex);
         Tile? tile2 = request.Team.Tiles.FirstOrDefault(t => t.Task.RowId == request.DTO.Task!.RowId);
 
-        var updatedTiles = UpdateDB(request, tile1, tile2);
+        UpdateDB(request, tile1, tile2);
         request.DataWorker.SaveChanges();
 
-        UpdateSelectComponents(request, updatedTiles);
-        UpdateBoardImage(request, updatedTiles, discordTeam);
+        UpdateSelectComponents(request);
+        UpdateBoardImage(request, discordTeam);
 
         await messageServices.Update(discordTeam.BoardMessage!);
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);
     }
 
-    private List<(BingoTask?, int)> UpdateDB(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
+    private void UpdateDB(ChangeTilesSubmitButtonRequest request, Tile? tile1, Tile? tile2)
     {
-        List<(BingoTask?, int)> updatedTiles = new();
-
         if (tile1 is null)
         {
             if (tile2 is null)
             {
                 Tile newTile = request.DataWorker.Tiles.Create(request.Team, request.DTO.Task!, (int)request.DTO.TileBoardIndex!);
-                updatedTiles.Add((newTile.Task, newTile.BoardIndex));
+                updatedBoardIndexes.Add(newTile.BoardIndex);
+                updatedTasks.Add(newTile.Task);
                 AddSuccess(new ChangeTilesSubmitButtonAddedTileToBoardSuccess(newTile));
-                return updatedTiles;
+                return;
             }
 
             int oldBoardIndex = tile2.BoardIndex;
             tile2.BoardIndex = (int)request.DTO.TileBoardIndex!;
-            updatedTiles.Add((null, oldBoardIndex));
-            updatedTiles.Add((tile2.Task, tile2.BoardIndex));
+            updatedBoardIndexes.Add(oldBoardIndex);
+            updatedBoardIndexes.Add(tile2.BoardIndex);
             AddSuccess(new ChangeTilesSubmitButtonMoveTileOnBoardSuccess(tile2, oldBoardIndex, tile2.BoardIndex));
-            return updatedTiles;
+            return;
         }
 
         if (tile2 is null)
         {
             BingoTask oldTask = tile1.Task;
             tile1.Task = request.DTO.Task!;
-            updatedTiles.Add((oldTask, tile1.BoardIndex));
-            updatedTiles.Add((tile1.Task, tile1.BoardIndex));
+            updatedBoardIndexes.Add(tile1.BoardIndex);
+            updatedTasks.Add(oldTask);
+            updatedTasks.Add(tile1.Task);
             AddSuccess(new ChangeTilesSubmitButtonAddedTaskToBoardSuccess(oldTask, tile1.Task));
-            return updatedTiles;
+            return;
         }
 
         tile1.SwapTasks(tile2, request.DataWorker);
-        updatedTiles.Add((tile1.Task, tile1.BoardIndex));
-        updatedTiles.Add((tile2.Task, tile2.BoardIndex));
+        updatedBoardIndexes.Add(tile1.BoardIndex);
+        updatedBoardIndexes.Add(tile2.BoardIndex);
         AddSuccess(new ChangeTilesSubmitButtonSwappedTilesSuccess(tile1, tile2));
-        return updatedTiles;
+        return;
     }
 
-    private static void UpdateSelectComponents(ChangeTilesSubmitButtonRequest request, List<(BingoTask?, int)> updatedTiles)
+    private void UpdateSelectComponents(ChangeTilesSubmitButtonRequest request)
     {
-        request.ChangeTilesTileSelect.Update(updatedTiles.Select(t => t.Item2));
-        request.ChangeTilesTaskSelect.Update(updatedTiles.Where(t => t.Item1 is not null).Select(t => t.Item1!));
+        Dictionary<int, Tile> boardIndexToTile = request.Team.Tiles.ToDictionary(t => t.BoardIndex);
+        request.ChangeTilesTileSelect.Update(updatedBoardIndexes);
+        request.ChangeTilesTaskSelect.Update(updatedTasks);
     }
 
-    private static void UpdateBoardImage(ChangeTilesSubmitButtonRequest request, List<(BingoTask?, int)> updatedTiles, DiscordTeam discordTeam)
+    private void UpdateBoardImage(ChangeTilesSubmitButtonRequest request, DiscordTeam discordTeam)
     {
-        discordTeam.Board.UpdateTiles(updatedTiles);
+        discordTeam.Board.UpdateTiles(request.Team, updatedBoardIndexes);
         request.BoardMessageFile.SetContent(discordTeam.Board.Image, discordTeam.Board.FileExtension);
     }
 }

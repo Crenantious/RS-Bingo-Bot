@@ -24,23 +24,24 @@ public static class BoardUpdater
     internal static Image CreateEmptyBoard() =>
         boardImages.EmptyBoard.Clone(x => { });
 
-    public static void UpdateTiles(this Board board, IEnumerable<(BingoTask? task, int boardIndex)> tasks)
+    public static void UpdateTiles(this Board board, Team team, IEnumerable<int> boardIndexes)
     {
-        foreach (var tile in tasks)
+        foreach (var boardIndex in boardIndexes)
         {
-            UpdateTile(board, tile.task, tile.boardIndex);
+            UpdateTile(board, team, boardIndex);
         }
     }
 
-    public static void UpdateTile(this Board board, BingoTask? task, int boardIndex)
+    public static void UpdateTile(this Board board, Team team, int boardIndex)
     {
+        Tile? tile = team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
         Rectangle tileRect = GetTileRect(boardIndex);
 
         Image tileImage = boardImages.EmptyBoard.Clone(b => b.Crop(tileRect));
 
-        if (task is not null)
+        if (tile is not null)
         {
-            AddTaskToTile(GetTaskImage(task), tileImage);
+            AddTaskToTile(GetTaskImage(tile.Task), tileImage);
         }
 
         board.Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));

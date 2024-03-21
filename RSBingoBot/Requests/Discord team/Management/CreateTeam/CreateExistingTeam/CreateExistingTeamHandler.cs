@@ -19,13 +19,13 @@ internal class CreateExistingTeamHandler : RequestHandler<CreateExistingTeamRequ
 
         DiscordTeam discordTeam = new(request.Team);
 
-        discordTeam.Board.UpdateTiles(GetTilesForBoard(request));
+        discordTeam.Board.UpdateTiles(request.Team, GetTilesForBoard(request));
 
         Result result = await teamServices.SetExistingEntities(discordTeam);
 
         return discordTeam;
     }
 
-    private static IEnumerable<(BingoTask?, int)> GetTilesForBoard(CreateExistingTeamRequest request) =>
-        request.Team.Tiles.Select<Tile, (BingoTask?, int)>(t => (t.Task, t.BoardIndex));
+    private static IEnumerable<int> GetTilesForBoard(CreateExistingTeamRequest request) =>
+        request.Team.Tiles.Select(t => t.BoardIndex);
 }
