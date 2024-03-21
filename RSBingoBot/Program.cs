@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.DataParsers;
+using RSBingo_Framework.TileValidators;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;

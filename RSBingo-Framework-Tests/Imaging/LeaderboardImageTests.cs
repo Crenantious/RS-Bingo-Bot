@@ -2,9 +2,9 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework_Tests;
+namespace RSBingo_Framework_Tests.Imaging.Leaderboard;
 
-using Imaging.Leaderboard;
+using global::Imaging.Leaderboard;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using SixLabors.ImageSharp;

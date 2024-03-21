@@ -5,6 +5,7 @@
 namespace Imaging.Board;
 
 using RSBingo_Framework.Models;
+using RSBingo_Framework.Records;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -34,14 +35,14 @@ public static class BoardUpdater
 
     public static void UpdateTile(this Board board, Team team, int boardIndex)
     {
-        Tile? tile = team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
         Rectangle tileRect = GetTileRect(boardIndex);
-
         Image tileImage = boardImages.EmptyBoard.Clone(b => b.Crop(tileRect));
 
+        Tile? tile = team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
         if (tile is not null)
         {
             AddTaskToTile(GetTaskImage(tile.Task), tileImage);
+            SetTileMarker(tile, tileImage);
         }
 
         board.Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
@@ -55,43 +56,49 @@ public static class BoardUpdater
         tile.Mutate(t => t.DrawImage(task, taskPosition, 1));
     }
 
-    public static void MarkTileEvidencePending(this Board board, int boardIndex) =>
-        MarkTile(board, boardIndex, boardImages.EvidencePendingMarker);
-
-    public static void MarkTileComplete(this Board board, int boardIndex) =>
-        MarkTile(board, boardIndex, boardImages.TileCompleteMarker);
-
-    private static void MarkTile(this Board board, int boardIndex, Image marker)
+    private static void SetTileMarker(Tile tile, Image tileImage)
     {
-        Rectangle tileRect = GetTileRect(boardIndex);
-        Point markerPosition = new(tileRect.X + (tileRect.Width - marker.Width) / 2,
-            tileRect.Y + (tileRect.Height - marker.Height) / 2);
+        if (tile.Team.GetEvidenceSubmissionState() == TeamRecord.SubmissionState.Verification)
+        {
+            if (tile.IsVerified())
+            {
+                MarkTileComplete(tileImage);
+                return;
+            }
 
-        board.Image.Mutate(b => b.DrawImage(marker, markerPosition, 1));
+            // We don't need to set any markers for this case.
+            return;
+        }
+
+        if (tile.Team.GetEvidenceSubmissionState() == TeamRecord.SubmissionState.Drops)
+        {
+            if (tile.IsCompleteAsBool())
+            {
+                MarkTileComplete(tileImage);
+                return;
+            }
+
+            if (tile.Evidence.GetDropEvidence().GetPendingEvidence().Any())
+            {
+                MarkTileEvidencePending(tileImage);
+                return;
+            }
+        }
     }
 
-    ///// <summary>
-    ///// Gets the current Board for the <paramref name="team"/>. Or a blank one if it cannot be found.
-    ///// </summary>
-    ///// <returns>The path the Board is saved at.</returns>
-    //public string SaveBoard()
-    //{
-    //    string path = GetTeamBoardPath(Name);
-    //    FileStream fs = new(path, FileMode.Open);
+    public static void MarkTileEvidencePending(Image tileImage) =>
+        MarkTile(tileImage, boardImages.EvidencePendingMarker);
 
-    //    Board.SaveAsPng(fs);
-    //    fs.Close();
-    //    return path;
-    //}
+    public static void MarkTileComplete(Image tileImage) =>
+        MarkTile(tileImage, boardImages.TileCompleteMarker);
 
-    //public void Rename(string newName)
-    //{
-    //    string teamBoardPath = GetTeamBoardPath(Name);
-    //    if (File.Exists(teamBoardPath))
-    //    {
-    //        File.Move(teamBoardPath, GetTeamBoardPath(newName));
-    //    }
-    //}
+    private static void MarkTile(Image tileImage, Image marker)
+    {
+        Point markerPosition = new((tileImage.Width - marker.Width) / 2,
+                                   (tileImage.Height - marker.Height) / 2);
+
+        tileImage.Mutate(b => b.DrawImage(marker, markerPosition, 1));
+    }
 
     private static Image GetTaskImage(BingoTask task) =>
         Image<Rgba32>.Load(GetTaskImagesResizedPath(task.Name));

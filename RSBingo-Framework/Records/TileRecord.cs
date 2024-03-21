@@ -12,10 +12,10 @@ namespace RSBingo_Framework.Records
     {
         #region enums & lookups
 
-        private static readonly EnumDict<VerifiedStatus> VerifiedLookup = new EnumDict<VerifiedStatus>(VerifiedStatus.No)
+        public static readonly EnumDict<VerifiedStatus> VerifiedLookup = new EnumDict<VerifiedStatus>(VerifiedStatus.No)
             .Add(VerifiedStatus.Yes, 1);
 
-        private static readonly EnumDict<CompleteStatus> CompleteLookup = new EnumDict<CompleteStatus>(CompleteStatus.No)
+        public static readonly EnumDict<CompleteStatus> CompleteLookup = new EnumDict<CompleteStatus>(CompleteStatus.No)
             .Add(CompleteStatus.Yes, 1);
 
         public enum VerifiedStatus
@@ -43,11 +43,7 @@ namespace RSBingo_Framework.Records
             dataWorker.Tiles.SwapTasks(tileOne, tileTwo, dataWorker);
 
         public static bool IsVerified(this Tile tile) =>
-            tile.Team.Users.All(u => 
-                tile.Evidence.GetUserEvidence(u.DiscordUserId)
-                    .GetVerificationEvidence()
-                    .GetAcceptedEvidence()
-                    .Any());
+            VerifiedLookup.Get(tile.IsVerified) == VerifiedStatus.Yes;
 
         public static bool IsCompleteAsBool(this Tile tile) =>
             CompleteLookup.Get(tile.IsComplete) == CompleteStatus.Yes;
