@@ -8,5 +8,7 @@ using RSBingo_Framework.Models;
 
 public interface IUserHasNoAcceptedVerificationEvidenceForTileTSV
 {
+    public string ErrorMessage { get; }
+
     public bool Validate(Tile tile, User user);
 }

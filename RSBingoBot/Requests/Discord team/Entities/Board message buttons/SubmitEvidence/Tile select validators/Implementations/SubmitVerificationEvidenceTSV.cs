@@ -11,6 +11,8 @@ public class SubmitVerificationEvidenceTSV : TileSelectValidator<Tile, User, ISu
 {
     private readonly IUserHasNoAcceptedVerificationEvidenceForTileTSV userHasNoAcceptedVerificationEvidenceForTile;
 
+    public override string ErrorMessage => userHasNoAcceptedVerificationEvidenceForTile.ErrorMessage;
+
     public SubmitVerificationEvidenceTSV(IUserHasNoAcceptedVerificationEvidenceForTileTSV userHasNoAcceptedVerificationEvidenceForTile,
         ISubmitVerificationEvidenceDP parser) : base(parser)
     {

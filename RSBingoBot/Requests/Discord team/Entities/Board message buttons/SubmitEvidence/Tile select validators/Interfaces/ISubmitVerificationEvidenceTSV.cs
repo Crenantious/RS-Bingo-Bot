@@ -9,6 +9,8 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public interface ISubmitVerificationEvidenceTSV
 {
+    public string ErrorMessage { get; }
+
     /// <returns>If the <paramref name="user"/> is allowed to submit
     /// <see cref="EvidenceType.TileVerification"/> <see cref="Evidence"/>
     /// for <paramref name="tile"/>.</returns>

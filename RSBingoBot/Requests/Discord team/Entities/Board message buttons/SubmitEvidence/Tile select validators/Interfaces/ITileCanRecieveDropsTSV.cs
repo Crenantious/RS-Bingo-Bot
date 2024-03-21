@@ -9,6 +9,8 @@ using static RSBingo_Framework.Records.EvidenceRecord;
 
 public interface ITileCanRecieveDropsTSV
 {
+    public string ErrorMessage { get; }
+
     /// <returns>If the <paramref name="tile"/> is allowed to have <see cref="EvidenceType.Drop"/>
     /// <see cref="Evidence"/> submitted for it.</returns>
     public bool Validate(Tile tile);

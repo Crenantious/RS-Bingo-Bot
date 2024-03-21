@@ -13,6 +13,10 @@ public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, I
     private readonly ISubmitDropEvidenceTSV dropValidator;
     private readonly ISubmitVerificationEvidenceTSV verificationValidator;
 
+    private string errorMessage = string.Empty;
+
+    public override string ErrorMessage => throw new NotImplementedException();
+
     public SubmitEvidenceTSV(ISubmitDropEvidenceTSV dropEvidence, ISubmitVerificationEvidenceTSV verificationEvidence,
         ISubmitEvidenceDP parser) : base(parser)
     {
@@ -23,8 +27,20 @@ public class SubmitEvidenceTSV : TileSelectValidator<Tile, User, EvidenceType, I
     protected override bool Validate(ISubmitEvidenceDP data) =>
         data.EvidenceType switch
         {
-            EvidenceType.TileVerification => verificationValidator.Validate(data.Tile, data.User),
-            EvidenceType.Drop => dropValidator.Validate(data.Tile, data.User),
+            EvidenceType.TileVerification => VerificationValidation(data),
+            EvidenceType.Drop => DropValidation(data),
             _ => throw new ArgumentOutOfRangeException($"The given {nameof(Enum)} {nameof(EvidenceType)} is invalid."),
         };
+
+    private bool VerificationValidation(ISubmitEvidenceDP data)
+    {
+        errorMessage = verificationValidator.ErrorMessage;
+        return verificationValidator.Validate(data.Tile, data.User);
+    }
+
+    private bool DropValidation(ISubmitEvidenceDP data)
+    {
+        errorMessage = dropValidator.ErrorMessage;
+        return dropValidator.Validate(data.Tile, data.User);
+    }
 }

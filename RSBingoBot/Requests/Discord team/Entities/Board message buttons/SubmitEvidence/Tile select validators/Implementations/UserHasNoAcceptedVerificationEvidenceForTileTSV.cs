@@ -10,6 +10,8 @@ using RSBingo_Framework.Models;
 public class UserHasNoAcceptedVerificationEvidenceForTileTSV : TileSelectValidator<Tile, User, IUserHasNoAcceptedVerificationEvidenceForTileDP>,
     IUserHasNoAcceptedVerificationEvidenceForTileTSV
 {
+    public override string ErrorMessage => "You already have accepted verification evidence for this tile.";
+
     public UserHasNoAcceptedVerificationEvidenceForTileTSV(IUserHasNoAcceptedVerificationEvidenceForTileDP parser) : base(parser)
     {
 

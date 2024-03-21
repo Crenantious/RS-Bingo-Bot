@@ -16,12 +16,10 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
 {
     private const string NoTilesSelectedError = "At least one tile must be selected to submit evidence for.";
     private const string NoEvidenceSubmittedError = "You cannot submit no evidence; please post a message with a single image first.";
-    private const string EvidenceAlreadyVerifiedError = "A tile you have selected has already has verified evidence from you, " +
-        "please re-open this interaction to get a refreshed list.";
-    private const string TileAlreadyCompletedError = "A tile you have selected has already been completed, " +
-        "please re-open this interaction to get a refreshed list.";
 
     private readonly ISubmitEvidenceTSV tileValidator;
+
+    private string TSVError = string.Empty;
 
     public SubmitEvidenceSubmitButtonValidator(ISubmitEvidenceTSV tileValidator)
     {
@@ -50,7 +48,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
                 .Equal(true)
-                .WithMessage(EvidenceAlreadyVerifiedError);
+                .WithMessage(TSVError);
         });
 
         When(r => General.HasCompetitionStarted is false, () =>
@@ -74,7 +72,7 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         {
             RuleFor(r => ValidateTiles(r.DTO.Tiles, r))
                 .Equal(true)
-                .WithMessage(TileAlreadyCompletedError);
+                .WithMessage(TSVError);
         });
 
         When(r => General.HasCompetitionStarted, () =>
@@ -89,8 +87,23 @@ internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEviden
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
         var refreshedTiles = dataWorker.Tiles.GetByIds(tiles.Select(t => t.RowId));
         User user = dataWorker.Users.GetByDiscordId(request.GetDiscordInteraction().User.Id)!;
-        return refreshedTiles.All(t =>
-            tileValidator.Validate(t, user, request.EvidenceType));
+
+        bool isValid = true;
+        foreach (Tile tile in refreshedTiles)
+        {
+            if (tileValidator.Validate(tile, user, request.EvidenceType) is false)
+            {
+                isValid = false;
+                AddTSVError(tile, tileValidator.ErrorMessage);
+            }
+        }
+
+        return isValid;
+    }
+
+    private void AddTSVError(Tile tile, string error)
+    {
+        TSVError += $"Tile {tile.Task.Name} has error: {error}{Environment.NewLine}";
     }
 
     protected override IEnumerable<SemaphoreSlim> GetSemaphores(SubmitEvidenceSubmitButtonRequest request, RequestSemaphores semaphores) =>
