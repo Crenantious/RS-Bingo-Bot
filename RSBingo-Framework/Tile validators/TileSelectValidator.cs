@@ -2,7 +2,7 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingoBot.Requests;
+namespace RSBingo_Framework.TileValidators;
 
 using RSBingo_Framework.DataParsers;
 
