@@ -24,6 +24,7 @@ public class BingoValidator<TRequest> : Validator<TRequest>
     protected const string TeamDoesNotExistResponse = "A team with the name '{0}' does not exist.";
     protected const string NoTilesError = "The team has no tiles to submit evidence for.";
     protected const string CompetitionStartedError = "This cannot be interacted with once the competition has started.";
+    protected const string CompetitionNotStartedError = "This cannot be interacted with until the competition has started.";
 
     // CSV
     protected const string CsvMediaType = "text/csv";
@@ -142,6 +143,13 @@ public class BingoValidator<TRequest> : Validator<TRequest>
         RuleFor(r => General.HasCompetitionStarted)
             .Equal(false)
             .WithMessage(CompetitionStartedError);
+    }
+
+    public void CompetitionStarted()
+    {
+        RuleFor(r => General.HasCompetitionStarted)
+            .Equal(true)
+            .WithMessage(CompetitionNotStartedError);
     }
 
     private string GetUserOnTeamError(DiscordUser user, bool userPerspective) =>

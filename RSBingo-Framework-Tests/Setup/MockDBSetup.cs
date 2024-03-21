@@ -17,13 +17,18 @@ public class MockDBSetup
     public static void SetupDataFactory()
     {
         DataFactory.SetupDataFactory(true);
-
         TestCleanUpDB(nameof(MockDBSetup));
     }
 
-    public static void TestCleanUpDB(TestContext testContext) { TestCleanUpDB(testContext.FullTestName()); }
+    public static void TestCleanUpDB(TestContext testContext)
+    {
+        TestCleanUpDB(testContext.FullTestName());
+    }
 
-    public static void TestInitializeDB(TestContext testContext) { TestInitializeDB(testContext.FullTestName()); }
+    public static void TestInitializeDB(TestContext testContext)
+    {
+        TestInitializeDB(testContext.FullTestName());
+    }
 
     public static Team Add_Team(IDataWorker dataWorker, string name = "Test")
     {
@@ -52,10 +57,12 @@ public class MockDBSetup
         return tile;
     }
 
-    public static Evidence Add_Evidence(IDataWorker dataWorker, User user, Tile tile, string url = "",
-        EvidenceType evidenceType = EvidenceType.TileVerification, ulong discordMessageId = 0)
+    public static Evidence Add_Evidence(IDataWorker dataWorker, User user, Tile tile,
+        EvidenceType evidenceType = EvidenceType.TileVerification,
+        EvidenceStatus evidenceStatus = EvidenceStatus.PendingReview)
     {
-        Evidence evidence = dataWorker.Evidence.Create(user, tile, url, evidenceType, discordMessageId);
+        Evidence evidence = dataWorker.Evidence.Create(user, tile, "", evidenceType, 0);
+        evidence.Status = EvidenceStatusLookup.Get(evidenceStatus);
 
         dataWorker.SaveChanges();
         return evidence;

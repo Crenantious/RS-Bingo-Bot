@@ -10,6 +10,7 @@ using DiscordLibrary.Requests;
 using DiscordLibrary.Requests.Extensions;
 using FluentResults;
 using RSBingo_Framework.DAL;
+using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 
@@ -20,6 +21,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
     private readonly MessageFactory messageFactory;
 
     private IDiscordMessageServices messageServices = null!;
+    private IDataWorker dataWorker = DataFactory.CreateDataWorker();
 
     public SubmitEvidenceSubmitButtonHandler(MessageFactory messageFactory)
     {
@@ -30,8 +32,9 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
     {
         messageServices = GetRequestService<IDiscordMessageServices>();
         var databaseServices = GetRequestService<IDatabaseServices>();
+        HashSet<int> tileIds = request.DTO.Tiles.Select(t => t.RowId).ToHashSet();
 
-        IEnumerable<Tile> tiles = request.DTO.Tiles;
+        IEnumerable<Tile> tiles = dataWorker.Tiles.Where(t => tileIds.Contains(t.RowId));
 
         foreach (Tile tile in tiles)
         {
@@ -41,7 +44,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
 
         // TODO: JR - update the board.
 
-        Result result = await databaseServices.SaveChanges(request.DataWorker);
+        Result result = await databaseServices.SaveChanges(dataWorker);
         if (result.IsFailed)
         {
             AddErrors(result.Errors);
@@ -53,13 +56,6 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
 
     private async Task UpdateEvidence(SubmitEvidenceSubmitButtonRequest request, Tile tile)
     {
-        if (tile.IsCompleteAsBool())
-        {
-            // It's possible the tile was marked as complete after the select component was created.
-            AddError(new SubmitEvidenceSubmitButtonTileAlreadyCompleteError(tile));
-            return;
-        }
-
         var pendingReviewMessage = await SendPendingReviewMessage(request, tile);
 
         if (pendingReviewMessage.IsFailed)
@@ -68,18 +64,19 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
             return;
         }
 
-        Evidence? evidence = EvidenceRecord.GetByTileUserAndType(request.DataWorker, tile, request.User, request.EvidenceType);
+        User user = dataWorker.Users.GetByDiscordId(request.GetDiscordInteraction().User.Id)!;
+        Evidence? evidence = EvidenceRecord.GetByTileUserAndType(dataWorker, tile, user, request.EvidenceType);
 
         if (evidence is null)
         {
-            evidence = request.DataWorker.Evidence.Create();
+            evidence = dataWorker.Evidence.Create();
         }
         else
         {
             await DeleteExistingPendingReviewMessage(evidence);
         }
 
-        evidence.User = request.User;
+        evidence.User = user;
         evidence.Tile = tile;
         evidence.Url = request.DTO.EvidenceUrl!;
         evidence.EvidenceType = EvidenceRecord.EvidenceTypeLookup.Get(request.EvidenceType);

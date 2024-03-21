@@ -5,10 +5,10 @@
 namespace RSBingo_Common;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using SixLabors.ImageSharp;
 using System.Reflection;
 
 /// <summary>
@@ -186,7 +186,7 @@ public static class General
     /// <typeparam name="T">The type of logger to create.</typeparam>
     /// <returns>The static instance.</returns>
     public static ILogger<T> LoggingInstance<T>() =>
-        DI.GetService<ILogger<T>>()!;
+        DI.Get<ILogger<T>>()!;
 
     /// <summary>
     /// Read a value from the configuration system from the connection key.
@@ -197,7 +197,7 @@ public static class General
     {
         if (key == null) { return null; }
 
-        IConfiguration config = DI.GetService<IConfiguration>()!;
+        IConfiguration config = DI.Get<IConfiguration>()!;
 
         // We don't check for the a missing service, its a design failure
         return config.GetConnectionString(key);
@@ -216,7 +216,7 @@ public static class General
             return defaultValue;
         }
 
-        IConfiguration config = DI.GetService<IConfiguration>()!;
+        IConfiguration config = DI.Get<IConfiguration>()!;
 
         // We don't check for the a missing service, its a design failure
         T value = config.GetValue<T>(key);
@@ -235,7 +235,7 @@ public static class General
             return Enumerable.Empty<T>().ToList();
         }
 
-        IConfiguration config = DI.GetService<IConfiguration>()!;
+        IConfiguration config = DI.Get<IConfiguration>()!;
 
         // We don't check for the a missing service, its a design failure
         List<T> values = config.GetSection(key).Get<List<T>>();
