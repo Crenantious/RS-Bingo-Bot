@@ -42,12 +42,12 @@ namespace RSBingo_Framework.Records
         public static void SwapTasks(this Tile tileOne, Tile tileTwo, IDataWorker dataWorker) =>
             dataWorker.Tiles.SwapTasks(tileOne, tileTwo, dataWorker);
 
-        public static bool IsVerified(this Tile tile)
-        {
-            var verificationEvidence = tile.Evidence.GetVerificationEvidence();
-            var acceptedVerificationEvidence = verificationEvidence.GetAcceptedEvidence();
-            return verificationEvidence.Count() == acceptedVerificationEvidence.Count();
-        }
+        public static bool IsVerified(this Tile tile) =>
+            tile.Team.Users.All(u => 
+                tile.Evidence.GetUserEvidence(u.DiscordUserId)
+                    .GetVerificationEvidence()
+                    .GetAcceptedEvidence()
+                    .Any());
 
         public static bool IsCompleteAsBool(this Tile tile) =>
             CompleteLookup.Get(tile.IsComplete) == CompleteStatus.Yes;

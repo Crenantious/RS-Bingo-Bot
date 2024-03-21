@@ -17,6 +17,6 @@ public class UserHasTheOnlyPendingDropsDP : IUserHasTheOnlyPendingDropsDP
         Evidence = tile.Evidence
             .GetDropEvidence()
             .GetPendingEvidence()
-            .GetUserEvidence(user.DiscordUserId);
+            .GetOtherUsersEvidence(user.DiscordUserId);
     }
 }

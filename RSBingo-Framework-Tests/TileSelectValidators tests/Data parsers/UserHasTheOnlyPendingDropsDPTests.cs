@@ -37,7 +37,7 @@ public class UserHasTheOnlyPendingDropsDPTests : TSVTestBase
     [DataRow(EvidenceEnum.PendingVerification, EvidenceEnum.None)]
     [DataRow(EvidenceEnum.RejectedVerification, EvidenceEnum.None)]
     [DataRow(EvidenceEnum.AcceptedVerification, EvidenceEnum.None)]
-    [DataRow(EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
+    [DataRow(EvidenceEnum.PendingDrop, EvidenceEnum.None)]
     [DataRow(EvidenceEnum.RejectedDrop, EvidenceEnum.None)]
     [DataRow(EvidenceEnum.AcceptedDrop, EvidenceEnum.None)]
     public void UserHasOneEvidence(EvidenceEnum addedEvidence, EvidenceEnum expectedEvidence)
@@ -50,11 +50,11 @@ public class UserHasTheOnlyPendingDropsDPTests : TSVTestBase
     }
 
     [TestMethod]
-    [DataRow(EvidenceEnum.PendingVerification | EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
-    [DataRow(EvidenceEnum.RejectedVerification | EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
-    [DataRow(EvidenceEnum.AcceptedVerification | EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
-    [DataRow(EvidenceEnum.RejectedDrop | EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
-    [DataRow(EvidenceEnum.AcceptedDrop | EvidenceEnum.PendingDrop, EvidenceEnum.PendingDrop)]
+    [DataRow(EvidenceEnum.PendingVerification | EvidenceEnum.PendingDrop, EvidenceEnum.None)]
+    [DataRow(EvidenceEnum.RejectedVerification | EvidenceEnum.PendingDrop, EvidenceEnum.None)]
+    [DataRow(EvidenceEnum.AcceptedVerification | EvidenceEnum.PendingDrop, EvidenceEnum.None)]
+    [DataRow(EvidenceEnum.RejectedDrop | EvidenceEnum.PendingDrop, EvidenceEnum.None)]
+    [DataRow(EvidenceEnum.AcceptedDrop | EvidenceEnum.PendingDrop, EvidenceEnum.None)]
     public void UserHasTwoEvidence(EvidenceEnum addedEvidence, EvidenceEnum expectedEvidence)
     {
         AddEvidence(TileOne, UserOne, addedEvidence);
@@ -72,23 +72,18 @@ public class UserHasTheOnlyPendingDropsDPTests : TSVTestBase
 
         ParseData();
 
-        AssertData(evidenceOne.Concat(evidenceTwo));
+        AssertData(Enumerable.Empty<Evidence>());
     }
 
     [TestMethod]
-    public void TwoUsersHavePendingDropEvidence_ShouldParseOnlyForUserOne()
+    public void TwoUsersHavePendingDropEvidence_ShouldParseOnlyForUserTwo()
     {
         var evidenceOne = AddEvidence(TileOne, UserOne, EvidenceEnum.PendingDrop);
         var evidenceTwo = AddEvidence(TileOne, UserTwo, EvidenceEnum.PendingDrop);
 
         ParseData();
 
-        AssertData(evidenceOne);
-    }
-
-    private void AddEvidence(EvidenceType evidenceType, EvidenceStatus evidenceStatus)
-    {
-        MockDBSetup.Add_Evidence(DataWorker, UserOne, TileOne, evidenceType, evidenceStatus);
+        AssertData(evidenceTwo);
     }
 
     /// <summary>
