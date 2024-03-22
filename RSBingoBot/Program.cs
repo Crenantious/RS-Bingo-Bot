@@ -142,7 +142,6 @@ public class Program
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 
-                services.AddSingleton<BoardImages>();
                 services.AddSingleton<BoardFactory>();
 
                 services.AddSingleton<LeaderboardMessage>();

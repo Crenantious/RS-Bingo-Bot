@@ -7,23 +7,12 @@ namespace Imaging.Board;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using static Imaging.Board.BoardPreferences;
-using static RSBingo_Common.General;
-using static RSBingo_Common.Paths;
 
 public static class BoardUpdater
 {
-    private static BoardImages boardImages;
-
-    static BoardUpdater()
-    {
-        boardImages = (BoardImages)DI.GetService(typeof(BoardImages))!;
-    }
-
     internal static Image CreateEmptyBoard() =>
-        boardImages.EmptyBoard.Clone(x => { });
+        BoardImages.EmptyBoard;
 
     public static void UpdateTiles(this Board board, Team team, IEnumerable<int> boardIndexes)
     {
@@ -35,78 +24,60 @@ public static class BoardUpdater
 
     public static void UpdateTile(this Board board, Team team, int boardIndex)
     {
-        Rectangle tileRect = GetTileRect(boardIndex);
-        Image tileImage = boardImages.EmptyBoard.Clone(b => b.Crop(tileRect));
+        Image tileImage = CreateTileImage(team, boardIndex);
+        PlaceTileOnBoard(board, boardIndex, tileImage);
+    }
 
+    private static Image CreateTileImage(Team team, int boardIndex)
+    {
         Tile? tile = team.Tiles.FirstOrDefault(t => t.BoardIndex == boardIndex);
-        if (tile is not null)
-        {
-            AddTaskToTile(GetTaskImage(tile.Task), tileImage);
-            SetTileMarker(tile, tileImage);
-        }
+        Image tileImage = CreateTileImage(tile);
+        return tileImage;
+    }
 
+    private static void PlaceTileOnBoard(Board board, int boardIndex, Image tileImage)
+    {
+        Rectangle tileRect = TileUtilities.GetTileRect(boardIndex);
         board.Image.Mutate(b => b.DrawImage(tileImage, new Point(tileRect.X, tileRect.Y), 1));
     }
 
-    private static void AddTaskToTile(Image task, Image tile)
+    private static Image CreateTileImage(Tile? tile)
     {
-        Point taskPosition = new((tile.Width - task.Width) / 2 + TaskXOffsetPixels,
-                                 (tile.Height - task.Height) / 2 + TaskYOffsetPixels);
-
-        tile.Mutate(t => t.DrawImage(task, taskPosition, 1));
-    }
-
-    private static void SetTileMarker(Tile tile, Image tileImage)
-    {
-        if (tile.Team.GetEvidenceSubmissionState() == TeamRecord.SubmissionState.Verification)
+        if (tile is null)
         {
-            if (tile.IsVerified())
-            {
-                MarkTileComplete(tileImage);
-                return;
-            }
-
-            // We don't need to set any markers for this case.
-            return;
+            return EmptyTile.Create();
         }
 
-        if (tile.Team.GetEvidenceSubmissionState() == TeamRecord.SubmissionState.Drops)
+        return tile.Team.GetEvidenceSubmissionState() switch
         {
-            if (tile.IsCompleteAsBool())
-            {
-                MarkTileComplete(tileImage);
-                return;
-            }
+            TeamRecord.SubmissionState.Verification => CreateVerificationTile(tile),
+            TeamRecord.SubmissionState.Drops => CreateDropTile(tile),
+            _ => throw new ArgumentOutOfRangeException($"Invalid enum value for {nameof(TeamRecord.SubmissionState)}"),
+        };
+    }
 
-            if (tile.Evidence.GetDropEvidence().GetPendingEvidence().Any())
-            {
-                MarkTileEvidencePending(tileImage);
-                return;
-            }
+    private static Image CreateVerificationTile(Tile tile)
+    {
+        if (tile.IsVerified())
+        {
+            return CompletedTile.Create(tile.Task);
         }
+
+        return NoMarkerTile.Create(tile.Task);
     }
 
-    public static void MarkTileEvidencePending(Image tileImage) =>
-        MarkTile(tileImage, boardImages.EvidencePendingMarker);
-
-    public static void MarkTileComplete(Image tileImage) =>
-        MarkTile(tileImage, boardImages.TileCompleteMarker);
-
-    private static void MarkTile(Image tileImage, Image marker)
+    private static Image CreateDropTile(Tile tile)
     {
-        Point markerPosition = new((tileImage.Width - marker.Width) / 2,
-                                   (tileImage.Height - marker.Height) / 2);
+        if (tile.IsCompleteAsBool())
+        {
+            return CompletedTile.Create(tile.Task);
+        }
 
-        tileImage.Mutate(b => b.DrawImage(marker, markerPosition, 1));
-    }
+        if (tile.Evidence.GetDropEvidence().GetPendingEvidence().Any())
+        {
+            return EvidencePendingTile.Create(tile.Task);
+        }
 
-    private static Image GetTaskImage(BingoTask task) =>
-        Image<Rgba32>.Load(GetTaskImagesResizedPath(task.Name));
-
-    private static Rectangle GetTileRect(this int tileIndex)
-    {
-        int x = BoardBorderPixelWidth + (TilePixelWidth + TileBorderPixelWidth) * (tileIndex % TilesPerRow);
-        int y = BoardBorderPixelHeight + (TilePixelHeight + TileBorderPixelHeight) * (tileIndex / TilesPerColumn);
-        return new(x, y, TilePixelWidth, TilePixelHeight);
+        return NoMarkerTile.Create(tile.Task);
     }
 }

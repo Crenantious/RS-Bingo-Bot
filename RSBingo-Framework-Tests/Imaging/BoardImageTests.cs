@@ -5,7 +5,6 @@
 namespace RSBingo_Framework_Tests.Imaging.Leaderboard;
 
 using global::Imaging.Board;
-using Microsoft.Extensions.DependencyInjection;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
@@ -24,11 +23,6 @@ public class BoardImageTests : MockDBBaseTestClass
     private Tile tileTwo = null!;
     private User user = null!;
     private Board board = null!;
-    protected override void AddServices(ServiceCollection services)
-    {
-        base.AddServices(services);
-        services.AddSingleton<BoardImages>();
-    }
 
     [TestInitialize]
     public override void TestInitialize()

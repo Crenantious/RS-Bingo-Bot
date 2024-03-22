@@ -25,9 +25,11 @@ public class Paths
     public static string TaskImagesFolder { get; private set; } = null!;
     public static string TeamBoardFolder { get; private set; } = null!;
     public static string UserTempEvidenceFolder { get; private set; } = null!;
-    public static string BoardBackgroundPath { get; private set; } = null!;
-    public static string TileCompletedMarkerPath { get; private set; } = null!;
-    public static string EvidencePendingMarkerPath { get; private set; } = null!;
+    public static string EmptyBoard { get; private set; } = null!;
+    public static string TileBackground { get; private set; } = null!;
+    public static string TileBorder { get; private set; } = null!;
+    public static string TileCompleteMarker { get; private set; } = null!;
+    public static string EvidencePendingMarker { get; private set; } = null!;
 
     #endregion
 
@@ -57,9 +59,11 @@ public class Paths
         TeamBoardFolder = GetPath("Team boards", PathType.Folder, asMock);
         UserTempEvidenceFolder = GetPath("User temp evidence", PathType.Folder, asMock);
 
-        BoardBackgroundPath = GetPath(Path.Combine("Board images", "Board background bronze reaper"), PathType.Image);
-        TileCompletedMarkerPath = GetPath(Path.Combine("Board images", "Tile completed marker"), PathType.Image);
-        EvidencePendingMarkerPath = GetPath(Path.Combine("Board images", "Evidence pending"), PathType.Image);
+        EmptyBoard = GetPath(Path.Combine("Board images", "Empty board"), PathType.Image);
+        TileBackground = GetPath(Path.Combine("Board images", "Tile background"), PathType.Image);
+        TileBorder = GetPath(Path.Combine("Board images", "Tile border"), PathType.Image);
+        TileCompleteMarker = GetPath(Path.Combine("Board images", "Tile complete marker"), PathType.Image);
+        EvidencePendingMarker = GetPath(Path.Combine("Board images", "Evidence pending"), PathType.Image);
     }
 
     public static string GetTaskImagePath(string taskName) =>
