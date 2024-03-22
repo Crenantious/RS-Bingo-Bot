@@ -41,9 +41,11 @@ internal static class TileUtilities
     {
         int width = Math.Max(background.Width, foreground.Width);
         int height = Math.Max(background.Height, foreground.Height);
+        int x = width / 2 - foreground.Width / 2;
+        int y = height / 2 - foreground.Height / 2;
 
         background.Mutate(b => b.Pad(width, height));
-        background.Mutate(b => b.DrawImage(foreground, 1));
+        background.Mutate(b => b.DrawImage(foreground, new Point(x, y), 1));
     }
 
     public static void AddTaskToTile(Image tile, Image task)
