@@ -1,4 +1,4 @@
-﻿// <copyright file="EmptyTile.cs" company="PlaceholderCompany">
+﻿// <copyright file="NoTaskTileFactory.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -6,8 +6,8 @@ namespace Imaging.Board;
 
 using SixLabors.ImageSharp;
 
-public static class EmptyTile
+public class NoTaskTileFactory : TileFactoryBase
 {
-    public static Image Create() =>
+    public override Image Create() =>
         BoardImages.EmptyTile;
 }

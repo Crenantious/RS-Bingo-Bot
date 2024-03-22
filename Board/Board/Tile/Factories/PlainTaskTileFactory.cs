@@ -1,4 +1,4 @@
-﻿// <copyright file="NoMarkerTile.cs" company="PlaceholderCompany">
+﻿// <copyright file="PlainTaskTileFactory.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -7,9 +7,9 @@ namespace Imaging.Board;
 using RSBingo_Framework.Models;
 using SixLabors.ImageSharp;
 
-public static class NoMarkerTile
+public class PlainTaskTileFactory : TileFactoryBase<BingoTask>
 {
-    public static Image Create(BingoTask task)
+    public override Image Create(BingoTask task)
     {
         Image tile = BoardImages.EmptyTile;
         Image taskImage = TileUtilities.GetTaskImage(task);

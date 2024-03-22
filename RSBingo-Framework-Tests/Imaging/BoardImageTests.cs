@@ -2,9 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace RSBingo_Framework_Tests.Imaging.Leaderboard;
+namespace RSBingo_Framework_Tests.Imaging.Board;
 
 using global::Imaging.Board;
+using Microsoft.Extensions.DependencyInjection;
 using RSBingo_Common;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
@@ -12,6 +13,8 @@ using SixLabors.ImageSharp;
 using System.Diagnostics;
 using static RSBingo_Framework.Records.EvidenceRecord;
 using static RSBingo_Framework.Records.TileRecord;
+
+// These tests are intended to be used for visual inspection only; make sure it is ignored when committed.
 
 [TestClass]
 public class BoardImageTests : MockDBBaseTestClass
@@ -23,6 +26,17 @@ public class BoardImageTests : MockDBBaseTestClass
     private Tile tileTwo = null!;
     private User user = null!;
     private Board board = null!;
+
+    protected override void AddServices(ServiceCollection services)
+    {
+        base.AddServices(services);
+
+        services.AddSingleton<TileFactory>();
+        services.AddSingleton<NoTaskTileFactory>();
+        services.AddSingleton<PlainTaskTileFactory>();
+        services.AddSingleton<EvidencePendingTileFactory>();
+        services.AddSingleton<CompletedTileFactory>();
+    }
 
     [TestInitialize]
     public override void TestInitialize()
@@ -44,10 +58,9 @@ public class BoardImageTests : MockDBBaseTestClass
         BoardFactory boardFactory = new();
         board = boardFactory.Create();
     }
-    // These tests are intended to be used for visual inspection only; make sure it is ignored when committed.
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void VerificationStage_TileIsNotVerified_NoMarker()
     {
         SetVerificationStage();
@@ -59,7 +72,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void VerificationStage_TileHasPendingVerificationEvidence_NoMarker()
     {
         SetVerificationStage();
@@ -72,7 +85,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void VerificationStage_TileHasPendingDropsEvidence_NoMarker()
     {
         SetVerificationStage();
@@ -85,7 +98,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void VerificationStage_TileIsVerified_CompletedMarker()
     {
         SetVerificationStage();
@@ -97,7 +110,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void DropsStage_TileIsNotComplete_NoMarker()
     {
         SetDropsStage();
@@ -109,7 +122,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void DropsStage_TileHasPendingVerificationEvidence_NoMarker()
     {
         SetDropsStage();
@@ -122,7 +135,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void DropsStage_TileHasPendingDropsEvidence_PendingEvidenceMarker()
     {
         SetDropsStage();
@@ -135,7 +148,7 @@ public class BoardImageTests : MockDBBaseTestClass
     }
 
     [TestMethod]
-    //[Ignore]
+    [Ignore]
     public void DropsStage_TileIsComplete_CompletedMarkerMarker()
     {
         SetDropsStage();

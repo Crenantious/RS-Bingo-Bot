@@ -143,6 +143,11 @@ public class Program
                 services.AddSingleton<DiscordTeamBoardButtons>();
 
                 services.AddSingleton<BoardFactory>();
+                services.AddSingleton<TileFactory>();
+                services.AddSingleton<NoTaskTileFactory>();
+                services.AddSingleton<PlainTaskTileFactory>();
+                services.AddSingleton<EvidencePendingTileFactory>();
+                services.AddSingleton<CompletedTileFactory>();
 
                 services.AddSingleton<LeaderboardMessage>();
 
