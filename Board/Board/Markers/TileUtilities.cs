@@ -26,8 +26,8 @@ internal static class TileUtilities
 
     public static Rectangle GetTileRect(this int tileIndex)
     {
-        int x = BoardBorderPixelWidth + (BoardImages.TileSize.Width + TileBorderPixelWidth) * (tileIndex % TilesPerRow);
-        int y = BoardBorderPixelHeight + (BoardImages.TileSize.Height + TileBorderPixelHeight) * (tileIndex / TilesPerColumn);
+        int x = BoardBorderPixelWidth + (BoardImages.TileSize.Width + TileGapX) * (tileIndex % TilesPerRow);
+        int y = BoardBorderPixelHeight + (BoardImages.TileSize.Height + TileGapY) * (tileIndex / TilesPerColumn);
         return new(x, y, BoardImages.TileSize.Width, BoardImages.TileSize.Height);
     }
 

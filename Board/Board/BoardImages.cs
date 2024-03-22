@@ -45,7 +45,7 @@ internal static class BoardImages
 
         emptyTile = TileBackground;
         TileUtilities.PlaceAtCentre(emptyTile, TileBorder);
-
+        emptyTile.SaveAsPng(Paths.ResourcesFolder + "/Board images/aaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png");
         TileBackgroundSize = tileBackground.Size;
         TileSize = emptyTile.Size;
 

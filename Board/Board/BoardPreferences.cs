@@ -12,24 +12,24 @@ internal static class BoardPreferences
     #region tile & borders
 
     /// <summary>
-    /// Gets the width of the border between tiles.
+    /// Gets the pixels between tiles in t he x direction.
     /// </summary>
-    public static int TileBorderPixelWidth => 8;
+    public static int TileGapX => 8;
 
     /// <summary>
-    /// Gets the height of the border between tiles.
+    /// Gets the pixels between tiles in t he x direction.
     /// </summary>
-    public static int TileBorderPixelHeight => 8;
+    public static int TileGapY => 8;
 
     /// <summary>
     /// Gets the width of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelWidth => 0;
+    public static int BoardBorderPixelWidth => 5;
 
     /// <summary>
     /// Gets the height of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelHeight => 0;
+    public static int BoardBorderPixelHeight => 5;
 
     #endregion
 
