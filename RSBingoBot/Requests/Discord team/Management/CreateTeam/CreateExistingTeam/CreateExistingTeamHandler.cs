@@ -7,8 +7,6 @@ namespace RSBingoBot.Requests;
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
 using FluentResults;
-using Imaging.Board;
-using RSBingo_Framework.Models;
 using RSBingoBot.Discord;
 
 internal class CreateExistingTeamHandler : RequestHandler<CreateExistingTeamRequest, DiscordTeam>
@@ -19,9 +17,9 @@ internal class CreateExistingTeamHandler : RequestHandler<CreateExistingTeamRequ
 
         DiscordTeam discordTeam = new(request.Team);
 
-        discordTeam.Board.UpdateTiles(request.Team, GetTilesForBoard(request));
-
         Result result = await teamServices.SetExistingEntities(discordTeam);
+
+        await teamServices.UpdateBoardImage(discordTeam, request.Team, GetTilesForBoard(request));
 
         return discordTeam;
     }

@@ -19,6 +19,7 @@ public interface IDiscordTeamServices : IRequestService
     public Task<Result> SetExistingEntities(DiscordTeam discordTeam);
     public Task<Result<DiscordRole>> CreateTeamRole(DiscordTeam discordTeam);
     public Task<Result<Message>> CreateBoardMessage(DiscordTeam discordTeam, Team team);
+    public Task<Result> UpdateBoardImage(DiscordTeam discordTeam, Team team, IEnumerable<int> boardIndexes);
     public Task<Result> UpdateBoardMessageButtons(Message message);
     public Task<Result> AddBoardToMessage(DiscordTeam discordTeam, Message message);
     public Task<Result> AddUserToTeam(DiscordUser discordUser, DiscordTeam discordTeam, IDataWorker dataWorker);

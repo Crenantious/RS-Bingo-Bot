@@ -6,7 +6,6 @@ namespace RSBingoBot.Requests;
 
 using DiscordLibrary.DiscordServices;
 using DiscordLibrary.Requests;
-using Imaging.Board;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
 using RSBingoBot.Discord;
@@ -31,7 +30,6 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         UpdateSelectComponents(request);
         UpdateBoardImage(request, discordTeam);
 
-        await messageServices.Update(discordTeam.BoardMessage!);
         await messageServices.Update(request.ChangeTilesTileSelect.SelectComponent.Message!);
     }
 
@@ -81,9 +79,9 @@ internal class ChangeTilesSubmitButtonHandler : ButtonHandler<ChangeTilesSubmitB
         request.ChangeTilesTaskSelect.Update(updatedTasks);
     }
 
-    private void UpdateBoardImage(ChangeTilesSubmitButtonRequest request, DiscordTeam discordTeam)
+    private async void UpdateBoardImage(ChangeTilesSubmitButtonRequest request, DiscordTeam discordTeam)
     {
-        discordTeam.Board.UpdateTiles(request.Team, updatedBoardIndexes);
-        request.BoardMessageFile.SetContent(discordTeam.Board.Image, discordTeam.Board.FileExtension);
+        var teamServices = GetRequestService<IDiscordTeamServices>();
+        await teamServices.UpdateBoardImage(discordTeam, request.Team, updatedBoardIndexes);
     }
 }
