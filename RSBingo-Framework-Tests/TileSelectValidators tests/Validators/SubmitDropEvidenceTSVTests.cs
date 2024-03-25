@@ -10,7 +10,7 @@ using Moq;
 using RSBingo_Common;
 using RSBingo_Framework.DataParsers;
 using RSBingo_Framework.Models;
-using RSBingoBot.Requests;
+using RSBingo_Framework.TileValidators;
 
 [TestClass]
 public class SubmitDropEvidenceTSVTests : TSVTestBase

@@ -10,6 +10,7 @@ using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
 using RSBingo_Framework.Records;
+using RSBingo_Framework.TileValidators;
 using RSBingoBot.Requests.Validation;
 
 internal class SubmitEvidenceSubmitButtonValidator : BingoValidator<SubmitEvidenceSubmitButtonRequest>

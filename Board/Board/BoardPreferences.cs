@@ -5,7 +5,6 @@
 namespace Imaging.Board;
 
 using SixLabors.Fonts;
-using static RSBingo_Common.General;
 using static RSBingo_Common.Paths;
 
 internal static class BoardPreferences
@@ -13,34 +12,24 @@ internal static class BoardPreferences
     #region tile & borders
 
     /// <summary>
-    /// Gets the width of each tile in pixels.
+    /// Gets the pixels between tiles in t he x direction.
     /// </summary>
-    public static int TilePixelWidth => 134;
+    public static int TileGapX => 8;
 
     /// <summary>
-    /// Gets the height of each tile in pixels.
+    /// Gets the pixels between tiles in t he x direction.
     /// </summary>
-    public static int TilePixelHeight => 134;
-
-    /// <summary>
-    /// Gets the width of the border between tiles.
-    /// </summary>
-    public static int TileBorderPixelWidth => 14;
-
-    /// <summary>
-    /// Gets the height of the border between tiles.
-    /// </summary>
-    public static int TileBorderPixelHeight => 14;
+    public static int TileGapY => 8;
 
     /// <summary>
     /// Gets the width of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelWidth => 8;
+    public static int BoardBorderPixelWidth => 5;
 
     /// <summary>
     /// Gets the height of the border surrounding the board.
     /// </summary>
-    public static int BoardBorderPixelHeight => 8;
+    public static int BoardBorderPixelHeight => 5;
 
     #endregion
 
@@ -101,20 +90,6 @@ internal static class BoardPreferences
     /// Gets the amount of pixels to pad text inside a tile in the y direction (additive with <see cref="TextTopOffsetPixels"/>).
     /// </summary>
     public const int TextYPaddingPixels = 3;
-
-    #endregion
-
-    #region completion marker
-
-    /// <summary>
-    /// Gets the amount of pixels to pad the completion marker image inside a tile, in the x direction, on both sides.
-    /// </summary>
-    public const int MarkerXPaddingPixels = 20;
-
-    /// <summary>
-    /// Gets the amount of pixels to pad the completion marker image inside a tile, in the y direction, on both sides.
-    /// </summary>
-    public const int MarkerYPaddingPixels = 20;
 
     #endregion
 }

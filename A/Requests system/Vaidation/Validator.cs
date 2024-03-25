@@ -94,11 +94,12 @@ public class Validator<TRequest> : AbstractValidator<TRequest>
             .WithMessage(RoleDoesNotExist);
     }
 
-    protected void DiscordMessageExists(Func<TRequest, Message> func)
+    protected void DiscordMessageExists(Func<TRequest, Message?> func)
     {
-        RuleFor(r => func(r).DiscordMessage)
-            .NotNull()
-            .WithMessage(DiscordMessageDoesNotExist);
+        When(r => func(r) is not null, () =>
+            RuleFor(r => func(r)!.DiscordMessage)
+                .NotNull()
+                .WithMessage(DiscordMessageDoesNotExist));
     }
 
     protected void EmojiMatches(Func<TRequest, (DiscordEmoji, DiscordEmoji)> func)

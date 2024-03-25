@@ -35,6 +35,9 @@ public class DiscordTeamServices : RequestService, IDiscordTeamServices
     public async Task<Result<Message>> CreateBoardMessage(DiscordTeam discordTeam, Team team) =>
         await RunRequest<CreateTeamBoardMessageRequest, Message>(new CreateTeamBoardMessageRequest(discordTeam, team));
 
+    public async Task<Result> UpdateBoardImage(DiscordTeam discordTeam, Team team, IEnumerable<int> boardIndexes) =>
+        await RunRequest(new UpdateTeamBoardMessageImageRequest(discordTeam, team, boardIndexes));
+
     public async Task<Result> UpdateBoardMessageButtons(Message message) =>
         await RunRequest(new UpdateTeamBoardMessageButtonsRequest(message));
 

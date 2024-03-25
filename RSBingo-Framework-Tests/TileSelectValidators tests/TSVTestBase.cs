@@ -7,7 +7,7 @@ namespace RSBingo_Framework_Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
-using RSBingoBot.Requests;
+using RSBingo_Framework.TileValidators;
 using static RSBingo_Framework.Records.BingoTaskRecord;
 using static RSBingo_Framework.Records.EvidenceRecord;
 

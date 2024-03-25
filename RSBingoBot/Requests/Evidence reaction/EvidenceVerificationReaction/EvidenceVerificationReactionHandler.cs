@@ -4,25 +4,16 @@
 
 namespace RSBingoBot.Requests;
 
+using DSharpPlus.Entities;
 using RSBingo_Framework.DAL;
-using RSBingo_Framework.Records;
+using RSBingo_Framework.Models;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
 internal class EvidenceVerificationReactionHandler : EvidenceReactionHandler<EvidenceVerificationReactionRequest>
 {
-    protected override async Task Process(EvidenceVerificationReactionRequest request, CancellationToken cancellationToken)
-    {
-        await base.Process(request, cancellationToken);
+    protected override DiscordChannel ChannelToMoveEvidenceTo { get; set; } = DataFactory.VerifiedEvidenceChannel;
+    protected override EvidenceStatus NewEvidenceStatus { get; set; } = EvidenceStatus.Accepted;
 
-        if (Evidence is null || Evidence.IsAccepted())
-        {
-            // This isn't done in the validator to avoid searching the db multiple times.
-            // We don't add an error here as we're just ignoring the case.
-            return;
-        }
-
-        await MoveEvidenceMessage(Evidence, DataFactory.VerifiedEvidenceChannel, EvidenceStatus.Accepted);
-        UpdateScore();
-        AddSuccess(new EvidenceVerificationReactionSuccess());
-    }
+    protected override bool ValidateEvidence(Evidence evidence) =>
+        evidence.HasStatus(EvidenceStatus.PendingReview);
 }

@@ -9,6 +9,7 @@ using DiscordLibrary.Factories;
 using DSharpPlus.Entities;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
+using RSBingo_Framework.TileValidators;
 using static RSBingo_Framework.Records.EvidenceRecord;
 
 internal class SubmitEvidenceTileSelect

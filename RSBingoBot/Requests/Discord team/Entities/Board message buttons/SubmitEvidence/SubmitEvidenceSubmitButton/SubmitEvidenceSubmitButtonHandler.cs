@@ -32,6 +32,8 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
     {
         messageServices = GetRequestService<IDiscordMessageServices>();
         var databaseServices = GetRequestService<IDatabaseServices>();
+        var teamServices = GetRequestService<IDiscordTeamServices>();
+
         HashSet<int> tileIds = request.DTO.Tiles.Select(t => t.RowId).ToHashSet();
 
         IEnumerable<Tile> tiles = dataWorker.Tiles.Where(t => tileIds.Contains(t.RowId));
@@ -42,7 +44,6 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
             await UpdateEvidence(request, tile);
         }
 
-        // TODO: JR - update the board.
 
         Result result = await databaseServices.SaveChanges(dataWorker);
         if (result.IsFailed)
@@ -50,6 +51,7 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
             AddErrors(result.Errors);
         }
 
+        await UpdateBoard(request, teamServices, tiles);
         request.TileSelect.Update(tiles);
         await messageServices.Update(request.DTO.Message);
     }
@@ -114,4 +116,14 @@ internal class SubmitEvidenceSubmitButtonHandler : ButtonHandler<SubmitEvidenceS
             request.GetDiscordInteraction().User.Mention,
             request.EvidenceType,
             tile.Task.Name);
+
+    private static async Task UpdateBoard(SubmitEvidenceSubmitButtonRequest request, IDiscordTeamServices teamServices, IEnumerable<Tile> tiles)
+    {
+        IEnumerable<int> boardIndexes = tiles.Select(t => t.BoardIndex);
+        if (boardIndexes.Any())
+        {
+            Team team = tiles.First().Team;
+            await teamServices.UpdateBoardImage(request.DiscordTeam, team, boardIndexes);
+        }
+    }
 }

@@ -4,6 +4,7 @@
 
 namespace Imaging.Board;
 
+using RSBingo_Common;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.Interfaces;
 using RSBingo_Framework.Models;
@@ -13,29 +14,54 @@ using SixLabors.ImageSharp.Processing;
 using static Imaging.Board.BoardPreferences;
 using static RSBingo_Common.Paths;
 
-public class BoardImages
+internal static class BoardImages
 {
-    public Image EmptyBoard;
-    public Image TileCompleteMarker;
-    public Image EvidencePendingMarker;
+    private static Image emptyBoard;
+    private static Image emptyTile;
+    private static Image tileBackground;
+    private static Image tileBorder;
+    private static Image tileCompleteMarker;
+    private static Image evidencePendingMarker;
 
-    public BoardImages()
+    public static Image EmptyBoard => emptyBoard.Clone(i => { });
+    public static Image EmptyTile => emptyTile.Clone(i => { });
+    public static Image TileBackground => tileBackground.Clone(i => { });
+    public static Image TileBorder => tileBorder.Clone(i => { });
+    public static Image TileCompleteMarker => tileCompleteMarker.Clone(i => { });
+    public static Image EvidencePendingMarker => evidencePendingMarker.Clone(i => { });
+
+    public static Size TileBackgroundSize { get; }
+    public static Size TileSize { get; }
+
+    static BoardImages()
     {
         IDataWorker dataWorker = DataFactory.CreateDataWorker();
-        EmptyBoard = Image.Load(BoardBackgroundPath);
-        TileCompleteMarker = GetResizedMarker(TileCompletedMarkerPath);
-        EvidencePendingMarker = GetResizedMarker(EvidencePendingMarkerPath);
+
+        emptyBoard = Image.Load(Paths.EmptyBoard);
+        tileBackground = Image.Load(Paths.TileBackground);
+        tileBorder = Image.Load(Paths.TileBorder);
+        tileCompleteMarker = Image.Load(Paths.TileCompleteMarker);
+        evidencePendingMarker = Image.Load(Paths.EvidencePendingMarker);
+
+        emptyTile = TileBackground;
+        TileUtilities.PlaceAtCentre(emptyTile, TileBorder);
+
+        TileBackgroundSize = tileBackground.Size;
+        TileSize = emptyTile.Size;
 
         ResizeTaskImages(dataWorker);
     }
 
-    private static Image GetResizedMarker(string path)
+    private static void ResizeTaskImages(IDataWorker dataWorker)
     {
-        Image marker = Image<Rgba32>.Load(path);
-        int width = TilePixelWidth - MarkerXPaddingPixels * 2;
-        int height = TilePixelHeight - MarkerYPaddingPixels * 2;
-        ResizeImageForTile(marker, width, height);
-        return marker;
+        foreach (BingoTask task in dataWorker.BingoTasks.GetAll())
+        {
+            Image taskImage = Image<Rgba32>.Load(GetTaskImagePath(task.Name));
+            int width = TileBackgroundSize.Width - (TaskXPaddingPixels + (int)MathF.Abs(TaskXOffsetPixels)) * 2;
+            int height = TileBackgroundSize.Height - (TaskYPaddingPixels + (int)MathF.Abs(TaskYOffsetPixels)) * 2;
+            ResizeImageForTile(taskImage, width, height);
+            taskImage.Save(GetTaskImagesResizedPath(task.Name));
+        }
     }
 
     private static void ResizeImageForTile(Image taskImage, int width, int height)
@@ -46,17 +72,5 @@ public class BoardImages
             Mode = ResizeMode.Max
         };
         taskImage.Mutate(i => i.Resize(resizeOptions));
-    }
-
-    private static void ResizeTaskImages(IDataWorker dataWorker)
-    {
-        foreach (BingoTask task in dataWorker.BingoTasks.GetAll())
-        {
-            Image taskImage = Image<Rgba32>.Load(GetTaskImagePath(task.Name));
-            int width = TilePixelWidth - (TaskXPaddingPixels + (int)MathF.Abs(TaskXOffsetPixels)) * 2;
-            int height = TilePixelHeight - (TaskYPaddingPixels + (int)MathF.Abs(TaskYOffsetPixels)) * 2;
-            ResizeImageForTile(taskImage, width, height);
-            taskImage.Save(GetTaskImagesResizedPath(task.Name));
-        }
     }
 }

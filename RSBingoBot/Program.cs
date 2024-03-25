@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using RSBingo_Framework;
 using RSBingo_Framework.DAL;
 using RSBingo_Framework.DataParsers;
+using RSBingo_Framework.TileValidators;
 using RSBingoBot.Commands;
 using RSBingoBot.Discord;
 using RSBingoBot.DiscordComponents;
@@ -141,8 +142,12 @@ public class Program
                 services.AddSingleton<SingletonButtons>();
                 services.AddSingleton<DiscordTeamBoardButtons>();
 
-                services.AddSingleton<BoardImages>();
                 services.AddSingleton<BoardFactory>();
+                services.AddSingleton<TileFactory>();
+                services.AddSingleton<NoTaskTileFactory>();
+                services.AddSingleton<PlainTaskTileFactory>();
+                services.AddSingleton<EvidencePendingTileFactory>();
+                services.AddSingleton<CompletedTileFactory>();
 
                 services.AddSingleton<LeaderboardMessage>();
 
